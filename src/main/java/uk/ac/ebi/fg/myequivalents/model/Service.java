@@ -5,6 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
@@ -17,16 +22,21 @@ import org.hibernate.validator.constraints.NotBlank;
 		@Index ( name = "service_t", columnNames = "title" )
 	}
 )
+@XmlRootElement ( name = "service" )
+@XmlAccessorType ( XmlAccessType.NONE )
 public class Service extends Describeable
 {
 	@NotBlank
 	@Column ( name = "entity_type" )
 	@Index( name = "service_et" )
+	@XmlAttribute ( name = "entity-type" )
 	private String entityType;
 
 	@Index( name = "service_up" )
+	@XmlAttribute ( name = "uri-prefix" )
 	private String uriPrefix;
 	
+	@XmlAttribute ( name = "uri-pattern" )
 	private String uriPattern;
 	
 	@ManyToOne
@@ -111,4 +121,47 @@ public class Service extends Describeable
 		this.serviceCollection = serviceCollection;
 	}
 
+	@Transient
+	@XmlAttribute ( name = "repository-name" )
+	public String getRepositoryName () {
+		return getRepository () == null ? null : this.repository.getName (); 
+	}
+
+  /**
+   * TODO: comment me (special method for JAXB)!
+   */
+	protected void setRepositoryName ( String repositoryName ) 
+	{
+		throw new UnsupportedOperationException ( 
+			"Internal error: you cannot call Service.setRepositoryName(), this is here just to make JAXB annotations working. " +
+			"You need to override this setter, if you have a reasonable semantics for it" );
+	}
+	
+	@Transient
+	@XmlAttribute ( name = "service-collection-name" )
+	public String getServiceCollectionName () {
+		return getServiceCollection () == null ? null : this.serviceCollection.getName ();  
+	}
+
+  /**
+   * TODO: comment me (special method for JAXB)!
+   */
+	protected void setServiceCollectionName ( String serviceCollectionName ) 
+	{
+		throw new UnsupportedOperationException ( 
+			"Internal error: you cannot call Service.setServiceCollectionName(), this is here just to make JAXB annotations working. " +
+			"You need to override this setter, if you have a reasonable semantics for it" );
+	}
+
+	@Override
+	public String toString ()
+	{
+		return String.format ( 
+			"Service { name: '%s', title: '%s', entity-type: '%s', uri-pattern: '%s', uri-prefix: '%s', " +
+			"description: '%.15s', service-collection: '%s', repository: '%s' }", 
+			this.getName (), this.getTitle (), this.getEntityType (), this.getUriPattern (),
+			this.getUriPrefix (), this.getDescription (), this.getServiceCollectionName (), this.getRepositoryName () );
+	}
+	
+	
 }

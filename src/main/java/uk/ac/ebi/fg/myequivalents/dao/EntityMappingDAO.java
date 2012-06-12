@@ -18,9 +18,12 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.hibernate.jdbc.Work;
 
+import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
+
 /**
  * 
- * TODO: Comment me!
+ * The DAO for {@link EntityMapping}. This manages basic operations and, as any other DAOs, delegates transaction
+ * managements to the outside. 
  *
  * <dl><dt>date</dt><dd>May 25, 2012</dd></dl>
  * @author brandizi
@@ -44,7 +47,13 @@ public class EntityMappingDAO
 		}
 	}
 
-	
+	/**
+	 * Stores a mapping between two entities, i.e., a link between service1/acc1 and service2/acc2. This call manages
+	 * automatically the transitivity and reflexivity of the mapping (i.e., equivalence) relationship, which means if
+	 * any of the two entities are already linked to other entities, the latter are automatically linked to the other
+	 * entity given to this call. It leaves the database unchanged if the mapping already exists. 
+	 * 
+	 */
 	public void storeMapping ( String serviceName1, String accession1, String serviceName2, String accession2 )
 	{
 		serviceName1 = StringUtils.trimToNull ( serviceName1 );
@@ -97,9 +106,16 @@ public class EntityMappingDAO
 		if ( bundle1.equals ( bundle2 ) ) return;
 		
 		// They exists, but belongs to different bundles, so we need to merge them
-		this.merge ( bundle1, bundle2 );
+		this.mergeBundles ( bundle1, bundle2 );
 	}
 
+	/**
+	 * Assumes the array parameter contains quadruples of type: (serviceName1, accession1, serviceName2, accession2)
+	 * and creates a mapping (via {@link #storeMapping(String, String, String, String)}) for every quadruple.
+	 * 
+	 * Throws an exception if the input is not a multiple of 4.
+	 *  
+	 */
 	public void storeMappings ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return;
@@ -111,12 +127,21 @@ public class EntityMappingDAO
 			storeMapping ( entities [ i ], entities [ ++i ], entities [ ++i ], entities [ ++i ] );
 	}
 
-	
+	/**
+	 * Assumes the input contains pairs of type (serviceName, accession) and creates a mapping between all of them, i.e., 
+	 * all these entities are equivalent and linked one each other. This call also manages the reflexivity and transitivity
+	 * of the equivalence relationship, which means if any of the entities passed as parameter are already linked to 
+	 * some other entities, the latter becomes part of the same equivalence set too. It leaves the database unchanged if
+	 * this exact mapping set already exists.
+	 * 
+	 * This call throws an exception if the input is not a multiple of 2.
+	 *  
+	 */
 	public void storeMappingBundle ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return;
 		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for storeMappings, I expect a list of serviceName/accession pairs"
+		  "Wrong no. of arguments for storeMappingBundle, I expect a list of serviceName/accession pairs"
 		);
 
 		// Some further input validation
@@ -172,38 +197,50 @@ public class EntityMappingDAO
 				this.join ( entities [ i ], entities [ ++i ], bundle );
 	}
 	
-	
-	public int deleteEntity ( String serviceName, String accession )
+	/**
+	 * Deletes an entity from the database, i.e., it removes it from any equivalence/mapping relation it is involved in. 
+	 * @return true if the entity was in the DB and it was removed, false if that wasn't the case and the database was
+	 * left unchanged.
+	 */
+	public boolean deleteEntity ( String serviceName, String accession )
 	{
 		// Invalid values
-		serviceName = StringUtils.trimToNull ( serviceName ); if ( serviceName == null ) return 0;
-		accession = StringUtils.trimToNull ( accession ); if ( accession == null ) return 0;
+		serviceName = StringUtils.trimToNull ( serviceName ); if ( serviceName == null ) return false;
+		accession = StringUtils.trimToNull ( accession ); if ( accession == null ) return false;
 
 		return entityManager.createNativeQuery (
 			"DELETE FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'"
-		).executeUpdate ();
+		).executeUpdate () > 0;
 	}
 	
+	/**
+	 * Assumes the input is a set of pairs of type (serviceName, accession) and removes all the corresponding entities, 
+	 * via {@link #deleteEntity(String, String)}. It throws an exception if the input is not a multiple of 2.
+	 * 
+	 * @return the number of entities that were deleted, ie, the number of times {@link #deleteEntity(String, String)}
+	 * returned true. 
+	 * 
+	 */
 	public int deleteEntitites ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return 0;
 		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for storeMappings, I expect a list of serviceName/accession pairs"
+		  "Wrong no. of arguments for deleteEntitites, I expect a list of serviceName/accession pairs"
 		);
 
 		int ct = 0;
 		for ( int i = 0; i < entities.length; i++ )
-			ct += this.deleteEntity ( entities [ i ], entities [ ++i ] );
+			ct += this.deleteEntity ( entities [ i ], entities [ ++i ] ) ? 1 : 0;
 		
 		return ct;
 	}
-
 	
 	
 	
 	/**
-	 * Deletes all the mappings that involve the entity, ie, the equivalence class it belongs in. 
-	 * @return the number of deleted entities (including the two parameters). Returns 0 if this mapping doesn't exist.
+	 * Deletes all the mappings that involve the entity, i.e., the equivalence class it belongs in. 
+	 * @return the number of entities (including the parameter) that were in the same equivalence relationship and are
+	 * now deleted. Returns 0 if no such mapping exists.
 	 *  
 	 */
 	public int deleteMappings ( String serviceName, String accession )
@@ -216,23 +253,120 @@ public class EntityMappingDAO
 		return bundle == null ? 0 : this.deleteBundle ( bundle );
 	}
 
+	/**
+	 * Assumes the input is a set of pairs of type (serviceName, accession) and deletes all the relations it is involved
+	 * in, via {@link #deleteMappings(String, String)}.  
+	 *  
+	 * This call throws an exception if the input is not a multiple of 2.
+	 * 
+	 * @returns the total number of entities related to the parameters (including the latter) that are now deleted.
+	 * 
+	 */
 	public int deleteMappings ( String... entities )
 	{
-		// TODO: implement me!
-		return -1;
+		if ( entities == null || entities.length == 0 ) return 0;
+		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
+		  "Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
+		);
+
+		int ct = 0;
+		for ( int i = 0; i < entities.length; i++ )
+			ct += this.deleteMappings ( entities [ i ], entities [ ++i ] );
+		
+		return ct;
 	}
 	
 	
+	/**
+	 * Finds all the entities that are related to the parameter.
+	 * 
+	 * @return a possibly empty list of (serviceName, accession) pair. It <b>does include the parameter in the result</b>.
+	 * It returns an empty list if either parameter is empty. It never returns null.
+	 * 
+	 */
+	public List<String> findMappings ( String serviceName, String accession )
+	{
+		serviceName = StringUtils.trimToNull ( serviceName );
+		accession = StringUtils.trimToNull ( accession );
+		final List<String> result = new ArrayList<String> ();
+		if ( serviceName == null || accession == null ) return result; 
+		
+		final String sql = 
+			"SELECT em1.service_name AS service_name, em1.accession AS accession FROM entity_mapping em1, entity_mapping em2\n" +
+			"  WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'";
+		
+		((HibernateEntityManager)entityManager).getSession ().doWork ( new Work() {
+			@Override
+			public void execute ( Connection conn ) throws SQLException {
+				Statement stmt = conn.createStatement ();
+				for ( ResultSet rs = stmt.executeQuery ( sql ); rs.next (); )
+				{
+					String serviceNamei = rs.getString ( "service_name" ), accessioni = rs.getString ( "accession" );
+					result.add ( serviceNamei ); 
+					result.add ( accessioni ); 
+				}
+			}} 
+		);
+		
+		return result;
+	}
+	
+	/**
+	 * The same as {@link #findMappings(String, String)}, but returns a list of {@link EntityMapping}s from which 
+	 * services can be fetched. Whether you need this or the version that returns strings, it depends on the type of
+	 * result needed, e.g., for raw results only the string-result version is faster, for complete results, this version
+	 * is faster and more practical.
+	 * 
+	 */
+	@SuppressWarnings ( "unchecked" )
+	public List<EntityMapping> findEntityMappings ( String serviceName, String accession )
+	{
+		serviceName = StringUtils.trimToNull ( serviceName );
+		accession = StringUtils.trimToNull ( accession );
+		final List<EntityMapping> result = new ArrayList<EntityMapping> ();
+		if ( serviceName == null || accession == null ) return result; 
+
+		String hql = 
+			"SELECT em FROM EntityMapping em, EntityMapping em1 " +
+			"WHERE em.bundle = em1.bundle " +
+			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "' ";
+		
+		Query q = entityManager.createQuery ( hql );
+		return q.getResultList ();
+	}
+		
+	
+	/**
+	 * Creates a new {@link EntityMapping}, assigning a new bundle. This is a wrapper of {@link #create(String, String, String)}, 
+	 * with bundle = null.
+	 * 
+	 * @return the new bundle ID.
+	 *  
+	 */
 	private String create ( String serviceName, String accession )
 	{
 		return create ( serviceName, accession, null );
 	}
 
+	/**
+	 * Joins an entity to an existing bundle, i.e., creates a new {@link EntityMapping} with the parameters. This is 
+	 * a wrapper to {@link #create(String, String, String)} with an exception in the case that bundle != null. 
+	 *  
+	 */
 	private String join ( String serviceName, String accession, String bundle )
 	{
+		if ( bundle == null ) throw new RuntimeException (
+			"Cannot work with an empty bundle ID"
+		);
 		return create ( serviceName, accession, bundle );
 	}
 	
+	/**
+	 * Creates a new {@link EntityMapping}, by first creating a new bundle (via {@link #createNewBundleId(String, String)}) 
+	 * if the corresponding parameter is null.
+	 * 
+	 * @return the newly created bundle or the bundle parameter if this is not null. 
+	 */
 	private String create ( String serviceName, String accession, String bundle )
 	{
 		if ( bundle == null )
@@ -250,8 +384,19 @@ public class EntityMappingDAO
 		return bundle;
 	}
 		
-	
-	private String merge ( String bundle1, String bundle2 )
+	/**
+	 * Merges two bundles, i.e., takes all the {@link EntityMapping} having one of the two bundle IDs and replace their
+	 * bundle ID with the value of the other parameter. Due to optimisation needs, the method selects which bundle to
+	 * change randomly (so you cannot know which one is preserved after the operation). 
+	 * 
+	 * @returns the new unique bundle that there is now in the DB (i.e., either bundle1 or bundle2, the other bundle
+	 * doesn't exist anymore and was merged with the one that is returned).
+	 * 
+	 * This low-level operation is used to store possibly new mappings. It is essentially a random swap of the 
+	 * parameters, followed by {@link #moveBundle(String, String)}.
+	 *  
+	 */
+	private String mergeBundles ( String bundle1, String bundle2 )
 	{
 		bundle1 = StringUtils.trimToNull ( bundle1 );
 		bundle2 = StringUtils.trimToNull ( bundle2 );
@@ -270,7 +415,11 @@ public class EntityMappingDAO
 		return bundle2;
 	}
 
-	
+	/**
+	 * Moves srcBundle to destBundle, i.e., replaces all the {@link EntityMapping}(s) in srcBundle with destBundle.
+	 * This low-level operation is used to store possibly new mappings.
+	 * 
+	 */
 	private void moveBundle ( String srcBundle, String destBundle )
 	{
 		srcBundle = StringUtils.trimToNull ( srcBundle );
@@ -282,38 +431,11 @@ public class EntityMappingDAO
 		// TODO: check > 0
 		q.executeUpdate ();
 	}
-
 	
-	public List<String> findMappings ( String serviceName, String accession )
-	{
-		serviceName = StringUtils.trimToNull ( serviceName );
-		accession = StringUtils.trimToNull ( accession );
-		final List<String> result = new ArrayList<String> ();
-		if ( serviceName == null || accession == null ) return result; 
-		
-		final String sql = 
-			"SELECT em1.service_name AS service_name, em1.accession AS accession FROM entity_mapping em1, entity_mapping em2\n" +
-			"  WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'";
-		
-		final String serviceName1 = serviceName, accession1 = accession; // Because anonymous methods want constants.
-		((HibernateEntityManager)entityManager).getSession ().doWork ( new Work() {
-			@Override
-			public void execute ( Connection conn ) throws SQLException {
-				Statement stmt = conn.createStatement ();
-				for ( ResultSet rs = stmt.executeQuery ( sql ); rs.next (); )
-				{
-					String serviceNamei = rs.getString ( "service_name" ), accessioni = rs.getString ( "accession" );
-					if ( serviceName1.equals ( serviceNamei ) && accession1.equals ( accessioni ) ) continue;
-					result.add ( serviceNamei ); 
-					result.add ( accessioni ); 
-				}
-			}} 
-		);
-		
-		return result;
-	}
-	
-	
+	/**
+	 * @return the ID of the bundle that the parameter belongs to. null if there is no such bundle.
+	 *  
+	 */
 	private String findBundle ( String serviceName, String accession )
 	{
 		Query q = entityManager.createNativeQuery ( 
@@ -333,18 +455,32 @@ public class EntityMappingDAO
 		return q.getResultList ().size () > 0;
 	}*/
 
-	private int deleteBundle ( String bundleId )
+	/**
+	 * Deletes a bundle by ID, i.e., removes all the {@link EntityMapping} that have the parameter as bundle ID.  
+	 * 
+	 */
+	private int deleteBundle ( String bundle )
 	{
 		return entityManager.createNativeQuery ( 
-			"DELETE FROM entity_mapping WHERE bundle = '" + bundleId + "'" ).executeUpdate ();
+			"DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
 	}
 	
-	
+	/**
+	 * Creates a new bundle ID to create a new bundle with the parameter. This is supposed to be used when a new bundle 
+	 * is being inserted in the DB, i.e., because the parameter entity is not in any other stored bundle yet. 
+	 * 
+	 * You should assume the method returns an opaque string which of value depends 1-1 from the parameter. 
+	 * 
+	 * At the moment it generates a SHA1 digest from serviceName + accession and then encodes it in BASE64. This generates
+	 * some overhead (20 bytes for SHA1, instead 8 bytes for a traditional auto-incremented long key, actually 27 bytes
+	 * for BASE64 without any padding, instead of the 20  for SHA1), but it's very fast.
+	 *  
+	 */
 	private String createNewBundleId ( String serviceName, String accession )
 	{
 		// With 20 bytes as input, the last character is always a padding '=', so we don't need it in this context  
 		return 
 			Base64.encodeBase64String ( messageDigest.digest ( ( serviceName + accession ).getBytes () ) ).substring (0, 26);
 	}
-	
+
 }

@@ -3,16 +3,26 @@ package uk.ac.ebi.fg.myequivalents.model;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
 
+@XmlRootElement
 @MappedSuperclass
+@XmlAccessorType ( XmlAccessType.NONE )
 public abstract class Describeable
 {
 	@Id
 	@Column( length = 100 )
+	@XmlAttribute
 	private String name;
+	@XmlAttribute
 	private String title;
+	@XmlElement
 	private String description;
 	
 	protected Describeable () {
@@ -69,4 +79,18 @@ public abstract class Describeable
 		this.description = description;
 	}
 	
+	public boolean equals ( Object o)
+	{
+		if ( this == o ) return true;
+		if ( !(o instanceof Describeable ) ) return false;
+
+		Describeable that = (Describeable) this;
+		return this.getName ().equals ( that.getName () );
+ 		
+	}
+	
+	public int hashCode ()
+	{
+		return this.getName ().hashCode ();
+	}
 }

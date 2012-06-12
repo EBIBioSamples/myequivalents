@@ -3,7 +3,6 @@ package uk.ac.ebi.fg.myequivalents.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;

@@ -1,23 +1,25 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
 
-@Entity
+@javax.persistence.Entity
+@IdClass ( value = Entity.class )
 @Table( name = "entity_mapping" )
 public class EntityMapping
 {
-	/**
-	 * All this indirection crap is needed to make Hibernate understand there is a composite primary key
-	 */
 	@Id
-	private EntityId pk;
-
+	private Service service;
+	
+	@Id
+	private String accession;
+	
 	@Index ( name = "entity_mapping_b" )
 	@Column ( columnDefinition = "char(27)", nullable = false, unique = false )
 	private String bundle;
@@ -30,28 +32,29 @@ public class EntityMapping
 	public EntityMapping ( Service service, String accession, String bundle )
 	{
 		super ();
-		pk = new EntityId ( service, accession );
+		this.service = service;
+		this.accession = accession;
 		this.bundle = bundle;
 	}
 
 	public Service getService ()
 	{
-		return pk.getService ();
+		return service;
 	}
 
 	protected void setService ( Service service )
 	{
-		pk.setService ( service );
+		this.service = service;
 	}
 
 	public String getAccession ()
 	{
-		return pk.getAccession ();
+		return this.accession;
 	}
 
 	protected void setAccession ( String accession )
 	{
-		pk.setAccession ( accession );
+		this.accession = accession;
 	}
 
 	
@@ -65,4 +68,41 @@ public class EntityMapping
 		this.bundle = bundle;
 	}
 
+	@Transient
+	public Entity getEntity ()
+	{
+		return new Entity ( this.getService (), this.getAccession () );
+	}
+
+	@Override
+	public boolean equals ( Object o )
+	{
+		if ( this == o ) return true;
+		if ( !( o instanceof EntityMapping ) ) return false;
+		EntityMapping that = (EntityMapping) o;
+		
+		return 
+			this.getBundle ().equals ( that.getBundle () ) 
+			&& this.getService ().getName ().equals ( that.getService ().getName () )
+			&& this.getAccession ().equals ( that.getAccession () );
+	}
+
+	@Override
+	public int hashCode ()
+	{
+		return 
+			31^2 * this.getBundle ().hashCode () 
+			+ 31 * this.getService ().getName ().hashCode () 
+			+ this.getAccession ().hashCode ();
+	}
+
+	@Override
+	public String toString ()
+	{
+		return String.format ( 
+			"EntityMapping { service.name: '%s', accession: '%s', bundle: '%s' }", 
+			this.getService ().getName (), this.getAccession (), this.getBundle () 
+		);
+	}
+	
 }
