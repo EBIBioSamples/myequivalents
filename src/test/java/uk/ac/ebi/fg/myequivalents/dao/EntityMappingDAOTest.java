@@ -1,29 +1,29 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrFactoryProvider;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrProvider;
 
-import static junit.framework.Assert.*;
-
 public class EntityMappingDAOTest
-{
-	@ClassRule
-	public static TestEntityMgrFactoryProvider emfProvider = new TestEntityMgrFactoryProvider ();
-	
+{	
 	@Rule
-	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( emfProvider.getEntityManagerFactory () );
+	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( 
+		Resources.getInstance ().getEntityManagerFactory () 
+	);
 
 	private EntityMappingDAO emDao;
 	private ServiceDAO serviceDao;
@@ -81,7 +81,7 @@ public class EntityMappingDAOTest
 		EntityTransaction ts = em.getTransaction ();
 
 		ts.begin ();
-		emDao.storeMapping ( service1.getName (), "acc1", service2.getName (), "acc2" );
+		  emDao.storeMapping ( service1.getName (), "acc1", service2.getName (), "acc2" );
 		ts.commit ();
 		
 		List<String> mappings = emDao.findMappings ( service1.getName (), "acc1" );
@@ -140,14 +140,14 @@ public class EntityMappingDAOTest
 		
 		ts.begin ();
 		assertEquals ( "Wrong deleteMappings() result!", 
-			0, emDao.deleteMappings ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
+			0, emDao.deleteMappingsForAllEntitites ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
 		ts.commit ();
 		
 		mappings = emDao.findMappings ( service3.getName (), "acc12" );
 		assertEquals ( "Result size is wrong (2+3+4+30), after null delete", 8, mappings.size () );
 
 		ts.begin ();
-		emDao.deleteMappings ( service2.getName (), "acc11", service3.getName (), "acc12", service4.getName (), "acc1" );
+		emDao.deleteMappingsForAllEntitites ( service2.getName (), "acc11", service3.getName (), "acc12", service4.getName (), "acc1" );
 		ts.commit ();
 		
 		mappings = emDao.findMappings ( service1.getName (), "acc30" );
@@ -162,28 +162,28 @@ public class EntityMappingDAOTest
 		EntityTransaction ts = em.getTransaction ();
 
 		ts.begin ();
-		emDao.storeMappingBundle ( service1.getName (), "acc10", service2.getName (), "acc11", service3.getName (), "acc12" );
+		  emDao.storeMappingBundle ( service1.getName (), "acc10", service2.getName (), "acc11", service3.getName (), "acc12" );
 		ts.commit ();
 		
 		List<EntityMapping> mappings = emDao.findEntityMappings ( service1.getName (), "acc10" );
 		assertEquals ( "Result size is wrong (1+2+3)!", 3, mappings.size () );
 
 		ts.begin ();
-		emDao.storeMappings ( service4.getName (), "acc1", service5.getName (), "acc1" );
+		  emDao.storeMappings ( service4.getName (), "acc1", service5.getName (), "acc1" );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service5.getName (), "acc1" );
 		assertEquals ( "Result size is wrong (4+5)", 2, mappings.size () );
 		
 		ts.begin ();
-		emDao.storeMapping ( service5.getName (), "acc1", service2.getName (), "acc11" );
+		  emDao.storeMapping ( service5.getName (), "acc1", service2.getName (), "acc11" );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service2.getName (), "acc11" );
 		assertEquals ( "Result size is wrong (1+2+3+4+5)", 5, mappings.size () );
 
 		ts.begin ();
-		emDao.storeMapping ( service1.getName (), "acc10", service1.getName (), "acc30" );
+		  emDao.storeMapping ( service1.getName (), "acc10", service1.getName (), "acc30" );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service3.getName (), "acc12" );
@@ -209,14 +209,14 @@ public class EntityMappingDAOTest
 		
 		ts.begin ();
 		assertEquals ( "Wrong deleteMappings() result!", 
-			0, emDao.deleteMappings ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
+			0, emDao.deleteMappingsForAllEntitites ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service3.getName (), "acc12" );
 		assertEquals ( "Result size is wrong (2+3+4+30), after null delete", 4, mappings.size () );
 		
 		ts.begin ();
-		emDao.deleteMappings ( service2.getName (), "acc11", service3.getName (), "acc12", service4.getName (), "acc1" );
+		emDao.deleteMappingsForAllEntitites ( service2.getName (), "acc11", service3.getName (), "acc12", service4.getName (), "acc1" );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service1.getName (), "acc30" );

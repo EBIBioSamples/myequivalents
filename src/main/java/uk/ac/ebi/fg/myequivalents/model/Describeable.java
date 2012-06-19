@@ -81,12 +81,12 @@ public abstract class Describeable
 	
 	public boolean equals ( Object o)
 	{
+		if ( o == null ) return false;
 		if ( this == o ) return true;
-		if ( !(o instanceof Describeable ) ) return false;
+		if ( this.getClass () != o.getClass () ) return false;
 
-		Describeable that = (Describeable) this;
+		Describeable that = (Describeable) o;
 		return this.getName ().equals ( that.getName () );
- 		
 	}
 	
 	public int hashCode ()

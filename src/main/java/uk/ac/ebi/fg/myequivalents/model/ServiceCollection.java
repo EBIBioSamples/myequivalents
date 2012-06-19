@@ -1,5 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -12,8 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 @Entity
 @Table( name = "service_collection" )
@@ -33,7 +32,7 @@ public class ServiceCollection extends Describeable
 	@XmlAttribute ( name = "entity-type" )
 	private String entityType;
 	
-	@ManyToOne
+	@ManyToOne( cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE } )
 	@JoinColumn( name = "entity_collection_name" )
 	@Index( name = "service_coll_ec" )
 	private EntityCollection entityCollection;

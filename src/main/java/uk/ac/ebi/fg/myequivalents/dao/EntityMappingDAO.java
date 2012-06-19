@@ -26,24 +26,27 @@ import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
  * managements to the outside. 
  *
  * <dl><dt>date</dt><dd>May 25, 2012</dd></dl>
- * @author brandizi
+ * @author Marco Brandizi
  *
  */
 public class EntityMappingDAO
 {
 	private EntityManager entityManager;
-	private final MessageDigest messageDigest;
+	private static MessageDigest messageDigest = null;
 	private final Random random = new Random ( System.currentTimeMillis () );
 	
 	public EntityMappingDAO ( EntityManager entityManager )
 	{
 		this.entityManager = entityManager;
 		
-		try {
-			messageDigest = MessageDigest.getInstance ( "SHA1" );
-		} 
-		catch ( NoSuchAlgorithmException ex ) {
-			throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
+		if ( messageDigest == null )
+		{
+			try {
+				messageDigest = MessageDigest.getInstance ( "SHA1" );
+			} 
+			catch ( NoSuchAlgorithmException ex ) {
+				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
+			}
 		}
 	}
 
@@ -254,7 +257,7 @@ public class EntityMappingDAO
 	}
 
 	/**
-	 * Assumes the input is a set of pairs of type (serviceName, accession) and deletes all the relations it is involved
+	 * Assumes the input is a list of pairs of type (serviceName, accession) and deletes all the relations it is involved
 	 * in, via {@link #deleteMappings(String, String)}.  
 	 *  
 	 * This call throws an exception if the input is not a multiple of 2.
@@ -262,7 +265,7 @@ public class EntityMappingDAO
 	 * @returns the total number of entities related to the parameters (including the latter) that are now deleted.
 	 * 
 	 */
-	public int deleteMappings ( String... entities )
+	public int deleteMappingsForAllEntitites ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return 0;
 		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (

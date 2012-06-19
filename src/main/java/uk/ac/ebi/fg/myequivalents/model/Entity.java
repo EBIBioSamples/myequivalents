@@ -20,7 +20,7 @@ import org.hibernate.validator.constraints.NotBlank;
  * TODO: Comment me!
  *
  * <dl><dt>date</dt><dd>May 25, 2012</dd></dl>
- * @author brandizi
+ * @author Marco Brandizi
  *
  */
 @Embeddable

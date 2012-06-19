@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.myequivalents.services;
+package uk.ac.ebi.fg.myequivalents.managers;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,31 +24,31 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
  * TODO: Comment me!
  * 
  * <dl><dt>date</dt><dd>Jun 11, 2012</dd></dl>
- * @author brandizi
+ * @author Marco Brandizi
  *
  */
 @XmlRootElement ( name = "mappings" )
 @XmlAccessorType ( XmlAccessType.NONE )
 @XmlType ( name = "", propOrder = { "services", "repositories", "serviceCollections", "bundles" } )
-public class EntityMappingsResult
+public class EntityMappingSearchResult
 {
-	@XmlRootElement ( name = "bundle" )
+	@XmlRootElement ( name = "entities" )
 	@XmlAccessorType ( XmlAccessType.FIELD )
-	public static class BundleSet
+	public static class Bundle
 	{
-		protected BundleSet () {
+		protected Bundle () {
 		}
 		
 		@XmlElement ( name = "entity" )
-		private Set<Entity> bundle = new HashSet<Entity> ();
+		private Set<Entity> entities = new HashSet<Entity> ();
 
 		private void addEntity ( Entity entity ) {
-			this.bundle.add ( entity );
+			this.entities.add ( entity );
 		}
 
-		public Set<Entity> getBundle ()
+		public Set<Entity> getEntities ()
 		{
-			return bundle;
+			return entities;
 		}
 	}
 	
@@ -58,15 +58,15 @@ public class EntityMappingsResult
 	private final Set<ServiceCollection> serviceCollections;
 	private final Set<Repository> repositories;
 
-	private final Map<String, BundleSet> bundles = new HashMap<String, BundleSet> ();
+	private final Map<String, Bundle> bundles = new HashMap<String, Bundle> ();
 	
 	
-	EntityMappingsResult ()
+	EntityMappingSearchResult ()
 	{
 		this ( true, true, true );
 	}
 
-	EntityMappingsResult ( boolean addServices, boolean addServiceCollections, boolean addRepositories )
+	EntityMappingSearchResult ( boolean addServices, boolean addServiceCollections, boolean addRepositories )
 	{
 		super ();
 		this.addServices = addServices;
@@ -100,19 +100,19 @@ public class EntityMappingsResult
 	}
 
 	@XmlElementWrapper ( name = "bundles" )
-	@XmlElement ( name = "bundle" )
-	public Collection<BundleSet> getBundles ()
+	@XmlElement ( name = "entities" )
+	public Collection<Bundle> getBundles ()
 	{
 		return bundles.values ();
 	}
- 
+	
 	
 	void addEntityMapping ( EntityMapping em ) 
 	{
 		String bundleId = em.getBundle ();
-		BundleSet bundle = bundles.get ( em.getBundle () );
+		Bundle bundle = bundles.get ( em.getBundle () );
 		if ( bundle == null ) {
-			bundles.put ( bundleId, bundle = new BundleSet () );
+			bundles.put ( bundleId, bundle = new Bundle () );
 		}
 		bundle.addEntity ( em.getEntity () );
 		Service service = em.getService ();
@@ -153,12 +153,11 @@ public class EntityMappingsResult
 			sb.append ( "    " ).append ( sc.toString () );
 		sb.append ( "  }\n" );
 
-		sb.append ( "  bundles: {\n" );
-		for ( BundleSet bundle: this.getBundles () )
+		for ( Bundle bundle: this.getBundles () )
 		{
 			sb.append ( "    {\n" );
-			for ( Entity entity: bundle.getBundle () )
-				sb.append ( "      " + entity.toString () );
+			for ( Entity entity: bundle.getEntities () )
+				sb.append ( "      " + entity.toString () + "\n" );
 			sb.append ( "    }\n" );
 		}
 		sb.append ( "  }\n" );

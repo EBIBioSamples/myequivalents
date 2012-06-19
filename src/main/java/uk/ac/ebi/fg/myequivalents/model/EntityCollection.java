@@ -7,6 +7,14 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
+/**
+ * 
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Jun 15, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 @Entity
 @Table( name = "entity_collection" )
 @org.hibernate.annotations.Table ( 

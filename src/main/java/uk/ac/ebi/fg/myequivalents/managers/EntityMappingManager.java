@@ -2,7 +2,7 @@
  * TODO: 
  *   Map as params to web service: http://stackoverflow.com/questions/4654423/how-to-have-a-hashmap-as-webparam-with-jbossws-3-1-2
  */
-package uk.ac.ebi.fg.myequivalents.services;
+package uk.ac.ebi.fg.myequivalents.managers;
 import java.io.StringWriter;
 
 import javax.persistence.EntityManager;
@@ -13,23 +13,32 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
  * TODO: Comment me!
  *
+ * <p/>Note that this class instantiates a new {@link EntityManager} in its constructor. This makes it an 
+ * entity-manager-per-request when the service is accessed via Apache Axis (cause it re-instantiates at every request).
+ * 
+ * You have to decide the lifetime of a EntityMappingManager instance in your application, we suggest to apply the
+ * manager-per-request approach.
+ * 
+ * <p/>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations, release. 
+ *
  * <dl><dt>date</dt><dd>Jun 7, 2012</dd></dl>
- * @author brandizi
+ * @author Marco Brandizi
  *
  */
-public class EntityMappingService
+public class EntityMappingManager
 {
 	private EntityManager entityManager;
 	private EntityMappingDAO entityMappingDAO;
 	
-	public EntityMappingService ( EntityManager em )
+	public EntityMappingManager ()
 	{
-		this.entityManager = em;
+		this.entityManager = Resources.getInstance ().getEntityManagerFactory ().createEntityManager ();
 		this.entityMappingDAO = new EntityMappingDAO ( entityManager );
 	}
 
@@ -56,10 +65,48 @@ public class EntityMappingService
 		ts.commit ();
 	}
 
-	public EntityMappingsResult getMappings ( 
+	public int deleteMappings ( String... entities )
+	{
+		if ( entities == null || entities.length == 0 ) return 0;
+		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
+		  "Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
+		);
+
+		int result = 0;
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+			if ( entities.length == 2 )
+				result = entityMappingDAO.deleteMappings ( entities [ 0 ], entities [ 1 ] );
+			else
+				result = entityMappingDAO.deleteMappingsForAllEntitites ( entities );
+		ts.commit ();
+		return result;
+	}
+	
+	public int deleteEntities ( String... entities )
+	{
+		if ( entities == null || entities.length == 0 ) return 0;
+		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
+		  "Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
+		);
+
+		int result = 0;
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+			if ( entities.length == 2 )
+				result = entityMappingDAO.deleteEntity ( entities [ 0 ], entities [ 1 ] ) ? 1 : 0;
+			else
+				result = entityMappingDAO.deleteEntitites ( entities );
+		ts.commit ();
+		return result;
+	}
+	
+	
+	
+	public EntityMappingSearchResult getMappings ( 
 		boolean addServices, boolean addServiceCollections, boolean addRepositories, String... entities )
 	{
-		EntityMappingsResult result = new EntityMappingsResult ( addServices, addServiceCollections, addRepositories );
+		EntityMappingSearchResult result = new EntityMappingSearchResult ( addServices, addServiceCollections, addRepositories );
 
 		if ( entities == null || entities.length == 0 ) return result;
 		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
@@ -72,16 +119,19 @@ public class EntityMappingService
 		return result;
 	}
 
+	
+	
+	
 	private String getMappingsAsXml (
 		boolean addServices, boolean addServiceCollections, boolean addRepositories, String... entities			
 	)
 	{
-		EntityMappingsResult result = this.getMappings ( addServices, addServiceCollections, addRepositories, entities );
+		EntityMappingSearchResult result = this.getMappings ( addServices, addServiceCollections, addRepositories, entities );
 		StringWriter sw = new StringWriter ();
 		
 		try
 		{
-			JAXBContext context = JAXBContext.newInstance ( EntityMappingsResult.class );
+			JAXBContext context = JAXBContext.newInstance ( EntityMappingSearchResult.class );
 			Marshaller m = context.createMarshaller ();
 			m.setProperty ( Marshaller.JAXB_FORMATTED_OUTPUT, true );
 			m.setProperty ( Marshaller.JAXB_ENCODING, "UTF-8" );

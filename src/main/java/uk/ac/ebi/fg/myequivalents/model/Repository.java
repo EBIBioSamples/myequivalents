@@ -8,8 +8,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 @Entity
 @Table( name = "repository" )
@@ -23,7 +21,7 @@ import org.w3c.dom.Element;
 @XmlAccessorType ( XmlAccessType.NONE )
 public class Repository extends Describeable
 {
-	@Index( name = "repo_uri" )
+	@Index( name = "repo_url" )
 	@XmlAttribute ( name = "url" )
 	private String url;
 

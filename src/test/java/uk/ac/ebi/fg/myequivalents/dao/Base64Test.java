@@ -13,7 +13,7 @@ import static java.lang.System.out;
  * always a padding '='.
  *
  * <dl><dt>date</dt><dd>May 26, 2012</dd></dl>
- * @author brandizi
+ * @author Marco Brandizi
  *
  */
 public class Base64Test

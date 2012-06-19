@@ -1,26 +1,24 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
+import static junit.framework.Assert.assertTrue;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrFactoryProvider;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrProvider;
-
-import static junit.framework.Assert.*;
 
 public class ServiceDAOTest
 {
-	@ClassRule
-	public static TestEntityMgrFactoryProvider emfProvider = new TestEntityMgrFactoryProvider ();
-	
 	@Rule
-	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( emfProvider.getEntityManagerFactory () );
+	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( 
+		Resources.getInstance ().getEntityManagerFactory () 
+	);
 
 	private ServiceDAO dao;
 	

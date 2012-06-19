@@ -1,5 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -39,12 +40,12 @@ public class Service extends Describeable
 	@XmlAttribute ( name = "uri-pattern" )
 	private String uriPattern;
 	
-	@ManyToOne
+	@ManyToOne( cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE } )
 	@JoinColumn( name = "repository_name" )
 	@Index( name = "service_r" )
 	private Repository repository;
 	
-	@ManyToOne
+	@ManyToOne( cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE } )
 	@JoinColumn( name = "service_collection_name" )
 	@Index( name = "service_c" )
 	private ServiceCollection serviceCollection;

@@ -77,8 +77,9 @@ public class EntityMapping
 	@Override
 	public boolean equals ( Object o )
 	{
+		if ( o == null ) return false;
 		if ( this == o ) return true;
-		if ( !( o instanceof EntityMapping ) ) return false;
+		if ( this.getClass () != o.getClass () ) return false;
 		EntityMapping that = (EntityMapping) o;
 		
 		return 
