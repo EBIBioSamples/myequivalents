@@ -15,6 +15,47 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
+/**
+ *
+ * <p/>A service is something that to which entities of a given type, identified by accessions, can be associated. For instance,
+ * <ul>
+ *   <li>the 'ArrayExpress experiment service' would provide with experiment entities, given experiment's accession</li>
+ *   <li>the 'AE array design service' would provide with array design records</li>
+ *   <li>The PUBMED service would provide with records about scientific publications, given accessions in the form of 
+ *       PUBMED IDs</li>
+ *   <li>The GeneOntology service would provide with GO terms, given term accessions</li>
+ *   <li>The Wikipedia service yields Wikipedia pages, starting from their identifiers or URLs/URIs</li>
+ *   <li>The DBPedia service, would use the same accessions that are used for Wikipedia and would return RDF 
+ *   representations of the same Wikipedia pages, instead of plain HTML</li> 
+ * </ul>
+ * 
+ * From the examples above we can note the following.
+ * <ul>
+ *   <li>Services can be associated to {@link Repository repositories}, i.e., set of 
+ * services provided by the same organisational unit (a web site, a database etc, see the AE examples).</li>
+ *   <li>There are repositories that provides just one service (the GO example above). In such a case, they repository 
+ *   name would be enough to identify its sole provided service. While we don't explicitly provide (yet?) a mechanism to go 
+ *   from a repository to its service when it is unique (due to simplicity concerns), a simple way to achieve this behaviour 
+ *   is to assign the same name to both the repository and the service in such a case. We also recommend that repositories
+ *   and services are named consistently, e.g. all the services provided by repository1 should be named something like
+ *   repository1.serviceX</li>     
+ *   <li>Entities can be returned by a service either by means of accessions or by means of URIs, accessions/URIs are 
+ * mapped one each other one-to-one (see {@link Entity}).</li>
+ *   <li>A service returns entities of the same type (see {@link #getEntityType()}.</li>
+ *   <li>A service is equivalent to a <a href = 'http://www.ebi.ac.uk/miriam/main/'>MIRAM</a> resource, we renamed them
+ *   in order to avoid confusion with RDF resources (which are equivalent to our entities).</li>
+ *   <li>There are certain services that uses the same accessions to return different entities (i.e., different information 
+ *   for the same real-world entities). This is the case for the Wikipedia and DPPedia examples above. These services can 
+ *   be grouped under {@link ServiceCollection}s, which allows you to obtain multiple entities starting from a single one
+ *   (e.g., you start from a Wikipedia page, you'll get DBPedia pages as {@link EntityMapping}s). 
+ *   MIRAM's data collections will be used to obtain such mappings within 
+ *   service collections.</li>
+ * </ul>
+ * 
+ * <dl><dt>date</dt><dd>Jun 20, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 @Entity
 @Table( name = "service" )
 @org.hibernate.annotations.Table ( 

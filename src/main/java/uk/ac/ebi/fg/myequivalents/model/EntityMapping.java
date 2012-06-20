@@ -8,7 +8,15 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Index;
 
-
+/**
+ *
+ * Used to associate an {@link Entity} to its equivalence class, i.e. a set of entities that cross-reference each other. 
+ * We call such equivalence classes 'bundles', inspired the same terminonoly used in <a href = 'http://www.sameas.org/'>sameAs</a>. 
+ *  
+ * <dl><dt>date</dt><dd>Jun 20, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 @javax.persistence.Entity
 @IdClass ( value = Entity.class )
 @Table( name = "entity_mapping" )

@@ -17,8 +17,17 @@ import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 
- * TODO: Comment me!
- *
+ * Entities are single units of information that can cross-reference to other entities. Examples of entities are: 
+ * a biological sample, a scientific paper, the web page about a person. Entities are identified by an accession and
+ * a service in the context of which the accession is unique. Another way to identify entities is by means of URIs, 
+ * which are assumed to be composed by binding a place-holder in a URI pattern. The URI pattern is provided with by the    
+ * service. 
+ * 
+ * <p/>An entity is effectively a resource in the RDF realm. We avoid the term resource in order to avoid confusion with
+ * the same term used differently in the context of <a href = 'http://www.ebi.ac.uk/miriam/main/'>MIRAM</a> 
+ * (entities are equivalent to MIRIAM's physical locations, while they use the word 'resource' to mean what we call 
+ * services).    
+ * 
  * <dl><dt>date</dt><dd>May 25, 2012</dd></dl>
  * @author Marco Brandizi
  *

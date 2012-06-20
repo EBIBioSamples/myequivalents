@@ -1,10 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,6 +11,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
+/**
+ * 
+ * TODO: Comment me! For the moment see {@link Service}.
+ *
+ * <dl><dt>date</dt><dd>Jun 20, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 @Entity
 @Table( name = "service_collection" )
 @org.hibernate.annotations.Table ( 
@@ -31,11 +36,6 @@ public class ServiceCollection extends Describeable
 	@Index( name = "service_coll_et" )
 	@XmlAttribute ( name = "entity-type" )
 	private String entityType;
-	
-	@ManyToOne( cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE } )
-	@JoinColumn( name = "entity_collection_name" )
-	@Index( name = "service_coll_ec" )
-	private EntityCollection entityCollection;
 	
 	public ServiceCollection () {
 		super ();
@@ -61,16 +61,6 @@ public class ServiceCollection extends Describeable
 	protected void setEntityType ( String entityType )
 	{
 		this.entityType = entityType;
-	}
-
-	public EntityCollection getEntityCollection ()
-	{
-		return entityCollection;
-	}
-
-	public void setEntityCollection ( EntityCollection entityCollection )
-	{
-		this.entityCollection = entityCollection;
 	}
 
 	@Override

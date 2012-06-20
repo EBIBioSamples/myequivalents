@@ -9,6 +9,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
+/**
+ * 
+ * TODO: Comment me! For the moment see {@link Service}.
+ *
+ * <dl><dt>date</dt><dd>Jun 20, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 @Entity
 @Table( name = "repository" )
 @org.hibernate.annotations.Table ( 
