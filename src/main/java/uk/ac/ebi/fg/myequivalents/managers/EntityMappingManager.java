@@ -3,17 +3,12 @@
  *   Map as params to web service: http://stackoverflow.com/questions/4654423/how-to-have-a-hashmap-as-webparam-with-jbossws-3-1-2
  */
 package uk.ac.ebi.fg.myequivalents.managers;
-import java.io.StringWriter;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
 
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 
 /**
  * 
@@ -126,26 +121,10 @@ public class EntityMappingManager
 		boolean addServices, boolean addServiceCollections, boolean addRepositories, String... entities			
 	)
 	{
-		EntityMappingSearchResult result = this.getMappings ( addServices, addServiceCollections, addRepositories, entities );
-		StringWriter sw = new StringWriter ();
-		
-		try
-		{
-			JAXBContext context = JAXBContext.newInstance ( EntityMappingSearchResult.class );
-			Marshaller m = context.createMarshaller ();
-			m.setProperty ( Marshaller.JAXB_FORMATTED_OUTPUT, true );
-			m.setProperty ( Marshaller.JAXB_ENCODING, "UTF-8" );
-			m.marshal ( result, sw );
-		} 
-		catch ( PropertyException ex ) {
-			// TODO: Return error XML back
-			throw new RuntimeException ( "Internal error while generating the XML search result: " + ex.getMessage () );
-		} 
-		catch ( JAXBException ex ) {
-			throw new RuntimeException ( "Internal error while generating the XML search result: " + ex.getMessage () );
-		}
-
-		return sw.toString ();
+		return JAXBUtils.marshal ( 
+			this.getMappings ( addServices, addServiceCollections, addRepositories, entities ), 
+			EntityMappingSearchResult.class
+		);
 	}
 	
 	public String getMappingsAs (
@@ -154,7 +133,7 @@ public class EntityMappingManager
 	{
 		if ( "xml".equals ( outputFormat ) )
 			return getMappingsAsXml ( addServices, addServiceCollections, addRepositories, entities );
-		
-		throw new RuntimeException ( "Invalid format '" + outputFormat + "'" );
+		else
+			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}
 }
