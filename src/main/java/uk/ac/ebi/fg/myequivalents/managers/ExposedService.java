@@ -23,7 +23,7 @@ public class ExposedService extends Service
 	@XmlAccessorType ( XmlAccessType.FIELD )
 	public static class ServiceSearchResult
 	{
-		@XmlElement ( name = "service" )
+		@XmlElement ( name = "service", type = ExposedService.class )
 		private Set<Service> services = new HashSet<Service> ();
 
 		protected ServiceSearchResult () {}
@@ -40,6 +40,18 @@ public class ExposedService extends Service
 		protected void setServices ( Set<Service> services )
 		{
 			this.services = services;
+		}
+
+		@Override
+		public String toString ()
+		{
+			StringBuilder sb = new StringBuilder (); String sep = "";
+			for ( Service serv: services ) {
+				sb.append ( String.format ( "%s  { %s }", sep, serv ) );
+				sep = ",\n";
+			}
+			
+			return String.format ( "%s: { services:\n%s\n}", this.getClass ().getSimpleName (), sb );
 		}
 	}
 
@@ -82,4 +94,13 @@ public class ExposedService extends Service
 		this.serviceCollectionName = serviceCollectionName;
 	}
 	
+	Service asService () 
+	{
+		Service result = new Service ( this.getName (), this.getEntityType (), this.getTitle (), this.getDescription () );
+		result.setServiceCollection ( this.getServiceCollection () );
+		result.setRepository ( this.getRepository () );
+		result.setUriPattern ( this.getUriPattern () );
+		result.setUriPrefix ( this.getUriPrefix () );
+		return result;
+	}
 }

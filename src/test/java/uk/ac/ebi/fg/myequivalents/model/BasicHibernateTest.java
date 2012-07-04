@@ -21,15 +21,15 @@ public class BasicHibernateTest
 	{
 		EntityManager em = emProvider.getEntityManager ();
 		
-		EntityCollection ectest = new EntityCollection ( "foo", "fooType" );
-		ectest.setTitle ( "A test Entity Collection" );
-		ectest.setDescription ( "A Test Description" );
+		Service stest = new Service ( "foo", "fooType" );
+		stest.setTitle ( "A test Entity Collection" );
+		stest.setDescription ( "A Test Description" );
 		
 		EntityTransaction transaction = em.getTransaction ();
 		
 		transaction.begin ();
-		em.createQuery ( "delete EntityCollection where name = '" + ectest.getName () + "'" ).executeUpdate ();
-		em.persist ( ectest );
+		em.createQuery ( "delete EntityCollection where name = '" + stest.getName () + "'" ).executeUpdate ();
+		em.persist ( stest );
 		transaction.commit ();
 	}
 }

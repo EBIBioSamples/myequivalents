@@ -475,13 +475,14 @@ public class EntityMappingDAO
 	 * You should assume the method returns an opaque string which of value depends 1-1 from the parameter. 
 	 * 
 	 * At the moment it generates a SHA1 digest from serviceName + accession and then encodes it in BASE64. This generates
-	 * some overhead (20 bytes for SHA1, instead 8 bytes for a traditional auto-incremented long key, actually 27 bytes
+	 * some overhead (20 bytes for SHA1, instead 8 bytes for a traditional auto-incremented long key, actually 26 bytes
 	 * for BASE64 without any padding, instead of the 20  for SHA1), but it's very fast.
 	 *  
 	 */
 	private String createNewBundleId ( String serviceName, String accession )
 	{
-		// With 20 bytes as input, the last character is always a padding '=', so we don't need it in this context  
+		// With 20 bytes as input, the BASE64 encoding is always a 27 character string, with the last character always equals
+		// a padding '=', so we don't need the latter in this context  
 		return 
 			Base64.encodeBase64String ( messageDigest.digest ( ( serviceName + accession ).getBytes () ) ).substring (0, 26);
 	}

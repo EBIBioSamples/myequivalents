@@ -97,7 +97,7 @@ public class EntityMappingManager
 	}
 	
 	
-	
+	// TODO: Needs to be simplified into 'complete/non-complete'
 	public EntityMappingSearchResult getMappings ( 
 		boolean addServices, boolean addServiceCollections, boolean addRepositories, String... entities )
 	{

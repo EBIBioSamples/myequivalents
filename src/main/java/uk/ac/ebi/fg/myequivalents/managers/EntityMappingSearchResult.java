@@ -32,7 +32,7 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 @XmlType ( name = "", propOrder = { "services", "repositories", "serviceCollections", "bundles" } )
 public class EntityMappingSearchResult
 {
-	@XmlRootElement ( name = "entities" )
+	@XmlRootElement ( name = "bundle" )
 	@XmlAccessorType ( XmlAccessType.FIELD )
 	public static class Bundle
 	{
@@ -100,7 +100,7 @@ public class EntityMappingSearchResult
 	}
 
 	@XmlElementWrapper ( name = "bundles" )
-	@XmlElement ( name = "entities" )
+	@XmlElement ( name = "bundle" )
 	public Collection<Bundle> getBundles ()
 	{
 		return bundles.values ();

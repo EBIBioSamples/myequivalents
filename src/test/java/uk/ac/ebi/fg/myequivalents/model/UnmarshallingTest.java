@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.junit.Test;
-import org.xml.sax.InputSource;
 
 import static java.lang.System.out;
 

@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.managers.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.EntityMappingSearchResult;
@@ -81,6 +82,8 @@ public class EntityMappingManagerTest
 		serviceDao.delete ( service4 );
 		serviceDao.delete ( service5 );
 		
+		new RepositoryDAO ( emProvider.getEntityManager () ).delete ( repo1 );
+
 		assertEquals ( "Entities not deleted!", 0, emMgr.getMappings ( 
 				false, false, false, service1.getName (), "acc1", service2.getName (), "acc2" 
 			).getBundles ().size () 
