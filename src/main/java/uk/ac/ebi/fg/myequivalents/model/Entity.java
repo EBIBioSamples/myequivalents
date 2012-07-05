@@ -113,7 +113,7 @@ public class Entity implements Serializable
 	public String toString ()
 	{
 		return String.format ( 
-			"EntityMapping { service.name: '%s', accession: '%s' }", this.getService ().getName (), this.getAccession ()  
+			"Entity { service.name: '%s', accession: '%s' }", this.getService ().getName (), this.getAccession ()  
 		);
 	}
 

@@ -1,8 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.managers;
 
 import java.io.Reader;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -13,7 +11,6 @@ import javax.xml.bind.Unmarshaller;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceCollectionDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
-import uk.ac.ebi.fg.myequivalents.managers.ExposedService.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
@@ -49,13 +46,19 @@ public class ServiceManager
 	{
 		JAXBContext context = JAXBContext.newInstance ( ServiceSearchResult.class );
 		Unmarshaller u = context.createUnmarshaller ();
-		ServiceSearchResult sset = (ServiceSearchResult) u.unmarshal ( reader );
+		ServiceSearchResult servRes = (ServiceSearchResult) u.unmarshal ( reader );
 		
 		// Some massage and then the storage
 		//
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-			for ( Service service: sset.getServices () ) 
+			for ( ServiceCollection sc: servRes.getServiceCollections () )
+				serviceCollDAO.store ( sc );
+
+			for ( Repository repo: servRes.getRepositories () )
+				repoDAO.store ( repo );
+
+			for ( Service service: servRes.getServices () ) 
 			{
 				{
 					String servCollName = service.getServiceCollectionName ();
@@ -103,13 +106,20 @@ public class ServiceManager
 	
 	public ServiceSearchResult getServices ( String... names ) 
 	{
-		Set<Service> result = new HashSet<Service> ();
+		ServiceSearchResult result = new ServiceSearchResult ();
 		for ( String name: names )
 		{
 			Service service = serviceDAO.findByName ( name );
-			if ( service != null ) result.add ( service );
+			if ( service == null ) continue; 
+			result.addService ( service );
+			
+			ServiceCollection sc = service.getServiceCollection ();
+			if ( sc != null ) result.addServiceCollection ( sc );
+			
+			Repository repo = service.getRepository ();
+			if ( repo != null ) result.addRepository ( repo );
 		}
-		return new ServiceSearchResult ( result );
+		return result;
 	}
 	
 	// TODO: Needs a 'completeFlag' and the feature to report connected entities (repos, serv-collections)
@@ -125,4 +135,103 @@ public class ServiceManager
 		else
 			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}
+	
+	
+	
+	
+	
+	public void storeServiceCollections ( ServiceCollection... servColls ) 
+	{
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+			for ( ServiceCollection sc: servColls )
+				serviceCollDAO.store ( sc );
+		ts.commit ();
+	}
+	
+	public int deleteServiceCollections ( String... names )
+	{
+		int ct = 0;
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+			for ( String name: names )
+				if ( serviceCollDAO.delete ( name ) ) ct++;
+		ts.commit ();
+		return ct;
+	}
+
+	public ServiceSearchResult getServiceCollections ( String... names ) 
+	{
+		ServiceSearchResult result = new ServiceSearchResult ();
+		for ( String name: names )
+		{
+			ServiceCollection sc = serviceCollDAO.findByName ( name );
+			if ( sc == null ) continue; 
+			result.addServiceCollection ( sc );
+		}
+		return result;
+	}
+	
+	private String getServiceCollectionAsXml ( String... names )
+	{
+		return JAXBUtils.marshal ( getServiceCollections ( names ), ServiceSearchResult.class );
+	}
+	
+	public String getServiceCollectionAs ( String outputFormat, String... names ) 
+	{
+		if ( "xml".equals ( outputFormat ) )
+			return getServiceCollectionAsXml ( names );
+		else
+			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+	}
+	
+	
+
+
+	
+	public void storeRepositories ( Repository... repos ) 
+	{
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+			for ( Repository repo: repos )
+				repoDAO.store ( repo );
+		ts.commit ();
+	}
+	
+	public int deleteRepositories ( String... names )
+	{
+		int ct = 0;
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+			for ( String name: names )
+				if ( repoDAO.delete ( name ) ) ct++;
+		ts.commit ();
+		return ct;
+	}
+
+	public ServiceSearchResult getRepositories ( String... names ) 
+	{
+		ServiceSearchResult result = new ServiceSearchResult ();
+		for ( String name: names )
+		{
+			Repository repo = repoDAO.findByName ( name );
+			if ( repo == null ) continue; 
+			result.addRepository ( repo );
+		}
+		return result;
+	}
+	
+	private String getRepositoryAsXml ( String... names )
+	{
+		return JAXBUtils.marshal ( getRepositories ( names ), ServiceSearchResult.class );
+	}
+	
+	public String getRepositoryAs ( String outputFormat, String... names ) 
+	{
+		if ( "xml".equals ( outputFormat ) )
+			return getRepositoryAsXml ( names );
+		else
+			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+	}
+
 }

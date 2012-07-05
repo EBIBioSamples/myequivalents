@@ -60,7 +60,7 @@ public class Repository extends Describeable
 	public String toString ()
 	{
 		return String.format ( 
-			"Service { name: '%s', title: '%s', url: '%s', description: '%.15s' }", 
+			"Repository { name: '%s', title: '%s', url: '%s', description: '%.15s' }", 
 			this.getName (), this.getTitle (), this.getUrl (), getDescription ()
 		);
 	}

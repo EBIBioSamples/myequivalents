@@ -11,7 +11,6 @@ import javax.xml.bind.JAXBException;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.ebi.fg.myequivalents.managers.ExposedService.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
@@ -59,7 +58,7 @@ public class ServiceManagerTest
 		};
 		serviceMgr.deleteServices ( servNames );
 		
-		// TODO: Use the MANAGERS TO DELETE REPO1, SC1
+		// TODO: Use the MANAGERS TO DELETE REPO1, SC1, addedRepo1
 		
 		assertTrue ( "Entities not deleted!", serviceMgr.getServices ( servNames ).getServices ().isEmpty () );
 		// TODO: more checks 
@@ -94,22 +93,70 @@ public class ServiceManagerTest
 		// TODO: Test Service Collection too
 		
 		String xml =
-		"<services>\n" +
-    "  <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/${accession}'\n" + 
+		"<service-items>\n" +
+		"  <services>\n" +
+    "    <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/${accession}'\n" + 
 		"           uri-prefix='http://somewhere.in.the.net/testservmgr/service6/'\n" + 
     "           entity-type='testservmgr.someType1' title='A Test Service 6' name='test.testservmgr.service6'>\n" +
-    "    <description>The Description of a Test Service 6</description>\n" + 
-    "  </service>\n" + 
-    "  <service entity-type='testservmgr.someType7' title='A Test Service 7' name='test.testservmgr.service7'" +
+    "      <description>The Description of a Test Service 6</description>\n" + 
+    "    </service>\n" + 
+    "    <service entity-type='testservmgr.someType7' title='A Test Service 7' name='test.testservmgr.service7'" +
     "           repository-name = 'test.testservmgr.repo1'" +
     "           service-collection-name = 'test.testservmgr.serviceColl1'>\n" +
-    "    <description>The Description of a Test Service 7</description>\n" +
-    "  </service>\n" +
-    "  <service uri-prefix='http://somewhere-else.in.the.net/testservmgr/service8/'\n" +
-    "           entity-type='testservmgr.someType2' title='A Test Service 8' name='test.testservmgr.service8'>\n" + 
-    "    <description>The Description of a Test Service 8</description>\n" + 
-    "  </service>\n" + 
-    "</services>";
+    "      <description>The Description of a Test Service 7</description>\n" +
+    "    </service>\n" +
+    "    <service uri-prefix='http://somewhere-else.in.the.net/testservmgr/service8/'\n" +
+    "             entity-type='testservmgr.someType2' title='A Test Service 8' name='test.testservmgr.service8'>\n" + 
+    "      <description>The Description of a Test Service 8</description>\n" + 
+    "    </service>\n" +
+    "  </services>\n" +
+    "</service-items>";
+
+		serviceMgr.storeServicesFromXML ( new StringReader ( xml ) );
+		
+		ServiceSearchResult result = serviceMgr.getServices ( 
+			"test.testservmgr.service6", "test.testservmgr.service7", "test.testservmgr.service8" );
+		
+		out.format ( "Storage Result:\n%s\n", result );
+		assertEquals ( "Wrong no of services stored", 3, result.getServices ().size () );
+		
+		xml = serviceMgr.getServicesAs ( "xml", 
+			"test.testservmgr.service6", "test.testservmgr.service7", "test.testservmgr.service8" );
+		out.println ( "Search Result (XML):\n" + xml );
+		// TODO: checks on the XML
+	}
+	
+	
+	@Test
+	public void testComplexAddFromXML () throws JAXBException
+	{
+		// TODO: Test Service Collection too
+		
+		String xml =
+		"<service-items>\n" +
+		"  <services>\n" +
+    "    <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/${accession}'\n" + 
+		"           uri-prefix='http://somewhere.in.the.net/testservmgr/service6/'\n" + 
+    "           entity-type='testservmgr.someType1' title='A Test Service 6' name='test.testservmgr.service6'>\n" +
+    "      <description>The Description of a Test Service 6</description>\n" + 
+    "    </service>\n" + 
+    "    <service entity-type='testservmgr.someType7' title='A Test Service 7' name='test.testservmgr.service7'" +
+    "           repository-name = 'test.testservmgr.repo1'" +
+    "           service-collection-name = 'test.testservmgr.serviceColl1'>\n" +
+    "      <description>The Description of a Test Service 7</description>\n" +
+    "    </service>\n" +
+    "    <service uri-prefix='http://somewhere-else.in.the.net/testservmgr/service8/'\n" +
+    "             entity-type='testservmgr.someType2' title='A Test Service 8' name='test.testservmgr.service8'" +
+    "             repository-name = 'test.testservmgr.addedRepo1'>\n" + 
+    "      <description>The Description of a Test Service 8</description>\n" + 
+    "    </service>\n" +
+    "  </services>\n" +
+    "  <repositories>" +
+    "  		<repository name = 'test.testservmgr.addedRepo1'>\n" +
+    "       <description>A test Added Repo 1</description>\n" +
+    "     </repository>\n" +
+    "  </repositories>\n" +
+    "</service-items>";
 
 		serviceMgr.storeServicesFromXML ( new StringReader ( xml ) );
 		

@@ -28,7 +28,7 @@ public class BasicHibernateTest
 		EntityTransaction transaction = em.getTransaction ();
 		
 		transaction.begin ();
-		em.createQuery ( "delete EntityCollection where name = '" + stest.getName () + "'" ).executeUpdate ();
+		em.createQuery ( "delete Service where name = '" + stest.getName () + "'" ).executeUpdate ();
 		em.persist ( stest );
 		transaction.commit ();
 	}

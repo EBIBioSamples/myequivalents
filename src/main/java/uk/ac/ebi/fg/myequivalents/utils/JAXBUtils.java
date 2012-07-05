@@ -7,8 +7,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 
-import uk.ac.ebi.fg.myequivalents.managers.ExposedService.ServiceSearchResult;
-
 public class JAXBUtils
 {
 	private JAXBUtils () {}

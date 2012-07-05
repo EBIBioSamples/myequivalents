@@ -1,11 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.managers;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import uk.ac.ebi.fg.myequivalents.model.Service;
@@ -19,42 +15,6 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 @XmlAccessorType ( XmlAccessType.NONE )
 public class ExposedService extends Service
 {
-	@XmlRootElement ( name = "services" )
-	@XmlAccessorType ( XmlAccessType.FIELD )
-	public static class ServiceSearchResult
-	{
-		@XmlElement ( name = "service", type = ExposedService.class )
-		private Set<Service> services = new HashSet<Service> ();
-
-		protected ServiceSearchResult () {}
-		
-		ServiceSearchResult ( Set<Service> services ) {
-			this.services = services;
-		}
-		
-		public Set<Service> getServices ()
-		{
-			return services;
-		}
-
-		protected void setServices ( Set<Service> services )
-		{
-			this.services = services;
-		}
-
-		@Override
-		public String toString ()
-		{
-			StringBuilder sb = new StringBuilder (); String sep = "";
-			for ( Service serv: services ) {
-				sb.append ( String.format ( "%s  { %s }", sep, serv ) );
-				sep = ",\n";
-			}
-			
-			return String.format ( "%s: { services:\n%s\n}", this.getClass ().getSimpleName (), sb );
-		}
-	}
-
 	private String repositoryName, serviceCollectionName;
 
 	protected ExposedService () {

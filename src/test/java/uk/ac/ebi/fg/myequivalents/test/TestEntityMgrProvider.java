@@ -7,7 +7,7 @@ import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 
 /**
- * An {@link EntityManager} provider to be used in test classes as {@link Rule} 
+ * A JPA {@link EntityManager} provider to be used in test classes as {@link Rule} 
  * (please see JUnit documentation for details). Before starting a test method in the test class using an instance
  * of this provider, the EM will be initialised and it will be closed after the test is run (so, there will be 
  * one instantiation per test method). The class is supposed to be instantiated with some EM factory.

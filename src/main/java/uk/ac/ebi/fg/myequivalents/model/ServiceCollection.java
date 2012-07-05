@@ -67,7 +67,7 @@ public class ServiceCollection extends Describeable
 	public String toString ()
 	{
 		return String.format ( 
-			"Service { name: '%s', title: '%s', entity-type: '%s', description: '%.15s' }", 
+			"ServiceCollection { name: '%s', title: '%s', entity-type: '%s', description: '%.15s' }", 
 			this.getName (), this.getTitle (), this.getEntityType (), getDescription ()
 		);
 	}
