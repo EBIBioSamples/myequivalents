@@ -15,6 +15,14 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
+/**
+ * 
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 public class ServiceManagerTest
 {
 	private ServiceManager serviceMgr;
@@ -54,18 +62,24 @@ public class ServiceManagerTest
 
 
 		String servNames[] = new String[] { 
-			service1.getName (), service2.getName (), service3.getName (), service4.getName (), service5.getName () 
+			service1.getName (), service2.getName (), service3.getName (), service4.getName (), service5.getName (),
+			"test.testservmgr.service6", "test.testservmgr.service7", "test.testservmgr.service8"
 		};
 		serviceMgr.deleteServices ( servNames );
+		serviceMgr.deleteServiceCollections ( sc1.getName () );
+		serviceMgr.deleteRepositories ( repo1.getName () );
 		
-		// TODO: Use the MANAGERS TO DELETE REPO1, SC1, addedRepo1
+		assertTrue ( "Services not deleted!", serviceMgr.getServices ( servNames ).getServices ().isEmpty () );
+		assertTrue ( "Repository not deleted!", serviceMgr.getRepositories ( repo1.getName () ).getRepositories ().isEmpty () );
+		assertTrue ( "Service-Collection not deleted!", serviceMgr.getServiceCollections ( sc1.getName () ).getServiceCollections ().isEmpty () );
 		
-		assertTrue ( "Entities not deleted!", serviceMgr.getServices ( servNames ).getServices ().isEmpty () );
 		// TODO: more checks 
 		
 		serviceMgr.storeServices ( service1, service2, service3, service4, service5 );
 		
 		assertEquals ( "Services not created!", 5, serviceMgr.getServices ( servNames ).getServices ().size () );
+		assertEquals ( "Repository not created!", 1, serviceMgr.getRepositories ( repo1.getName () ).getRepositories ().size () );
+		assertEquals ( "Service-Collection not created!", 1, serviceMgr.getServiceCollections ( sc1.getName () ).getServiceCollections ().size () );
 	}
 
 
@@ -156,6 +170,11 @@ public class ServiceManagerTest
     "       <description>A test Added Repo 1</description>\n" +
     "     </repository>\n" +
     "  </repositories>\n" +
+    "  <service-collections>" +
+    "  		<service-collection name = 'test.testservmgr.added-sc-1' title = 'Added Test SC 1'>\n" +
+    "       <description>A test Added SC 1</description>\n" +
+    "     </service-collection>\n" +
+    "  </service-collections>\n" +
     "</service-items>";
 
 		serviceMgr.storeServicesFromXML ( new StringReader ( xml ) );
@@ -164,12 +183,21 @@ public class ServiceManagerTest
 			"test.testservmgr.service6", "test.testservmgr.service7", "test.testservmgr.service8" );
 		
 		out.format ( "Storage Result:\n%s\n", result );
-		assertEquals ( "Wrong no of services stored", 3, result.getServices ().size () );
+		assertEquals ( "Wrong no of services stored!", 3, result.getServices ().size () );
 		
 		xml = serviceMgr.getServicesAs ( "xml", 
 			"test.testservmgr.service6", "test.testservmgr.service7", "test.testservmgr.service8" );
 		out.println ( "Search Result (XML):\n" + xml );
 		// TODO: checks on the XML
-	}
+		
+		result = serviceMgr.getServiceCollections ( "test.testservmgr.added-sc-1" );
+		out.format ( "Storage Result:\n%s\n", result );
+		assertEquals ( "Wrong no of SC stored!", 1, result.getServiceCollections ().size () );
+
+		xml = serviceMgr.getServiceCollectionsAs ( "xml", "test.testservmgr.added-sc-1" );
+		out.println ( "Search Result (XML):\n" + xml );
+		// TODO: checks on the XML
+			
+}
 	
 }

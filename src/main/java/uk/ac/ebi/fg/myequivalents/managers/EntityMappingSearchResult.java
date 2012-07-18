@@ -52,7 +52,7 @@ public class EntityMappingSearchResult
 		}
 	}
 	
-	private final boolean addServices, addServiceCollections, addRepositories;
+	private final boolean wantRawResult;
 	
 	private final Set<Service> services;
 	private final Set<ServiceCollection> serviceCollections;
@@ -63,19 +63,22 @@ public class EntityMappingSearchResult
 	
 	EntityMappingSearchResult ()
 	{
-		this ( true, true, true );
+		this ( false );
 	}
 
-	EntityMappingSearchResult ( boolean addServices, boolean addServiceCollections, boolean addRepositories )
+	EntityMappingSearchResult ( boolean wantRawResult )
 	{
 		super ();
-		this.addServices = addServices;
-		this.addServiceCollections = addServiceCollections;
-		this.addRepositories = addRepositories;
+		this.wantRawResult = wantRawResult;
 		
-		services = addServices ? new HashSet<Service> () : null;
-		serviceCollections = addServiceCollections ? new HashSet<ServiceCollection> () : null;
-		repositories = addRepositories ? new HashSet<Repository> () : null;
+		if ( wantRawResult ) {
+			services = null; serviceCollections = null; repositories = null;
+		}
+		else {
+			services = new HashSet<Service> ();
+			serviceCollections = new HashSet<ServiceCollection> ();
+			repositories =  new HashSet<Repository> ();
+		}
 	}
 
 	@XmlElementWrapper ( name = "services" )
@@ -116,17 +119,14 @@ public class EntityMappingSearchResult
 		}
 		bundle.addEntity ( em.getEntity () );
 		Service service = em.getService ();
-		if ( addServices ) services.add ( service );
+		if ( wantRawResult ) return;
 		
-		if ( addServiceCollections ) {
-			ServiceCollection serviceCollection = service.getServiceCollection ();
-			if ( serviceCollection != null ) serviceCollections.add ( serviceCollection );
-		}
+		services.add ( service );
+		ServiceCollection serviceCollection = service.getServiceCollection ();
+		if ( serviceCollection != null ) serviceCollections.add ( serviceCollection );
 		
-		if ( addRepositories ) {
-			Repository repo = service.getRepository ();
-			if ( repo != null ) repositories.add ( repo );
-		}
+		Repository repo = service.getRepository ();
+		if ( repo != null ) repositories.add ( repo );
 	}
 	
 	void addAllEntityMappings ( Collection<EntityMapping> mappings ) {
@@ -138,20 +138,23 @@ public class EntityMappingSearchResult
 	{
 		StringBuilder sb = new StringBuilder ( "EntityMappingResult {\n" );
 		
-		sb.append ( "  services: {\n" );
-		for ( Service service: services )
-			sb.append ( "    " ).append ( service.toString () + "\n");
-		sb.append ( "  }\n" );
-		
-		sb.append ( "  repositories: {\n" );
-		for ( Repository repo: repositories )
-			sb.append ( "    " ).append ( repo.toString () );
-		sb.append ( "  }\n" );
-
-		sb.append ( "  service-collections: {\n" );
-		for ( ServiceCollection sc: serviceCollections )
-			sb.append ( "    " ).append ( sc.toString () );
-		sb.append ( "  }\n" );
+		if ( !wantRawResult )
+		{
+			sb.append ( "  services: {\n" );
+			for ( Service service: services )
+				sb.append ( "    " ).append ( service.toString () + "\n");
+			sb.append ( "  }\n" );
+			
+			sb.append ( "  repositories: {\n" );
+			for ( Repository repo: repositories )
+				sb.append ( "    " ).append ( repo.toString () );
+			sb.append ( "  }\n" );
+	
+			sb.append ( "  service-collections: {\n" );
+			for ( ServiceCollection sc: serviceCollections )
+				sb.append ( "    " ).append ( sc.toString () );
+			sb.append ( "  }\n" );
+		}
 
 		for ( Bundle bundle: this.getBundles () )
 		{

@@ -9,6 +9,14 @@ import org.junit.Test;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrProvider;
 
+/**
+ * 
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 public class BasicHibernateTest
 {
 	@Rule

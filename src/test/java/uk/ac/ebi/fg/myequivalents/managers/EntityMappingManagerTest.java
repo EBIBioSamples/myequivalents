@@ -27,6 +27,14 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrProvider;
 
+/**
+ * 
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 public class EntityMappingManagerTest
 {	
 	@Rule
@@ -85,7 +93,7 @@ public class EntityMappingManagerTest
 		new RepositoryDAO ( emProvider.getEntityManager () ).delete ( repo1 );
 
 		assertEquals ( "Entities not deleted!", 0, emMgr.getMappings ( 
-				false, false, false, service1.getName (), "acc1", service2.getName (), "acc2" 
+				true, service1.getName (), "acc1", service2.getName (), "acc2" 
 			).getBundles ().size () 
 		);
 		// TODO: more 
@@ -111,7 +119,7 @@ public class EntityMappingManagerTest
 	  );
 
 		EntityMappingSearchResult result = emMgr.getMappings ( 
-			true, true, true, service1.getName (), "b1.3", service3.getName (), "b2.2" 
+			false, service1.getName (), "b1.3", service3.getName (), "b2.2" 
 		);
 		
 		out.println ( "\nResult:" );
@@ -177,7 +185,7 @@ public class EntityMappingManagerTest
 		assertTrue ( "Repo1 not found in the search result!", repos.contains ( repo1 ) );
 		
 		out.println ( "\n\nXML Result:\n" + emMgr.getMappingsAs ( 
-			"xml", true, true, true, service1.getName (), "b1.3", service3.getName (), "b2.2"  
+			"xml", true, service1.getName (), "b1.3", service3.getName (), "b2.2"  
 		));
 
 		// TODO Use XPath to test the XML

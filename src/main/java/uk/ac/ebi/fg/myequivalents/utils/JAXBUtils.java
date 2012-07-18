@@ -7,6 +7,14 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 
+/**
+ * 
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 public class JAXBUtils
 {
 	private JAXBUtils () {}

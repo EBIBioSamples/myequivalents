@@ -11,6 +11,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * 
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 @XmlRootElement
 @MappedSuperclass
 @XmlAccessorType ( XmlAccessType.NONE )

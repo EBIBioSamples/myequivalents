@@ -12,15 +12,16 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 
 /**
  * 
- * TODO: Comment me!
+ * <h2>The Entity Manager</h2>
  *
- * <p/>Note that this class instantiates a new {@link EntityManager} in its constructor. This makes it an 
+ * <p>Note that this class instantiates a new {@link EntityManager} in its constructor. This makes it an 
  * entity-manager-per-request when the service is accessed via Apache Axis (cause it re-instantiates at every request).
+ * The persistence-related invocations does the transaction management automatically (i.e., they commit all implied changes).</p>
  * 
- * You have to decide the lifetime of a EntityMappingManager instance in your application, we suggest to apply the
- * manager-per-request approach.
+ * <p>You have to decide the lifetime of a EntityMappingManager instance in your application, we suggest to apply the
+ * manager-per-request approach</p>
  * 
- * <p/>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations, release. 
+ * <p>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations, release.</p> 
  *
  * <dl><dt>date</dt><dd>Jun 7, 2012</dd></dl>
  * @author Marco Brandizi
@@ -98,10 +99,9 @@ public class EntityMappingManager
 	
 	
 	// TODO: Needs to be simplified into 'complete/non-complete'
-	public EntityMappingSearchResult getMappings ( 
-		boolean addServices, boolean addServiceCollections, boolean addRepositories, String... entities )
+	public EntityMappingSearchResult getMappings ( boolean wantRawResult, String... entities )
 	{
-		EntityMappingSearchResult result = new EntityMappingSearchResult ( addServices, addServiceCollections, addRepositories );
+		EntityMappingSearchResult result = new EntityMappingSearchResult ( wantRawResult );
 
 		if ( entities == null || entities.length == 0 ) return result;
 		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
@@ -117,22 +117,18 @@ public class EntityMappingManager
 	
 	
 	
-	private String getMappingsAsXml (
-		boolean addServices, boolean addServiceCollections, boolean addRepositories, String... entities			
-	)
+	private String getMappingsAsXml ( boolean wantRawResult, String... entities )
 	{
 		return JAXBUtils.marshal ( 
-			this.getMappings ( addServices, addServiceCollections, addRepositories, entities ), 
+			this.getMappings ( wantRawResult, entities ), 
 			EntityMappingSearchResult.class
 		);
 	}
 	
-	public String getMappingsAs (
-		String outputFormat, boolean addServices, boolean addServiceCollections, boolean addRepositories, String... entities			
-	)
+	public String getMappingsAs ( String outputFormat, boolean wantRawResult, String... entities )
 	{
 		if ( "xml".equals ( outputFormat ) )
-			return getMappingsAsXml ( addServices, addServiceCollections, addRepositories, entities );
+			return getMappingsAsXml ( wantRawResult, entities );
 		else
 			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}

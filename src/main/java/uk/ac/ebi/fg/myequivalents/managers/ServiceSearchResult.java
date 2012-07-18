@@ -14,6 +14,14 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
+/**
+ * 
+ * TODO: Comment me!
+ *
+ * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 @XmlRootElement ( name = "service-items" )
 @XmlAccessorType ( XmlAccessType.NONE )
 @XmlType ( name = "", propOrder = { "repositories", "serviceCollections", "services" } )
