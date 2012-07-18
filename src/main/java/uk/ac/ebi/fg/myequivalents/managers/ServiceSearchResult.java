@@ -15,8 +15,8 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
- * 
- * TODO: Comment me!
+ * This is the class used to format the responses returned by the {@link ServiceManager}. For instance, the SOAP-based
+ * web service uses this class to format its output in XML (thanks to JAXB mappings).  
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi

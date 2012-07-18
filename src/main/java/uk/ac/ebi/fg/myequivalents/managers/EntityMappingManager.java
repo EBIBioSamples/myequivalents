@@ -1,12 +1,11 @@
-/*
- * TODO: 
- *   Map as params to web service: http://stackoverflow.com/questions/4654423/how-to-have-a-hashmap-as-webparam-with-jbossws-3-1-2
- */
 package uk.ac.ebi.fg.myequivalents.managers;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
+import uk.ac.ebi.fg.myequivalents.model.Repository;
+import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 
@@ -38,6 +37,11 @@ public class EntityMappingManager
 		this.entityMappingDAO = new EntityMappingDAO ( entityManager );
 	}
 
+	/**
+	 * Stores mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
+	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) and
+	 * wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
+	 */
 	public void storeMappings ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return;
@@ -53,6 +57,11 @@ public class EntityMappingManager
 		ts.commit ();
 	}
 
+	/**
+	 * Stores a mapping bundle. The parameter consists of a list of entity references, where every entity is given by a pair
+	 * of service/accession. This uses {@link EntityMappingManager#storeMappingBundle(String...)} (see there for details) 
+	 * and wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
+	 */
 	public void storeMappingBundle ( String... entities )
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
@@ -61,6 +70,11 @@ public class EntityMappingManager
 		ts.commit ();
 	}
 
+	/**
+	 * Deletes mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
+	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) and
+	 * wraps it with the transaction management.
+	 */
 	public int deleteMappings ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return 0;
@@ -79,6 +93,12 @@ public class EntityMappingManager
 		return result;
 	}
 	
+	/**
+	 * Deletes entities. The parameter consists of a list of entity references, where every entity is given by a pair
+	 * of service/accession. The entities are removed from any mapping it belonged to (i.e., they disappear altogether). 
+	 * This uses {@link EntityMappingManager#deleteEntities(String...)} (see there for details) 
+	 * and wraps it with the transaction management. 
+	 */
 	public int deleteEntities ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return 0;
@@ -97,8 +117,18 @@ public class EntityMappingManager
 		return result;
 	}
 	
-	
-	// TODO: Needs to be simplified into 'complete/non-complete'
+	/**
+	 * Gets all the mappings to which the parameter entities are associated. 
+	 * The parameter consists of a list of entity references, where every entity is given by a pair of service/accession. 
+	 * This is based on 
+	 * {@link EntityMappingManager#findEntityMappings(String,String) findEntityMappings ( serviceName, accession )}.
+	 * The result is put into an instance of {@link EntityMappingSearchResult} and available via its methods, e.g., 
+	 * {@link EntityMappingSearchResult#getBundles()}. 
+	 *  
+	 * @param wantRawResult if true, omits service-related objects from the result ({@link Service}, {@link ServiceCollection}, 
+	 * {@link Repository}), it only reports bundles of entity mappings. This will be faster if you just needs links.
+	 * 
+	 */
 	public EntityMappingSearchResult getMappings ( boolean wantRawResult, String... entities )
 	{
 		EntityMappingSearchResult result = new EntityMappingSearchResult ( wantRawResult );
@@ -116,7 +146,12 @@ public class EntityMappingManager
 
 	
 	
-	
+	/**
+	 * Invokes {@link #getMappings(boolean, String...)} and format the result in XML format. 
+	 * TODO: document the format. This is based on JAXB and reflects the structure of {@link EntityMappingSearchResult}. 
+	 * See {@link EntityMappingManagerTest} for details. 
+	 * 
+	 */
 	private String getMappingsAsXml ( boolean wantRawResult, String... entities )
 	{
 		return JAXBUtils.marshal ( 
@@ -125,6 +160,11 @@ public class EntityMappingManager
 		);
 	}
 	
+	/**
+	 * Returns the result of {@link #getMappings(boolean, String...)} in the specified format. At the moment this is 
+	 * only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats like RDF or JSON for 
+	 * the future.
+	 */
 	public String getMappingsAs ( String outputFormat, boolean wantRawResult, String... entities )
 	{
 		if ( "xml".equals ( outputFormat ) )

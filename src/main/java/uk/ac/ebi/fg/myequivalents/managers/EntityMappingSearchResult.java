@@ -21,7 +21,8 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
  * 
- * TODO: Comment me!
+ * This is the class used to format the responses returned by the {@link EntityMappingManager}. For instance, the SOAP-based
+ * web service uses this class to format its output in XML (thanks to JAXB mappings).  
  * 
  * <dl><dt>date</dt><dd>Jun 11, 2012</dd></dl>
  * @author Marco Brandizi
@@ -32,6 +33,15 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 @XmlType ( name = "", propOrder = { "services", "repositories", "serviceCollections", "bundles" } )
 public class EntityMappingSearchResult
 {
+	/**
+	 * This represents a set of entities that cross-reference each-other, it's the thing returned by 
+	 * {@link EntityMappingSearchResult#getBundles()}. Having this class in between is a bit cumbersome, 
+	 * but required for proper mapping via JAXB.
+	 *
+	 * <dl><dt>date</dt><dd>Jul 18, 2012</dd></dl>
+	 * @author Marco Brandizi
+	 *
+	 */
 	@XmlRootElement ( name = "bundle" )
 	@XmlAccessorType ( XmlAccessType.FIELD )
 	public static class Bundle
@@ -66,6 +76,10 @@ public class EntityMappingSearchResult
 		this ( false );
 	}
 
+	/**
+	 * @param wantRawResult if true, only bundles will be stored into this object. See 
+	 * {@link EntityMappingManager#getMappings(boolean, String...)}.
+	 */
 	EntityMappingSearchResult ( boolean wantRawResult )
 	{
 		super ();
@@ -109,7 +123,11 @@ public class EntityMappingSearchResult
 		return bundles.values ();
 	}
 	
-	
+	/**
+	 * This adds the entity to the proper {@link Bundle} and, if not in raw-result mode, adds related {@link Service}s, 
+	 * {@link ServiceCollection}s and {@link Repository repositories} to this result.
+	 * 
+	 */
 	void addEntityMapping ( EntityMapping em ) 
 	{
 		String bundleId = em.getBundle ();
@@ -129,6 +147,9 @@ public class EntityMappingSearchResult
 		if ( repo != null ) repositories.add ( repo );
 	}
 	
+	/**
+	 * This is just a wrapper of {@link #addEntityMapping(EntityMapping)}.
+	 */
 	void addAllEntityMappings ( Collection<EntityMapping> mappings ) {
 		for ( EntityMapping em: mappings ) addEntityMapping ( em );
 	}
