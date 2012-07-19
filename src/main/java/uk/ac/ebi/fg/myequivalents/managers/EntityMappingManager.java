@@ -120,8 +120,7 @@ public class EntityMappingManager
 	/**
 	 * Gets all the mappings to which the parameter entities are associated. 
 	 * The parameter consists of a list of entity references, where every entity is given by a pair of service/accession. 
-	 * This is based on 
-	 * {@link EntityMappingManager#findEntityMappings(String,String) findEntityMappings ( serviceName, accession )}.
+	 * This is based on {@link EntityMappingDAO#findEntityMappings(String, String)}.
 	 * The result is put into an instance of {@link EntityMappingSearchResult} and available via its methods, e.g., 
 	 * {@link EntityMappingSearchResult#getBundles()}. 
 	 *  

@@ -16,7 +16,7 @@ import static junit.framework.Assert.*;
 
 /**
  * 
- * TODO: Comment me!
+ * Tests for the Command Line Interface.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
@@ -44,6 +44,10 @@ public class MainTest
 		serviceMgr.storeRepositories ( repo1 );
 	}
 	
+	/**
+	 * Tests the storage of some services (and related stuff) via command line and via XML. Here you find an example of the
+	 * sort of XML you need for this API call. 
+	 */
 	@Test
 	public void testServiceStore () throws UnsupportedEncodingException
 	{
@@ -88,11 +92,30 @@ public class MainTest
 		
 		assertEquals ( "Wrong no of services stored!", 3, result.getServices ().size () );
 		assertEquals ( "Wrong no of SC stored!", 1, result.getServiceCollections ().size () );
+		assertEquals ( "service store returned a wrong exit code!", 0, Main.exitCode );
 	}
 	
+	/**
+	 * Checks the output of --help and alike
+	 */
 	@Test
 	public void testHelp ()
 	{
+		out.println ( "\n\n ---- Testing --help" );
 		Main.main ( "--help" );
+		assertEquals ( "--help returned a wrong exit code!", 1, Main.exitCode );
+		// TODO: link the output to a stream and verify with some reg-ex
+		
+		out.println ( "\n\n ---- Testing wrong command" );
+		Main.main ( "foo", "command" );
+		assertEquals ( "syntax-error test returned a wrong exit code!", 1, Main.exitCode );
+		// TODO: link the output to a stream and verify with some reg-ex
+
+		out.println ( "\n\n ---- Testing wrong option" );
+		Main.main ( "service", "store", "--foo-option" );
+		assertEquals ( "syntax-error test returned a wrong exit code!", 1, Main.exitCode );
+		// TODO: link the output to a stream and verify with some reg-ex
+		
 	}
+
 }

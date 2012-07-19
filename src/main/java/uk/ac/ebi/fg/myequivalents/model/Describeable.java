@@ -13,7 +13,8 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * 
- * TODO: Comment me!
+ * A top-level class for all classes having properties like 
+ * {@link #getName() name} and {@link #getDescription() description}.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
@@ -37,6 +38,9 @@ public abstract class Describeable
 	}
 
 	
+	/**
+	 * name == null will generate an exception.
+	 */
 	public Describeable ( String name )
 	{
 		super ();
@@ -48,6 +52,10 @@ public abstract class Describeable
 		this.setName ( name );
 	}
 	
+	
+	/**
+	 * name == null will generate an exception.
+	 */
 	public Describeable ( String name, String title, String description )
 	{
 		this ( name );
@@ -87,6 +95,9 @@ public abstract class Describeable
 		this.description = description;
 	}
 	
+	/**
+	 * Equivalence is based on the name. Note that name == null is not supported, it should never be null
+	 */
 	public boolean equals ( Object o)
 	{
 		if ( o == null ) return false;
@@ -97,6 +108,9 @@ public abstract class Describeable
 		return this.getName ().equals ( that.getName () );
 	}
 	
+	/**
+	 * Equivalence is based on the name. Note that name == null is not supported, it should never be null
+	 */
 	public int hashCode ()
 	{
 		return this.getName ().hashCode ();

@@ -11,6 +11,13 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.utils.reflection.ReflectionUtils;
 
+/**
+ * Generic DAO for the {@link Describeable} types.
+ *
+ * <dl><dt>date</dt><dd>Jul 19, 2012</dd></dl>
+ * @author Marco Brandizi
+ *
+ */
 public abstract class DescribeableDAO<D extends Describeable>
 {
 	private EntityManager entityManager;

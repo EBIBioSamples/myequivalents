@@ -43,55 +43,77 @@ abstract class LineCommand
 	/**
 	 * Which command is managed by a particular sub-class of this class.
 	 */
-	protected final String command;
-	
-	
-	protected CommandLine cmdLine = null;
-	protected int exitCode = 0;
+	protected final String commandString;
 	
 	/**
-	 * @param command which command is managed by a particular sub-class of this class. 
+	 * The result of {@link #parse(String...)}, use this to know what remains in the command line arguments after 
+	 * having parsed the options and to gather info about the specified options. This is defined in order to ease the 
+	 * overriding of {@link #run(String...)}. 
 	 */
-	protected LineCommand ( String command )
+	protected CommandLine cmdLine;
+	
+	/**
+	 * The exit code that will be returned to the operating system after the command line invocation. This is defined 
+	 * to allow {@link #run(String...)} to throw exceptions, after having set the corresponding exit code.
+	 */
+	protected int exitCode = 0;
+	
+	
+	/**
+	 * @param commandString which command is managed by a particular sub-class of this class. 
+	 */
+	protected LineCommand ( String commandString )
 	{
 		super ();
-		this.command = command;
+		this.commandString = commandString;
 	}
 
 	/**
-	 * Run the command. The default methods does nothing but: invoke {@link #parse(String[])} and, if this returns false, 
-	 * invoke {@link #printUsage()}.
+	 * Run the command. args are all the command parameters coming from the line command 
+	 * (i.e., the same in {@link Main#main}. It is expected to set the {@link #exitCode} you want to return to the 
+	 * operating system, after the line command execution.
 	 * 
-	 * args are all the command parameters coming from the line command (i.e., the same in {@link Main#main}. 
+	 * The default method does nothing but: invokes {@link #parse(String[])} and, if this returns null or
+	 * the --help option is specified, invokes printUsage(), sets {@link #exitCode} to 1 and returns. Otherwise returns
+	 * with the exit code left at 0; This also sets {@link #cmdLine}, so your extension likely will work this way:
+	 * 
+	 * <pre> 
+	 *   super.run ( args );
+	 *   if ( this.exitCode != 0 ) return;
+	 *   &lt;your command execution&gt;, which will use this.cmdLine and set {@link #exitCode} != 0 in case of error
+	 * </pre>
+	 * 
+	 * TODO: review the exit codes.
 	 */
 	public void run ( String... args  ) 
 	{
-		if ( parse ( args ) ) return;
-		printUsage ();
+		if ( parse ( args ) == null || cmdLine.hasOption ( "h" ) ) {
+			printUsage ();
+			exitCode = 1;
+		}
 	}
 
 	/**
 	 * <p>Uses {@link GnuParser} to parse the command line options, doing command initialisation and possibly setup 
 	 * {@link #exitCode}. Returns false if there is some parse exception or the --help option.</p> 
 	 * 
-	 * <p>The default implementation does this: setup {@link #cmdLine}, passing it the command line 
-	 * arguments and the {@link #getOptions() options}, then, if the --help option is specified or there is a {@link ParseException}, 
-	 * returns false. Returns true otherwise.</p>
+	 * <p>The default implementation parses {@link #getOptions()} and returns the corresponding {@link CommandLine}
+	 * generated this way. It prints an error message and returns null in case of {@link ParseException}. So you should
+	 * be just fine with this implementation.</p>
 	 * 
 	 */
-	protected boolean parse ( String... args ) 
+	protected CommandLine parse ( String... args ) 
 	{
 		CommandLineParser clparser = new GnuParser ();
 		try 
 		{
-			// --help
 			cmdLine = clparser.parse ( getOptions (), args );
-			return !cmdLine.hasOption ( 'h' );
+			return cmdLine;
 		} 
 		catch ( ParseException e ) {
 			// Syntax error, report what the parser says and then leave run() to do printUsage()
 			out.println ( "\n\n " + e.getMessage () + "\n" );
-			return false;
+			return null;
 		}		
 	}
 	
@@ -144,7 +166,7 @@ abstract class LineCommand
 	 * do {@link #printUsage()}.</p>
 	 * 
 	 * <p>You'll see that at the moment this method is not overridden 
-	 * in currently existing sub-classes, since it's simpler to just have a conditional code based on {@link #command}.</p>
+	 * in currently existing sub-classes, since it's simpler to just have a conditional code based on {@link #commandString}.</p>
 	 *  
 	 */
 	@SuppressWarnings ( "static-access" )
@@ -152,7 +174,7 @@ abstract class LineCommand
 	{
 		Options opts = new Options ();
 		
-		if ( command.endsWith ( " get" ) )
+		if ( commandString.endsWith ( " get" ) )
 			opts.addOption ( OptionBuilder
 			 	.hasArg ( true )
 				.withDescription ( 
@@ -163,7 +185,7 @@ abstract class LineCommand
 				.create ( "f" )
 			);
 		
-		if ( "mapping get".equals ( command ) )
+		if ( "mapping get".equals ( commandString ) )
 			opts.addOption ( OptionBuilder
 			 	.withDescription ( 
 				 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
@@ -188,8 +210,13 @@ abstract class LineCommand
 		{
 			String cmdStr = ( args [ 0 ].trim () + ' ' + args [ 1 ].trim () ).toLowerCase ();
 			cmdClass = LINE_COMMANDS.get ( cmdStr );
-			if ( cmdClass == null ) cmdClass = HelpLineCommand.class;
+			if ( cmdClass == null ) {
+				out.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );
+				cmdClass = HelpLineCommand.class;
+			}
 		}
+		else if ( args.length == 1 && !"--help".equalsIgnoreCase ( args [ 0 ].trim () ) )
+			out.println ( "\n  Wrong command '" + args [ 0 ] + "'\n\n" );
 
 		LineCommand result = null;
 		Exception invEx = null;
@@ -217,7 +244,7 @@ abstract class LineCommand
 	}
 
 	/**
-	 * This prints a usage message for the command. The default version reports {@link #command} and {@link #getSpecificOptions()}.
+	 * This prints a usage message for the command. The default version reports {@link #commandString} and {@link #getSpecificOptions()}.
 	 * {@link HelpLineCommand#printUsage()} reports the usage output given from the commands in {@link #LINE_COMMANDS} and also
 	 * {@link #getCommonOptions()}. Finally, it also set {@link #exitCode} at 1 (TODO: suitable value).
 	 */
@@ -226,7 +253,7 @@ abstract class LineCommand
 		HelpFormatter helpFormatter = new HelpFormatter ();
 		PrintWriter pw = new PrintWriter ( out, true );
 		helpFormatter.printHelp ( pw, 100, 
-			command, 
+			commandString, 
 			"",
 			getSpecificOptions (), 
 			2, 4, 
@@ -234,8 +261,6 @@ abstract class LineCommand
 			false 
 		);
 		out.println ( "" );
-		
-		exitCode = 1; // TODO: Better reporting needed
 	}
 
 	/**
@@ -246,5 +271,4 @@ abstract class LineCommand
 	int getExitCode () {
 		return exitCode;
 	}
-
 }

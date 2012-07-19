@@ -33,14 +33,14 @@ import static java.lang.System.err;
 public class Main
 {
 	/**
-	 * Used for Junit tests
+	 * Used for JUnit tests
 	 */
 	static int exitCode;
 	
 	/**
 	 * Uses {@link LineCommand#getCommand(String...)} to understand which sub-command was passed to args, args the proper
 	 * {@link LineCommand} to manage it (if there is no syntax error) and then run the sub-command. Does all the secondary
-	 * activities implied in this flow (e.g., exceptions, hibernate and logger setup).
+	 * activities implied in this flow (e.g., exceptions, Hibernate and logger setup).
 	 * 
 	 */
 	public static void main( String... args )

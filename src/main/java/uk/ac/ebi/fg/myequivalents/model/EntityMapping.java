@@ -40,6 +40,13 @@ public class EntityMapping
 	public EntityMapping ( Service service, String accession, String bundle )
 	{
 		super ();
+		if ( service == null )
+			// TODO: proper exception
+			throw new NullPointerException ( "service cannot be empty" );
+		if ( bundle == null )
+			// TODO: proper exception
+			throw new NullPointerException ( "bundle cannot be empty" );
+		
 		this.service = service;
 		this.accession = accession;
 		this.bundle = bundle;

@@ -9,7 +9,7 @@ import javax.xml.bind.PropertyException;
 
 /**
  * 
- * TODO: Comment me!
+ * JAXB-related utils.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
@@ -19,6 +19,10 @@ public class JAXBUtils
 {
 	private JAXBUtils () {}
 	
+	/**
+	 * Converts source into XML, using the JAXB annotations defined in targetClass.
+	 *  
+	 */
 	public static <TC, SO> String marshal ( SO source, Class<TC> targetClass )
 	{
 		StringWriter sw = new StringWriter ();
@@ -32,7 +36,6 @@ public class JAXBUtils
 			m.marshal ( source, sw );
 		} 
 		catch ( PropertyException ex ) {
-			// TODO: Return error XML back
 			throw new RuntimeException ( "Internal error while generating the XML search result: " + ex.getMessage () );
 		} 
 		catch ( JAXBException ex ) {

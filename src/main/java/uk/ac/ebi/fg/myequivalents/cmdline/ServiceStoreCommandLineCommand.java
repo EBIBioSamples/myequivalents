@@ -11,6 +11,8 @@ import java.io.Reader;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.cli.CommandLine;
+
 import uk.ac.ebi.fg.myequivalents.managers.ServiceManager;
 
 /**
@@ -34,21 +36,26 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 	public void run ( String... args )
 	{
 		super.run ( args );
-		if ( exitCode != 0 ) return;
+		if ( this.exitCode != 0 ) return;
 
-		File inFile = inFileName == null ? null : new File ( inFileName );
+		File inFile = null; 
 		
 		try
 		{
-			Reader in = new BufferedReader ( inFileName == null 
-				? new FileReader ( inFile ) 
-			  : new InputStreamReader ( System.in )
-			);
+			Reader in = null;
+			if ( inFileName == null )
+				in = new InputStreamReader ( System.in );
+			else {
+				inFile = new File ( inFileName );
+				in = new FileReader ( inFile );
+			}
+		  in = new BufferedReader ( in );
 			
 			ServiceManager servMgr = new ServiceManager ();
 			servMgr.storeServicesFromXML ( in );
 		} 
-		catch ( FileNotFoundException ex ) {
+		catch ( FileNotFoundException ex ) 
+		{
 			exitCode = 1; // TODO: Better reporting needed
 			throw new RuntimeException ( "Error: cannot find the input file '" + inFile.getAbsolutePath () + "'" );
 		} 
@@ -70,13 +77,12 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 	 * Parses and then setup the input file (or the standard input).
 	 */
 	@Override
-	protected boolean parse ( String... args )
+	protected CommandLine parse ( String... args )
 	{
-		boolean result = super.parse ( args );
-		if ( !result ) return false;
-		args = cmdLine.getArgs (); 
-		if ( args.length > 0 ) inFileName = args [ 0 ];
-		return true;
+		if ( super.parse ( args ) == null ) return null;
+		args = this.cmdLine.getArgs (); 
+		if ( args.length > 2 ) inFileName = args [ 2 ];
+		return cmdLine;
 	}
 
 	@Override

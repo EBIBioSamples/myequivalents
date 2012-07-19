@@ -12,7 +12,11 @@ import org.hibernate.annotations.Index;
 
 /**
  * 
- * TODO: Comment me! For the moment see {@link Service}.
+ * A service collection is a collection of {@link Service}s that share the same accessions. For instance, PUBMED and 
+ * CiteXPlore both point at the same scientific publications with the same accession. Wikipedia and DPPedia is another
+ * example. Service collections are used to serve implicit mappings, i.e., if (pubmed, 123) is linked to (wikipedia, 456), 
+ * then (citeXplore, 123) and (dbpedia, 456) will belong to this same equivalence class (bundle) without the need to 
+ * store these further relations.
  *
  * <dl><dt>date</dt><dd>Jun 20, 2012</dd></dl>
  * @author Marco Brandizi
