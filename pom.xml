@@ -23,6 +23,12 @@
 			<version>0.9.29</version>
 		</dependency>
 
+		<!-- 
+			TODO: Things like the logger should be embedded in the command-line only, not in the jar to be used for 
+			programmatic access. This implies splitting the project into multiple modules: core, command-line, web-service, 
+			web-service-client 
+		-->
+
 		<!-- Intercepts log4j and sends it to logback -->		
 		<dependency>
 			<groupId>org.slf4j</groupId>
