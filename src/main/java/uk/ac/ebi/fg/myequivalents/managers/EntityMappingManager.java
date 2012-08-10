@@ -2,6 +2,8 @@ package uk.ac.ebi.fg.myequivalents.managers;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.apache.commons.lang.Validate;
+
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
@@ -24,6 +26,8 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  *
  * <dl><dt>date</dt><dd>Jun 7, 2012</dd></dl>
  * @author Marco Brandizi
+ * 
+ * TODO: Use {@link Validate} instead of manual validation.
  *
  */
 public class EntityMappingManager

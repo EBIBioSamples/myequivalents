@@ -1,19 +1,15 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
-import static java.lang.System.out;
+import static java.lang.System.err;
 
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -35,9 +31,11 @@ abstract class LineCommand
 	 */
 	@SuppressWarnings ( "serial" )
 	public final static Map<String, Class<? extends LineCommand>> LINE_COMMANDS = 
-		new HashMap<String, Class<? extends LineCommand>> ()
+		new LinkedHashMap<String, Class<? extends LineCommand>> ()
 	{{
 		put ( "service store", ServiceStoreCommandLineCommand.class );
+		put ( "service delete", ServiceDeleteLineCommand.class );
+		put ( "service get", ServiceGetLineCommand.class );
 	}};
 	
 	/**
@@ -112,69 +110,32 @@ abstract class LineCommand
 		} 
 		catch ( ParseException e ) {
 			// Syntax error, report what the parser says and then leave run() to do printUsage()
-			out.println ( "\n\n " + e.getMessage () + "\n" );
+			err.println ( "\n\n " + e.getMessage () + "\n" );
 			return null;
 		}		
 	}
 	
 	
 	/**
-	 * Gets all the options accepted for this sub-command. This is the union of {@link #getCommonOptions()} and 
-	 * {@link #getSpecificOptions()}. We make a distinction between common and 
-	 * {@link #getSpecificOptions() specific} options, in order to be able to do {@link #printUsage()}.
-   *
+   * Gets the command line options. This default implementations should be fine for all the commands (and it's quicker 
+   * to implement it here, see its internals).
 	 * 
 	 */
-	@SuppressWarnings ( "unchecked" )
-	protected final Options getOptions()
-	{
-		Options opts = getCommonOptions ();
-		for ( Option opt: (Collection<Option>) getSpecificOptions ().getOptions () )
-			opts.addOption ( opt );
-		return opts;
-	}
-	
-	
-	/**
-	 * Gets those options that are common to all sub-commands. These are embedded in {@link #getOptions()}. 
-	 *  
-	 * We make a distinction between common and {@link #getSpecificOptions() specific} options, in order to be able to
-	 * do {@link #printUsage()}.
-	 */
-	@SuppressWarnings ( "static-access" )
-	protected static final Options getCommonOptions ()
+	@SuppressWarnings ( { "static-access" } )
+	protected Options getOptions()
 	{
 		Options opts = new Options ();
 
 		opts.addOption ( OptionBuilder
-			 	.withDescription ( 
-			 		"Prints this help message"
-			 	)
-				.withLongOpt ( "help" )
-				.create ( "h" ) 
-			);
-		
-		return opts;
-	}
+		 	.withDescription ( 
+		 		"Prints this help message"
+		 	)
+			.withLongOpt ( "help" )
+			.create ( "h" ) 
+		);
 
-	
-	/**
-	 * <p>Gets options that are specific to the sub-command managed by a specific extension of this class. 
-	 * These are embedded in {@link #getOptions()}.</p>
-	 *  
-	 * <p>We make a distinction between common and {@link #getSpecificOptions() specific} options, in order to be able to
-	 * do {@link #printUsage()}.</p>
-	 * 
-	 * <p>You'll see that at the moment this method is not overridden 
-	 * in currently existing sub-classes, since it's simpler to just have a conditional code based on {@link #commandString}.</p>
-	 *  
-	 */
-	@SuppressWarnings ( "static-access" )
-	protected Options getSpecificOptions () 
-	{
-		Options opts = new Options ();
-		
 		if ( commandString.endsWith ( " get" ) )
+		{
 			opts.addOption ( OptionBuilder
 			 	.hasArg ( true )
 				.withDescription ( 
@@ -185,44 +146,35 @@ abstract class LineCommand
 				.create ( "f" )
 			);
 		
-		if ( "mapping get".equals ( commandString ) )
-			opts.addOption ( OptionBuilder
-			 	.withDescription ( 
-				 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
-				 	)
-					.withLongOpt ( "raw" )
-					.create ( "r" ) 
+			if ( "mapping get".equals ( commandString ) )
+				opts.addOption ( OptionBuilder
+				 	.withDescription ( 
+					 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
+					 	)
+						.withLongOpt ( "raw" )
+						.create ( "r" ) 
 			);
+		} // if ' get'
 		
 		return opts;
 	}
 	
 	
-	/**
-	 * This gets the specific {@link LineCommand} that is associated to args[0] and args[1], e.g., 
-	 * returns {@link ServiceStoreCommandLineCommand} for { "service", "store" }.
-	 */
-	static LineCommand getCommand ( String... args )
-	{
-		Class<? extends LineCommand> cmdClass = HelpLineCommand.class;
-		
-		if ( args.length >= 2 )
-		{
-			String cmdStr = ( args [ 0 ].trim () + ' ' + args [ 1 ].trim () ).toLowerCase ();
-			cmdClass = LINE_COMMANDS.get ( cmdStr );
-			if ( cmdClass == null ) {
-				out.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );
-				cmdClass = HelpLineCommand.class;
-			}
-		}
-		else if ( args.length == 1 && !"--help".equalsIgnoreCase ( args [ 0 ].trim () ) )
-			out.println ( "\n  Wrong command '" + args [ 0 ] + "'\n\n" );
 
+	
+
+	/**
+	 * Instantiates a line command class, providing common checks over reflection errors. This is used in both 
+	 * {@link #getCommand(String...)} and elsewhere.
+	 * 
+	 */
+	static LineCommand getCommand ( Class<? extends LineCommand> lineCmdClass )
+	{
 		LineCommand result = null;
 		Exception invEx = null;
 		try
 		{
-			result = (LineCommand) ConstructorUtils.invokeConstructor ( cmdClass, null );
+			result = (LineCommand) ConstructorUtils.invokeConstructor ( lineCmdClass, null );
 		} 
 		catch ( NoSuchMethodException ex ) {
 			invEx = ex;
@@ -243,25 +195,34 @@ abstract class LineCommand
 		return result;
 	}
 
+	
 	/**
-	 * This prints a usage message for the command. The default version reports {@link #commandString} and {@link #getSpecificOptions()}.
-	 * {@link HelpLineCommand#printUsage()} reports the usage output given from the commands in {@link #LINE_COMMANDS} and also
-	 * {@link #getCommonOptions()}. Finally, it also set {@link #exitCode} at 1 (TODO: suitable value).
+	 * This gets the specific {@link LineCommand} that is associated to args[0] and args[1], e.g., 
+	 * returns {@link ServiceStoreCommandLineCommand} for { "service", "store" }. This uses {@link #getCommand(Class)}.
 	 */
-	protected void printUsage () 
+	static LineCommand getCommand ( String... args )
 	{
-		HelpFormatter helpFormatter = new HelpFormatter ();
-		PrintWriter pw = new PrintWriter ( out, true );
-		helpFormatter.printHelp ( pw, 100, 
-			commandString, 
-			"",
-			getSpecificOptions (), 
-			2, 4, 
-			"\n", 
-			false 
-		);
-		out.println ( "" );
+		Class<? extends LineCommand> cmdClass = HelpLineCommand.class;
+		
+		if ( args.length >= 2 )
+		{
+			String cmdStr = ( args [ 0 ].trim () + ' ' + args [ 1 ].trim () ).toLowerCase ();
+			cmdClass = LINE_COMMANDS.get ( cmdStr );
+			if ( cmdClass == null ) {
+				err.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );
+				cmdClass = HelpLineCommand.class;
+			}
+		}
+		else if ( args.length == 1 && !"--help".equalsIgnoreCase ( args [ 0 ].trim () ) )
+			err.println ( "\n  Wrong command '" + args [ 0 ] + "'\n\n" );
+		
+		return getCommand ( cmdClass );
 	}
+
+	/**
+	 * This prints a usage message for the command. 
+	 */
+	protected abstract void printUsage (); 
 
 	/**
 	 * Setup during the command argument parsing and execution with a suitable exit code value. So, you should exit with this

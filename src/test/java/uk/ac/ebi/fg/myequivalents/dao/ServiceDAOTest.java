@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrProvider;
+import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
  * 

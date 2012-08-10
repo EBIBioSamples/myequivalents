@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.out;
+import static java.lang.System.err;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -64,12 +65,12 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 			exitCode = 1; // TODO: Better reporting needed
 			throw new RuntimeException ( String.format ( 
 				"Error while tryint to read %s: %s", 
-				inFile == null ? "std input" : "'" + inFile.getAbsolutePath () + "'", 
+				inFile == null ? "<standard input>" : "'" + inFile.getAbsolutePath () + "'", 
 				ex.getMessage () 
 			));
 		}
 		
-		out.println ( "\nServices Updated" );
+		err.println ( "\nServices Updated" );
 		return;
 	}
 
@@ -88,9 +89,9 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		out.println ( "\n service store [xml-file]" );
-		out.println (   "   Creates/Updates service definitions and related entities (service-collections, repositories)" );
-		out.println (   "   Reads from the standard input if the file is omitted. See the documentation and tests for the XML format to use." );
+		err.println ( "\n service store [xml-file]" );
+		err.println (   "   Creates/Updates service definitions and related entities (service-collections, repositories)" );
+		err.println (   "   Reads from the standard input if the file is omitted. See the documentation and tests for the XML format to use." );
 	}
 
 }

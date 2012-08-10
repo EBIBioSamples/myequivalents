@@ -1,5 +1,4 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
-import static java.lang.System.out;
 import static java.lang.System.err;
 
 
@@ -57,11 +56,11 @@ public class Main
 		finally 
 		{
 			exitCode = lcmd == null ? 1 : lcmd.getExitCode ();
-			out.println ( "\nThe End. Quitting Java with exit code " + exitCode + "." );
+			err.println ( "\nThe End. Quitting Java with exit code " + exitCode + "." );
 
+			// This brutality has to be disabled during Junit tests
 			if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag" ) ) )
 				System.exit ( exitCode );
 		}
 	}
-	
 }

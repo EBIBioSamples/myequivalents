@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <appender name="ConsoleApp" class="ch.qos.logback.core.ConsoleAppender">
+  	<Target>System.err</Target>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%-5p]: %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ALL</level>
+    </filter>
+  </appender>
+  
+  <!-- 
+ 		The path specified here is overridden by the -r option and the log file name that is created has a timestamp postfix
+		(something like myequivalents_date_hour.log).
+		If you don't want this behaviour (e.g., you want a fixed file name in a fixed location) just use an appender with a 
+		different name (or add it, if you want both behaviours).
+  -->  
+  <appender name="FileApp" class="ch.qos.logback.core.FileAppender">
+    <!-- Adds up to a possibly existing file -->
+    <Append>false</Append>
+    <File>myequivalents.log</File>
+    <encoder>
+    	<!-- TODO: %C and %L are useful, but possibly slow, is it worth to ship with these? -->
+      <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-6t] [%-5p] \(%C{1},%L\): %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ALL</level>
+    </filter>
+  </appender>
+
+  
+	<!-- Minimal logging by default. WARNING: logback expects this to be put after the appenders! -->
+  <root level="WARN">
+    <appender-ref ref="ConsoleApp" />
+    <!-- TODO: Add log file management (-r option) -->
+    <appender-ref ref="FileApp" />
+  </root>
+
+	<!-- Add Loggers this way if you want finer reports for selected components -->
+  <logger name="uk.ac.ebi.fg.myequivalents" level="INFO"/>
+  
+</configuration>

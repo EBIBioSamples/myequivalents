@@ -1,6 +1,15 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.out;
+import static java.lang.System.err;
+
+import java.io.PrintWriter;
+import java.util.Collection;
+
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
 
 /**
  * This is a fall-back 'pseudo-command'. When the syntax is wrong, no sub-command is found in 
@@ -42,21 +51,35 @@ class HelpLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		out.println ();
+		err.println ();
 
-		out.println ( "\n\n *** The MyEquivalents Command Line Interface ***" );
-		out.println ( "\nCommand-line access to several functions in the MyEquivalents Infrastructure.\n" );
+		err.println ( "\n\n *** The MyEquivalents Command Line Interface ***" );
+		err.println ( "\nCommand-line access to several functions in the MyEquivalents Infrastructure." );
 
-		out.println ( "General Syntax:" );
-		out.println ( "\n <command> [options]" );
+		err.println ( "\nGeneral Syntax:" );
+		err.println ( "\n <command> [options]" );
+				
+		err.println ( "\nAvailable Commands: " );
 		
-		out.println ( "\nAvailable Commands: " );
+		Options allOpts = new Options ();
+		for ( Class<? extends LineCommand> cmdClass: LINE_COMMANDS.values () ) 
+		{
+			LineCommand lcmd = LineCommand.getCommand ( cmdClass );
+			lcmd.printUsage ();
+			for ( Option opt: (Collection<Option>) lcmd.getOptions ().getOptions () )
+				if ( !allOpts.hasOption ( opt.getOpt () ))
+					allOpts.addOption ( opt ); 
+		}
 		
-		for ( String cmd[]: new String[][] {{ "service", "store" }} )
-			LineCommand.getCommand ( cmd [ 0 ], cmd [ 1 ] ).printUsage ();
+		err.println ( "\n --help" );
+		err.println (   "   Prints this help message" );
 		
-		out.println ( "\n --help" );
-		out.println (   "   Prints this help message\n" );
+		err.println ( "\nOptions:" );
+		
+		HelpFormatter helpFormatter = new HelpFormatter ();
+		PrintWriter pw = new PrintWriter ( err, true );
+		helpFormatter.printOptions ( pw,100, allOpts, 2, 4 );
+		err.println ();
 	}
 	
 }

@@ -1,8 +1,16 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
+import static java.lang.System.out;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,9 +18,6 @@ import uk.ac.ebi.fg.myequivalents.managers.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
-
-import static java.lang.System.out;
-import static junit.framework.Assert.*;
 
 /**
  * 
@@ -49,7 +54,7 @@ public class MainTest
 	 * sort of XML you need for this API call. 
 	 */
 	@Test
-	public void testServiceStore () throws UnsupportedEncodingException
+	public void testServiceCommands () throws UnsupportedEncodingException
 	{
 		String xml =
 		"<service-items>\n" +
@@ -92,8 +97,39 @@ public class MainTest
 		
 		assertEquals ( "Wrong no of services stored!", 3, result.getServices ().size () );
 		assertEquals ( "Wrong no of SC stored!", 1, result.getServiceCollections ().size () );
-		assertEquals ( "service store returned a wrong exit code!", 0, Main.exitCode );
+		assertEquals ( "'service store' returned a wrong exit code!", 0, Main.exitCode );
+
+		// Before the invocation, capture the standard output
+		PrintStream stdOut = System.out;
+		ByteArrayOutputStream getOut = new ByteArrayOutputStream ();
+		System.setOut ( new PrintStream ( getOut ) );
+		
+		// And get rid of stuff like log messages. Unfortunately this won't be enough if hibernate.show_sql=true, 
+		// but at least we move out of our way as much as possible
+		PrintStream stdErr = System.err;
+		PrintStream devNull = new PrintStream ( new NullOutputStream () );
+		System.setErr ( devNull ); 
+		
+		Main.main ( "service", "get", "--format", "xml", "test.testmain.service7", "test.testmain.service8" );
+		String getOutStr = getOut.toString ( "UTF-8" );
+		System.setOut ( stdOut );
+		System.setErr ( stdErr );
+		
+		out.println ( "\n\n ====================== 'service get' says:\n" + getOutStr + "============================" );
+		
+		assertNotNull ( "'service get' didn't work!", getOutStr );
+		assertTrue ( "Wrong result from 'service get'!", getOutStr.contains ( "test.testmain.service8" ) );
+		assertTrue ( "Wrong result from 'service get' (xml)!", 
+			getOutStr.contains ( "<service-items>" ) );
+		assertTrue ( "Wrong result from 'service get' (xml, addedRepo1)!", 
+			getOutStr.contains ( "<repository name=\"test.testmain.addedRepo1\">" ) );
+		
+		Main.main ( "service", "delete", "test.testmain.service8" );
+		assertTrue ( "Service not deleted!", this.serviceMgr.getServices ( "test.testmain.service8" ).getServices ().isEmpty () );
+		assertEquals ( "'service delete' returned a wrong exit code!", 0, Main.exitCode );
+
 	}
+	
 	
 	/**
 	 * Checks the output of --help and alike

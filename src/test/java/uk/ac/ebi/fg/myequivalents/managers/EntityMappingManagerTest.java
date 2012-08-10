@@ -25,7 +25,7 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import uk.ac.ebi.fg.myequivalents.test.TestEntityMgrProvider;
+import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
  * 
@@ -83,7 +83,18 @@ public class EntityMappingManagerTest
 		EntityTransaction ts = em.getTransaction ();
 
 		ts.begin ();
-		emMgr.deleteEntities ( service1.getName (), "acc1", service2.getName (), "acc2" );
+		emMgr.deleteEntities ( 
+			service1.getName (), "acc1", 
+			service2.getName (), "acc2", 
+			service1.getName (), "b1.1",
+			service2.getName (), "b1.2",
+			service1.getName (), "b1.3",
+			service1.getName (), "b1.4",
+			service2.getName (), "b2.1",
+			service3.getName (), "b2.2"
+		);
+		
+		
 		serviceDao.delete ( service1 );
 		serviceDao.delete ( service2 );
 		serviceDao.delete ( service3 );

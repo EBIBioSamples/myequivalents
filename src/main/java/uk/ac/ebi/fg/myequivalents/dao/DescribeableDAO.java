@@ -7,6 +7,7 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.utils.reflection.ReflectionUtils;
@@ -49,8 +50,7 @@ public abstract class DescribeableDAO<D extends Describeable>
 	
 	public void store ( D describeable )
 	{
-		if ( describeable == null )
-			throw new NullPointerException ( "Cannot update a null object" );
+		Validate.notNull ( describeable, "Cannot update a null object" );
 		entityManager.merge ( describeable );
 	}
 		

@@ -15,6 +15,7 @@ import javax.persistence.Query;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.hibernate.jdbc.Work;
 
@@ -60,23 +61,16 @@ public class EntityMappingDAO
 	public void storeMapping ( String serviceName1, String accession1, String serviceName2, String accession2 )
 	{
 		serviceName1 = StringUtils.trimToNull ( serviceName1 );
-		if ( serviceName1 == null ) throw new IllegalArgumentException (
-			"Cannot work with a null service name"
-		);
+		Validate.notNull ( serviceName1, "Cannot work with a null service name (first entity)" );
 		
 		accession1 = StringUtils.trimToNull ( accession1 );
-		if ( accession1 == null ) throw new IllegalArgumentException (
-			"Cannot work with a null accession"
-		);
+		Validate.notNull ( accession1, "Cannot work with a null accession (first entity)" );
 
 		serviceName2 = StringUtils.trimToNull ( serviceName2 );
-		if ( serviceName2 == null ) throw new IllegalArgumentException (
-			"Cannot work with a null service name"
-		);
+		Validate.notNull ( serviceName2, "Cannot work with a null service name (2nd entity)" );
+		
 		accession2 = StringUtils.trimToNull ( accession2 );
-		if ( accession2 == null ) throw new IllegalArgumentException (
-			"Cannot work with a null accession"
-		);
+		Validate.notNull ( accession2, "Cannot work with a null accession (2nd entity)" );
 
 		String bundle1 = this.findBundle ( serviceName1, accession1 );
 		String bundle2 = this.findBundle ( serviceName2, accession2 );
@@ -122,8 +116,8 @@ public class EntityMappingDAO
 	public void storeMappings ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return;
-		if ( entities.length % 4 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for storeMappings, I expect a list of (serviceName1/accession1, serviceName2/accession2) quadruples"
+		Validate.isTrue ( entities.length % 4 == 0, "Wrong no. of arguments for storeMappings, I expect a list of " +
+			"(serviceName1/accession1, serviceName2/accession2) quadruples" 
 		);
 		
 		for ( int i = 0; i < entities.length; i++ )
@@ -143,9 +137,10 @@ public class EntityMappingDAO
 	public void storeMappingBundle ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return;
-		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for storeMappingBundle, I expect a list of serviceName/accession pairs"
+		Validate.isTrue ( entities.length % 2 == 0, "Wrong no. of arguments for storeMappingBundle, I expect a list of " +
+			"serviceName/accession pairs" 
 		);
+		
 
 		// Some further input validation
 		//
@@ -227,9 +222,8 @@ public class EntityMappingDAO
 	public int deleteEntitites ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return 0;
-		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for deleteEntitites, I expect a list of serviceName/accession pairs"
-		);
+		Validate.isTrue ( entities.length % 2 == 0, 
+			"Wrong no. of arguments for deleteEntitites, I expect a list of serviceName/accession pairs" );
 
 		int ct = 0;
 		for ( int i = 0; i < entities.length; i++ )
@@ -268,8 +262,8 @@ public class EntityMappingDAO
 	public int deleteMappingsForAllEntitites ( String... entities )
 	{
 		if ( entities == null || entities.length == 0 ) return 0;
-		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
+		Validate.isTrue ( entities.length % 2 == 0, 
+			"Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
 		);
 
 		int ct = 0;
