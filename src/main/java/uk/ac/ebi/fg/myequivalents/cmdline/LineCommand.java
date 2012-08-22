@@ -36,6 +36,15 @@ abstract class LineCommand
 		put ( "service store", ServiceStoreCommandLineCommand.class );
 		put ( "service delete", ServiceDeleteLineCommand.class );
 		put ( "service get", ServiceGetLineCommand.class );
+		put ( "service-collection delete", ServiceCollectionDeleteLineCommand.class );
+		put ( "service-collection get", ServiceCollectionGetLineCommand.class );
+		put ( "repository delete", RepositoryDeleteLineCommand.class );
+		put ( "repository get", RepositoryGetLineCommand.class );
+		put ( "mapping store", MappingStoreCommandLineCommand.class );
+		put ( "mapping store-bundle", MappingStoreBundleCommandLineCommand.class );
+		put ( "mapping delete", MappingDeleteCommandLineCommand.class );
+		put ( "mapping delete-entity", MappingDeleteEntityCommandLineCommand.class );
+		put ( "mapping get", MappingGetCommandLineCommand.class );
 	}};
 	
 	/**
@@ -127,13 +136,11 @@ abstract class LineCommand
 		Options opts = new Options ();
 
 		opts.addOption ( OptionBuilder
-		 	.withDescription ( 
-		 		"Prints this help message"
-		 	)
+		 	.withDescription ( "Prints this help message"	)
 			.withLongOpt ( "help" )
 			.create ( "h" ) 
 		);
-
+		
 		if ( commandString.endsWith ( " get" ) )
 		{
 			opts.addOption ( OptionBuilder

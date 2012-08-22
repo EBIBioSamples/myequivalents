@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
-import static java.lang.System.out;
 import static java.lang.System.err;
 
 import java.io.PrintWriter;

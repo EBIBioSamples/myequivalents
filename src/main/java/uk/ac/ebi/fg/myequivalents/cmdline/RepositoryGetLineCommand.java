@@ -10,16 +10,16 @@ import org.apache.commons.lang.ArrayUtils;
 import uk.ac.ebi.fg.myequivalents.managers.ServiceManager;
 
 /**
- * The 'service get' command, a wrapper for {@link ServiceManager#getServicesAs(String, String...)}.
+ * The 'repository get' command, a wrapper for {@link ServiceManager#getRepositoriesAs(String, String...)}.
  *
- * <dl><dt>date</dt><dd>Jul 31, 2012</dd></dl>
+ * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class ServiceGetLineCommand extends LineCommand
+public class RepositoryGetLineCommand extends LineCommand
 {
-	public ServiceGetLineCommand () {
-		super ( "service get" );
+	public RepositoryGetLineCommand () {
+		super ( "repository get" );
 	}
 	
 	@Override
@@ -34,10 +34,10 @@ public class ServiceGetLineCommand extends LineCommand
 		if ( args != null && args.length > 2 )
 		{
 			String fmtTag = cmdLine.getOptionValue ( "format", "xml" );
-			System.out.print ( servMgr.getServicesAs ( fmtTag, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) );
+			System.out.print ( servMgr.getRepositoriesAs ( fmtTag, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) );
 		}
 		
-		err.println ( "\nService(s) Fetched" );
+		err.println ( "\nRepository(ies) Fetched" );
 		return;
 	}
 
@@ -45,8 +45,8 @@ public class ServiceGetLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n service get name..." );
-		err.println (   "   Gets service info, services identified by name" );
+		err.println ( "\n repository get name..." );
+		err.println (   "   Gets repository info, repositories identified by name" );
 	}	
 
 }

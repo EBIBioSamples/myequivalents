@@ -171,7 +171,9 @@ public class EntityMappingDAO
 				// There is already a bundle with one of the input entities, so let's attach all of them to this
 				for ( int j = 0; j < entities.length; j++ )
 				{
-					if ( i == j ) continue;
+					if ( i == j ) { 
+						j++; continue; 
+					}
 					String serviceName = entities [ j ], accession = entities [ ++j ];
 					String bundle1 = this.findBundle ( serviceName, accession );
 					if ( bundle.equals ( bundle1 ) ) continue;
@@ -206,9 +208,18 @@ public class EntityMappingDAO
 		serviceName = StringUtils.trimToNull ( serviceName ); if ( serviceName == null ) return false;
 		accession = StringUtils.trimToNull ( accession ); if ( accession == null ) return false;
 
-		return entityManager.createNativeQuery (
+		String bundle = findBundle ( serviceName, accession );
+		if ( bundle == null ) return false;
+		
+		entityManager.createNativeQuery (
 			"DELETE FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'"
-		).executeUpdate () > 0;
+		).executeUpdate ();
+		if ( ((Integer) entityManager.createNativeQuery ( 
+			    "SELECT COUNT( bundle ) AS ct FROM entity_mapping WHERE bundle = '" + bundle + "'" 
+			   ).getSingleResult () ) == 1 )
+			entityManager.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
+		
+		return true;
 	}
 	
 	/**

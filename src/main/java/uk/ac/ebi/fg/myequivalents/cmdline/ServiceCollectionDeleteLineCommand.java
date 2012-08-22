@@ -11,16 +11,17 @@ import org.apache.commons.lang.ArrayUtils;
 import uk.ac.ebi.fg.myequivalents.managers.ServiceManager;
 
 /**
- * The 'service delete' command, a wrapper for {@link ServiceManager#deleteServices(String...)}.
+ * 
+ * The 'service-collection delete' command, a wrapper for {@link ServiceManager#deleteServiceCollections(String...)}.
  *
- * <dl><dt>date</dt><dd>Jul 31, 2012</dd></dl>
+ * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class ServiceDeleteLineCommand extends LineCommand
+public class ServiceCollectionDeleteLineCommand extends LineCommand
 {
-	public ServiceDeleteLineCommand () {
-		super ( "service delete" );
+	public ServiceCollectionDeleteLineCommand () {
+		super ( "service-collection delete" );
 	}
 	
 	@Override
@@ -33,9 +34,9 @@ public class ServiceDeleteLineCommand extends LineCommand
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
-			servMgr.deleteServices ( (String[]) ArrayUtils.subarray ( args, 2, args.length ) );
+			servMgr.deleteServiceCollections ( (String[]) ArrayUtils.subarray ( args, 2, args.length ) );
 		
-		err.println ( "\nService(s) Deleted" );
+		err.println ( "\nService-Collection(s) Deleted" );
 		return;
 	}
 
@@ -43,8 +44,8 @@ public class ServiceDeleteLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n service delete name..." );
-		err.println (   "   Deletes services, identified by their symbolic names" );
+		err.println ( "\n service-collection delete name..." );
+		err.println (   "   Deletes service-collections, identified by their symbolic names" );
 		err.println (   "   Will generate an error if any of the service is being referred by some other entity." );
 	}	
 
