@@ -1,6 +1,18 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 import static java.lang.System.err;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
+
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
+
 
 /**
  * <h2>The myequivalents command line</h2>
@@ -34,7 +46,7 @@ public class Main
 	/**
 	 * Used for JUnit tests
 	 */
-	static int exitCode;
+	static int exitCode = 0;
 	
 	/**
 	 * Uses {@link LineCommand#getCommand(String...)} to understand which sub-command was passed to args, args the proper
@@ -44,31 +56,49 @@ public class Main
 	 */
 	public static void main( String... args )
 	{
-		Runtime.getRuntime().addShutdownHook ( new Thread( new Runnable() 
-		{
-			@Override
-			public void run ()
-			{
-				err.println ( "\nThe End. Quitting Java with exit code " + exitCode + "." );
-
-				// This brutality has to be disabled during Junit tests
-				if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag" ) ) )
-					System.exit ( exitCode );
-			}
-		}));
-
 		LineCommand lcmd = null; 
 		
 		try {
 			lcmd = LineCommand.getCommand ( args );
 			lcmd.run ( args );
+			exitCode = lcmd == null ? 1 : lcmd.getExitCode ();
 		}
-		catch ( Throwable t ) {
+		catch ( Throwable t ) 
+		{
+			exitCode = lcmd == null ? 1 : lcmd.getExitCode ();
+			if ( exitCode == 0 )
+				// If it is still 0, despite the error condition, force it to a non-zero code
+				exitCode = 1;
 			t.printStackTrace ( err );
 		}
 		finally 
 		{
-			exitCode = lcmd == null ? 1 : lcmd.getExitCode ();
+			
+			// This brutality has to be disabled during Junit tests
+			if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag" ) ) ) 
+			{
+				// Sounds like we need to shutdown HSQLDB
+				//
+				EntityManagerFactory emf = Resources.getInstance ().getEntityManagerFactory ();
+				EntityManager em = emf.createEntityManager ();
+				((Session) em.getDelegate ()).doWork ( new Work() 
+				{
+					@Override
+					public void execute ( Connection connection ) throws SQLException
+					{
+						DatabaseMetaData dbmsMeta = connection.getMetaData ();
+						String dbmsName = dbmsMeta.getDatabaseProductName ().toLowerCase ();
+						if ( dbmsName.contains ( "hsql" ) ) {
+							connection.createStatement ().executeUpdate ( "SHUTDOWN;" );
+							connection.commit ();
+						}
+					}
+				});
+				emf.close ();
+				
+				err.println ( "\nThe End. Quitting Java with exit code " + exitCode + "." );
+				System.exit ( exitCode );
+			}
 		}
 	}
 }

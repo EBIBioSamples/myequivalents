@@ -56,7 +56,7 @@ class HelpLineCommand extends LineCommand
 		err.println ( "\nCommand-line access to several functions in the MyEquivalents Infrastructure." );
 
 		err.println ( "\nGeneral Syntax:" );
-		err.println ( "\n <command> [options]" );
+		err.println ( "\n myeq.sh <command> [options]" );
 				
 		err.println ( "\nAvailable Commands: " );
 		
