@@ -9,6 +9,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,25 +62,45 @@ public class EntityMappingDAOTest
 		service5.setUriPrefix ( "http://somewhere-else.in.the.net/testemdao/service5/" );
 
 		EntityTransaction ts = em.getTransaction ();
-
 		ts.begin ();
-		emDao.deleteEntitites ( service1.getName (), "acc1", service2.getName (), "acc2" );
-		serviceDao.delete ( service1 );
-		serviceDao.delete ( service2 );
-		serviceDao.delete ( service3 );
-		serviceDao.delete ( service4 );
-		serviceDao.delete ( service5 );
-		
-		assertEquals ( "Entities not deleted!", 0, emDao.findMappings ( service1.getName (), "acc1" ).size () );
-		assertEquals ( "Entities not deleted!", 0, emDao.findMappings ( service2.getName (), "acc2" ).size () );
-		// TODO: more 
-		
 		serviceDao.store ( service1 );
 		serviceDao.store ( service2 );
 		serviceDao.store ( service3 );
 		serviceDao.store ( service4 );
 		serviceDao.store ( service5 );
 		ts.commit ();
+	}
+	
+	@After
+	public void cleanUpDB ()
+	{
+		EntityManager em = emProvider.getEntityManager ();
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		emDao.deleteEntitites ( 
+			service1.getName (), "acc1", 
+			service2.getName (), "acc2",
+			service1.getName (), "acc10",
+			service2.getName (), "acc12",
+			service3.getName (), "acc12",
+			service4.getName (), "acc1",
+			service5.getName (), "acc1"
+		);
+		ts.commit ();
+
+		assertEquals ( "Entities not deleted!", 0, emDao.findMappings ( service1.getName (), "acc1" ).size () );
+		assertEquals ( "Entities not deleted!", 0, emDao.findMappings ( service2.getName (), "acc2" ).size () );
+
+		ts.begin ();
+		serviceDao.delete ( service1 );
+		serviceDao.delete ( service2 );
+		serviceDao.delete ( service3 );
+		serviceDao.delete ( service4 );
+		serviceDao.delete ( service5 );
+		ts.commit ();
+		
+
+		// TODO: more checks 
 	}
 
 	@Test

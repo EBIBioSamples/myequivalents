@@ -77,7 +77,7 @@ public class Main
 			// This brutality has to be disabled during Junit tests
 			if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag" ) ) ) 
 			{
-				// Sounds like we need to shutdown HSQLDB
+				// Sounds like we need to shutdown HSQLDB, due to System.exit()
 				//
 				EntityManagerFactory emf = Resources.getInstance ().getEntityManagerFactory ();
 				EntityManager em = emf.createEntityManager ();
@@ -94,6 +94,7 @@ public class Main
 						}
 					}
 				});
+				// Just in case, let's do this too
 				emf.close ();
 				
 				err.println ( "\nThe End. Quitting Java with exit code " + exitCode + "." );

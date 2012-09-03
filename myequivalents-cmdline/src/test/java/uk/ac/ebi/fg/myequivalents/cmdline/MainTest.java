@@ -238,7 +238,9 @@ public class MainTest
 		PrintStream devNull = new PrintStream ( new NullOutputStream () );
 		System.setErr ( devNull ); 
 		
-		Main.main ( "mapping", "get", "--raw", "test.testmain.service6", "acc1", "test.testmain.service6", "acc4" );
+		Main.main ( "mapping", "get", "--raw", 
+			"test.testmain.service6", "acc1" 
+		);
 		String getOutStr = getOut.toString ( "UTF-8" );
 		System.setOut ( stdOut );
 		System.setErr ( stdErr );

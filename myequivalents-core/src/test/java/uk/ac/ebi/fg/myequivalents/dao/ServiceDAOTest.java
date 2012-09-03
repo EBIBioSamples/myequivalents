@@ -36,15 +36,6 @@ public class ServiceDAOTest
 		dao = new ServiceDAO ( emProvider.getEntityManager () );
 	}
 	
-/*	public static void clearDB ()
-	{
-		EntityManager em = emfProvider.getEntityManagerFactory ().createEntityManager ();
-		ServiceDAO dao = new ServiceDAO ( em );
-		EntityTransaction tns = em.getTransaction ();
-		dao.deleteAll ();
-		tns.commit ();
-	}
-*/	
 	@Test
 	public void testCreate ()
 	{

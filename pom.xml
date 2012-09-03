@@ -239,7 +239,7 @@
   		<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
 				<test.jdbc.password></test.jdbc.password>
-				<test.jdbc.url>jdbc:hsqldb:file:target/database/testdb;shutdown=true</test.jdbc.url>
+				<test.jdbc.url>jdbc:hsqldb:file:${basedir}/target/database/testdb;shutdown=true</test.jdbc.url>
 				<test.jdbc.driverClassName>org.hsqldb.jdbcDriver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.HSQLDialect</test.hibernate.dialect>
 				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
