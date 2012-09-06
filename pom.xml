@@ -13,7 +13,8 @@
 	<modules>
 	  <module>myequivalents-core</module>
 		<module>myequivalents-cmdline</module>
-  </modules>
+		<module>myequivalents-web</module>
+	</modules>
 
 	<dependencies>
 

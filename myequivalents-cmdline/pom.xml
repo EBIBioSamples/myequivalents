@@ -11,12 +11,13 @@
   
 	<dependencies>
 
+		<!-- Use Logback as concrete test logger -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 		</dependency>
 
-		<!-- Intercepts log4j and sends it to logback -->		
+		<!-- Intercepts log4j and sends it to SL4J -->		
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>

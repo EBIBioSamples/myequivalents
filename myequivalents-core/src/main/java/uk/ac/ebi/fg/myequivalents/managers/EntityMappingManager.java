@@ -1,4 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.managers;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
@@ -30,6 +33,7 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * TODO: Use {@link Validate} instead of manual validation.
  *
  */
+@WebService ( serviceName = "mapping-ws" )
 public class EntityMappingManager
 {
 	private EntityManager entityManager;
@@ -168,7 +172,11 @@ public class EntityMappingManager
 	 * only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats like RDF or JSON for 
 	 * the future.
 	 */
-	public String getMappingsAs ( String outputFormat, boolean wantRawResult, String... entities )
+	@WebMethod ( operationName = "get-mappings" )
+	public String getMappingsAs ( 
+		String outputFormat, 
+		boolean wantRawResult, 
+		String... entities )
 	{
 		if ( "xml".equals ( outputFormat ) )
 			return getMappingsAsXml ( wantRawResult, entities );
