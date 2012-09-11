@@ -67,7 +67,14 @@
 			<version>${project.version}</version>
 		</dependency>
 		
-		
+
+		<!-- _____________ TEST _____________ -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
+						
 	</dependencies>  
 
 
@@ -91,6 +98,8 @@
 				This allows deployment via mvn tomcat:deploy and tomcat:redeploy
 				If you prefer to create the war and copy it manually under tomcat/webapps, issue this:
 					mvn -Dmaven.test.skip=true package 
+					
+				TODO: imported from an old project, not re-tested.
 			-->
 			<plugin>
 		    <groupId>org.codehaus.mojo</groupId>
@@ -107,19 +116,29 @@
 		
 			<!-- This allows to test with mvn jetty:run -->
 	    <plugin>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>maven-jetty-plugin</artifactId>
-        <version>6.1.26</version>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>8.1.5.v20120716</version>
 	      <configuration>
+
+					<systemProperties>
+						<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.test.WebTestDataInitializer -->
+          	<systemProperty>
+            	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
+              <value>true</value>
+            </systemProperty>
+         	</systemProperties>	      	
+	      	
 	        <scanIntervalSeconds>10</scanIntervalSeconds>
+	        <useTestScope>true</useTestScope>
 	        <connectors>
-	          <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+	          <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
 	            <port>8080</port>
 	            <maxIdleTime>60000</maxIdleTime>
 	          </connector>
 	        </connectors>
 	      </configuration>
-	    </plugin>		
+	    </plugin>
 	    		
 		</plugins>		
 		

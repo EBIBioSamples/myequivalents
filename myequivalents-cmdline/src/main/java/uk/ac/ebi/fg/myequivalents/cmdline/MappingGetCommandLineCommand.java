@@ -44,7 +44,7 @@ public class MappingGetCommandLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n mapping get <service accession|uri>..." );
+		err.println ( "\n mapping get <service:accession|uri>..." );
 		err.println (   "   Fetches entity mappings" );
 	}
 

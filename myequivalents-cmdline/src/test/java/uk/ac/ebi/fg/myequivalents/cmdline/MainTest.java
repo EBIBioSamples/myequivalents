@@ -220,11 +220,11 @@ public class MainTest
 	{
 		serviceMgr.storeServicesFromXML ( new StringReader ( testServiceXml ) );
 		Main.main ( "mapping", "store", 
-			"test.testmain.service6", "acc1", "test.testmain.service8", "acc2", 
-			"test.testmain.service6", "acc3", "test.testmain.service6", "acc4" 
+			"test.testmain.service6:acc1", "test.testmain.service8:acc2", 
+			"test.testmain.service6:acc3", "test.testmain.service6:acc4" 
 		);
 		Main.main ( "mapping", "store-bundle",
-			"test.testmain.service7", "acc1", "test.testmain.service6", "acc4", "test.testmain.service6", "acc1"
+			"test.testmain.service7:acc1", "test.testmain.service6:acc4", "test.testmain.service6:acc1"
 		);
 		
 		// Before the invocation, capture the standard output
@@ -238,9 +238,7 @@ public class MainTest
 		PrintStream devNull = new PrintStream ( new NullOutputStream () );
 		System.setErr ( devNull ); 
 		
-		Main.main ( "mapping", "get", "--raw", 
-			"test.testmain.service6", "acc1" 
-		);
+		Main.main ( "mapping", "get", "--raw", "test.testmain.service6:acc1" );
 		String getOutStr = getOut.toString ( "UTF-8" );
 		System.setOut ( stdOut );
 		System.setErr ( stdErr );
@@ -261,14 +259,14 @@ public class MainTest
 		
 		// Deletion
 		//
-		Main.main ( "mapping", "delete-entity", "test.testmain.service6", "acc3" );
+		Main.main ( "mapping", "delete-entity", "test.testmain.service6:acc3" );
 		EntityMappingManager emMgr = new EntityMappingManager ();
 		assertTrue ( "'mapping delete-entity' didn't work!", 
-			emMgr.getMappings ( true, "test.testmain.service6", "acc3" ).getBundles ().isEmpty () );
+			emMgr.getMappings ( true, "test.testmain.service6:acc3" ).getBundles ().isEmpty () );
 		
-		Main.main ( "mapping", "delete", "test.testmain.service7", "acc1" );
+		Main.main ( "mapping", "delete", "test.testmain.service7:acc1" );
 		assertTrue ( "'mapping delete' didn't work!", 
-				emMgr.getMappings ( true, "test.testmain.service6", "acc1" ).getBundles ().isEmpty () );
+				emMgr.getMappings ( true, "test.testmain.service6:acc1" ).getBundles ().isEmpty () );
 	}
 	
 	

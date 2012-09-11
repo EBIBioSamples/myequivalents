@@ -78,13 +78,13 @@ public class EntityMappingDAOTest
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		emDao.deleteEntitites ( 
-			service1.getName (), "acc1", 
-			service2.getName (), "acc2",
-			service1.getName (), "acc10",
-			service2.getName (), "acc12",
-			service3.getName (), "acc12",
-			service4.getName (), "acc1",
-			service5.getName (), "acc1"
+			service1.getName () + ":acc1", 
+			service2.getName () + ":acc2",
+			service1.getName () + ":acc10",
+			service2.getName () + ":acc12",
+			service3.getName () + ":acc12",
+			service4.getName () + ":acc1",
+			service5.getName () + ":acc1"
 		);
 		ts.commit ();
 
@@ -132,21 +132,21 @@ public class EntityMappingDAOTest
 		EntityTransaction ts = em.getTransaction ();
 
 		ts.begin ();
-		emDao.storeMappingBundle ( service1.getName (), "acc10", service2.getName (), "acc11", service3.getName (), "acc12" );
+		emDao.storeMappingBundle ( service1.getName () + ":acc10", service2.getName () + ":acc11", service3.getName () + ":acc12" );
 		ts.commit ();
 		
 		List<String> mappings = emDao.findMappings ( service1.getName (), "acc10" );
 		assertEquals ( "Result size is wrong (1+2+3)!", 6, mappings.size () );
 
 		ts.begin ();
-		emDao.storeMappings ( service4.getName (), "acc1", service5.getName (), "acc1" );
+		emDao.storeMappings ( service4.getName () + ":acc1", service5.getName () + ":acc1" );
 		ts.commit ();
 		
 		mappings = emDao.findMappings ( service5.getName (), "acc1" );
 		assertEquals ( "Result size is wrong (4+5)", 4, mappings.size () );
 		
 		ts.begin ();
-		emDao.storeMapping ( service5.getName (), "acc1", service2.getName (), "acc11" );
+		emDao.storeMapping ( service5.getName () + ":acc1", service2.getName () + ":acc11" );
 		ts.commit ();
 		
 		mappings = emDao.findMappings ( service2.getName (), "acc11" );
@@ -156,12 +156,12 @@ public class EntityMappingDAOTest
 		emDao.storeMapping ( service1.getName (), "acc10", service1.getName (), "acc30" );
 		ts.commit ();
 		
-		mappings = emDao.findMappings ( service3.getName (), "acc12" );
+		mappings = emDao.findMappings ( service3.getName () + ":acc12" );
 		assertEquals ( "Result size is wrong (1+2+3+4+5+30)", 12, mappings.size () );
 		
 		ts.begin ();
 		assertEquals ( "Wrong deleteEntities() result!", 2, 
-			emDao.deleteEntitites ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
+			emDao.deleteEntitites ( service1.getName () + ":acc10", service5.getName () + ":acc1" ) );
 		ts.commit ();
 		
 		mappings = emDao.findMappings ( service3.getName (), "acc12" );
@@ -169,14 +169,14 @@ public class EntityMappingDAOTest
 		
 		ts.begin ();
 		assertEquals ( "Wrong deleteMappings() result!", 
-			0, emDao.deleteMappingsForAllEntitites ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
+			0, emDao.deleteMappingsForAllEntitites ( service1.getName () + ":acc10", service5.getName () + ":acc1" ) );
 		ts.commit ();
 		
-		mappings = emDao.findMappings ( service3.getName (), "acc12" );
+		mappings = emDao.findMappings ( service3.getName () + ":acc12" );
 		assertEquals ( "Result size is wrong (2+3+4+30), after null delete", 8, mappings.size () );
 
 		ts.begin ();
-		emDao.deleteMappingsForAllEntitites ( service2.getName (), "acc11", service3.getName (), "acc12", service4.getName (), "acc1" );
+		emDao.deleteMappingsForAllEntitites ( service2.getName () + ":acc11", service3.getName () + ":acc12", service4.getName () + ":acc1" );
 		ts.commit ();
 		
 		mappings = emDao.findMappings ( service1.getName (), "acc30" );
@@ -191,14 +191,14 @@ public class EntityMappingDAOTest
 		EntityTransaction ts = em.getTransaction ();
 
 		ts.begin ();
-		  emDao.storeMappingBundle ( service1.getName (), "acc10", service2.getName (), "acc11", service3.getName (), "acc12" );
+		  emDao.storeMappingBundle ( service1.getName () + ":acc10", service2.getName () + ":acc11", service3.getName () + ":acc12" );
 		ts.commit ();
 		
 		List<EntityMapping> mappings = emDao.findEntityMappings ( service1.getName (), "acc10" );
 		assertEquals ( "Result size is wrong (1+2+3)!", 3, mappings.size () );
 
 		ts.begin ();
-		  emDao.storeMappings ( service4.getName (), "acc1", service5.getName (), "acc1" );
+		  emDao.storeMappings ( service4.getName () + ":acc1", service5.getName () + ":acc1" );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service5.getName (), "acc1" );
@@ -212,10 +212,10 @@ public class EntityMappingDAOTest
 		assertEquals ( "Result size is wrong (1+2+3+4+5)", 5, mappings.size () );
 
 		ts.begin ();
-		  emDao.storeMapping ( service1.getName (), "acc10", service1.getName (), "acc30" );
+		  emDao.storeMapping ( service1.getName () + ":acc10", service1.getName () + ":acc30" );
 		ts.commit ();
 		
-		mappings = emDao.findEntityMappings ( service3.getName (), "acc12" );
+		mappings = emDao.findEntityMappings ( service3.getName () + ":acc12" );
 		assertEquals ( "Result size is wrong (1+2+3+4+5+30)", 6, mappings.size () );
 		
 		boolean isFound = false;
@@ -230,7 +230,7 @@ public class EntityMappingDAOTest
 		
 		ts.begin ();
 		assertEquals ( "Wrong deleteEntities() result!", 2, 
-			emDao.deleteEntitites ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
+			emDao.deleteEntitites ( service1.getName () + ":acc10", service5.getName () + ":acc1" ) );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service3.getName (), "acc12" );
@@ -238,14 +238,14 @@ public class EntityMappingDAOTest
 		
 		ts.begin ();
 		assertEquals ( "Wrong deleteMappings() result!", 
-			0, emDao.deleteMappingsForAllEntitites ( service1.getName (), "acc10", service5.getName (), "acc1" ) );
+			0, emDao.deleteMappingsForAllEntitites ( service1.getName () + ":acc10", service5.getName () + ":acc1" ) );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service3.getName (), "acc12" );
 		assertEquals ( "Result size is wrong (2+3+4+30), after null delete", 4, mappings.size () );
 		
 		ts.begin ();
-		emDao.deleteMappingsForAllEntitites ( service2.getName (), "acc11", service3.getName (), "acc12", service4.getName (), "acc1" );
+		emDao.deleteMappingsForAllEntitites ( service2.getName () + ":acc11", service3.getName () + ":acc12", service4.getName () + ":acc1" );
 		ts.commit ();
 		
 		mappings = emDao.findEntityMappings ( service1.getName (), "acc30" );

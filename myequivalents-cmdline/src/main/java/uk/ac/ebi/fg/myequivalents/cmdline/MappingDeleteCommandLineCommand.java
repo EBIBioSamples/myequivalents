@@ -49,7 +49,7 @@ public class MappingDeleteCommandLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n mapping delete <service accession|uri>..." );
+		err.println ( "\n mapping delete <service:accession|uri>..." );
 		err.println (   "   Deletes mappings between entities, which have to be listed as pairs of identifiers" );
 	}
 

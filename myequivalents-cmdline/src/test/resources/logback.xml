@@ -4,6 +4,7 @@
 <configuration>
 
   <appender name="ConsoleApp" class="ch.qos.logback.core.ConsoleAppender">
+  	<!-- We send all the logging to the std err, cause there are tests (of line-commands) that harvest the std out -->
   	<Target>System.err</Target>
     <encoder>
       <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-6t] [%-5p] \(%C{1},%L\): %m%n</pattern>

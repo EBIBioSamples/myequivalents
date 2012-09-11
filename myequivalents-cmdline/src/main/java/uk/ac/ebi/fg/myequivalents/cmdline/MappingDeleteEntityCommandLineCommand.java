@@ -38,7 +38,7 @@ public class MappingDeleteEntityCommandLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n mapping delete-entity <service accession|uri>..." );
+		err.println ( "\n mapping delete-entity <service:accession|uri>..." );
 		err.println (   "   Deletes entities from any mapping they are involved in, entities have to be listed as pairs of identifiers" );
 	}
 

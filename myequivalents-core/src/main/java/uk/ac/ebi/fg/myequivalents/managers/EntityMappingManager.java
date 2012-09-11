@@ -1,10 +1,8 @@
 package uk.ac.ebi.fg.myequivalents.managers;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
@@ -33,7 +31,6 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * TODO: Use {@link Validate} instead of manual validation.
  *
  */
-@WebService ( serviceName = "mapping-ws" )
 public class EntityMappingManager
 {
 	private EntityManager entityManager;
@@ -50,18 +47,18 @@ public class EntityMappingManager
 	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) and
 	 * wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
 	 */
-	public void storeMappings ( String... entities )
+	public void storeMappings ( String... entityIds )
 	{
-		if ( entities == null || entities.length == 0 ) return;
-		if ( entities.length % 4 != 0 ) throw new IllegalArgumentException (
+		if ( entityIds == null || entityIds.length == 0 ) return;
+		if ( entityIds.length % 2 != 0 ) throw new IllegalArgumentException (
 		  "Wrong no. of arguments for storeMappings, I expect a list of (serviceName1/accession1, serviceName2/accession2) quadruples"
 		);
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-			if ( entities.length == 4 )
-				entityMappingDAO.storeMapping ( entities [ 0 ], entities [ 1 ], entities [ 2 ], entities [ 3 ] );
+			if ( entityIds.length == 2 )
+				entityMappingDAO.storeMapping ( entityIds [ 0 ], entityIds [ 1 ] );
 			else
-				entityMappingDAO.storeMappings ( entities );
+				entityMappingDAO.storeMappings ( entityIds );
 		ts.commit ();
 	}
 
@@ -70,11 +67,11 @@ public class EntityMappingManager
 	 * of service/accession. This uses {@link EntityMappingManager#storeMappingBundle(String...)} (see there for details) 
 	 * and wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
 	 */
-	public void storeMappingBundle ( String... entities )
+	public void storeMappingBundle ( String... entityIds )
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-		  entityMappingDAO.storeMappingBundle ( entities );
+		  entityMappingDAO.storeMappingBundle ( entityIds );
 		ts.commit ();
 	}
 
@@ -83,20 +80,17 @@ public class EntityMappingManager
 	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) and
 	 * wraps it with the transaction management.
 	 */
-	public int deleteMappings ( String... entities )
+	public int deleteMappings ( String... entityIds )
 	{
-		if ( entities == null || entities.length == 0 ) return 0;
-		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
-		);
+		if ( entityIds == null || entityIds.length == 0 ) return 0;
 
 		int result = 0;
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-			if ( entities.length == 2 )
-				result = entityMappingDAO.deleteMappings ( entities [ 0 ], entities [ 1 ] );
+			if ( entityIds.length == 1 )
+				result = entityMappingDAO.deleteMappings ( entityIds [ 0 ] );
 			else
-				result = entityMappingDAO.deleteMappingsForAllEntitites ( entities );
+				result = entityMappingDAO.deleteMappingsForAllEntitites ( entityIds );
 		ts.commit ();
 		return result;
 	}
@@ -107,20 +101,17 @@ public class EntityMappingManager
 	 * This uses {@link EntityMappingManager#deleteEntities(String...)} (see there for details) 
 	 * and wraps it with the transaction management. 
 	 */
-	public int deleteEntities ( String... entities )
+	public int deleteEntities ( String... entityIds )
 	{
-		if ( entities == null || entities.length == 0 ) return 0;
-		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
-		);
+		if ( entityIds == null || entityIds.length == 0 ) return 0;
 
 		int result = 0;
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-			if ( entities.length == 2 )
-				result = entityMappingDAO.deleteEntity ( entities [ 0 ], entities [ 1 ] ) ? 1 : 0;
+			if ( entityIds.length == 1 )
+				result = entityMappingDAO.deleteEntity ( entityIds [ 0 ] ) ? 1 : 0;
 			else
-				result = entityMappingDAO.deleteEntitites ( entities );
+				result = entityMappingDAO.deleteEntitites ( entityIds );
 		ts.commit ();
 		return result;
 	}
@@ -136,17 +127,15 @@ public class EntityMappingManager
 	 * {@link Repository}), it only reports bundles of entity mappings. This will be faster if you just needs links.
 	 * 
 	 */
-	public EntityMappingSearchResult getMappings ( boolean wantRawResult, String... entities )
+	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String... entityIds )
 	{
+		if ( wantRawResult == null ) wantRawResult = false;
 		EntityMappingSearchResult result = new EntityMappingSearchResult ( wantRawResult );
 
-		if ( entities == null || entities.length == 0 ) return result;
-		if ( entities.length % 2 != 0 ) throw new IllegalArgumentException (
-		  "Wrong no. of arguments for getMappings, I expect a list of serviceName/accession pairs"
-		);
+		if ( entityIds == null || entityIds.length == 0 ) return result;
 		
-		for ( int i = 0; i < entities.length; i++ )
-			result.addAllEntityMappings ( entityMappingDAO.findEntityMappings ( entities [ i ], entities [ ++i ]) );
+		for ( int i = 0; i < entityIds.length; i++ )
+			result.addAllEntityMappings ( entityMappingDAO.findEntityMappings ( entityIds [ i ] ) );
 		
 		return result;
 	}
@@ -159,10 +148,10 @@ public class EntityMappingManager
 	 * See {@link EntityMappingManagerTest} for details. 
 	 * 
 	 */
-	private String getMappingsAsXml ( boolean wantRawResult, String... entities )
+	private String getMappingsAsXml ( boolean wantRawResult, String... entityIds )
 	{
 		return JAXBUtils.marshal ( 
-			this.getMappings ( wantRawResult, entities ), 
+			this.getMappings ( wantRawResult, entityIds ), 
 			EntityMappingSearchResult.class
 		);
 	}
@@ -172,14 +161,11 @@ public class EntityMappingManager
 	 * only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats like RDF or JSON for 
 	 * the future.
 	 */
-	@WebMethod ( operationName = "get-mappings" )
-	public String getMappingsAs ( 
-		String outputFormat, 
-		boolean wantRawResult, 
-		String... entities )
+	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String... entityIds )
 	{
-		if ( "xml".equals ( outputFormat ) )
-			return getMappingsAsXml ( wantRawResult, entities );
+		if ( wantRawResult == null ) wantRawResult = false;
+		if ( StringUtils.trimToNull ( outputFormat ) == null || "xml".equals ( outputFormat ) )
+			return getMappingsAsXml ( wantRawResult, entityIds );
 		else
 			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}

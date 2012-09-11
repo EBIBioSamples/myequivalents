@@ -35,7 +35,7 @@ public class EntityMappingDAO
 	private EntityManager entityManager;
 	private static MessageDigest messageDigest = null;
 	private final Random random = new Random ( System.currentTimeMillis () );
-	
+
 	public EntityMappingDAO ( EntityManager entityManager )
 	{
 		this.entityManager = entityManager;
@@ -49,7 +49,36 @@ public class EntityMappingDAO
 				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
 			}
 		}
+	}	
+	
+	/** 
+	 * TODO: Comment me! TODO: fix all comments about entityIds
+	 * 
+	 * @param entityId
+	 * @return
+	 */
+	public String[] parseEntityId ( String entityId )
+	{
+		entityId = StringUtils.trimToNull ( entityId );
+		if ( entityId == null ) throw new IllegalArgumentException (
+			"Null entity specification"
+		);
+		
+		int twoColIdx = entityId.lastIndexOf ( ':' );
+		if ( twoColIdx == -1 ) throw new IllegalArgumentException ( 
+			"Invalid entity mapping ID '" + entityId + "', must be serviceName:accession, URIs are not supported yet" 
+		);
+		return new String[] { entityId.substring ( 0, twoColIdx ), entityId.substring ( twoColIdx + 1 ) };
 	}
+	
+	public void storeMapping ( String entityId1, String entityId2 )
+	{
+		String[] entityIdChunks1 = parseEntityId ( entityId1 );
+		String[] entityIdChunks2 = parseEntityId ( entityId2 );
+		
+		storeMapping ( entityIdChunks1 [ 0 ], entityIdChunks1 [ 1 ], entityIdChunks2 [ 0 ], entityIdChunks2 [ 1 ] );
+	}
+
 
 	/**
 	 * Stores a mapping between two entities, i.e., a link between service1/acc1 and service2/acc2. This call manages
@@ -113,15 +142,15 @@ public class EntityMappingDAO
 	 * Throws an exception if the input is not a multiple of 4.
 	 *  
 	 */
-	public void storeMappings ( String... entities )
+	public void storeMappings ( String... entityIds )
 	{
-		if ( entities == null || entities.length == 0 ) return;
-		Validate.isTrue ( entities.length % 4 == 0, "Wrong no. of arguments for storeMappings, I expect a list of " +
+		if ( entityIds == null || entityIds.length == 0 ) return;
+		Validate.isTrue ( entityIds.length % 2 == 0, "Wrong no. of arguments for storeMappings, I expect a list of " +
 			"(serviceName1/accession1, serviceName2/accession2) quadruples" 
 		);
 		
-		for ( int i = 0; i < entities.length; i++ )
-			storeMapping ( entities [ i ], entities [ ++i ], entities [ ++i ], entities [ ++i ] );
+		for ( int i = 0; i < entityIds.length; i++ )
+			storeMapping ( entityIds [ i ], entityIds [ ++ i ] );
 	}
 
 	/**
@@ -134,47 +163,24 @@ public class EntityMappingDAO
 	 * This call throws an exception if the input is not a multiple of 2.
 	 *  
 	 */
-	public void storeMappingBundle ( String... entities )
+	public void storeMappingBundle ( String... entityIds )
 	{
-		if ( entities == null || entities.length == 0 ) return;
-		Validate.isTrue ( entities.length % 2 == 0, "Wrong no. of arguments for storeMappingBundle, I expect a list of " +
-			"serviceName/accession pairs" 
-		);
-		
-
-		// Some further input validation
-		//
-		for ( int i = 0; i < entities.length; i++ )
-		{
-			String serviceName = entities [ i ];
-			String accession = entities [ ++i ];
-			
-			serviceName = StringUtils.trimToNull ( serviceName );
-			if ( serviceName == null ) throw new IllegalArgumentException (
-				"Cannot work with a null service name"
-			);
-			
-			accession = StringUtils.trimToNull ( accession );
-			if ( accession == null ) throw new IllegalArgumentException (
-				"Cannot work with a null accession"
-			);
-		}
+		if ( entityIds == null || entityIds.length == 0 ) return;
 		
 		// Check if there is some entry already in
 		//
-		for ( int i = 0; i < entities.length; i++ )
+		for ( int i = 0; i < entityIds.length; i++ )
 		{
-			String bundle = this.findBundle ( entities [ i ], entities [ ++i ] );
+			String ichunks[] = parseEntityId ( entityIds [ i ] );
+			String bundle = this.findBundle ( ichunks [ 0 ], ichunks [ 1 ] );
 			if ( bundle != null )
 			{
-				i--;
 				// There is already a bundle with one of the input entities, so let's attach all of them to this
-				for ( int j = 0; j < entities.length; j++ )
+				for ( int j = 0; j < entityIds.length; j++ )
 				{
-					if ( i == j ) { 
-						j++; continue; 
-					}
-					String serviceName = entities [ j ], accession = entities [ ++j ];
+					if ( i == j ) continue; 
+					String jchunks[] = parseEntityId ( entityIds [ j ] );
+					String serviceName = jchunks [ 0 ], accession = jchunks [ 1 ];
 					String bundle1 = this.findBundle ( serviceName, accession );
 					if ( bundle.equals ( bundle1 ) ) continue;
 					if ( bundle1 == null ) 
@@ -190,12 +196,23 @@ public class EntityMappingDAO
 		// It has not found any of the entries, so we need to create a new bundle that contains all of them.
 		//
 		String bundle = null;
-		for ( int i = 0; i < entities.length; i++ )
+		for ( int i = 0; i < entityIds.length; i++ )
+		{
+			String chunks[] = parseEntityId ( entityIds [ i ] );
 			if ( bundle == null )
-				bundle = this.create ( entities [ i ], entities [ ++i ] );
+				bundle = this.create ( chunks [ 0 ], chunks [ 1 ] );
 			else
-				this.join ( entities [ i ], entities [ ++i ], bundle );
+				this.join ( chunks [ 0 ], chunks [ 1 ] , bundle );
+		}
 	}
+	
+	
+	public boolean deleteEntity ( String entityId ) 
+	{
+		String chunks[] = parseEntityId ( entityId );
+		return deleteEntity ( chunks [ 0 ], chunks [ 1 ] );
+	}
+	
 	
 	/**
 	 * Deletes an entity from the database, i.e., it removes it from any equivalence/mapping relation it is involved in. 
@@ -230,19 +247,23 @@ public class EntityMappingDAO
 	 * returned true. 
 	 * 
 	 */
-	public int deleteEntitites ( String... entities )
+	public int deleteEntitites ( String... entityIds )
 	{
-		if ( entities == null || entities.length == 0 ) return 0;
-		Validate.isTrue ( entities.length % 2 == 0, 
-			"Wrong no. of arguments for deleteEntitites, I expect a list of serviceName/accession pairs" );
+		if ( entityIds == null || entityIds.length == 0 ) return 0;
 
 		int ct = 0;
-		for ( int i = 0; i < entities.length; i++ )
-			ct += this.deleteEntity ( entities [ i ], entities [ ++i ] ) ? 1 : 0;
+		for ( int i = 0; i < entityIds.length; i++ )
+			ct += this.deleteEntity ( entityIds [ i ] ) ? 1 : 0;
 		
 		return ct;
 	}
 	
+	
+	public int deleteMappings ( String entityId ) 
+	{
+		String chunks[] = parseEntityId ( entityId );
+		return deleteMappings ( chunks [ 0 ], chunks [ 1 ] );
+	}
 	
 	
 	/**
@@ -270,19 +291,24 @@ public class EntityMappingDAO
 	 * @returns the total number of entities related to the parameters (including the latter) that are now deleted.
 	 * 
 	 */
-	public int deleteMappingsForAllEntitites ( String... entities )
+	public int deleteMappingsForAllEntitites ( String... entityIds )
 	{
-		if ( entities == null || entities.length == 0 ) return 0;
-		Validate.isTrue ( entities.length % 2 == 0, 
-			"Wrong no. of arguments for deleteMappings, I expect a list of serviceName/accession pairs"
-		);
+		if ( entityIds == null || entityIds.length == 0 ) return 0;
 
 		int ct = 0;
-		for ( int i = 0; i < entities.length; i++ )
-			ct += this.deleteMappings ( entities [ i ], entities [ ++i ] );
+		for ( int i = 0; i < entityIds.length; i++ )
+			ct += this.deleteMappings ( entityIds [ i ] );
 		
 		return ct;
 	}
+	
+	
+	public List<String> findMappings ( String entityId )
+	{
+		String chunks[] = parseEntityId ( entityId );
+		return findMappings ( chunks [ 0 ], chunks [ 1 ] );
+	}
+
 	
 	
 	/**
@@ -317,6 +343,12 @@ public class EntityMappingDAO
 		);
 		
 		return result;
+	}
+	
+	
+	public List<EntityMapping> findEntityMappings ( String entityId ) {
+		String chunks[] = parseEntityId ( entityId );
+		return findEntityMappings ( chunks [ 0 ], chunks [ 1 ] );
 	}
 	
 	/**
@@ -491,5 +523,4 @@ public class EntityMappingDAO
 		return 
 			Base64.encodeBase64String ( messageDigest.digest ( ( serviceName + accession ).getBytes () ) ).substring (0, 26);
 	}
-
 }

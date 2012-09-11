@@ -49,7 +49,7 @@ public class MappingStoreCommandLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n mapping store <service accession|uri>..." );
+		err.println ( "\n mapping store <service:accession|uri>..." );
 		err.println (   "   Creates mappings between entities, which have to be listed as pairs of identifiers" );
 	}
 

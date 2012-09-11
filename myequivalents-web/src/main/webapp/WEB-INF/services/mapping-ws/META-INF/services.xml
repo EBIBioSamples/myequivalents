@@ -1,8 +1,10 @@
-<service name="mapping-ws" targetNamespace="http://www.ebi.ac.uk/fg/myequivalents">
-  <description>JNLPGenerator service</description>
-  <schema schemaNamespace="http://www.ebi.ac.uk/fg/myequivalents" />
-  <parameter name="ServiceClass" locked="false">uk.ac.ebi.fg.myequivalents.managers.EntityMappingManager</parameter>
-  <operation name="get-mappings">
-    <messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
-  </operation>
+<service name="mapping-ws" scope="application">
+	<description>Entity Mapping Service</description>
+	<parameter name="ServiceClass">uk.ac.ebi.fg.myequivalents.webservices.EntityMappingWebService</parameter>
+	<messageReceivers>
+	  <messageReceiver 
+	  	mep="http://www.w3.org/ns/wsdl/in-only" class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver" />
+	  <messageReceiver
+	    mep="http://www.w3.org/ns/wsdl/in-out" class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+	</messageReceivers>
 </service>

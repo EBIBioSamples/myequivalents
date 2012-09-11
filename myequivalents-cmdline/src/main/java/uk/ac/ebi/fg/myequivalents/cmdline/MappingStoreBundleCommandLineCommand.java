@@ -38,7 +38,7 @@ public class MappingStoreBundleCommandLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n mapping store-bundle <service accession|uri>..." );
+		err.println ( "\n mapping store-bundle <service:accession|uri>..." );
 		err.println (   "   Maps all the specified entities together, entities have to be listed as pairs of identifiers" );
 	}
 

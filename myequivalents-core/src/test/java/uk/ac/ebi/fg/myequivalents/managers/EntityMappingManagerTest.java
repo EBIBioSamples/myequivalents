@@ -84,16 +84,15 @@ public class EntityMappingManagerTest
 
 		ts.begin ();
 		emMgr.deleteEntities ( 
-			service1.getName (), "acc1", 
-			service2.getName (), "acc2", 
-			service1.getName (), "b1.1",
-			service2.getName (), "b1.2",
-			service1.getName (), "b1.3",
-			service1.getName (), "b1.4",
-			service2.getName (), "b2.1",
-			service3.getName (), "b2.2"
+			service1.getName () + ":acc1", 
+			service2.getName () + ":acc2", 
+			service1.getName () + ":b1.1",
+			service2.getName () + ":b1.2",
+			service1.getName () + ":b1.3",
+			service1.getName () + ":b1.4",
+			service2.getName () + ":b2.1",
+			service3.getName () + ":b2.2"
 		);
-		
 		
 		serviceDao.delete ( service1 );
 		serviceDao.delete ( service2 );
@@ -104,7 +103,7 @@ public class EntityMappingManagerTest
 		new RepositoryDAO ( emProvider.getEntityManager () ).delete ( repo1 );
 
 		assertEquals ( "Entities not deleted!", 0, emMgr.getMappings ( 
-				true, service1.getName (), "acc1", service2.getName (), "acc2" 
+				true, service1.getName () + ":acc1", service2.getName () + ":acc2" 
 			).getBundles ().size () 
 		);
 		// TODO: more 
@@ -123,14 +122,14 @@ public class EntityMappingManagerTest
 		// b1 ( (s1, b1.1) (s2, b1.2) (s1, b1.3) (s1, b1.4)
 	  // b2 ( (s2, b2.1) (s3, b2.2) )
 	  emMgr.storeMappingBundle ( 
-	  	service1.getName (), "b1.1", service2.getName (), "b1.2", service1.getName (), "b1.3" );
+	  	service1.getName () + ":b1.1", service2.getName () + ":b1.2", service1.getName () + ":b1.3" );
 	  emMgr.storeMappings ( 
-	  	service1.getName (), "b1.4", service1.getName (), "b1.1",
-	  	service2.getName (), "b2.1", service3.getName (), "b2.2"
+	  	service1.getName () + ":b1.4", service1.getName () + ":b1.1",
+	  	service2.getName () + ":b2.1", service3.getName () + ":b2.2"
 	  );
 
 		EntityMappingSearchResult result = emMgr.getMappings ( 
-			false, service1.getName (), "b1.3", service3.getName (), "b2.2" 
+			false, service1.getName () + ":b1.3", service3.getName () + ":b2.2" 
 		);
 		
 		out.println ( "\nResult:" );
@@ -196,7 +195,7 @@ public class EntityMappingManagerTest
 		assertTrue ( "Repo1 not found in the search result!", repos.contains ( repo1 ) );
 		
 		out.println ( "\n\nXML Result:\n" + emMgr.getMappingsAs ( 
-			"xml", true, service1.getName (), "b1.3", service3.getName (), "b2.2"  
+			"xml", true, service1.getName () + ":b1.3", service3.getName () + ":b2.2"  
 		));
 
 		// TODO Use XPath to test the XML

@@ -4,7 +4,6 @@
 <configuration>
 
   <appender name="ConsoleApp" class="ch.qos.logback.core.ConsoleAppender">
-  	<Target>System.err</Target>
     <encoder>
       <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-6t] [%-5p] \(%C{1},%L\): %m%n</pattern>
     </encoder>
