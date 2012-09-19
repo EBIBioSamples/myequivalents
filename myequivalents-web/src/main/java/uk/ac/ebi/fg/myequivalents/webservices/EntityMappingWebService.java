@@ -23,5 +23,9 @@ public class EntityMappingWebService
 	public EntityMappingSearchResult getMappings ( Boolean isRaw, String... entity ) {
 		return emapMgr.getMappings ( isRaw, entity );
 	}
-
+	
+	public String getMappingsAs ( String format, Boolean isRaw, String... entity )
+	{
+		return emapMgr.getMappingsAs ( format, isRaw, entity );
+	}
 }
