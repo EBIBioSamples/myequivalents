@@ -15,7 +15,8 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
- * TODO: Comment me!
+ * This defines some test data if the system property uk.ac.ebi.fg.myequivalents.test_flag is true. It is attached to 
+ * the servlet engine via web.xml.
  *
  * <dl><dt>date</dt><dd>Sep 11, 2012</dd></dl>
  * @author Marco Brandizi
