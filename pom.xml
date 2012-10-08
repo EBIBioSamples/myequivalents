@@ -5,6 +5,12 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference and Equivalence Management Componenets</name>
+
+  <description>
+    TODO. 
+    PLEASE NOTE: for the moment, JUnit tests on myequivalents-wscli will fail if you run tests (or any other goal that
+    implies them) from the top level, you have to go down to that module to run the tests.
+  </description>
   
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

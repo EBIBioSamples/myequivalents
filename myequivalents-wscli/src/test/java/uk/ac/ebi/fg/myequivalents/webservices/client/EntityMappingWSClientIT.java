@@ -14,19 +14,21 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 
 /**
  * Tests the Web service client for the mappings. This relies on some data that are initialised by the myequivalents-web
- * package in test mode (which, in turn, is bring up by the Jetty plug-in in this package). 
+ * package during integration test phase (which, in turn, is bring up by the Jetty plug-in in this package).
+ *  
+ * The IT postfix in the name is required by the Maven Failsafe plug-in.  
  * 
  * <dl><dt>date</dt><dd>Oct 3, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class EntityMappingWSClientTest
+public class EntityMappingWSClientIT
 {
 	@Test
 	public void testGet ()
 	{
 		EntityMappingManager mmgr = new EntityMappingWSClient ();
-		EntityMappingSearchResult result = mmgr.getMappings ( false, "test.testweb.service6:acc1" );
+		EntityMappingSearchResult result = mmgr.getMappings ( false, "test.testweb.service6:acc1", "test.testweb.service6:foo" );
 		String resultStr = result.toString ();
 		
 		out.println ( "\n\n ====================== '/mapping/get' says:\n" + resultStr + "============================" );

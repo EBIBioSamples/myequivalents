@@ -5,7 +5,6 @@ package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -99,8 +98,7 @@ public class EntityMappingWSClient implements EntityMappingManager
 			if ( log.isTraceEnabled () ) log.trace ( "requested web service\n: " + req );
 
 			// DEBUG
-			//try { while ( 1 == 1 ) Thread.sleep ( 3000 ); } catch ( InterruptedException ex ) { throw new RuntimeException ( ex ); }
-
+			//try { while ( "".equals ( "" ) ) Thread.sleep ( 3000 ); } catch ( InterruptedException ex ) { throw new RuntimeException ( ex ); }
 
 			Client cli = Client.create ();
 			WebResource webres = cli.resource ( this.baseUrl + "/mapping/get" );
