@@ -1,7 +1,7 @@
 /*
  * 
  */
-package uk.ac.ebi.fg.myequivalents.webservices.test;
+package uk.ac.ebi.fg.myequivalents.webservices.server.test;
 
 import java.io.StringReader;
 
@@ -9,8 +9,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.xml.bind.JAXBException;
 
-import uk.ac.ebi.fg.myequivalents.managers.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.base.BaseEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
@@ -30,7 +30,7 @@ public class WebTestDataInitializer implements ServletContextListener
 	{
 		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
 
-		EntityMappingManager emapMgr = new EntityMappingManager ();
+		BaseEntityMappingManager emapMgr = new BaseEntityMappingManager ();
 		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
 		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
 	}
@@ -87,7 +87,7 @@ public class WebTestDataInitializer implements ServletContextListener
 	
 			serviceMgr.storeServicesFromXML ( new StringReader ( testServiceXml ) );
 			
-			EntityMappingManager emapMgr = new EntityMappingManager ();
+			BaseEntityMappingManager emapMgr = new BaseEntityMappingManager ();
 			emapMgr.storeMappings (
 				"test.testweb.service6:acc1", "test.testweb.service8:acc2", 
 				"test.testweb.service6:acc3", "test.testweb.service6:acc4" 

@@ -34,13 +34,15 @@
 		  <groupId>org.slf4j</groupId>
 		  <artifactId>jcl-over-slf4j</artifactId>
 		</dependency>		
+		
+		<!-- Dependencies from other modules in the same project -->
 
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>myequivalents-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
+		
 		
 
 		<!-- dependency>

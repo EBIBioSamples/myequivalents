@@ -4,10 +4,11 @@ import static java.lang.System.err;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.ebi.fg.myequivalents.managers.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.base.BaseEntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 
 /**
- * The 'mapping store-bundle' command. This will use {@link EntityMappingManager#storeMappingBundle(String...)}.
+ * The 'mapping store-bundle' command. This will use {@link BaseEntityMappingManager#storeMappingBundle(String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi
@@ -26,7 +27,7 @@ public class MappingStoreBundleCommandLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		EntityMappingManager emMgr = new EntityMappingManager ();
+		EntityMappingManager emMgr = new BaseEntityMappingManager ();
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
 			emMgr.storeMappingBundle ( (String[]) ArrayUtils.subarray ( args, 2, args.length ) );

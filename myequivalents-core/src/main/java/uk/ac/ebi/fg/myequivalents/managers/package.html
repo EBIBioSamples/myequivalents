@@ -7,9 +7,19 @@
 </head>
 <body>
   <p>
-		The managers package contains the facades that are supposed to be used to access the myequivalents infrastructure. For instance,
-		the EntityMappingManager is able to tell the cross-references associated to one or more entities.
-		The managers are designed to be used in different contexts, such as SOAP web services, line commands, programmatic access.
+		The managers package contains the facades that are supposed to be used to access the myequivalents infrastructure. 
+		For instance, the EntityMappingManager is able to tell the cross-references associated to one or more entities.
+		The managers are designed to be used in different contexts, such as web services, line commands, programmatic access.
+  </p>
+  
+  <p>
+		Due to this purpose, the manages comes as Java interfaces + different implementations, that are served to a particular
+		client by the manager factory. 
+  </p>
+  
+  <p>
+		<strong>TODO</strong>: for the moment only the EntityMappingManager is arranged this way (and without the factory as
+		yet). We will migrate all the managers to the architecture described here in the short future.
   </p>
   
 </body>

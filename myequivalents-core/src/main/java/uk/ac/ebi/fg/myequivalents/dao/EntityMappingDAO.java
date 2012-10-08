@@ -20,6 +20,7 @@ import org.hibernate.ejb.HibernateEntityManager;
 import org.hibernate.jdbc.Work;
 
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
+import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
  * 
@@ -51,30 +52,14 @@ public class EntityMappingDAO
 		}
 	}	
 	
-	/** 
-	 * TODO: Comment me! TODO: fix all comments about entityIds
-	 * 
-	 * @param entityId
-	 * @return
+	/**
+	 * This calls {@link #storeMapping(String, String, String, String)} after having achieved the entity ID structure
+	 * via {@link EntityMappingUtils#parseEntityId(String)}. 
 	 */
-	public String[] parseEntityId ( String entityId )
-	{
-		entityId = StringUtils.trimToNull ( entityId );
-		if ( entityId == null ) throw new IllegalArgumentException (
-			"Null entity specification"
-		);
-		
-		int twoColIdx = entityId.lastIndexOf ( ':' );
-		if ( twoColIdx == -1 ) throw new IllegalArgumentException ( 
-			"Invalid entity mapping ID '" + entityId + "', must be serviceName:accession, URIs are not supported yet" 
-		);
-		return new String[] { entityId.substring ( 0, twoColIdx ), entityId.substring ( twoColIdx + 1 ) };
-	}
-	
 	public void storeMapping ( String entityId1, String entityId2 )
 	{
-		String[] entityIdChunks1 = parseEntityId ( entityId1 );
-		String[] entityIdChunks2 = parseEntityId ( entityId2 );
+		String[] entityIdChunks1 = EntityMappingUtils.parseEntityId ( entityId1 );
+		String[] entityIdChunks2 = EntityMappingUtils.parseEntityId ( entityId2 );
 		
 		storeMapping ( entityIdChunks1 [ 0 ], entityIdChunks1 [ 1 ], entityIdChunks2 [ 0 ], entityIdChunks2 [ 1 ] );
 	}
@@ -136,10 +121,10 @@ public class EntityMappingDAO
 	}
 
 	/**
-	 * Assumes the array parameter contains quadruples of type: (serviceName1, accession1, serviceName2, accession2)
-	 * and creates a mapping (via {@link #storeMapping(String, String, String, String)}) for every quadruple.
+	 * Assumes the array parameter contains pairs of entity IDs (see {@link EntityMappingUtils#parseEntityId(String)} and creates
+	 * a mapping for each pair (i.e., calls {@link #storeMapping(String, String)}). 
 	 * 
-	 * Throws an exception if the input is not a multiple of 4.
+	 * Throws an exception if the input is not a multiple of 2.
 	 *  
 	 */
 	public void storeMappings ( String... entityIds )
@@ -154,13 +139,11 @@ public class EntityMappingDAO
 	}
 
 	/**
-	 * Assumes the input contains pairs of type (serviceName, accession) and creates a mapping between all of them, i.e., 
-	 * all these entities are equivalent and linked one each other. This call also manages the reflexivity and transitivity
-	 * of the equivalence relationship, which means if any of the entities passed as parameter are already linked to 
+	 * Assumes the input parameter contains a bundle of entity IDs, i.e., entities that are equivalent/mapped one each 
+	 * other. Creates or updates such mapping. This call also manages the reflexivity and transitivity
+	 * of the equivalence/mapping relationship, which means if any of the entities passed as parameter are already linked to 
 	 * some other entities, the latter becomes part of the same equivalence set too. It leaves the database unchanged if
-	 * this exact mapping set already exists.
-	 * 
-	 * This call throws an exception if the input is not a multiple of 2.
+	 * this exact mapping set already exists. {@link EntityMappingUtils#parseEntityId(String)} is used to get the entity ID structure.
 	 *  
 	 */
 	public void storeMappingBundle ( String... entityIds )
@@ -171,7 +154,7 @@ public class EntityMappingDAO
 		//
 		for ( int i = 0; i < entityIds.length; i++ )
 		{
-			String ichunks[] = parseEntityId ( entityIds [ i ] );
+			String ichunks[] = EntityMappingUtils.parseEntityId ( entityIds [ i ] );
 			String bundle = this.findBundle ( ichunks [ 0 ], ichunks [ 1 ] );
 			if ( bundle != null )
 			{
@@ -179,7 +162,7 @@ public class EntityMappingDAO
 				for ( int j = 0; j < entityIds.length; j++ )
 				{
 					if ( i == j ) continue; 
-					String jchunks[] = parseEntityId ( entityIds [ j ] );
+					String jchunks[] = EntityMappingUtils.parseEntityId ( entityIds [ j ] );
 					String serviceName = jchunks [ 0 ], accession = jchunks [ 1 ];
 					String bundle1 = this.findBundle ( serviceName, accession );
 					if ( bundle.equals ( bundle1 ) ) continue;
@@ -198,7 +181,7 @@ public class EntityMappingDAO
 		String bundle = null;
 		for ( int i = 0; i < entityIds.length; i++ )
 		{
-			String chunks[] = parseEntityId ( entityIds [ i ] );
+			String chunks[] = EntityMappingUtils.parseEntityId ( entityIds [ i ] );
 			if ( bundle == null )
 				bundle = this.create ( chunks [ 0 ], chunks [ 1 ] );
 			else
@@ -207,9 +190,13 @@ public class EntityMappingDAO
 	}
 	
 	
+	/**
+	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained by the parameter 
+	 * and then invokes {@link #deleteEntity(String, String)}.
+	 */
 	public boolean deleteEntity ( String entityId ) 
 	{
-		String chunks[] = parseEntityId ( entityId );
+		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
 		return deleteEntity ( chunks [ 0 ], chunks [ 1 ] );
 	}
 	
@@ -240,10 +227,10 @@ public class EntityMappingDAO
 	}
 	
 	/**
-	 * Assumes the input is a set of pairs of type (serviceName, accession) and removes all the corresponding entities, 
-	 * via {@link #deleteEntity(String, String)}. It throws an exception if the input is not a multiple of 2.
+	 * Assumes the input is a set of entity IDs and removes all the corresponding entities, 
+	 * via {@link #deleteEntity(String)}.
 	 * 
-	 * @return the number of entities that were deleted, ie, the number of times {@link #deleteEntity(String, String)}
+	 * @return the number of entities that were deleted, i.e., the number of times {@link #deleteEntity(String, String)}
 	 * returned true. 
 	 * 
 	 */
@@ -258,16 +245,21 @@ public class EntityMappingDAO
 		return ct;
 	}
 	
-	
+	/**
+	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes 
+	 * {@link #deleteMappings(String, String)} with it. 
+	 * 
+	 */
 	public int deleteMappings ( String entityId ) 
 	{
-		String chunks[] = parseEntityId ( entityId );
+		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
 		return deleteMappings ( chunks [ 0 ], chunks [ 1 ] );
 	}
 	
 	
 	/**
-	 * Deletes all the mappings that involve the entity, i.e., the equivalence class it belongs in. 
+	 * Deletes all the mappings that involve the entity, i.e., the equivalence class it belongs to.
+	 *  
 	 * @return the number of entities (including the parameter) that were in the same equivalence relationship and are
 	 * now deleted. Returns 0 if no such mapping exists.
 	 *  
@@ -283,8 +275,8 @@ public class EntityMappingDAO
 	}
 
 	/**
-	 * Assumes the input is a list of pairs of type (serviceName, accession) and deletes all the relations it is involved
-	 * in, via {@link #deleteMappings(String, String)}.  
+	 * Assumes the input is a list of entity IDs and deletes all the relations such entities are involved
+	 * in, via {@link #deleteMappings(String)}.  
 	 *  
 	 * This call throws an exception if the input is not a multiple of 2.
 	 * 
@@ -302,10 +294,13 @@ public class EntityMappingDAO
 		return ct;
 	}
 	
-	
+	/**
+	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes 
+	 * {@link #findMappings(String, String)}.
+	 */
 	public List<String> findMappings ( String entityId )
 	{
-		String chunks[] = parseEntityId ( entityId );
+		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
 		return findMappings ( chunks [ 0 ], chunks [ 1 ] );
 	}
 
@@ -345,9 +340,13 @@ public class EntityMappingDAO
 		return result;
 	}
 	
-	
+	/**
+	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes
+	 * {@link #findEntityMappings(String, String)}.
+	 * 
+	 */
 	public List<EntityMapping> findEntityMappings ( String entityId ) {
-		String chunks[] = parseEntityId ( entityId );
+		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
 		return findEntityMappings ( chunks [ 0 ], chunks [ 1 ] );
 	}
 	

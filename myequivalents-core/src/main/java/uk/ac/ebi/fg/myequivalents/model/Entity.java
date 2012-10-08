@@ -80,8 +80,20 @@ public class Entity implements Serializable
 	@Transient
 	@XmlAttribute ( name = "service-name", required = true )
 	public String getServiceName () {
-		return this.service.getName ();
+		// We need the accessor in order to prevent this to be called before injection.
+		return this.getService () == null ? null : this.service.getName ();
 	}
+	
+  /**
+   * TODO: comment me (special method for JAXB)!
+   */
+	protected void setServiceName ( String serviceName ) 
+	{
+		throw new UnsupportedOperationException ( 
+			"Internal error: you cannot call Entity.setServiceName(), this is here just to make JAXB annotations working. " +
+			"You need to override this setter, if you have a reasonable semantics for it" );
+	}
+	
 	
 	@Transient
 	@XmlAttribute ( name = "uri" )
@@ -113,7 +125,7 @@ public class Entity implements Serializable
 	public String toString ()
 	{
 		return String.format ( 
-			"Entity { service.name: '%s', accession: '%s' }", this.getService ().getName (), this.getAccession ()  
+			"Entity { service.name: '%s', accession: '%s' }", this.getServiceName (), this.getAccession ()  
 		);
 	}
 

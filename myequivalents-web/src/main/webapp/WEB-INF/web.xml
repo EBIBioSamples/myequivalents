@@ -4,19 +4,24 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
   
-  <servlet>
-    <servlet-name>AxisServlet</servlet-name>
-    <servlet-class>org.apache.axis2.transport.http.AxisServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
- 
-  <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/services/*</url-pattern>
-  </servlet-mapping>
-
+	<servlet>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+		   <param-name>com.sun.jersey.config.property.packages</param-name>
+		   <!-- Important bit -->
+		   <param-value>uk.ac.ebi.fg.myequivalents.webservices.server</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>  
+	
+	<servlet-mapping>
+		<servlet-name>Jersey Web Application</servlet-name>
+		<url-pattern>/ws/*</url-pattern>
+	</servlet-mapping>	
+	
 	<listener>
 		<!-- Creates some test data to play with  -->
-  	<listener-class>uk.ac.ebi.fg.myequivalents.webservices.test.WebTestDataInitializer</listener-class>
+  	<listener-class>uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer</listener-class>
   </listener>           
 </web-app>

@@ -1,5 +1,6 @@
-package uk.ac.ebi.fg.myequivalents.managers;
+package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +14,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import uk.ac.ebi.fg.myequivalents.managers.ExposedEntity;
+import uk.ac.ebi.fg.myequivalents.managers.ExposedService;
+import uk.ac.ebi.fg.myequivalents.managers.impl.base.BaseEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
@@ -21,7 +25,7 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
  * 
- * This is the class used to format the responses returned by the {@link EntityMappingManager}. For instance, the SOAP-based
+ * This is the class used to format the responses returned by the {@link BaseEntityMappingManager}. For instance, the REST-based
  * web service uses this class to format its output in XML (thanks to JAXB mappings).  
  * 
  * <dl><dt>date</dt><dd>Jun 11, 2012</dd></dl>
@@ -49,24 +53,28 @@ public class EntityMappingSearchResult
 		protected Bundle () {
 		}
 		
-		@XmlElement ( name = "entity" )
+		@XmlElement ( name = "entity", type = ExposedEntity.class )
 		private Set<Entity> entities = new HashSet<Entity> ();
 
 		private void addEntity ( Entity entity ) {
 			this.entities.add ( entity );
 		}
 
-		public Set<Entity> getEntities ()
-		{
+		public Set<Entity> getEntities () {
 			return entities;
 		}
+
+		protected void setEntities ( Set<Entity> entities ) {
+			this.entities = entities;
+		}
+		
 	}
 	
 	private final boolean wantRawResult;
 	
-	private final Set<Service> services;
-	private final Set<ServiceCollection> serviceCollections;
-	private final Set<Repository> repositories;
+	private Set<Service> services;
+	private Set<ServiceCollection> serviceCollections;
+	private Set<Repository> repositories;
 
 	private final Map<String, Bundle> bundles = new HashMap<String, Bundle> ();
 	
@@ -78,9 +86,12 @@ public class EntityMappingSearchResult
 
 	/**
 	 * @param wantRawResult if true, only bundles will be stored into this object. See 
-	 * {@link EntityMappingManager#getMappings(boolean, String...)}.
+	 * {@link BaseEntityMappingManager#getMappings(boolean, String...)}.
+	 * 
+	 * Usually you don't want to instantiate this yourself, you should leave it to the {@link EntityMappingManager} you're
+	 * using.
 	 */
-	EntityMappingSearchResult ( boolean wantRawResult )
+	public EntityMappingSearchResult ( boolean wantRawResult )
 	{
 		super ();
 		this.wantRawResult = wantRawResult;
@@ -96,18 +107,30 @@ public class EntityMappingSearchResult
 	}
 
 	@XmlElementWrapper ( name = "services" )
-	@XmlElement ( name = "service" ) 
+	@XmlElement ( name = "service", type = ExposedService.class ) 
 	public Set<Service> getServices ()
 	{
 		return services;
 	}
 		
+	/** Needed by JAXB for un-marshalling */
+	protected void setServices ( Set<Service> services ) {
+		this.services = services;
+	}
+
+	
 	@XmlElementWrapper ( name = "service-collections" )
 	@XmlElement ( name = "service-collection" ) 
 	public Set<ServiceCollection> getServiceCollections ()
 	{
 		return serviceCollections;
 	}
+	
+	/** Needed by JAXB for un-marshalling */
+	protected void setServiceCollections ( Set<ServiceCollection> serviceCollections ) {
+		this.serviceCollections = serviceCollections;
+	}
+
 	
 	@XmlElementWrapper ( name = "repositories" )
 	@XmlElement ( name = "repository" ) 
@@ -116,11 +139,24 @@ public class EntityMappingSearchResult
 		return repositories;
 	}
 
+	/** Needed by JAXB for unmarshalling */
+	protected void setRepositories ( Set<Repository> repositories ) {
+		this.repositories = repositories;
+	}
+
+	
 	@XmlElementWrapper ( name = "bundles" )
 	@XmlElement ( name = "bundle" )
 	public Collection<Bundle> getBundles ()
 	{
-		return bundles.values ();
+		return new ArrayList<EntityMappingSearchResult.Bundle> ( this.bundles.values () );
+	}
+	
+	/** Needed by JAXB for un-marshalling */
+	protected void setBundles ( Collection<Bundle> bundles ) 
+	{
+		for ( Bundle bundle: bundles )
+			this.bundles.put ( Integer.toString ( this.bundles.size () ), bundle );
 	}
 	
 	/**
@@ -149,8 +185,11 @@ public class EntityMappingSearchResult
 	
 	/**
 	 * This is just a wrapper of {@link #addEntityMapping(EntityMapping)}.
+	 * Usually you don't want to use this method, it is intended to be used by the {@link EntityMappingManager} that serves
+	 * this result.
+	 * 
 	 */
-	void addAllEntityMappings ( Collection<EntityMapping> mappings ) {
+	public void addAllEntityMappings ( Collection<EntityMapping> mappings ) {
 		for ( EntityMapping em: mappings ) addEntityMapping ( em );
 	}
 
@@ -177,6 +216,7 @@ public class EntityMappingSearchResult
 			sb.append ( "  }\n" );
 		}
 
+		sb.append ( "  bundles: {\n" );
 		for ( Bundle bundle: this.getBundles () )
 		{
 			sb.append ( "    {\n" );

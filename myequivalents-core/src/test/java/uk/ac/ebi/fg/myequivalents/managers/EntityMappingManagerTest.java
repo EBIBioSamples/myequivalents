@@ -17,9 +17,10 @@ import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
-import uk.ac.ebi.fg.myequivalents.managers.EntityMappingManager;
-import uk.ac.ebi.fg.myequivalents.managers.EntityMappingSearchResult;
-import uk.ac.ebi.fg.myequivalents.managers.EntityMappingSearchResult.Bundle;
+import uk.ac.ebi.fg.myequivalents.managers.impl.base.BaseEntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
@@ -54,7 +55,7 @@ public class EntityMappingManagerTest
 	{
 		EntityManager em = emProvider.getEntityManager ();
 		serviceDao = new ServiceDAO ( em );
-		emMgr = new EntityMappingManager ();
+		emMgr = new BaseEntityMappingManager ();
 		
 		service1 = new Service ( "test.testemsrv.service1", "testemsrv.someType1", "A Test Service 1", "The Description of a Test Service 1" );
 		service1.setUriPrefix ( "http://somewhere.in.the.net/testemsrv/service1/" );

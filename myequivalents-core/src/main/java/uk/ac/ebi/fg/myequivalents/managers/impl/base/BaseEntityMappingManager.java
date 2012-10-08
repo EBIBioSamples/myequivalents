@@ -1,52 +1,48 @@
-package uk.ac.ebi.fg.myequivalents.managers;
+package uk.ac.ebi.fg.myequivalents.managers.impl.base;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
-import uk.ac.ebi.fg.myequivalents.model.Repository;
-import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 
 /**
  * 
- * <h2>The Entity Manager</h2>
+ * <h2>The Base Entity Manager</h2>
+ * 
+ * <p>This is the base implementation of the {@link EntityMappingManager} interface, which uses a relational 
+ * database connection, via the object model and the {@link EntityMappingDAO DAO}.</p>
  *
  * <p>Note that this class instantiates a new {@link EntityManager} in its constructor. This makes it an 
- * entity-manager-per-request when the service is accessed via Apache Axis (cause it re-instantiates at every request).
- * The persistence-related invocations does the transaction management automatically (i.e., they commit all implied changes).</p>
+ * entity-manager-per-request in many cases (e.g., when accessed by a web service). This should be the best transactional
+ * model to use in such cases. You might decide a different approach, by keeping an instance of this class the time
+ * you wish.</p>
  * 
- * <p>You have to decide the lifetime of a EntityMappingManager instance in your application, we suggest to apply the
- * manager-per-request approach</p>
+ * <p>The persistence-related invocations in this manager does the transaction management automatically 
+ * (i.e., they commit all implied changes).</p>
  * 
- * <p>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations, release.</p> 
+ * <p>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations and then release it.</p> 
  *
  * <dl><dt>date</dt><dd>Jun 7, 2012</dd></dl>
  * @author Marco Brandizi
- * 
- * TODO: Use {@link Validate} instead of manual validation.
  *
  */
-public class EntityMappingManager
+public class BaseEntityMappingManager implements EntityMappingManager
 {
 	private EntityManager entityManager;
 	private EntityMappingDAO entityMappingDAO;
 	
-	public EntityMappingManager ()
+	public BaseEntityMappingManager ()
 	{
 		this.entityManager = Resources.getInstance ().getEntityManagerFactory ().createEntityManager ();
 		this.entityMappingDAO = new EntityMappingDAO ( entityManager );
 	}
 
-	/**
-	 * Stores mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
-	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) and
-	 * wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
-	 */
+	@Override
 	public void storeMappings ( String... entityIds )
 	{
 		if ( entityIds == null || entityIds.length == 0 ) return;
@@ -62,11 +58,7 @@ public class EntityMappingManager
 		ts.commit ();
 	}
 
-	/**
-	 * Stores a mapping bundle. The parameter consists of a list of entity references, where every entity is given by a pair
-	 * of service/accession. This uses {@link EntityMappingManager#storeMappingBundle(String...)} (see there for details) 
-	 * and wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
-	 */
+	@Override
 	public void storeMappingBundle ( String... entityIds )
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
@@ -75,11 +67,7 @@ public class EntityMappingManager
 		ts.commit ();
 	}
 
-	/**
-	 * Deletes mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
-	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) and
-	 * wraps it with the transaction management.
-	 */
+	@Override
 	public int deleteMappings ( String... entityIds )
 	{
 		if ( entityIds == null || entityIds.length == 0 ) return 0;
@@ -95,12 +83,7 @@ public class EntityMappingManager
 		return result;
 	}
 	
-	/**
-	 * Deletes entities. The parameter consists of a list of entity references, where every entity is given by a pair
-	 * of service/accession. The entities are removed from any mapping it belonged to (i.e., they disappear altogether). 
-	 * This uses {@link EntityMappingManager#deleteEntities(String...)} (see there for details) 
-	 * and wraps it with the transaction management. 
-	 */
+	@Override
 	public int deleteEntities ( String... entityIds )
 	{
 		if ( entityIds == null || entityIds.length == 0 ) return 0;
@@ -116,17 +99,8 @@ public class EntityMappingManager
 		return result;
 	}
 	
-	/**
-	 * Gets all the mappings to which the parameter entities are associated. 
-	 * The parameter consists of a list of entity references, where every entity is given by a pair of service/accession. 
-	 * This is based on {@link EntityMappingDAO#findEntityMappings(String, String)}.
-	 * The result is put into an instance of {@link EntityMappingSearchResult} and available via its methods, e.g., 
-	 * {@link EntityMappingSearchResult#getBundles()}. 
-	 *  
-	 * @param wantRawResult if true, omits service-related objects from the result ({@link Service}, {@link ServiceCollection}, 
-	 * {@link Repository}), it only reports bundles of entity mappings. This will be faster if you just needs links.
-	 * 
-	 */
+
+	@Override
 	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String... entityIds )
 	{
 		if ( wantRawResult == null ) wantRawResult = false;
@@ -156,11 +130,7 @@ public class EntityMappingManager
 		);
 	}
 	
-	/**
-	 * Returns the result of {@link #getMappings(boolean, String...)} in the specified format. At the moment this is 
-	 * only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats like RDF or JSON for 
-	 * the future.
-	 */
+	@Override
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String... entityIds )
 	{
 		if ( wantRawResult == null ) wantRawResult = false;

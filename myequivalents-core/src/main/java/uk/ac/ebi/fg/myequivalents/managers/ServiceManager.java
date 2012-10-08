@@ -29,7 +29,7 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * <p>Note that this class instantiates a new {@link EntityManager} in its constructor. This makes it an 
  * entity-manager-per-request when the service is accessed via Apache Axis (cause it re-instantiates at every request).</p>
  * 
- * <p>You have to decide the lifetime of a EntityMappingManager instance in your application, we suggest to apply the
+ * <p>You have to decide the lifetime of a {@link ServiceManager} instance in your application, we suggest to apply the
  * manager-per-request approach.</p>
  * 
  * <p>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations, release.</p> 
