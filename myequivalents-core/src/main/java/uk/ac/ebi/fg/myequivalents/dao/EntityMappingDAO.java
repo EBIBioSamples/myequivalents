@@ -1,5 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
+import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -218,9 +219,9 @@ public class EntityMappingDAO
 		entityManager.createNativeQuery (
 			"DELETE FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'"
 		).executeUpdate ();
-		if ( ((Integer) entityManager.createNativeQuery ( 
+		if ( ((Number) entityManager.createNativeQuery ( 
 			    "SELECT COUNT( bundle ) AS ct FROM entity_mapping WHERE bundle = '" + bundle + "'" 
-			   ).getSingleResult () ) == 1 )
+			   ).getSingleResult () ).longValue () == 1 )
 			entityManager.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
 		
 		return true;

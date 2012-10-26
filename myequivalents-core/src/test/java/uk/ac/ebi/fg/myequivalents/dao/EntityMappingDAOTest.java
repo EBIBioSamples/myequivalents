@@ -11,6 +11,7 @@ import javax.persistence.EntityTransaction;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -103,7 +104,7 @@ public class EntityMappingDAOTest
 		// TODO: more checks 
 	}
 
-	@Test
+	@Test @Ignore
 	public void testStoreMapping ()
 	{
 		EntityManager em = emProvider.getEntityManager ();
@@ -183,8 +184,7 @@ public class EntityMappingDAOTest
 		assertEquals ( "Result size is wrong (final delete-all)", 0, mappings.size () );
 	}
 	
-	
-	@Test
+	@Test @Ignore
 	public void testStoreAndFindEntityMapping ()
 	{
 		EntityManager em = emProvider.getEntityManager ();

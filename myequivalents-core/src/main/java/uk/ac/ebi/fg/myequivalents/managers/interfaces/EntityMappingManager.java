@@ -3,7 +3,6 @@
  */
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
-import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;

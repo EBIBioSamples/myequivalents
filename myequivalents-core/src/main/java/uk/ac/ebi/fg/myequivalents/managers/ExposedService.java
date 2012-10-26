@@ -8,8 +8,10 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 
 /**
  * serviceName is a read-only and shortcut getter in the superclass. If we want it to become a changeable property, 
- * we need an extension and to use it for XML-loading purposes only.
+ * we need to use this extension for XML-loading purposes only.
  * 
+ * You should not instantiate this class, it is automatically picked by the myequivalents managers.
+ *  
  */
 @XmlRootElement ( name = "service" )
 @XmlAccessorType ( XmlAccessType.NONE )
