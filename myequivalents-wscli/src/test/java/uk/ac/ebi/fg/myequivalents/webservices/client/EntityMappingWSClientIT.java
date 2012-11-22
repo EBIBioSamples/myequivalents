@@ -27,7 +27,8 @@ public class EntityMappingWSClientIT
 	@Test
 	public void testGet ()
 	{
-		EntityMappingManager mmgr = new EntityMappingWSClient ();
+		// Default is http://localhost:8080/myequivalents/ws
+		EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:8080/ws" );
 		EntityMappingSearchResult result = mmgr.getMappings ( false, "test.testweb.service6:acc1", "test.testweb.service6:foo" );
 		String resultStr = result.toString ();
 		

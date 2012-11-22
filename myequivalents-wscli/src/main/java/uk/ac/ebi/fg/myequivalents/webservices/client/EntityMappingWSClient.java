@@ -40,7 +40,7 @@ public class EntityMappingWSClient implements EntityMappingManager
 	{
 		super ();
 		baseUrl = StringUtils.trimToNull ( baseUrl );
-		if ( baseUrl == null ) baseUrl = "http://localhost:8080/ws";
+		if ( baseUrl == null ) baseUrl = "http://localhost:8080/myequivalents/ws";
 		else if ( baseUrl.charAt ( baseUrl.length () - 1 ) == '/' ) baseUrl = baseUrl.substring ( 0, baseUrl.length () - 2 );
 		
 		this.baseUrl = baseUrl;

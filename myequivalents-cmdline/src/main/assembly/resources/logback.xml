@@ -35,7 +35,6 @@
 	<!-- Minimal logging by default. WARNING: logback expects this to be put after the appenders! -->
   <root level="WARN">
     <appender-ref ref="ConsoleApp" />
-    <!-- TODO: Add log file management (-r option) -->
     <appender-ref ref="FileApp" />
   </root>
 

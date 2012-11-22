@@ -5,18 +5,17 @@
          version="2.4">
   
 	<servlet>
-		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-name>Jersey REST Web Services</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
 		<init-param>
 		   <param-name>com.sun.jersey.config.property.packages</param-name>
-		   <!-- Important bit -->
 		   <param-value>uk.ac.ebi.fg.myequivalents.webservices.server</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>  
 	
 	<servlet-mapping>
-		<servlet-name>Jersey Web Application</servlet-name>
+		<servlet-name>Jersey REST Web Services</servlet-name>
 		<url-pattern>/ws/*</url-pattern>
 	</servlet-mapping>	
 	
