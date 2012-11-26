@@ -1,13 +1,13 @@
-package uk.ac.ebi.fg.myequivalents.managers.impl.base;
+package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.apache.commons.lang.StringUtils;
 
+import uk.ac.ebi.fg.myequivalents.dao.DbResources;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
-import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 
 /**
@@ -17,7 +17,7 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * <p>This is the base implementation of the {@link EntityMappingManager} interface, which uses a relational 
  * database connection, via the object model and the {@link EntityMappingDAO DAO}.</p>
  *
- * <p>Note that this class instantiates a new {@link EntityManager} in its constructor. This makes it an 
+ * <p>Note that this class instantiates a new {@link EntityManager Hibernate EntityManager} in its constructor. This makes it an 
  * entity-manager-per-request in many cases (e.g., when accessed by a web service). This should be the best transactional
  * model to use in such cases. You might decide a different approach, by keeping an instance of this class the time
  * you wish.</p>
@@ -31,14 +31,17 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * @author Marco Brandizi
  *
  */
-public class BaseEntityMappingManager implements EntityMappingManager
+public class DbEntityMappingManager implements EntityMappingManager
 {
 	private EntityManager entityManager;
 	private EntityMappingDAO entityMappingDAO;
 	
-	public BaseEntityMappingManager ()
+	/**
+	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
+	 */
+	DbEntityMappingManager ()
 	{
-		this.entityManager = Resources.getInstance ().getEntityManagerFactory ().createEntityManager ();
+		this.entityManager = DbResources.getInstance ().getEntityManagerFactory ().createEntityManager ();
 		this.entityMappingDAO = new EntityMappingDAO ( entityManager );
 	}
 

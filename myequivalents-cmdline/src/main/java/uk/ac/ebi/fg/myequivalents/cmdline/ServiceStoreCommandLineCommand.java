@@ -14,11 +14,12 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.CommandLine;
 
-import uk.ac.ebi.fg.myequivalents.managers.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 
 /**
  * The 'service store' command. Syntax is: service store [xml-file]. This will use 
- * {@link ServiceManager#storeServicesFromXML(Reader)}. See an example of usage in {@link MainTest#testServiceStore()}. 
+ * {@link DbServiceManager#storeServicesFromXML(Reader)}. See an example of usage in {@link MainTest#testServiceStore()}. 
  *
  * <dl><dt>date</dt><dd>Jul 18, 2012</dd></dl>
  * @author Marco Brandizi
@@ -52,7 +53,7 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 			}
 		  in = new BufferedReader ( in );
 			
-			ServiceManager servMgr = new ServiceManager ();
+			ServiceManager servMgr = new DbServiceManager ();
 			servMgr.storeServicesFromXML ( in );
 		} 
 		catch ( FileNotFoundException ex ) 

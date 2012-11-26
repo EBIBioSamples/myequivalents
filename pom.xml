@@ -15,6 +15,7 @@
 
 	<modules>
 	  <module>myequivalents-core</module>
+	  <module>myequivalents-db</module>
 		<module>myequivalents-cmdline</module>
 		<module>myequivalents-web</module>
 		<module>myequivalents-wscli</module>

@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.myequivalents.managers;
+package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,12 +10,13 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
- * This is the class used to format the responses returned by the {@link ServiceManager}. For instance, the SOAP-based
+ * This is the class used to format the responses returned by the {@link ServiceManager}. For instance, the REST-based
  * web service uses this class to format its output in XML (thanks to JAXB mappings).  
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
@@ -47,7 +48,11 @@ public class ServiceSearchResult
 		this.services = services;
 	}
 
-	boolean addService ( Service service ) {
+	/**
+	 * Adds a service to this results and returns true if it was not already here. This is used by the managers that 
+	 * returns a result (e.g., {@link DbServiceManager}) and should not be needed outside them.
+	 */
+	public boolean addService ( Service service ) {
 		return this.services.add ( service );
 	}
 	
@@ -65,7 +70,11 @@ public class ServiceSearchResult
 		this.serviceCollections = serviceCollections;
 	}
 
-	boolean addServiceCollection ( ServiceCollection serviceCollection ) {
+	/**
+	 * Adds a service collection to this results and returns true if it was not already here. This is used by the 
+	 * managers that returns a result (e.g., {@link DbServiceManager}) and should not be needed outside them.
+	 */
+	public boolean addServiceCollection ( ServiceCollection serviceCollection ) {
 		return this.serviceCollections.add ( serviceCollection );
 	}
 	
@@ -82,7 +91,11 @@ public class ServiceSearchResult
 		this.repositories = repositories;
 	}
 	
-	boolean addRepository ( Repository repository ) {
+	/**
+	 * Adds a repository to this results and returns true if it was not already here. This is used by the managers that 
+	 * returns a result (e.g., {@link DbServiceManager}) and should not be needed outside them.
+	 */
+	public boolean addRepository ( Repository repository ) {
 		return this.repositories.add ( repository );
 	}
 

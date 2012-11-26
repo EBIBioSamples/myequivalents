@@ -1,9 +1,10 @@
-package uk.ac.ebi.fg.myequivalents.managers;
+package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 
 /**
@@ -56,7 +57,11 @@ public class ExposedService extends Service
 		this.serviceCollectionName = serviceCollectionName;
 	}
 	
-	Service asService () 
+	/**
+	 * Used internally, to convert this exposed service into a {@link Service} object. This is used by 
+	 * {@link DbServiceManager} and normally you should not need it.
+	 */
+	public Service asService () 
 	{
 		Service result = new Service ( this.getName (), this.getEntityType (), this.getTitle (), this.getDescription () );
 		result.setServiceCollection ( this.getServiceCollection () );

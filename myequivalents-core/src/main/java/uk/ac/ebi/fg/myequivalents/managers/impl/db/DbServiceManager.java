@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.myequivalents.managers;
+package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
 import java.io.Reader;
 
@@ -8,19 +8,22 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import uk.ac.ebi.fg.myequivalents.dao.DbResources;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceCollectionDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ExposedService;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
-import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 
 /**
- * 
- * <h2>The Service (and related things) Manager</h2>
+ * <h2>The Service (and related things) Manager that access a relational database connection straight, based on the 
+ * DAOs in the uk.ac.ebi.fg.myequivalents.dao package.</h2>
  * 
  * <p>This is used to manager the contexts the {@link Entity entities} refer to, 
  * i.e., the {@link Service}s and connected things, namely {@link ServiceCollection}s and {@link Repository}s. 
@@ -29,34 +32,37 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * <p>Note that this class instantiates a new {@link EntityManager} in its constructor. This makes it an 
  * entity-manager-per-request when the service is accessed via Apache Axis (cause it re-instantiates at every request).</p>
  * 
- * <p>You have to decide the lifetime of a {@link ServiceManager} instance in your application, we suggest to apply the
+ * <p>You have to decide the lifetime of a {@link DbServiceManager} instance in your application, we suggest to apply the
  * manager-per-request approach.</p>
  * 
- * <p>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations, release.</p> 
+ * <p>As explained in the interface, this class is not thread-safe.</p> 
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class ServiceManager
+public class DbServiceManager implements ServiceManager
 {
 	private EntityManager entityManager;
 	private ServiceDAO serviceDAO;
 	private ServiceCollectionDAO serviceCollDAO;
 	private RepositoryDAO repoDAO;
 	
-	
-	public ServiceManager ()
+	/**
+	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
+	 */
+	DbServiceManager ()
 	{
-		this.entityManager = Resources.getInstance ().getEntityManagerFactory ().createEntityManager ();
+		this.entityManager = DbResources.getInstance ().getEntityManagerFactory ().createEntityManager ();
 		this.serviceDAO = new ServiceDAO ( entityManager );
 		this.serviceCollDAO = new ServiceCollectionDAO ( entityManager );
 		this.repoDAO = new RepositoryDAO ( entityManager );
 	}
-	
+
 	/**
-	 * Stores a set of services. This is based on {@link ServiceDAO#store(Service)}, wrapped by transaction management.
+	 * Uses {@link ServiceDAO#store(Service)} and adds up transaction management.
 	 */
+	@Override
 	public void storeServices ( Service... services )
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
@@ -66,11 +72,7 @@ public class ServiceManager
 		ts.commit ();
 	}
 	
-	/**
-	 * Stores services described by means of XML passed to the parameter reader. 
-	 * TODO: document the format. This is auto-generated via JAXB from {@link ExposedService} and reflects that class, for
-	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
-	 */
+	@Override
 	public void storeServicesFromXML ( Reader reader ) throws JAXBException 
 	{
 		JAXBContext context = JAXBContext.newInstance ( ServiceSearchResult.class );
@@ -123,8 +125,9 @@ public class ServiceManager
 	}
 	
 	/**
-	 * Deletes services by name. This uses {@link ServiceDAO#delete(String)} and wraps it with transaction management. 
+	 * Uses {@link ServiceDAO#delete(Service)} and adds up transaction management.
 	 */
+	@Override
 	public int deleteServices ( String... names )
 	{
 		int ct = 0;
@@ -135,13 +138,11 @@ public class ServiceManager
 		ts.commit ();
 		return ct;
 	}
-	
+
 	/**
-	 * Gets services by name. It pulls up related stuff (i.e., {@link ServiceCollection}s and {@link Repository repositories} 
-	 * referred by the service) and put it all inside the {@link ServiceSearchResult} used as result.
-	 * 
-	 * This method uses {@link ServiceDAO}. 
+	 * Uses {@link ServiceDAO#findByName(String)}.
 	 */
+	@Override
 	public ServiceSearchResult getServices ( String... names ) 
 	{
 		ServiceSearchResult result = new ServiceSearchResult ();
@@ -172,11 +173,7 @@ public class ServiceManager
 		return JAXBUtils.marshal ( getServices ( names ), ServiceSearchResult.class );
 	}
 	
-	/**
-	 *  Returns the same result returned by {@link #getServices(String...)} in the format specified by the parameter. 
-	 *  At the moment this is only 'xml' and {@link #getServicesAsXml(String...)} is used for this. We plan formats 
-	 *  like RDF or JSON for the future.
-	 */
+	@Override
 	public String getServicesAs ( String outputFormat, String... names ) 
 	{
 		if ( "xml".equals ( outputFormat ) )
@@ -185,13 +182,11 @@ public class ServiceManager
 			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}
 	
-	
-	
-	
+
 	/**
-	 * Stores {@link ServiceCollection}s. This uses {@link ServiceCollectionDAO#store(ServiceCollection)} and wraps it 
-	 * with transaction management. 
+	 * Uses {@link ServiceCollectionDAO#store(ServiceCollection)} and adds up transaction management.
 	 */
+	@Override
 	public void storeServiceCollections ( ServiceCollection... servColls ) 
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
@@ -202,11 +197,9 @@ public class ServiceManager
 	}
 	
 	/**
-	 * Deletes service-collections by name. This uses {@link ServiceCollectionDAO#delete(String)} and wraps it with 
-	 * transaction management. Note that you'll get an exception if there is a service referring to any of the 
-	 * collections you're trying to delete. 
-	 * 
+	 * Uses {@link ServiceCollectionDAO#delete(String)} and adds up transaction management.
 	 */
+	@Override
 	public int deleteServiceCollections ( String... names )
 	{
 		int ct = 0;
@@ -219,9 +212,9 @@ public class ServiceManager
 	}
 
 	/**
-	 * Gets {@link ServiceCollection}s by name. For coherence with the rest of this manager, puts the result into 
-	 * {@link ServiceSearchResult}. This uses {@link ServiceCollectionDAO#findByName(ServiceCollection)}
+	 * Uses {@link ServiceCollectionDAO#findByName(String)}.
 	 */
+	@Override
 	public ServiceSearchResult getServiceCollections ( String... names ) 
 	{
 		ServiceSearchResult result = new ServiceSearchResult ();
@@ -246,11 +239,7 @@ public class ServiceManager
 		return JAXBUtils.marshal ( getServiceCollections ( names ), ServiceSearchResult.class );
 	}
 	
-	/**
-	 *  Returns the same result returned by {@link #getServiceCollections(String...)} in the format specified by the parameter. 
-	 *  At the moment this is only 'xml' and {@link #getServiceCollectionAsXml(String...)} is used for this. We plan formats 
-	 *  like RDF or JSON for the future.
-	 */
+	@Override
 	public String getServiceCollectionsAs ( String outputFormat, String... names ) 
 	{
 		if ( "xml".equals ( outputFormat ) )
@@ -261,11 +250,10 @@ public class ServiceManager
 	
 	
 
-
 	/**
-	 * Stores {@link Repository repositories}. This uses {@link RepositoryDAO#store(Repository)} and wraps it 
-	 * with transaction management. 
+	 * Uses {@link RepositoryDAO#store(Repository)} and adds up transaction management.
 	 */
+	@Override
 	public void storeRepositories ( Repository... repos ) 
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
@@ -276,9 +264,9 @@ public class ServiceManager
 	}
 	
 	/**
-	 * Deletes {@link Repository repositories} by name. This uses {@link RepositoryDAO#delete(String)} and wraps it 
-	 * with transaction management. 
+	 * Uses {@link RepositoryDAO#delete(String)} and adds up transaction management.
 	 */
+	@Override
 	public int deleteRepositories ( String... names )
 	{
 		int ct = 0;
@@ -291,9 +279,9 @@ public class ServiceManager
 	}
 
 	/**
-	 * Gets {@link Repository repositories} by name. For coherence with the rest of this manager, puts the result into 
-	 * {@link ServiceSearchResult}. This uses {@link RepositoryDAO#findByName(String)}.
+	 * Uses {@link RepositoryDAO#findByName(String)}.
 	 */
+	@Override
 	public ServiceSearchResult getRepositories ( String... names ) 
 	{
 		ServiceSearchResult result = new ServiceSearchResult ();
@@ -317,11 +305,7 @@ public class ServiceManager
 		return JAXBUtils.marshal ( getRepositories ( names ), ServiceSearchResult.class );
 	}
 	
-	/**
-	 *  Returns the same result returned by {@link #getRepositories(String...)} in the format specified by the parameter. 
-	 *  At the moment this is only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats 
-	 *  like RDF or JSON for the future.
-	 */
+	@Override
 	public String getRepositoriesAs ( String outputFormat, String... names ) 
 	{
 		if ( "xml".equals ( outputFormat ) )

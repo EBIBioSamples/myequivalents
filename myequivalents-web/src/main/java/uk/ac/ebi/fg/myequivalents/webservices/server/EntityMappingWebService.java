@@ -13,7 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.base.BaseEntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 
@@ -32,7 +32,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 @Path ( "/mapping" )
 public class EntityMappingWebService implements EntityMappingManager
 {
-	private BaseEntityMappingManager emapMgr = new BaseEntityMappingManager ();
+	private DbEntityMappingManager emapMgr = new DbEntityMappingManager ();
 	
 	/** 
 	 * This is just the GET version of {@link #getMappings(Boolean, List)}. Normally you will want the 

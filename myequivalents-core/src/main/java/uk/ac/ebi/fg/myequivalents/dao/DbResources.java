@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.myequivalents.resources;
+package uk.ac.ebi.fg.myequivalents.dao;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -12,16 +12,16 @@ import javax.persistence.Persistence;
  * @author Marco Brandizi
  *
  */
-public class Resources
+public class DbResources
 {
 	private EntityManagerFactory entityManagerFactory = null;
 	
-	private static Resources instance = new Resources ();
+	private static DbResources instance = new DbResources ();
 	
-	private Resources () {
+	private DbResources () {
 	}
 
-	public static Resources getInstance () {
+	public static DbResources getInstance () {
 		return instance;
 	}
 	

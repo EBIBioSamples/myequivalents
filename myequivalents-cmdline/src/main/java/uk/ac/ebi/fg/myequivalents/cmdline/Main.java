@@ -11,7 +11,7 @@ import javax.persistence.EntityManagerFactory;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 
-import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.dao.DbResources;
 
 
 /**
@@ -79,7 +79,7 @@ public class Main
 			{
 				// Sounds like we need to shutdown HSQLDB, due to System.exit()
 				//
-				EntityManagerFactory emf = Resources.getInstance ().getEntityManagerFactory ();
+				EntityManagerFactory emf = DbResources.getInstance ().getEntityManagerFactory ();
 				EntityManager em = emf.createEntityManager ();
 				((Session) em.getDelegate ()).doWork ( new Work() 
 				{
