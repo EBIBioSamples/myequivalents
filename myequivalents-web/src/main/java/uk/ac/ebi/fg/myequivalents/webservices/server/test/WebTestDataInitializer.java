@@ -9,8 +9,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.xml.bind.JAXBException;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbEntityMappingManager;
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
@@ -31,7 +31,7 @@ public class WebTestDataInitializer implements ServletContextListener
 	{
 		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
 
-		DbEntityMappingManager emapMgr = new DbEntityMappingManager ();
+		EntityMappingManager emapMgr = new DbManagerFactory ().newEntityMappingManager ();
 		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
 		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
 	}
@@ -45,7 +45,7 @@ public class WebTestDataInitializer implements ServletContextListener
 		
 		try 
 		{
-			ServiceManager serviceMgr = new DbServiceManager ();
+			ServiceManager serviceMgr = new DbManagerFactory ().newServiceManager ();
 			
 			ServiceCollection sc1 = new ServiceCollection ( 
 				"test.testweb.serviceColl1", null, "Test Service Collection 1", "The Description of the SC 1" 
@@ -88,7 +88,7 @@ public class WebTestDataInitializer implements ServletContextListener
 	
 			serviceMgr.storeServicesFromXML ( new StringReader ( testServiceXml ) );
 			
-			DbEntityMappingManager emapMgr = new DbEntityMappingManager ();
+			EntityMappingManager emapMgr = new DbManagerFactory ().newEntityMappingManager ();
 			emapMgr.storeMappings (
 				"test.testweb.service6:acc1", "test.testweb.service8:acc2", 
 				"test.testweb.service6:acc3", "test.testweb.service6:acc4" 

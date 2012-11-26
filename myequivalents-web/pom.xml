@@ -63,6 +63,13 @@
 			<artifactId>myequivalents-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-db</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 		
 
 		<!-- _____________ TEST _____________ -->
