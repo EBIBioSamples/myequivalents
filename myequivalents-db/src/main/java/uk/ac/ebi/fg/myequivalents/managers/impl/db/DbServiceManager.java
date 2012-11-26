@@ -41,7 +41,7 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * @author Marco Brandizi
  *
  */
-public class DbServiceManager implements ServiceManager
+class DbServiceManager implements ServiceManager
 {
 	private EntityManager entityManager;
 	private ServiceDAO serviceDAO;

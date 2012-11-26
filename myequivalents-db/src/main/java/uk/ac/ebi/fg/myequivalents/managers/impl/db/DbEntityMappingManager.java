@@ -31,7 +31,7 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * @author Marco Brandizi
  *
  */
-public class DbEntityMappingManager implements EntityMappingManager
+class DbEntityMappingManager implements EntityMappingManager
 {
 	private EntityManager entityManager;
 	private EntityMappingDAO entityMappingDAO;

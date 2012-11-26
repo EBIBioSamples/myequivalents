@@ -7,8 +7,6 @@ import java.io.Reader;
 
 import javax.xml.bind.JAXBException;
 
-import uk.ac.ebi.fg.myequivalents.dao.ServiceCollectionDAO;
-import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;

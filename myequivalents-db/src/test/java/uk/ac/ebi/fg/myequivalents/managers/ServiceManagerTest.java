@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;

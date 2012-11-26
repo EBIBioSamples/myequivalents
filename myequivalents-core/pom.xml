@@ -11,12 +11,6 @@
 	
 	<dependencies>
 
-		<!-- dependency>
-		   <groupId>com.google.guava</groupId>
-		   <artifactId>guava</artifactId>
-		   <version>12.0</version>
-		</dependency -->
-
 		<dependency>
 		   <groupId>org.hibernate</groupId>
 		   <artifactId>hibernate-entitymanager</artifactId>
@@ -26,42 +20,20 @@
 		   <groupId>org.hibernate</groupId>
 		   <artifactId>hibernate-validator</artifactId>
 		</dependency>
-				
-		<!-- bundles in entity mappings are built via SHA1+Base64 encoding -->
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.6</version>
-		</dependency>
 
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sun.xml.bind</groupId> -->
-<!-- 			<artifactId>jaxb-impl</artifactId> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
             
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 		</dependency>
-		
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>uk.ac.ebi</groupId>
-			<artifactId>jutils</artifactId>
-		</dependency>
-            		
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>	  
-            
 						
 
 		<!-- TEST -->
+		<!-- There are no tests at the moment here, yet we keep these deps for possible future ref. -->
 
 		<!-- Intercepts log4j and sends it to SL4J -->		
 		<dependency>
@@ -87,6 +59,12 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>uk.ac.ebi</groupId>
+			<artifactId>jutils</artifactId>
 			<scope>test</scope>
 		</dependency>
 		

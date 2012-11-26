@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 
 /**

@@ -7,7 +7,7 @@ import static java.lang.System.err;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 
 /**
@@ -29,7 +29,7 @@ public class ServiceGetLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = new DbServiceManager ();
+		ServiceManager servMgr = new DbManagerFactory ().newServiceManager ();
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )

@@ -17,8 +17,7 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbEntityMappingManager;
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
@@ -75,7 +74,7 @@ public class MainTest
 	@Before
 	public void init ()
 	{
-		serviceMgr = new DbServiceManager ();
+		serviceMgr = new DbManagerFactory ().newServiceManager ();
 		
 		ServiceCollection sc1 = new ServiceCollection ( 
 			"test.testmain.serviceColl1", null, "Test Service Collection 1", "The Description of the SC 1" 
@@ -262,7 +261,7 @@ public class MainTest
 		// Deletion
 		//
 		Main.main ( "mapping", "delete-entity", "test.testmain.service6:acc3" );
-		EntityMappingManager emMgr = new DbEntityMappingManager ();
+		EntityMappingManager emMgr = new DbManagerFactory ().newEntityMappingManager ();
 		assertTrue ( "'mapping delete-entity' didn't work!", 
 			emMgr.getMappings ( true, "test.testmain.service6:acc3" ).getBundles ().isEmpty () );
 		

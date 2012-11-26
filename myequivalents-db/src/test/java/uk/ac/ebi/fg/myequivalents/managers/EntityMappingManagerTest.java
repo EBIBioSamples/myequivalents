@@ -18,7 +18,6 @@ import org.junit.Test;
 import uk.ac.ebi.fg.myequivalents.dao.DbResources;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;

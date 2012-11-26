@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Log Configuration for Unit Test Environment -->
+<!-- 
+  Log Configuration for Unit Test Environment. This is not used in the core package at the moment. Yet, this
+  file is kept here as a template for your code and for possible future reference. 
+ -->
 <configuration>
 
   <appender name="ConsoleApp" class="ch.qos.logback.core.ConsoleAppender">

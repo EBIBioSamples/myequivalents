@@ -14,7 +14,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.CommandLine;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 
 /**
@@ -53,7 +53,7 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 			}
 		  in = new BufferedReader ( in );
 			
-			ServiceManager servMgr = new DbServiceManager ();
+			ServiceManager servMgr = new DbManagerFactory ().newServiceManager ();
 			servMgr.storeServicesFromXML ( in );
 		} 
 		catch ( FileNotFoundException ex ) 
