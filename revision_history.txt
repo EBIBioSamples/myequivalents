@@ -1,0 +1,6 @@
+0.1 (Expected) 
+  - Factory design pattern used to obtain the managers
+  - Authentication
+  - Completion of the web service
+0.0	
+  - First usable release, with deployment on EBI's Maven repository
