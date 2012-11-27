@@ -3,7 +3,7 @@
   <parent>
     <groupId>uk.ac.ebi.fg</groupId>
     <artifactId>myequivalents</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0</version>
   </parent>
   <artifactId>myequivalents-wscli</artifactId>
   <name>My Equivalents Web Service Client</name>
@@ -93,7 +93,8 @@
 						<useTestScope>true</useTestScope>
 						<connectors>
 						  <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-						    <port>8080</port>
+						  	<!-- 8080 is often busy on EBI hosts -->
+						    <port>10973</port>
 						    <maxIdleTime>60000</maxIdleTime>
 						  </connector>
 						</connectors>

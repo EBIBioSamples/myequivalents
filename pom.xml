@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.ac.ebi.fg</groupId>
   <artifactId>myequivalents</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0</version>
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference and Equivalence Management Componenets</name>
 
