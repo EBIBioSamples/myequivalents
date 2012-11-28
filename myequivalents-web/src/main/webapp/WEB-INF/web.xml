@@ -20,6 +20,10 @@
 	</servlet-mapping>	
 	
 	<listener>
+		<!-- Initializes Hibernate via hibernate.properties file -->
+		<listener-class>uk.ac.ebi.fg.myequivalents.webservices.server.InitListener</listener-class>
+	</listener>
+	<listener>
 		<!-- Creates some test data to play with  -->
   	<listener-class>uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer</listener-class>
   </listener>           

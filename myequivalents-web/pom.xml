@@ -87,8 +87,8 @@
 				<version>2.2</version>
         <configuration>
           <!-- These are already in Tomcat and clash with them -->
-          <!-- hibernate.properties and logback.xml are just created in target, have to be put on the server, outside the .war -->
-          <packagingExcludes>WEB-INF/classes/hibernate.properties,WEB-INF/classes/logback.xml,WEB-INF/lib/jsp-api-*.jar,WEB-INF/lib/log4j-*.jar,WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/xmlParserAPIs-*.jar</packagingExcludes>
+          <!-- Files like hibernate.properties are just created in target, they have to be put on the server, outside the .war -->
+          <packagingExcludes>WEB-INF/classes/hibernate.properties,WEB-INF/classes/logback.xml,WEB-INF/classes/context.xml,WEB-INF/lib/jsp-api-*.jar,WEB-INF/lib/log4j-*.jar,WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/xmlParserAPIs-*.jar</packagingExcludes>
 	      </configuration>
 	    </plugin>      
 
