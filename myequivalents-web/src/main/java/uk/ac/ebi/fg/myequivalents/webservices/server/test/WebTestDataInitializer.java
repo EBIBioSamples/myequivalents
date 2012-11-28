@@ -30,6 +30,8 @@ public class WebTestDataInitializer implements ServletContextListener
 	{
 		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
 
+		System.out.println ( "\n\n ______________________________ Removing (Some) Test Data _____________________________ \n\n\n" );
+
 		BaseEntityMappingManager emapMgr = new BaseEntityMappingManager ();
 		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
 		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
