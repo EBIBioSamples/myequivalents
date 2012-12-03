@@ -2,5 +2,9 @@
   - Factory design pattern used to obtain the managers
   - Authentication
   - Completion of the web service
+
+0.0.1
+  - The web service can now be configured via a war-external custom path 
+
 0.0	
   - First usable release, with deployment on EBI's Maven repository
