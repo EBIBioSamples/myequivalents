@@ -1,5 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.resources;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class Resources
 {
 	private EntityManagerFactory entityManagerFactory = null;
-	private String hibernatePropertiesLocation = null;
+	private String configLocation = null;
 	private Logger log = LoggerFactory.getLogger ( Resources.class );
 	private static Resources instance = new Resources ();
 	
@@ -38,7 +39,7 @@ public class Resources
 	 * <p>The wrapper to the database. This works via Hibernate, so you need to put some hibernate.properties in the 
 	 * Java classpath. See the Maven structure for examples.</p>
 	 * 
-	 * <p>You have the option to set a custom path for hibernate.properties, via {@link #setHibernatePropertiesLocation(String)} 
+	 * <p>You have the option to set a custom path for hibernate.properties, via {@link #setConfigLocation(String)} 
 	 * This is used by the web service server, in order to allow one to play with restrictions sysops might set for 
 	 * application servers.</p>
 	 * 
@@ -54,39 +55,47 @@ public class Resources
 		if ( entityManagerFactory != null ) return entityManagerFactory;
 		try 
 		{
-			if ( hibernatePropertiesLocation == null ) {
+			File hibFile = null;
+
+			if ( configLocation != null )
+			{
+				hibFile = new File ( configLocation + "/hibernate.properties" );
+				if ( !hibFile.exists () ) hibFile = null;
+			}
+			
+			if ( hibFile == null ) {
 				log.info ( "Loading Database/Hibernate Parameters from CLASSPATH" );
 				return entityManagerFactory = Persistence.createEntityManagerFactory ( "defaultPersistenceUnit" );
 			}
-
-			log.info ( "Loading Database/Hibernate Parameters from '" + hibernatePropertiesLocation + "'" );
+			
+			log.info ( "Loading Database/Hibernate Parameters from '" + hibFile.getCanonicalPath () + "'" );
 			Properties hprops = new Properties ();
-			hprops.load ( new FileReader ( hibernatePropertiesLocation ) );
+			hprops.load ( new FileReader ( hibFile ) );
 			return entityManagerFactory = Persistence.createEntityManagerFactory ( "defaultPersistenceUnit", hprops );
 		} 
 		catch ( FileNotFoundException ex ) {
-			throw new RuntimeException ( "Hibernate properties file not found: '" + hibernatePropertiesLocation + "'" );
+			throw new RuntimeException ( "Hibernate properties file not found: '" + configLocation + "'" );
 		} 
 		catch ( IOException ex ) {
 			throw new RuntimeException ( 
-				"Error while initialising Hibernate from '" + hibernatePropertiesLocation + "': " + ex.getMessage (), ex );
+				"Error while initialising Hibernate from '" + configLocation + "': " + ex.getMessage (), ex );
 		}
 	}
 
 	/**
 	 * @see #getEntityManagerFactory().
 	 */
-	public String getHibernatePropertiesLocation ()
+	public String getConfigLocation ()
 	{
-		return hibernatePropertiesLocation;
+		return configLocation;
 	}
 
 	/**
 	 * @see #getEntityManagerFactory().
 	 */
-	public void setHibernatePropertiesLocation ( String hibernatePropertiesLocation )
+	public void setConfigLocation ( String configLocation )
 	{
-		this.hibernatePropertiesLocation = hibernatePropertiesLocation;
+		this.configLocation = configLocation;
 	}
 
 	

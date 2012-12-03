@@ -18,10 +18,12 @@ EOT
   exit 1
 fi
 
+tomcat_localhost_conf="$tomcat_home/conf/Catalina/localhost"
 set -x xtrace
 cp -i target/myequivalents.war "$tomcat_home/webapps"
-cp -i target/classes/META-INF/context.xml "$tomcat_home/conf/Catalina/localhost/myequivalents.xml"
-cp -i target/classes/hibernate.properties "$tomcat_home/webapps/myequivalents.hibernate.properties"
+cp -i target/classes/META-INF/context.xml "${tomcat_localhost_conf}/myequivalents.xml"
+if [ ! -e "${tomcat_localhost_conf}/myequivalents-config"  ]; then mkdir "${tomcat_localhost_conf}/myequivalents-config"; fi
+cp -i target/classes/hibernate.properties "${tomcat_localhost_conf}/myequivalents-config/hibernate.properties"
 set +o xtrace
 
 cat <<EOT

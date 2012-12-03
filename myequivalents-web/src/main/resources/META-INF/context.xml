@@ -16,8 +16,8 @@
     relative to TOMCAT_HOME).
   -->
 	<Parameter 
-		name="myequivalents.hibernate-properties-location" 
-		value="webapps/myequivalents.hibernate.properties" 
+		name="myequivalents.config-location" 
+		value="conf/Catalina/localhost/myequivalents-config" 
 		override="false" 
 	/>
 </Context>
