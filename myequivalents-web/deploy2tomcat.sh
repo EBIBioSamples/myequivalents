@@ -1,7 +1,7 @@
-# 
-# This copies the .war file in TOMCAT_HOME and necessary configuration files in proper locations. See the documentation
+#
+# This copies the .war file in TOMCAT_HOME and necessary configuration files in proper locations. See the documentation
 # for details.
-# 
+# 
 cd "$(dirname $0)"
 
 tomcat_home="$1"
