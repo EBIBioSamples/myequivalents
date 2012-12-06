@@ -282,13 +282,13 @@
 				<test.jdbc.url>jdbc:mysql://localhost/myequivalents_test</test.jdbc.url>
 				<test.jdbc.driverClassName>com.mysql.jdbc.Driver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.MySQLDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
+				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
   		</properties>
   		<dependencies>
 				<dependency>
 						<groupId>mysql</groupId>
 						<artifactId>mysql-connector-java</artifactId>
-						<version>5.1.20</version>
+						<version>5.1.21</version>
 				</dependency>  		
   		</dependencies>
   	</profile>
@@ -334,6 +334,26 @@
 				</dependency>  		
   		</dependencies>
   	</profile>
+
+  	<profile>
+  		<id>mysql</id>
+  		<properties>
+				<jdbc.username>myequivalents</jdbc.username>
+				<jdbc.password>myequ293</jdbc.password>
+				<jdbc.url>jdbc:mysql://localhost/myequivalents_test</jdbc.url>
+				<jdbc.driverClassName>com.mysql.jdbc.Driver</jdbc.driverClassName>
+				<hibernate.dialect>org.hibernate.dialect.MySQLDialect</hibernate.dialect>
+				<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
+  		</properties>
+  		<dependencies>
+				<dependency>
+						<groupId>mysql</groupId>
+						<artifactId>mysql-connector-java</artifactId>
+						<version>5.1.21</version>
+				</dependency>  		
+  		</dependencies>
+  	</profile>
+
 
   	<profile>
   		<id>oracle_dev</id>

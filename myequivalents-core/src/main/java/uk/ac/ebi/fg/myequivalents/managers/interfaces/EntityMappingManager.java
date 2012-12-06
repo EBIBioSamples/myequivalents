@@ -70,4 +70,8 @@ public interface EntityMappingManager
 	 */
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds );
 
+	/**
+	 * Does close/clean-up operations. There is no guarantee that a manager can be uses after the invocation to this method.
+	 */
+	public void close ();
 }

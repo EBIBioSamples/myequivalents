@@ -330,4 +330,20 @@ public class ServiceManager
 			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}
 
+	/**
+	 * Invokes {@link #close()}.
+	 */
+	@Override
+	protected void finalize () throws Throwable {
+		close ();
+	}
+
+	/**
+	 * Close DB connections and terminate the use of this manager. Note that it cannot be re-used after this invocation.
+	 * This may occasionally be useful (e.g., multi-thread applications).
+	 */
+	public void close () {
+		entityManager.close ();
+	}
+	
 }

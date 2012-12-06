@@ -35,6 +35,7 @@ public class WebTestDataInitializer implements ServletContextListener
 		BaseEntityMappingManager emapMgr = new BaseEntityMappingManager ();
 		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
 		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
+		emapMgr.close ();
 	}
 
 	@Override
@@ -97,7 +98,8 @@ public class WebTestDataInitializer implements ServletContextListener
 			emapMgr.storeMappingBundle ( 
 				"test.testweb.service7:acc1", "test.testweb.service6:acc4", "test.testweb.service6:acc1"
 			);
-			
+
+			emapMgr.close ();
 		}
 		catch ( JAXBException ex ){
 			throw new RuntimeException ( "Internal error while loading test data: '" + ex.getMessage () + "'", ex );

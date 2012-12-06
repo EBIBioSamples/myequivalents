@@ -32,8 +32,6 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 @Path ( "/mapping" )
 public class EntityMappingWebService implements EntityMappingManager
 {
-	private BaseEntityMappingManager emapMgr = new BaseEntityMappingManager ();
-	
 	/** 
 	 * This is just the GET version of {@link #getMappings(Boolean, List)}. Normally you will want the 
 	 * {{@link #getMappingsViaPOST(Boolean, List) POST invocation}, this is here for testing purposes only. 
@@ -66,8 +64,12 @@ public class EntityMappingWebService implements EntityMappingManager
 	
 
 	@Override
-	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String ... entityIds ) {
-		return emapMgr.getMappings ( wantRawResult, entityIds );
+	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String ... entityIds ) 
+	{
+		EntityMappingManager emgr = new BaseEntityMappingManager ();
+		EntityMappingSearchResult result = emgr.getMappings ( wantRawResult, entityIds );
+		emgr.close();
+		return result; 
 	}
 	
 	
@@ -103,5 +105,12 @@ public class EntityMappingWebService implements EntityMappingManager
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * Does nothing, it's stateless.
+	 */
+	@Override
+	public void close () {
 	}	
 }
