@@ -44,7 +44,7 @@ public class EntityMappingSearchResult
 	 *
 	 */
 	@XmlRootElement ( name = "bundle" )
-	@XmlAccessorType ( XmlAccessType.FIELD )
+	@XmlAccessorType ( XmlAccessType.NONE )
 	public static class Bundle
 	{
 		protected Bundle () {

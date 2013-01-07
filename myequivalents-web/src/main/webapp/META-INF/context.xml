@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Context>
-	<!--
-	  Restrict to localhost only  
-		Second form for IP is what appears on OS/X 
-	-->
-  <!--   Valve className="org.apache.catalina.valves.RemoteAddrValve"
-         allow="127\.0\.0\.1,0:0:0:0:0:0:0:1\%0" deny="" / -->
-</Context>

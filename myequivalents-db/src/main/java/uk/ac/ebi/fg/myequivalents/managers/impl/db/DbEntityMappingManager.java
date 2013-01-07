@@ -142,4 +142,12 @@ class DbEntityMappingManager implements EntityMappingManager
 		else
 			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}
+
+	/**
+	 * Close DB connections and terminate the use of this manager. Note that it cannot be re-used after this invocation.
+	 * This may occasionally be useful (e.g., multi-thread applications).
+	 */
+	public void close () {
+		entityManager.close ();
+	}
 }

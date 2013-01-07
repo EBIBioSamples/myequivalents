@@ -121,4 +121,11 @@ public class EntityMappingWSClient implements EntityMappingManager
 		throwUnsupportedException ();
 		return null;
 	}
+
+	/** 
+	 * Does nothing, it's stateless.
+	 */
+	@Override
+	public void close () {
+	}
 }

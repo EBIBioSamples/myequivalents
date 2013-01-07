@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+	This is not included in the final .war. Instead you can use it with Tomcat or another application server. By keeping it
+	outside the .war, you can set up server-dependent parameters. See documentation and deploy2tomcat.sh for details.
+-->
+<Context>
+	<!--
+	  Restrict to localhost only  
+		Second form for IP is what appears on OS/X 
+	-->
+  <!--   Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.0\.0\.1,0:0:0:0:0:0:0:1\%0" deny="" / -->
+  
+  <!-- 
+    This is where the hibernate.properties file is get from. The default value is suitable for Tomcat (the path is 
+    relative to TOMCAT_HOME).
+  -->
+	<Parameter 
+		name="myequivalents.config-location" 
+		value="conf/Catalina/localhost/myequivalents-config" 
+		override="false" 
+	/>
+</Context>
