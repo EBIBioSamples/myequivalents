@@ -28,7 +28,9 @@ public class EntityMappingWSClientIT
 	public void testGet ()
 	{
 		// Default is http://localhost:8080/myequivalents/ws
-		EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:8080/ws" );
+		// We use a non-standard port here cause 8080 is often already taken on EBI hosts
+		//
+		EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:10973/ws" );
 		EntityMappingSearchResult result = mmgr.getMappings ( false, "test.testweb.service6:acc1", "test.testweb.service6:foo" );
 		String resultStr = result.toString ();
 		
