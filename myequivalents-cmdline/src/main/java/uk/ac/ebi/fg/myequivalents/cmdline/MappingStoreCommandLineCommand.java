@@ -4,8 +4,8 @@ import static java.lang.System.err;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * The 'mapping store' command. This will use {@link DbEntityMappingManager#storeMappings(String...)}.
@@ -27,7 +27,7 @@ public class MappingStoreCommandLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		EntityMappingManager emMgr = new DbManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
 		
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )

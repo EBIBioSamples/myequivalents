@@ -16,6 +16,7 @@ import org.apache.commons.cli.CommandLine;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * The 'service store' command. Syntax is: service store [xml-file]. This will use 
@@ -53,7 +54,7 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 			}
 		  in = new BufferedReader ( in );
 			
-			ServiceManager servMgr = new DbManagerFactory ().newServiceManager ();
+			ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
 			servMgr.storeServicesFromXML ( in );
 		} 
 		catch ( FileNotFoundException ex ) 

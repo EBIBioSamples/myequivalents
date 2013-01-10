@@ -15,17 +15,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import uk.ac.ebi.fg.myequivalents.dao.DbResources;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
@@ -38,10 +39,11 @@ import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
  */
 public class EntityMappingManagerTest
 {	
+	/** Normally you cast this to {@link ManagerFactory}, here we force the specific value cause we need it and we're sure of it*/
+	private DbManagerFactory managerFactory = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+	
 	@Rule
-	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider (
-		DbResources.getInstance ().getEntityManagerFactory ()
-	);
+	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( managerFactory.getEntityManagerFactory () );
 
 	private EntityMappingManager emMgr;
 	private ServiceDAO serviceDao;
@@ -57,7 +59,7 @@ public class EntityMappingManagerTest
 		serviceDao = new ServiceDAO ( em );
 		
 		// This is how you should obtain a manager from a factory
-		emMgr = new DbManagerFactory ().newEntityMappingManager ();
+		emMgr = managerFactory.newEntityMappingManager ();
 		
 		service1 = new Service ( "test.testemsrv.service1", "testemsrv.someType1", "A Test Service 1", "The Description of a Test Service 1" );
 		service1.setUriPrefix ( "http://somewhere.in.the.net/testemsrv/service1/" );

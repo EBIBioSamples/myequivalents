@@ -9,14 +9,18 @@ import java.io.StringReader;
 import javax.xml.bind.JAXBException;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
  * 
@@ -38,7 +42,7 @@ public class ServiceManagerTest
 	public void init ()
 	{
 		// This is how you should obtain a manager from a factory
-		serviceMgr = new DbManagerFactory ().newServiceManager ();
+		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
 		
 		service1 = new Service ( "test.testservmgr.service1", "testservmgr.someType1", "A Test Service 1", "The Description of a Test Service 1" );
 		service1.setUriPrefix ( "http://somewhere.in.the.net/testservmgr/service1/" );

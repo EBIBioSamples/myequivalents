@@ -7,8 +7,8 @@ import static java.lang.System.err;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * The 'repository get' command, a wrapper for {@link DbServiceManager#getRepositoriesAs(String, String...)}.
@@ -29,7 +29,7 @@ public class RepositoryGetLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = new DbManagerFactory ().newServiceManager ();
+		ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )

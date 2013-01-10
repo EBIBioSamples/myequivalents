@@ -12,7 +12,7 @@ package uk.ac.ebi.fg.myequivalents.managers.interfaces;
  * @author Marco Brandizi
  *
  */
-public abstract class AbstractManagerFactory
+public interface ManagerFactory
 {
 	public abstract EntityMappingManager newEntityMappingManager ();
 	public abstract ServiceManager newServiceManager ();

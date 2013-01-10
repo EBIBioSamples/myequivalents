@@ -9,7 +9,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
@@ -22,10 +25,11 @@ import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
  */
 public class ServiceDAOTest
 {
+	/** Normally you cast this to {@link ManagerFactory}, here we force the specific value cause we need it and we're sure of it*/
+	private DbManagerFactory managerFactory = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+	
 	@Rule
-	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( 
-		DbResources.getInstance ().getEntityManagerFactory () 
-	);
+	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( managerFactory.getEntityManagerFactory () );
 
 	private ServiceDAO dao;
 	

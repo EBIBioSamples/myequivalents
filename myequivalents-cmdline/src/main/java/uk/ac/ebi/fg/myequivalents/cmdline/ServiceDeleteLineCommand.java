@@ -8,8 +8,8 @@ import static java.lang.System.err;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * The 'service delete' command, a wrapper for {@link DbServiceManager#deleteServices(String...)}.
@@ -30,7 +30,7 @@ public class ServiceDeleteLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = new DbManagerFactory ().newServiceManager ();
+		ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )

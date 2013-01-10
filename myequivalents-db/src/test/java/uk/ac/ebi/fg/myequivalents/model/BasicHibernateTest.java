@@ -6,7 +6,8 @@ import javax.persistence.EntityTransaction;
 import org.junit.Rule;
 import org.junit.Test;
 
-import uk.ac.ebi.fg.myequivalents.dao.DbResources;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
@@ -21,8 +22,9 @@ public class BasicHibernateTest
 {
 	@Rule
 	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( 
-		DbResources.getInstance ().getEntityManagerFactory () 
+		((DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ()).getEntityManagerFactory ()
 	);
+	
 	
 	@Test
 	public void testEntityCollectionBasics ()

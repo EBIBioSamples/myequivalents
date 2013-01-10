@@ -8,7 +8,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import uk.ac.ebi.fg.myequivalents.dao.DbResources;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceCollectionDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
@@ -51,9 +50,9 @@ class DbServiceManager implements ServiceManager
 	/**
 	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
 	 */
-	DbServiceManager ()
+	DbServiceManager ( EntityManager em )
 	{
-		this.entityManager = DbResources.getInstance ().getEntityManagerFactory ().createEntityManager ();
+		this.entityManager = em;
 		this.serviceDAO = new ServiceDAO ( entityManager );
 		this.serviceCollDAO = new ServiceCollectionDAO ( entityManager );
 		this.repoDAO = new RepositoryDAO ( entityManager );

@@ -4,7 +4,6 @@ import javax.persistence.EntityTransaction;
 
 import org.apache.commons.lang.StringUtils;
 
-import uk.ac.ebi.fg.myequivalents.dao.DbResources;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
@@ -39,9 +38,9 @@ class DbEntityMappingManager implements EntityMappingManager
 	/**
 	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
 	 */
-	DbEntityMappingManager ()
+	DbEntityMappingManager ( EntityManager em )
 	{
-		this.entityManager = DbResources.getInstance ().getEntityManagerFactory ().createEntityManager ();
+		this.entityManager = em;
 		this.entityMappingDAO = new EntityMappingDAO ( entityManager );
 	}
 

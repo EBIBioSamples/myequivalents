@@ -16,7 +16,7 @@ app-context-path will be attached to the URL of your server, e.g., test/myeq wil
 at http://localhost:8080/test/myeq. This requires that the context file and the war file are named accordingly (using 
 hashes). DO NOT USE ANY INITIAL '/' for this. Default is 'myequivalents'.
 
-app-config-dir is a configuration directory that will be put under <tomcat-home>/conf. Default is 
+app-config-dir is a configuration directory that will be put under <tomcat-home>/conf. Default is <app-context-path>-conf
 
 Do 'mvn -Ptest.hsql,<your-db-profile> package' before running this script
 
@@ -47,7 +47,7 @@ set -x xtrace
 cp -i target/myequivalents.war "$tomcat_home/webapps/${context_path_hashed}.war"
 cp -i target/_reconfigured_context.xml "${tomcat_localhost_conf}/${context_path_hashed}.xml"
 if [ ! -e "${tomcat_localhost_conf}/${app_config_dir}"  ]; then mkdir -p "${tomcat_localhost_conf}/${app_config_dir}"; fi
-cp -i target/classes/hibernate.properties "${tomcat_localhost_conf}/${app_config_dir}/hibernate.properties"
+cp -i target/classes/myeq-manager-config.xml "${tomcat_localhost_conf}/${app_config_dir}/myeq-manager-config.xml"
 set +o xtrace
 
 cat <<EOT

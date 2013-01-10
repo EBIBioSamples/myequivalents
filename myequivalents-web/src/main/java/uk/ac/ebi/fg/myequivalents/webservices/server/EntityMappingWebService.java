@@ -16,10 +16,15 @@ import javax.ws.rs.core.MediaType;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * <p>The web service version of the {@link EntityMappingManager} interface. This uses Jersey and set up a REST web service
  * See {@link uk.ac.ebi.fg.myequivalents.webservices.client.EntityMappingWSClientTest} for usage examples.</p>
+ * 
+ * <p>The web service is backed by a {@link ManagerFactory}, which needs to be configured via Spring, see {@link Resources}.
+ * By default {@link DbManagerFactory} is used.</p>
  * 
  * <p>Usually these services are located at /ws/mapping, e.g., 
  * "http://localhost:8080/ws/mapping/get?entityId=service1:acc1". You can build the path by appending the value in 
@@ -66,7 +71,7 @@ public class EntityMappingWebService implements EntityMappingManager
 	@Override
 	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String ... entityIds ) 
 	{
-		EntityMappingManager emgr = new DbManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
 		EntityMappingSearchResult result = emgr.getMappings ( wantRawResult, entityIds );
 		emgr.close();
 		return result; 
