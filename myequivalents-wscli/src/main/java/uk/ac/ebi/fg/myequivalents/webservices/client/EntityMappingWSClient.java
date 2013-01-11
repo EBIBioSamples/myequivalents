@@ -27,6 +27,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 public class EntityMappingWSClient implements EntityMappingManager
 {
 	private final String baseUrl;	
+	
 	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
 	

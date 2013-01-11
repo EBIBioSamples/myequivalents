@@ -295,7 +295,7 @@
 				<test.jdbc.url>jdbc:mysql://localhost/myequivalents_test</test.jdbc.url>
 				<test.jdbc.driverClassName>com.mysql.jdbc.Driver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.MySQLDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
+				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
   		</properties>
   		<dependencies>
 				<dependency>
