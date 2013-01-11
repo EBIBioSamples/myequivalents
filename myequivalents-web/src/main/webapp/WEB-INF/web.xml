@@ -18,6 +18,11 @@
 		<servlet-name>Jersey REST Web Services</servlet-name>
 		<url-pattern>/ws/*</url-pattern>
 	</servlet-mapping>	
+
+	<listener>
+		<!-- Initializes Hibernate via hibernate.properties file -->
+		<listener-class>uk.ac.ebi.fg.myequivalents.webservices.server.InitListener</listener-class>
+	</listener>
 	
 	<listener>
 		<!-- Initializes Hibernate via hibernate.properties file -->

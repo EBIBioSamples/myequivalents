@@ -17,12 +17,12 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.ebi.fg.myequivalents.managers.ServiceManager;
-import uk.ac.ebi.fg.myequivalents.managers.ServiceSearchResult;
-import uk.ac.ebi.fg.myequivalents.managers.impl.base.BaseEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
@@ -74,7 +74,7 @@ public class MainTest
 	@Before
 	public void init ()
 	{
-		serviceMgr = new ServiceManager ();
+		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
 		
 		ServiceCollection sc1 = new ServiceCollection ( 
 			"test.testmain.serviceColl1", null, "Test Service Collection 1", "The Description of the SC 1" 
@@ -261,7 +261,7 @@ public class MainTest
 		// Deletion
 		//
 		Main.main ( "mapping", "delete-entity", "test.testmain.service6:acc3" );
-		EntityMappingManager emMgr = new BaseEntityMappingManager ();
+		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
 		assertTrue ( "'mapping delete-entity' didn't work!", 
 			emMgr.getMappings ( true, "test.testmain.service6:acc3" ).getBundles ().isEmpty () );
 		

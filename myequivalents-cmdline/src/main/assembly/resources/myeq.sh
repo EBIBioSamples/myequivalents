@@ -1,7 +1,7 @@
 #!/bin/sh
 
-#ÊThis is the entry point that invokes the MyEquivalents's line commands.
-#Ê
+# This is the entry point that invokes the MyEquivalents's line commands.
+# 
 
 # These are passed to the JVM. they're appended, so that you can predefine it from the shell
 OPTS="$OPTS -Xms2G -Xmx4G -XX:PermSize=128m -XX:MaxPermSize=256m"
@@ -35,7 +35,7 @@ if [ "$JDBCPATH" != "" ]; then
   CP="$CP:$JDBCPATH"
 fi
 
-#ÊSee here for an explaination about ${1+"$@"} :
+# See here for an explaination about ${1+"$@"} :
 # http://stackoverflow.com/questions/743454/space-in-java-command-line-arguments 
 
 java \

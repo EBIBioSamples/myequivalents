@@ -1,7 +1,13 @@
-0.1 (Expected) 
-  - Factory design pattern used to obtain the managers
+1.0 (Expected)
+  - Logical closure over the serviceCollection relation
+  
+0.2 (Expected)
   - Authentication
   - Completion of the web service
+
+0.1 (Expected) 
+  - Factory design pattern used to obtain the managers
+  - The managers to be used can be configured via Spring 
 
 0.0.1
   - The web service can now be configured via a war-external custom path 

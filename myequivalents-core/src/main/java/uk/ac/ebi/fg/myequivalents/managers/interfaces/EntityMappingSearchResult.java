@@ -14,9 +14,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import uk.ac.ebi.fg.myequivalents.managers.ExposedEntity;
-import uk.ac.ebi.fg.myequivalents.managers.ExposedService;
-import uk.ac.ebi.fg.myequivalents.managers.impl.base.BaseEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
@@ -25,7 +22,7 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
  * 
- * This is the class used to format the responses returned by the {@link BaseEntityMappingManager}. For instance, the REST-based
+ * This is the class used to format the responses returned by the {@link DbEntityMappingManager}. For instance, the REST-based
  * web service uses this class to format its output in XML (thanks to JAXB mappings).  
  * 
  * <dl><dt>date</dt><dd>Jun 11, 2012</dd></dl>
@@ -47,7 +44,7 @@ public class EntityMappingSearchResult
 	 *
 	 */
 	@XmlRootElement ( name = "bundle" )
-	@XmlAccessorType ( XmlAccessType.FIELD )
+	@XmlAccessorType ( XmlAccessType.NONE )
 	public static class Bundle
 	{
 		protected Bundle () {
@@ -86,7 +83,7 @@ public class EntityMappingSearchResult
 
 	/**
 	 * @param wantRawResult if true, only bundles will be stored into this object. See 
-	 * {@link BaseEntityMappingManager#getMappings(boolean, String...)}.
+	 * {@link DbEntityMappingManager#getMappings(boolean, String...)}.
 	 * 
 	 * Usually you don't want to instantiate this yourself, you should leave it to the {@link EntityMappingManager} you're
 	 * using.
@@ -164,7 +161,7 @@ public class EntityMappingSearchResult
 	 * {@link ServiceCollection}s and {@link Repository repositories} to this result.
 	 * 
 	 */
-	void addEntityMapping ( EntityMapping em ) 
+	private void addEntityMapping ( EntityMapping em ) 
 	{
 		String bundleId = em.getBundle ();
 		Bundle bundle = bundles.get ( em.getBundle () );

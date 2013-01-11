@@ -11,6 +11,15 @@
   
 	<dependencies>
 
+		<!-- We need this located here at the top, cause there are conflicts with JPA 1 during the integration test -->
+		<dependency>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>hibernate-jpa-2.0-api</artifactId>
+			<version>1.0.1.Final</version>
+			<scope>runtime</scope>
+		</dependency>
+	
+
 		<!-- Use Logback as concrete test logger -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -35,6 +44,12 @@
 		  <artifactId>jcl-over-slf4j</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>uk.ac.ebi</groupId>
+			<artifactId>jutils</artifactId>
+			<scope>test</scope>
+		</dependency>
+	
 	
 		<!-- Dependencies from other modules in the same project -->
 

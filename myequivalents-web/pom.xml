@@ -3,7 +3,7 @@
   <parent>
     <artifactId>myequivalents</artifactId>
     <groupId>uk.ac.ebi.fg</groupId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>myequivalents-web</artifactId>
   <packaging>war</packaging>
@@ -63,6 +63,13 @@
 			<artifactId>myequivalents-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-db</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 		
 
 		<!-- _____________ TEST _____________ -->
@@ -87,8 +94,8 @@
 				<version>2.2</version>
         <configuration>
           <!-- These are already in Tomcat and clash with them -->
-          <!-- Files like hibernate.properties are just created in target, they have to be put on the server, outside the .war -->
-          <packagingExcludes>WEB-INF/classes/hibernate.properties,WEB-INF/classes/logback.xml,WEB-INF/classes/context.xml,WEB-INF/lib/jsp-api-*.jar,WEB-INF/lib/log4j-*.jar,WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/xmlParserAPIs-*.jar</packagingExcludes>
+          <!-- Certain files are just created in target/, they have to be put on the server, outside the .war -->
+          <packagingExcludes>WEB-INF/classes/logback.xml,WEB-INF/classes/context.xml,WEB-INF/classes/myeq-manager-config.xml,WEB-INF/lib/jsp-api-*.jar,WEB-INF/lib/log4j-*.jar,WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/xmlParserAPIs-*.jar</packagingExcludes>
 	      </configuration>
 	    </plugin>      
 

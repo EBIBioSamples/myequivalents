@@ -25,11 +25,13 @@ public class MyServerWSTest
 	@Test @Ignore ( "This is a sort of quick/dirty manual test against your new web service instance. Usually disabled" )
 	public void testGetMapping ()
 	{
-		EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:21480/myequivalents/ws" );
+
+		EntityMappingManager mmgr = new EntityMappingWSClient ( "http://wwwdev.ebi.ac.uk/fg/myequivalents/ws" );
 		EntityMappingSearchResult result = mmgr.getMappings ( false, "biosamples-service:SAMEA1006750" );
 		String resultStr = result.toString ();
 		
 		out.println ( "\n\n ====================== '/mapping/get' says:\n" + resultStr + "============================" );
+		out.println ( "\n\n\n ---------------------------> WARNING!!! It is known that this test DOES NOT WORK with Java < 7\n\n" );
 		
 		assertNotNull ( "'mapping get' didn't work!", result );
 		assertTrue ( "Wrong result from 'mapping get' (ena-repository/DRS000019)!", 

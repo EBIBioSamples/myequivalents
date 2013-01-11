@@ -11,6 +11,8 @@ import javax.persistence.EntityManagerFactory;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 
@@ -73,33 +75,39 @@ public class Main
 		}
 		finally 
 		{
-			
 			// This brutality has to be disabled during Junit tests
+			// 
 			if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag" ) ) ) 
 			{
 				// Sounds like we need to shutdown HSQLDB, due to System.exit()
 				//
-				EntityManagerFactory emf = Resources.getInstance ().getEntityManagerFactory ();
-				EntityManager em = emf.createEntityManager ();
-				((Session) em.getDelegate ()).doWork ( new Work() 
+				ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
+				if ( mgrf instanceof DbManagerFactory )
 				{
-					@Override
-					public void execute ( Connection connection ) throws SQLException
+					EntityManagerFactory emf = ( (DbManagerFactory) mgrf).getEntityManagerFactory ();
+	
+					EntityManager em = emf.createEntityManager ();
+					((Session) em.getDelegate ()).doWork ( new Work() 
 					{
-						DatabaseMetaData dbmsMeta = connection.getMetaData ();
-						String dbmsName = dbmsMeta.getDatabaseProductName ().toLowerCase ();
-						if ( dbmsName.contains ( "hsql" ) ) {
-							connection.createStatement ().executeUpdate ( "SHUTDOWN;" );
-							connection.commit ();
+						@Override
+						public void execute ( Connection connection ) throws SQLException
+						{
+							DatabaseMetaData dbmsMeta = connection.getMetaData ();
+							String dbmsName = dbmsMeta.getDatabaseProductName ().toLowerCase ();
+							if ( dbmsName.contains ( "hsql" ) ) {
+								connection.createStatement ().executeUpdate ( "SHUTDOWN;" );
+								connection.commit ();
+							}
 						}
-					}
-				});
-				// Just in case, let's do this too
-				emf.close ();
+					});
+					// Just in case, let's do this too
+					emf.close ();
+				} // if mgrf
 				
 				err.println ( "\nThe End. Quitting Java with exit code " + exitCode + "." );
 				System.exit ( exitCode );
-			}
+				
+			} // if test_flag
 		}
 	}
 }

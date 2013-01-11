@@ -10,10 +10,11 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 /**
  * <h2>The Entity Mapping Manager Interface</h2>
  * 
- * This is the interface used to manage mappings between entities. Note that, as explained in package.html, for the moment 
- * this is the only manager that is split into interface + multiple implementations, we will migrate into this same
- * architecture in the near future.
- *
+ * <p>This is the interface used to manage mappings between entities.</p>
+ * 
+ * <p>In general, you should assume that implementations of this interface are not thread-safe. The idea is that you 
+ * create a new instance per thread, do some operations, release, all whitin the same thread.</p>
+ *  
  * <dl><dt>date</dt><dd>Oct 1, 2012</dd></dl>
  * @author Marco Brandizi
  *
@@ -71,7 +72,7 @@ public interface EntityMappingManager
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds );
 
 	/**
-	 * Does close/clean-up operations. There is no guarantee that a manager can be uses after the invocation to this method.
+	 * Does close/clean-up operations. There is no guarantee that a manager can be used after the invocation to this method.
 	 */
 	public void close ();
 }

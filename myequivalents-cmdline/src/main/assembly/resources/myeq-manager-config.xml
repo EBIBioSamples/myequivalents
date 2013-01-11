@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--
+		This is a Spring Framework resource configuration file (see http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html).
+		 
+		The MyEquivalents applications get the managers (i.e. components needed to access the service and its back-end) via 
+		the factory configured by this bean. See documentation and test classes in the core package for details.
+	-->
+	<bean id="myEquivalentsManagerFactory" class="uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory">
+		<constructor-arg><props>
+			<!-- Hibernate properties for production. These values are populated by Maven, via '$' variables. -->
+			
+			<!-- Needed by Hibernate3 Maven Plugin defined in pom.xml -->
+			<prop key = "hibernate.connection.username">${jdbc.username}</prop>
+			<prop key = "hibernate.connection.password">${jdbc.password}</prop>
+			<prop key = "hibernate.connection.url">${jdbc.url}</prop>
+			<prop key = "hibernate.connection.driver_class">${jdbc.driverClassName}</prop>
+			<!-- hibernate.default_schema=${hibernate.default_schema} -->
+			<prop key = "hibernate.dialect">${hibernate.dialect}</prop>
+			<prop key = "hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+			<prop key = "hibernate.connection.autocommit">false</prop>
+			<prop key = "hibernate.jdbc.batch_size">50</prop>
+			<prop key = "hibernate.show_sql">false</prop>
+			<prop key = "hibernate.connection.pool_size">1</prop>
+			
+			<prop key = "hibernate.jdbc.use_scrollable_resultset">true</prop>
+			
+			<prop key = "hibernate.jdbc.wrap_result_sets">true</prop>
+			<!-- hibernate.statement_cache.size=0 -->
+			
+			<!-- hibernate.dbcp.ps.maxIdle = 0 -->
+			<!-- hibernate.cache.use_second_level_cache=false -->
+		</props></constructor-arg>
+	</bean>
+</beans>

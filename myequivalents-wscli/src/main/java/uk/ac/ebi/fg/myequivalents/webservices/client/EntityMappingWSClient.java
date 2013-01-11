@@ -55,7 +55,7 @@ public class EntityMappingWSClient implements EntityMappingManager
 	
 
 	/**
-	 * TODO: NOT IMPLEMENTED YET, RAISE AN EXCEPTION
+	 * TODO: NOT IMPLEMENTED YET, THEY RAISE AN EXCEPTION
 	 */
 	@Override
 	public void storeMappings ( String ... entityIds )

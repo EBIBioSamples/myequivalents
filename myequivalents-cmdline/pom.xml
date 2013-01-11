@@ -43,12 +43,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		
-		
-
-		<!-- dependency>
-		   <groupId>com.google.guava</groupId>
-		   <artifactId>guava</artifactId>
-		</dependency -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-db</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<dependency>
 		   <groupId>org.hibernate</groupId>
@@ -59,12 +58,6 @@
 		   <groupId>org.hibernate</groupId>
 		   <artifactId>hibernate-validator</artifactId>
 		</dependency>
-				
-
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sun.xml.bind</groupId> -->
-<!-- 			<artifactId>jaxb-impl</artifactId> -->
-<!-- 		</dependency> -->
             
 		<dependency>
 			<groupId>commons-cli</groupId>
