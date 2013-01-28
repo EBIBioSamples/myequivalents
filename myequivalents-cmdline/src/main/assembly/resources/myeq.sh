@@ -3,6 +3,11 @@
 # This is the entry point that invokes the MyEquivalents's line commands.
 # 
 
+# Do you use a proxy?
+if [ "$http_proxy" != '' ]; then
+  OPTS="$OPTS -DproxySet=true -DproxyHost=wwwcache.ebi.ac.uk -DproxyPort=3128 -DnonProxyHosts='*.ebi.ac.uk|localhost'"
+fi
+
 # These are passed to the JVM. they're appended, so that you can predefine it from the shell
 OPTS="$OPTS -Xms2G -Xmx4G -XX:PermSize=128m -XX:MaxPermSize=256m"
 
