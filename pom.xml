@@ -211,7 +211,7 @@
   <repositories>
 
 		<repository>
-			<id>ebi-repo</id>
+			<id>ebi-repo-old</id>
 			<name>EBI repo</name>
 			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
 		</repository>
@@ -228,14 +228,14 @@
   <distributionManagement>
 
 	  <repository>
-		  <id>ebi-repo</id>
+		  <id>ebi-repo-old</id>
 		  <name>EBI Repository</name>
 		  <url>scp://parrot.ebi.ac.uk/homes/maven/public_html/m2repo</url>
 	  </repository>
 		
 	  <snapshotRepository>
+		  <id>ebi-repo-old-snapshots</id>
 		  <uniqueVersion>false</uniqueVersion>
-		  <id>ebi-repo-snapshots</id>
 		  <name>EBI Snapshots Repository</name>
 		  <url>scp://parrot.ebi.ac.uk/homes/maven/public_html/m2repo_snapshots</url>
 	  </snapshotRepository>
