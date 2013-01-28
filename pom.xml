@@ -206,7 +206,10 @@
     </extensions>    
 
 	</build>
-	
+
+	<scm>
+		<developerConnection>scm:git:git@github.com:EBIBioSamples/myequivalents.git</developerConnection>
+	</scm>	
 	
   <repositories>
 
