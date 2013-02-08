@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
-import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -20,6 +19,7 @@ import org.apache.commons.lang.Validate;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.hibernate.jdbc.Work;
 
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
@@ -67,10 +67,8 @@ public class EntityMappingDAO
 
 
 	/**
-	 * Stores a mapping between two entities, i.e., a link between service1/acc1 and service2/acc2. This call manages
-	 * automatically the transitivity and reflexivity of the mapping (i.e., equivalence) relationship, which means if
-	 * any of the two entities are already linked to other entities, the latter are automatically linked to the other
-	 * entity given to this call. It leaves the database unchanged if the mapping already exists. 
+	 * Stores a mapping between two entities, i.e., a link between service1/acc1 and service2/acc2. Works as specified by 
+	 * {@link EntityMappingManager#storeMappings(String...)}.
 	 * 
 	 */
 	public void storeMapping ( String serviceName1, String accession1, String serviceName2, String accession2 )
@@ -140,11 +138,8 @@ public class EntityMappingDAO
 	}
 
 	/**
-	 * Assumes the input parameter contains a bundle of entity IDs, i.e., entities that are equivalent/mapped one each 
-	 * other. Creates or updates such mapping. This call also manages the reflexivity and transitivity
-	 * of the equivalence/mapping relationship, which means if any of the entities passed as parameter are already linked to 
-	 * some other entities, the latter becomes part of the same equivalence set too. It leaves the database unchanged if
-	 * this exact mapping set already exists. {@link EntityMappingUtils#parseEntityId(String)} is used to get the entity ID structure.
+	 * Works like specified by {@link EntityMappingManager#storeMappingBundle(String...)}. 
+	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure.
 	 *  
 	 */
 	public void storeMappingBundle ( String... entityIds )
@@ -203,7 +198,8 @@ public class EntityMappingDAO
 	
 	
 	/**
-	 * Deletes an entity from the database, i.e., it removes it from any equivalence/mapping relation it is involved in. 
+	 * Deletes an entity from the database, i.e., it removes it from any equivalence/mapping relation it is involved in.
+	 *  
 	 * @return true if the entity was in the DB and it was removed, false if that wasn't the case and the database was
 	 * left unchanged.
 	 */
@@ -340,6 +336,8 @@ public class EntityMappingDAO
 		
 		return result;
 	}
+
+	
 	
 	/**
 	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes
@@ -363,8 +361,7 @@ public class EntityMappingDAO
 	{
 		serviceName = StringUtils.trimToNull ( serviceName );
 		accession = StringUtils.trimToNull ( accession );
-		final List<EntityMapping> result = new ArrayList<EntityMapping> ();
-		if ( serviceName == null || accession == null ) return result; 
+		if ( serviceName == null || accession == null ) return new ArrayList<EntityMapping> (); 
 
 		String hql = 
 			"SELECT em FROM EntityMapping em, EntityMapping em1 " +
@@ -374,7 +371,39 @@ public class EntityMappingDAO
 		Query q = entityManager.createQuery ( hql );
 		return q.getResultList ();
 	}
+	
+	
+	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String entityId )
+	{
+		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
+		return findMappingsForTarget ( targetServiceName, chunks [ 0 ], chunks [ 1 ] );
+	}
+
+	
+	/**
+	 * Returns the entity IDs of those entities that are equivalent to the input entity and belong to the 
+	 * specified target service. It returns a list, cause nothing forbids to map an entity into multiple ones 
+	 * onto the same target service. 
+	 *   
+	 */
+	@SuppressWarnings ( "unchecked" )
+	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String serviceName, String accession ) 
+	{
+		serviceName = StringUtils.trimToNull ( serviceName );
+		accession = StringUtils.trimToNull ( accession );
+		targetServiceName = StringUtils.trimToNull ( targetServiceName );
+		if ( serviceName == null || accession == null || targetServiceName == null ) return new ArrayList<EntityMapping> (); 
+
+		String hql = 
+			"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1 " +
+			"WHERE em.bundle = em1.bundle " + 
+			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "' " +
+			"AND em.service.name = '" + targetServiceName + "'";
 		
+		Query q = entityManager.createQuery ( hql );
+		return q.getResultList ();
+	}
+	
 	
 	/**
 	 * Creates a new {@link EntityMapping}, assigning a new bundle. This is a wrapper of {@link #create(String, String, String)}, 

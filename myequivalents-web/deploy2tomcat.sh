@@ -35,7 +35,7 @@ if [ "$app_config_dir" == "" ]; then
   app_config_dir="${context_path}-conf"
 fi
 
-# Config dir in context.xml needs to be re-configured
+# Config dir in context.xml needs to be re-configured
 subst_path=$(echo "$app_config_dir"| sed s/'\/'/'\\\/'/g)
 sed s/'conf\/Catalina\/localhost\/myequivalents-config'/"conf\/Catalina\/localhost\/$subst_path"/g \
   target/classes/META-INF/context.xml >target/_reconfigured_context.xml

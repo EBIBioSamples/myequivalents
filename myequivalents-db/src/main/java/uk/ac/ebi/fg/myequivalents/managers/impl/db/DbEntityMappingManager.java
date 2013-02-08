@@ -107,7 +107,6 @@ class DbEntityMappingManager implements EntityMappingManager
 	{
 		if ( wantRawResult == null ) wantRawResult = false;
 		EntityMappingSearchResult result = new EntityMappingSearchResult ( wantRawResult );
-
 		if ( entityIds == null || entityIds.length == 0 ) return result;
 		
 		for ( int i = 0; i < entityIds.length; i++ )
@@ -116,7 +115,16 @@ class DbEntityMappingManager implements EntityMappingManager
 		return result;
 	}
 
-	
+	@Override
+	public EntityMappingSearchResult getMappingsForTarget ( Boolean wantRawResult, String targetServiceName, String entityId )
+	{
+		if ( wantRawResult == null ) wantRawResult = false;
+		EntityMappingSearchResult result = new EntityMappingSearchResult ( wantRawResult );
+		
+		result.addAllEntityMappings ( entityMappingDAO.findMappingsForTarget ( targetServiceName, entityId ) );
+		return result;
+	}
+
 	
 	/**
 	 * Invokes {@link #getMappings(boolean, String...)} and format the result in XML format. 
@@ -142,6 +150,28 @@ class DbEntityMappingManager implements EntityMappingManager
 			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
 	}
 
+	
+
+	private String getMappingsForTargetAsXml ( Boolean wantRawResult, String targetServiceName, String entityId )
+	{
+		return JAXBUtils.marshal ( 
+			this.getMappingsForTarget ( wantRawResult, targetServiceName, entityId ), 
+			EntityMappingSearchResult.class
+		);
+	}
+
+	@Override
+	public String getMappingsForTargetAs ( 
+		String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId )
+	{
+		if ( wantRawResult == null ) wantRawResult = false;
+		if ( StringUtils.trimToNull ( outputFormat ) == null || "xml".equals ( outputFormat ) )
+			return getMappingsForTargetAsXml ( wantRawResult, targetServiceName, entityId );
+		else
+			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+	}
+
+
 	/**
 	 * Close DB connections and terminate the use of this manager. Note that it cannot be re-used after this invocation.
 	 * This may occasionally be useful (e.g., multi-thread applications).
@@ -149,4 +179,5 @@ class DbEntityMappingManager implements EntityMappingManager
 	public void close () {
 		entityManager.close ();
 	}
+
 }

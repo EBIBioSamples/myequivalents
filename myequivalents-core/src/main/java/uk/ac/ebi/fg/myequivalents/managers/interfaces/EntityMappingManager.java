@@ -6,6 +6,7 @@ package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
  * <h2>The Entity Mapping Manager Interface</h2>
@@ -24,36 +25,45 @@ public interface EntityMappingManager
 
 	/**
 	 * Stores mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
-	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) 
-	 * and wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
+	 * of service/accession. This call manages automatically the transitivity and symmetry of the mapping 
+	 * (i.e., equivalence) relationship, which means if any of the two entities are already linked to other entities, 
+	 * the latter are automatically linked to the other entity given to this call. It leaves the database unchanged if 
+	 * the mapping already exists.  You'll get an exception if any of the named services doesn't exist.
 	 */
 	public void storeMappings ( String ... entityIds );
 
 	/**
 	 * Stores a mapping bundle. The parameter consists of a list of entity references, where every entity is given by a pair
-	 * of service/accession. This uses {@link EntityMappingManager#storeMappingBundle(String...)} (see there for details) 
-	 * and wraps it with the transaction management. You'll get an exception if any of the named services doesn't exist.
+	 * of service/accession. It also manages the symmetry and transitivity of the equivalence/mapping relationship, 
+	 * which means if any of the entities passed as parameter are already linked to some other entities, the latter 
+	 * becomes part of the same equivalence set too. It leaves the back-end storage unchanged if this exact mapping set 
+	 * already exists. 
+	 * 
+	 * . You'll get an exception if any of the named services doesn't exist.
 	 */
 	public void storeMappingBundle ( String ... entityIds );
 
 	/**
 	 * Deletes mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
-	 * of service/accession. This uses {@link EntityMappingManager#storeMappings(String...)} (see there for details) and
-	 * wraps it with the transaction management.
+	 * of service/accession. This deletes all the mappings that involve the entity, i.e., the whole equivalence class it 
+	 * belongs to.
+   *
+	 * @return the number of entities (including the parameter) that were in the same equivalence relationship and are
+	 * now deleted. Returns 0 if no such mapping exists.
+	 * 
 	 */
 	public int deleteMappings ( String ... entityIds );
 
 	/**
 	 * Deletes entities. The parameter consists of a list of entity references, where every entity is given by a pair
 	 * of service/accession. The entities are removed from any mapping it belonged to (i.e., they disappear altogether). 
-	 * This uses {@link EntityMappingManager#deleteEntities(String...)} (see there for details) 
-	 * and wraps it with the transaction management. 
 	 */
 	public int deleteEntities ( String ... entityIds );
-
+	
 	/**
 	 * Gets all the mappings to which the parameter entities are associated. 
-	 * The parameter consists of a list of entity references, where every entity is given by a pair of service/accession. 
+	 * The parameter consists of a list of entity references, where every entity is given by a pair of service/accession, 
+	 * as specified in {@link EntityMappingUtils#parseEntityId(String)}. 
 	 *  
 	 * @param wantRawResult if true, omits service-related objects from the result ({@link Service}, {@link ServiceCollection}, 
 	 * {@link Repository}), it only reports bundles of entity mappings. This will be faster if you just needs links.
@@ -64,12 +74,33 @@ public interface EntityMappingManager
 	 */
 	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String ... entityIds );
 
+	
+	/**
+	 * Tells where an entity is mapped onto a target service, if anywhere. This might be useful when you want to report
+	 * only the links to a source entity in a target service (e.g., tell me if this resource is same-as some Wikipedia web
+	 * page). Generally speaking, this query can return multiple results, cause the source entity could be mapped into multiple
+	 * ones in the same target repository.
+	 * 
+	 * Parameters and result are like {@link #getMappings(Boolean, String...)}.
+	 */
+	public EntityMappingSearchResult getMappingsForTarget ( Boolean wantRawResult, String targetServiceName, String entityId );
+	
+	
 	/**
 	 * Returns the result of {@link #getMappings(boolean, String...)} in the specified format. At the moment this is 
-	 * only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats like RDF or JSON for 
-	 * the future.
+	 * only 'xml' and the JAXB mapping of {@link EntityMappingSearchResult} is used for this. 
+	 * 
+	 * We plan formats like RDF or JSON for the future. See the documentation for more details.
 	 */
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds );
+
+	/**
+	 * Returns the result of {@link #getMappingsForTarget(Boolean, String, String)}, wrapped into the specified format. At 
+	 * the moment this is only 'xml' and the JAXB mapping of {@link EntityMappingSearchResult} is used for this. 
+	 * 
+	 * We plan formats like RDF or JSON for the future. See the documentation for more details.  
+	 */
+	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId );
 
 	/**
 	 * Does close/clean-up operations. There is no guarantee that a manager can be used after the invocation to this method.

@@ -203,5 +203,4 @@ public class Service extends Describeable
 			this.getUriPrefix (), this.getDescription (), this.getServiceCollectionName (), this.getRepositoryName () );
 	}
 	
-	
 }

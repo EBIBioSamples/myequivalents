@@ -121,10 +121,49 @@ public class EntityMappingWSClient implements EntityMappingManager
 		return null;
 	}
 
+
+	@Override
+	public EntityMappingSearchResult getMappingsForTarget ( Boolean wantRawResult, String targetServiceName, String entityId )
+	{
+		try
+		{
+			Form req = new Form ();
+		  req.add ( "raw", wantRawResult.toString () );
+		  req.add ( "service", targetServiceName );
+		  req.add ( "entity", entityId );
+			
+			if ( log.isTraceEnabled () ) log.trace ( "requested web service\n: " + req );
+
+			// DEBUG
+			//try { while ( "".equals ( "" ) ) Thread.sleep ( 3000 ); } catch ( InterruptedException ex ) { throw new RuntimeException ( ex ); }
+
+			Client cli = Client.create ();
+			WebResource webres = cli.resource ( this.baseUrl + "/mapping/get-target" );
+			
+			return webres
+				.accept( MediaType.APPLICATION_XML_TYPE )
+			  .post ( EntityMappingSearchResult.class, req );
+		} 
+		catch ( Exception ex )
+		{
+			throw new RuntimeException ( 
+				"Internal error while invoking the myequivalents web-service: " + ex.getMessage (), ex 
+			);
+		}	
+	}
+
+	@Override
+	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId )
+	{
+		throwUnsupportedException ();
+		return null;
+	}
+
 	/** 
 	 * Does nothing, it's stateless.
 	 */
 	@Override
 	public void close () {
 	}
+
 }

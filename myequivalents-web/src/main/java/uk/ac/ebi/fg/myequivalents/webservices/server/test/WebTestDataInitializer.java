@@ -69,12 +69,14 @@ public class WebTestDataInitializer implements ServletContextListener
 		    "    </service>\n" + 
 		    "    <service entity-type='testweb.someType7' title='A Test Service 7' name='test.testweb.service7'" +
 		    "           repository-name = 'test.testweb.repo1'" +
-		    "           service-collection-name = 'test.testweb.serviceColl1'>\n" +
+		    "           service-collection-name = 'test.testweb.serviceColl1'" +
+		    "           uri-pattern = 'http://somewhere.in.the.net/testweb/service7/someType1/${accession}'>\n" +
 		    "      <description>The Description of a Test Service 7</description>\n" +
 		    "    </service>\n" +
 		    "    <service uri-prefix='http://somewhere-else.in.the.net/testweb/service8/'\n" +
 		    "             entity-type='testweb.someType2' title='A Test Service 8' name='test.testweb.service8'" +
-		    "             repository-name = 'test.testweb.addedRepo1'>\n" + 
+		    "             repository-name = 'test.testweb.addedRepo1'" +
+		    "             uri-pattern = 'http://somewhere.else.in.the.net/testweb/service8/someType1/${accession}'>\n" + 
 		    "      <description>The Description of a Test Service 8</description>\n" + 
 		    "    </service>\n" +
 		    "  </services>\n" +
@@ -99,6 +101,10 @@ public class WebTestDataInitializer implements ServletContextListener
 			);
 			emapMgr.storeMappingBundle ( 
 				"test.testweb.service7:acc1", "test.testweb.service6:acc4", "test.testweb.service6:acc1"
+			);
+			
+			emapMgr.storeMappings (
+				"test.testweb.service7:acc10", "test.testweb.service8:acc10" 
 			);
 			
 			emapMgr.close ();

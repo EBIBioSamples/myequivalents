@@ -5,7 +5,7 @@
   - Authentication
   - Completion of the web service
 
-0.1 (Expected) 
+0.1  
   - Factory design pattern used to obtain the managers
   - The managers to be used can be configured via Spring 
 
