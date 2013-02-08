@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.ac.ebi.fg</groupId>
   <artifactId>myequivalents</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference and Equivalence Management Componenets</name>
 
@@ -256,7 +256,7 @@
   		<activation><activeByDefault>true</activeByDefault></activation>
   		<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password></test.jdbc.password>
+				<test.jdbc.password />
 				<test.jdbc.url>jdbc:hsqldb:mem:testdb</test.jdbc.url>
 				<test.jdbc.driverClassName>org.hsqldb.jdbcDriver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.HSQLDialect</test.hibernate.dialect>
@@ -275,7 +275,7 @@
   		<id>test.hsql_file</id>
   		<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password></test.jdbc.password>
+				<test.jdbc.password />
 				<test.jdbc.url>jdbc:hsqldb:file:${basedir}/target/database/testdb;shutdown=true</test.jdbc.url>
 				<test.jdbc.driverClassName>org.hsqldb.jdbcDriver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.HSQLDialect</test.hibernate.dialect>
@@ -336,7 +336,7 @@
   		<activation><activeByDefault>true</activeByDefault></activation>
   		<properties>
 				<jdbc.username>sa</jdbc.username>
-				<jdbc.password></jdbc.password>
+				<jdbc.password />
 				<jdbc.url>jdbc:hsqldb:file:database/db;shutdown=true</jdbc.url>
 				<jdbc.driverClassName>org.hsqldb.jdbcDriver</jdbc.driverClassName>
 				<hibernate.dialect>org.hibernate.dialect.HSQLDialect</hibernate.dialect>
