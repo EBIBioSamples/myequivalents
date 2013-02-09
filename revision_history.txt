@@ -4,6 +4,7 @@
 0.2 (Expected)
   - Authentication
   - Completion of the web service
+  - /go-to-target added to the web service
 
 0.1  
   - Factory design pattern used to obtain the managers
