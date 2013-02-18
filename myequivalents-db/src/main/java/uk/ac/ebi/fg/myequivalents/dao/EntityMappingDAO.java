@@ -16,8 +16,10 @@ import javax.persistence.Query;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.hibernate.SQLQuery;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.hibernate.jdbc.Work;
+import org.hibernate.type.StringType;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
@@ -508,8 +510,11 @@ public class EntityMappingDAO
 	private String findBundle ( String serviceName, String accession )
 	{
 		Query q = entityManager.createNativeQuery ( 
-			"SELECT bundle FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'" 
+			"SELECT bundle FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'"
 		);
+		
+		// We've seen this problem (http://stackoverflow.com/questions/4873201/hibernate-native-query-char3-column)
+		q.unwrap ( SQLQuery.class ).addScalar ( "bundle", StringType.INSTANCE );
 		
 		@SuppressWarnings ( "unchecked" )
 		List<String> results = q.getResultList ();

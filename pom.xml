@@ -219,6 +219,7 @@
 			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
 		</repository>
 
+
 		<repository>
 			<id>springsource-repo</id>
 			<name>SpringSource Repository</name>
@@ -226,7 +227,7 @@
 		</repository>
 
   </repositories>
-	
+
 	
   <distributionManagement>
 
