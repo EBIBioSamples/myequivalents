@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference and Equivalence Management Componenets</name>
 
-  <description>TODO</description>
+  <description>TODO.</description>
   
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
