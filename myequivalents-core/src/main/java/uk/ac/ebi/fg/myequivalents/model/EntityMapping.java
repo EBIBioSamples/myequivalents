@@ -29,7 +29,7 @@ public class EntityMapping
 	private String accession;
 	
 	@Index ( name = "entity_mapping_b" )
-	@Column ( columnDefinition = "char(27)", nullable = false, unique = false )
+	@Column ( columnDefinition = "char(26)", nullable = false, unique = false )
 	private String bundle;
 
 	
