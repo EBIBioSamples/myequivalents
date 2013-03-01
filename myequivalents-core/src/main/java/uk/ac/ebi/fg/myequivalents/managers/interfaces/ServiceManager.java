@@ -114,6 +114,7 @@ public interface ServiceManager
 
 	/**
 	 * Does close/clean-up operations. There is no guarantee that a manager can be used after the invocation to this method.
+	 * You may want to invoke this call in {@link Object#finalize()} in the implementation of this interface.
 	 */
 	public void close ();
 

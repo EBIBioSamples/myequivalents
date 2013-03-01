@@ -24,22 +24,21 @@ public interface EntityMappingManager
 {
 
 	/**
-	 * Stores mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
-	 * of service/accession. This call manages automatically the transitivity and symmetry of the mapping 
-	 * (i.e., equivalence) relationship, which means if any of the two entities are already linked to other entities, 
-	 * the latter are automatically linked to the other entity given to this call. It leaves the database unchanged if 
-	 * the mapping already exists.  You'll get an exception if any of the named services doesn't exist.
+	 * Stores mappings between entities. The parameter consists of a list of pairs, where every pair contains two entity IDs.
+	 * (see {@link EntityMappingUtils#parseEntityId(String)}). This call manages automatically the transitivity and symmetry 
+	 * of the mapping (i.e., equivalence) relationship, which means if any of the two entities are already linked to other 
+	 * entities, the latter are automatically linked to the other entity given to this call. It leaves the database unchanged 
+	 * if the mapping already exists.  You'll get an exception if any of the named services doesn't exist.
 	 */
 	public void storeMappings ( String ... entityIds );
 
 	/**
-	 * Stores a mapping bundle. The parameter consists of a list of entity references, where every entity is given by a pair
-	 * of service/accession. It also manages the symmetry and transitivity of the equivalence/mapping relationship, 
-	 * which means if any of the entities passed as parameter are already linked to some other entities, the latter 
-	 * becomes part of the same equivalence set too. It leaves the back-end storage unchanged if this exact mapping set 
-	 * already exists. 
+	 * Stores a mapping bundle. The parameter consists of a list of entity IDs (see {@link EntityMappingUtils#parseEntityId(String)}). 
+	 * It also manages the symmetry and transitivity of the equivalence/mapping relationship, which means if any of the 
+	 * entities passed as parameter are already linked to some other entities, the latter becomes part of the same 
+	 * equivalence set too. It leaves the back-end storage unchanged if this exact mapping set already exists. 
 	 * 
-	 * . You'll get an exception if any of the named services doesn't exist.
+	 * You'll get an exception if any of the referred services doesn't exist.
 	 */
 	public void storeMappingBundle ( String ... entityIds );
 
@@ -104,6 +103,7 @@ public interface EntityMappingManager
 
 	/**
 	 * Does close/clean-up operations. There is no guarantee that a manager can be used after the invocation to this method.
+	 * You may want to invoke this call in {@link Object#finalize()} in the implementation of this interface.
 	 */
 	public void close ();
 }
