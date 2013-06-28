@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
 import javax.persistence.EntityManager;
