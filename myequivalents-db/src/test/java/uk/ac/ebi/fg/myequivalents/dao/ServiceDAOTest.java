@@ -27,16 +27,13 @@ public class ServiceDAOTest
 {
 	/** Normally you cast this to {@link ManagerFactory}, here we force the specific value cause we need it and we're sure of it*/
 	private DbManagerFactory managerFactory = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
-	
-	@Rule
-	public TestEntityMgrProvider emProvider = new TestEntityMgrProvider ( managerFactory.getEntityManagerFactory () );
 
 	private ServiceDAO dao;
 	
 	@Before
 	public void initDAO ()
 	{
-		dao = new ServiceDAO ( emProvider.getEntityManager () );
+		dao = new ServiceDAO (  managerFactory.getEntityManagerFactory ().createEntityManager () );
 	}
 	
 	@Test

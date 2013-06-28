@@ -1,12 +1,16 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlAttribute;
 
 import org.hibernate.annotations.Index;
+
 
 /**
  *
@@ -28,10 +32,19 @@ public class EntityMapping
 	@Id
 	private String accession;
 	
-	@Index ( name = "entity_mapping_b" )
 	@Column ( columnDefinition = "char(26)", nullable = false, unique = false )
+	@Index ( name = "entity_mapping_b" )
 	private String bundle;
 
+	@XmlAttribute ( name = "public-flag" )
+	@Column ( name = "public_flag", nullable = true )
+	@Index ( name = "entity_mapping_pub_flag" )
+	private Boolean publicFlag = true;
+	
+	@XmlAttribute ( name = "release-date" )
+	@Column ( name = "release_date", nullable = true )
+	@Index ( name = "entity_mapping_rel_date" )
+	private Date releaseDate = null;
 	
 	public EntityMapping () {
 		super ();
@@ -82,11 +95,45 @@ public class EntityMapping
 	{
 		this.bundle = bundle;
 	}
+	
 
+	public Boolean getPublicFlag ()
+	{
+		return publicFlag;
+	}
+
+	public void setPublicFlag ( Boolean publicFlag )
+	{
+		this.publicFlag = publicFlag;
+	}
+
+	public Date getReleaseDate ()
+	{
+		return releaseDate;
+	}
+
+	public void setReleaseDate ( Date releaseDate )
+	{
+		this.releaseDate = releaseDate;
+	}
+
+	@Transient
+	public boolean isPublic ()
+	{
+		Date now = new Date ();
+		return this.getPublicFlag () == null 
+			? this.getReleaseDate ().before ( now ) || this.releaseDate.equals ( now ) 
+			: this.publicFlag;
+	}
+
+	
 	@Transient
 	public Entity getEntity ()
 	{
-		return new Entity ( this.getService (), this.getAccession () );
+		Entity result = new Entity ( this.getService (), this.getAccession () );
+		result.setPublicFlag ( this.getPublicFlag () );
+		result.setReleaseDate ( this.getReleaseDate () );
+		return result;
 	}
 
 	@Override

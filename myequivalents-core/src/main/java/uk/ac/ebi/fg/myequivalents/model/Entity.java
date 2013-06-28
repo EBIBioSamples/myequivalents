@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,6 +48,12 @@ public class Entity implements Serializable
 	@Column( length = 50 )
 	@XmlAttribute
 	private String accession;
+
+	@Transient
+	private Boolean publicFlag = true;
+
+	@Transient
+	private Date releaseDate = null;
 	
 	protected Entity () {
 	}
@@ -56,6 +63,7 @@ public class Entity implements Serializable
 		this.service = service;
 		this.accession = accession;
 	}
+	
 
 	public Service getService ()
 	{
@@ -103,7 +111,36 @@ public class Entity implements Serializable
 		if ( uriPattern == null ) return null;
 		return uriPattern.replaceAll ( "\\$\\{accession\\}", this.getAccession () );
 	}
+	
+	public void setPublicFlag ( Boolean publicFlag ) {
+		this.publicFlag = publicFlag;
+	}
+	
+	public Boolean getPublicFlag () {
+		return this.publicFlag;
+	}
+	
+	public Date getReleaseDate ()
+	{
+		return releaseDate;
+	}
 
+
+	public void setReleaseDate ( Date releaseDate )
+	{
+		this.releaseDate = releaseDate;
+	}
+
+	@Transient
+	public boolean isPublic ()
+	{
+		Date now = new Date ();
+		return this.getPublicFlag () == null 
+			? this.getReleaseDate ().before ( now ) || this.releaseDate.equals ( now ) 
+			: this.publicFlag;
+	}
+
+	
 	@Override
 	public boolean equals ( Object obj )
 	{
@@ -125,7 +162,8 @@ public class Entity implements Serializable
 	public String toString ()
 	{
 		return String.format ( 
-			"Entity { service.name: '%s', accession: '%s' }", this.getServiceName (), this.getAccession ()  
+			"Entity { service.name: '%s', accession: '%s', public-flag: %s, release-date: %s }", 
+				this.getServiceName (), this.getAccession (), this.getPublicFlag (), this.getReleaseDate ()  
 		);
 	}
 

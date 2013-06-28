@@ -5,7 +5,6 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
-
 import org.apache.commons.lang.ArrayUtils;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;

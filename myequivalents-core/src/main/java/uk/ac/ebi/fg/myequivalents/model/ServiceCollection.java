@@ -27,7 +27,9 @@ import org.hibernate.annotations.Index;
 @org.hibernate.annotations.Table ( 
 	appliesTo = "service_collection", 
 	indexes = {
-		@Index ( name = "service_coll_t", columnNames = "title" )
+		@Index ( name = "service_coll_t", columnNames = "title" ),
+		@Index ( name = "service_coll_pub_flag", columnNames = "public_flag" ), // TODO: needed?! Do we need a combined one?
+		@Index ( name = "service_coll_rel_date", columnNames = "release_date" )
 	}
 )
 @XmlRootElement ( name = "service-collection" )
@@ -69,8 +71,8 @@ public class ServiceCollection extends Describeable
 	public String toString ()
 	{
 		return String.format ( 
-			"ServiceCollection { name: '%s', title: '%s', entity-type: '%s', description: '%.15s' }", 
-			this.getName (), this.getTitle (), this.getEntityType (), getDescription ()
+			"ServiceCollection { name: '%s', title: '%s', entity-type: '%s', description: '%.15s', public-flag: %s, release-date: %s }", 
+			this.getName (), this.getTitle (), this.getEntityType (), getDescription (), this.getPublicFlag (), this.getReleaseDate ()
 		);
 	}
 

@@ -10,12 +10,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
+
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
-
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 
 /**
  * The myequivalents web-service client. This can be used to access myequivalents web-services. 

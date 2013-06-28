@@ -4,9 +4,9 @@
 package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 import static java.lang.System.out;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertFalse;
 
 import org.junit.Test;
 

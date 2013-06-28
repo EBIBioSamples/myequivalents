@@ -36,10 +36,10 @@ public class JAXBUtils
 			m.marshal ( source, sw );
 		} 
 		catch ( PropertyException ex ) {
-			throw new RuntimeException ( "Internal error while generating the XML search result: " + ex.getMessage () );
+			throw new RuntimeException ( "Internal error while generating the XML search result: " + ex.getMessage (), ex );
 		} 
 		catch ( JAXBException ex ) {
-			throw new RuntimeException ( "Internal error while generating the XML search result: " + ex.getMessage () );
+			throw new RuntimeException ( "Internal error while generating the XML search result: " + ex.getMessage (), ex );
 		}
 
 		return sw.toString ();

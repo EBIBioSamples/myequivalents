@@ -12,8 +12,8 @@ import java.util.Random;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.hibernate.SQLQuery;
@@ -28,7 +28,9 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 /**
  * 
  * The DAO for {@link EntityMapping}. This manages basic operations and, as any other DAOs, delegates transaction
- * managements to the outside. 
+ * managements to the outside.
+ * 
+ * TODO: factorise the queries.
  *
  * <dl><dt>date</dt><dd>May 25, 2012</dd></dl>
  * @author Marco Brandizi
@@ -43,16 +45,6 @@ public class EntityMappingDAO
 	public EntityMappingDAO ( EntityManager entityManager )
 	{
 		this.entityManager = entityManager;
-		
-		if ( messageDigest == null )
-		{
-			try {
-				messageDigest = MessageDigest.getInstance ( "SHA1" );
-			} 
-			catch ( NoSuchAlgorithmException ex ) {
-				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
-			}
-		}
 	}	
 	
 	/**
@@ -297,10 +289,15 @@ public class EntityMappingDAO
 	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes 
 	 * {@link #findMappings(String, String)}.
 	 */
-	public List<String> findMappings ( String entityId )
+	public List<String> findMappings ( String entityId, boolean mustBePublic )
 	{
 		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return findMappings ( chunks [ 0 ], chunks [ 1 ] );
+		return findMappings ( chunks [ 0 ], chunks [ 1 ], mustBePublic );
+	}
+
+	/** Defaults to mustBePublic = true */
+	public List<String> findMappings ( String entityId ) {
+		return findMappings ( entityId, true );
 	}
 
 	
@@ -312,16 +309,41 @@ public class EntityMappingDAO
 	 * It returns an empty list if either parameter is empty. It never returns null.
 	 * 
 	 */
-	public List<String> findMappings ( String serviceName, String accession )
+	public List<String> findMappings ( String serviceName, String accession, boolean mustBePublic )
 	{
 		serviceName = StringUtils.trimToNull ( serviceName );
 		accession = StringUtils.trimToNull ( accession );
 		final List<String> result = new ArrayList<String> ();
 		if ( serviceName == null || accession == null ) return result; 
 		
-		final String sql = 
-			"SELECT em1.service_name AS service_name, em1.accession AS accession FROM entity_mapping em1, entity_mapping em2\n" +
-			"  WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'";
+		final String sql = mustBePublic
+			?
+				"SELECT em1.service_name AS service_name, em1.accession AS accession\n" +
+				"FROM entity_mapping em1, entity_mapping em2\n" + 
+				"WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'\n" +
+				// First of all the parameter entity must be public (or, transitively, one of its containers)
+				"AND (\n" + 
+				"  (em2.public_flag IS NULL AND em2.release_date <= NOW() OR em2.public_flag = true )\n" + 
+				"  OR em2.public_flag IS NULL AND em2.release_date IS NULL AND em2.service_name IN (" +
+				"    SELECT name FROM service s WHERE ( s.public_flag IS NULL AND s.release_date <= NOW() OR s.public_flag = true )\n" +
+				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
+				"        (SELECT name FROM repository r WHERE r.public_flag IS NULL AND r.release_date <= NOW() OR r.public_flag = true)" +
+				"    )\n" +
+				"  )\n" +
+				")\n" + 
+				// then, all the linked entities must be pub too 
+				"AND (\n" + 
+				"  (em1.public_flag IS NULL AND em1.release_date <= NOW() OR em1.public_flag = true )\n" + 
+				"  OR em1.public_flag IS NULL AND em1.release_date IS NULL AND em1.service_name IN (" +
+				"    SELECT name FROM service s WHERE ( s.public_flag IS NULL AND s.release_date <= NOW() OR s.public_flag = true )\n" +
+				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
+				"        (SELECT name FROM repository r WHERE r.public_flag IS NULL AND r.release_date <= NOW() OR r.public_flag = true)" +
+				"    )\n" +
+				"  )\n" +
+				")" 
+			:
+				"SELECT em1.service_name AS service_name, em1.accession AS accession FROM entity_mapping em1, entity_mapping em2\n" +
+				"  WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'";
 		
 		((HibernateEntityManager)entityManager).getSession ().doWork ( new Work() {
 			@Override
@@ -339,18 +361,27 @@ public class EntityMappingDAO
 		return result;
 	}
 
-	
+	/** Defaults to mustBePublic = true */
+	public List<String> findMappings ( String serviceName, String accession ) {
+		return findMappings ( serviceName, accession, true );
+	}
+
 	
 	/**
 	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes
 	 * {@link #findEntityMappings(String, String)}.
 	 * 
 	 */
-	public List<EntityMapping> findEntityMappings ( String entityId ) {
+	public List<EntityMapping> findEntityMappings ( String entityId, boolean mustBePublic ) {
 		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return findEntityMappings ( chunks [ 0 ], chunks [ 1 ] );
+		return findEntityMappings ( chunks [ 0 ], chunks [ 1 ], mustBePublic );
 	}
 	
+	/** Defaults to mustBePublic = true */
+	public List<EntityMapping> findEntityMappings ( String entityId ) {
+		return findEntityMappings ( entityId, true );
+	}
+
 	/**
 	 * The same as {@link #findMappings(String, String)}, but returns a list of {@link EntityMapping}s from which 
 	 * services can be fetched. Whether you need this or the version that returns strings, it depends on the type of
@@ -359,13 +390,40 @@ public class EntityMappingDAO
 	 * 
 	 */
 	@SuppressWarnings ( "unchecked" )
-	public List<EntityMapping> findEntityMappings ( String serviceName, String accession )
+	public List<EntityMapping> findEntityMappings ( String serviceName, String accession, boolean mustBePublic )
 	{
 		serviceName = StringUtils.trimToNull ( serviceName );
 		accession = StringUtils.trimToNull ( accession );
 		if ( serviceName == null || accession == null ) return new ArrayList<EntityMapping> (); 
 
-		String hql = 
+		String hql = mustBePublic 
+		?
+			"SELECT em FROM EntityMapping em, EntityMapping em1 " +
+			"WHERE em.bundle = em1.bundle " +
+			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "'\n" +
+			// First of all the parameter entity must be public (or, transitively, one of its containers)
+			"AND (\n" +
+			"  (em1.publicFlag IS NULL AND em1.releaseDate <= current_time() OR em1.publicFlag = true)\n" +
+			"  OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
+			"  AND em1.service IN (\n" +
+			"    SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+			"        (SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true))\n" +
+			"      )\n" +
+			"  )\n" +
+			")\n" +
+			// then, all the linked entities must be pub too 
+			"AND (\n" +
+			"  (em.publicFlag IS NULL AND em.releaseDate <= current_time() OR em.publicFlag = true)\n" +
+			"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
+			"  AND em.service IN (\n" +
+			"    SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+			"        (SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true))\n" +
+			"      )\n" +
+			"  )\n" + 
+			")"
+		:
 			"SELECT em FROM EntityMapping em, EntityMapping em1 " +
 			"WHERE em.bundle = em1.bundle " +
 			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "' ";
@@ -374,11 +432,72 @@ public class EntityMappingDAO
 		return q.getResultList ();
 	}
 	
+	/** Defaults to mustBePublic = true */
+	public List<EntityMapping> findEntityMappings ( String serviceName, String accession ) {
+		return findEntityMappings ( serviceName , accession, true );
+	}
+
 	
-	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String entityId )
+	/**
+	 * Finds a single {@link EntityMapping}, ignoring all the involved mappings.
+	 */
+	@SuppressWarnings ( "unchecked" )
+	public EntityMapping findEntityMapping ( String serviceName, String accession, boolean mustBePublic )
+	{
+		serviceName = StringUtils.trimToNull ( serviceName );
+		accession = StringUtils.trimToNull ( accession );
+		if ( serviceName == null || accession == null ) return null; 
+		
+		String hql = mustBePublic
+		?
+			"SELECT em FROM EntityMapping em " +
+			"WHERE em.service.name = '" + serviceName + "' AND em.accession = '" + accession + "'\n" +
+			"AND (em.publicFlag IS NULL AND em.releaseDate <= current_time() OR em.publicFlag = true)\n" +
+			"OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
+			"AND em.service IN (\n" +
+			"  SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"    OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+			"      (SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true))\n" +
+			"    )\n" +
+			")"
+		:
+			"SELECT em FROM EntityMapping em " +
+			"WHERE em.service.name = '" + serviceName + "' AND em.accession = '" + accession + "' ";
+		
+		Query q = entityManager.createQuery ( hql );
+		List<EntityMapping> result = q.getResultList ();
+		
+		return result == null || result.isEmpty () ? null : result.get ( 0 );
+	}
+
+	/** Defaults to mustBePublic = true */
+	public EntityMapping findEntityMapping ( String serviceName, String accession ) {
+		return findEntityMapping ( serviceName, accession, true );
+	}
+
+	
+	/** TODO: comment me! */
+	public EntityMapping findEntityMapping ( String entityId, boolean mustBePublic ) 
 	{
 		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return findMappingsForTarget ( targetServiceName, chunks [ 0 ], chunks [ 1 ] );
+		return findEntityMapping ( chunks [ 0 ], chunks [ 1 ], mustBePublic );
+	}
+
+	/** Defaults to mustBePublic = true */
+	public EntityMapping findEntityMapping ( String entityId ) {
+		return findEntityMapping ( entityId, true );
+	} 
+
+	
+	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String entityId, boolean mustBePublic)
+	{
+		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
+		return findMappingsForTarget ( targetServiceName, chunks [ 0 ], chunks [ 1 ], mustBePublic );
+	}
+
+	/** Defaults to mustBePublic = true */
+	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String entityId ) {
+		return findMappingsForTarget ( targetServiceName, entityId, true );
 	}
 
 	
@@ -389,14 +508,29 @@ public class EntityMappingDAO
 	 *   
 	 */
 	@SuppressWarnings ( "unchecked" )
-	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String serviceName, String accession ) 
+	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String serviceName, String accession, boolean mustBePublic ) 
 	{
 		serviceName = StringUtils.trimToNull ( serviceName );
 		accession = StringUtils.trimToNull ( accession );
 		targetServiceName = StringUtils.trimToNull ( targetServiceName );
 		if ( serviceName == null || accession == null || targetServiceName == null ) return new ArrayList<EntityMapping> (); 
 
-		String hql = 
+		String hql = mustBePublic 
+		?
+			"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1\n" +
+			"WHERE em.bundle = em1.bundle\n" + 
+			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "'\n" +
+			"AND em.service.name = '" + targetServiceName + "'\n" + 
+			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "'\n" +
+			"AND (em1.publicFlag IS NULL AND em1.releaseDate <= current_time() OR em1.publicFlag = true)\n" +
+			"OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
+			"AND em1.service IN (\n" +
+			"  SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"    OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+			"      (SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true))\n" +
+			"    )\n" +
+			")"
+		:
 			"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1 " +
 			"WHERE em.bundle = em1.bundle " + 
 			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "' " +
@@ -406,6 +540,11 @@ public class EntityMappingDAO
 		return q.getResultList ();
 	}
 	
+	/** Defaults to mustBePublic = true */
+	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String serviceName, String accession ) {
+		return findMappingsForTarget ( targetServiceName, serviceName, accession, true );
+	} 
+
 	
 	/**
 	 * Creates a new {@link EntityMapping}, assigning a new bundle. This is a wrapper of {@link #create(String, String, String)}, 
@@ -552,9 +691,20 @@ public class EntityMappingDAO
 	 */
 	private String createNewBundleId ( String serviceName, String accession )
 	{
+		if ( messageDigest == null )
+		{
+			try {
+				messageDigest = MessageDigest.getInstance ( "SHA1" );
+			} 
+			catch ( NoSuchAlgorithmException ex ) {
+				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
+			}
+		}
+		
 		// With 20 bytes as input, the BASE64 encoding is always a 27 character string, with the last character always equals
 		// a padding '=', so we don't need the latter in this context  
-		return 
-			Base64.encodeBase64String ( messageDigest.digest ( ( serviceName + accession ).getBytes () ) ).substring (0, 26);
+		// TODO: the encoder is already available in javax.xml.bind.DatatypeConverter.printBase64Binary() 
+		return DatatypeConverter.printBase64Binary ( 
+			messageDigest.digest ( ( serviceName + accession ).getBytes () ) ).substring (0, 26);
 	}
 }

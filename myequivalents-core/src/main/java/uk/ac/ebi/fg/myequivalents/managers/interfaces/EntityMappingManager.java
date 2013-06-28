@@ -20,7 +20,7 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
  * @author Marco Brandizi
  *
  */
-public interface EntityMappingManager
+public interface EntityMappingManager extends MyEquivalentsManager
 {
 
 	/**

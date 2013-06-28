@@ -1,12 +1,13 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
+import static java.lang.System.out;
+import static junit.framework.Assert.assertEquals;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
-import org.junit.Test;
-import static junit.framework.Assert.*;
-import static java.lang.System.out;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * Just a foo test to verify that the BASE 64 encoding of 20 bytes yield always 28 characters of which the last one is 
@@ -19,19 +20,23 @@ import static java.lang.System.out;
 public class Base64Test
 {
 	//@Test
-	public void testBase64Shape ()
+	public void testBase64Shape () throws NoSuchAlgorithmException
 	{
 		final Random random = new Random ( System.currentTimeMillis () );
-
+		MessageDigest digest = MessageDigest.getInstance ( "SHA1" );
+		
 		for ( int i = 0; i < 1000; i++ )
 		{
-			byte b[] = new byte [ 20 ];
+			byte b[] = new byte [ random.nextInt ( 256 ) ];
 			random.nextBytes ( b );
-			String enc = Base64.encodeBase64String ( b );
-			out.printf ( "  %s -> %s\n", Hex.encodeHexString ( b ).toUpperCase (), enc );
+			byte[] hash = digest.digest ( b ); 
 			
+			String enc = DatatypeConverter.printBase64Binary ( hash );
+			out.printf ( "  %s -> %s\n", DatatypeConverter.printHexBinary ( hash ), enc );
+
+			assertEquals ( "Unexpected length for hash!", 20, hash.length );
 			assertEquals ( "Unexpected length!", 28, enc.length () );
-			assertEquals ( "Last char is not '='!", '=', enc.charAt ( enc.length () -1 ) );
+			assertEquals ( "Last char is not '='!", '=', enc.charAt ( enc.length () - 1 ) );
 		}
 		out.println ( "As expected!" );
 	}

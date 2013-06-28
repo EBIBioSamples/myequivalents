@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
-import static java.lang.System.out;
 import static java.lang.System.err;
 
 import java.io.BufferedReader;
@@ -14,7 +13,6 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.cli.CommandLine;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 

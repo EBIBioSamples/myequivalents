@@ -1,9 +1,12 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
+import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.EDITOR;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.apache.commons.lang.StringUtils;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
@@ -30,17 +33,24 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * @author Marco Brandizi
  *
  */
-class DbEntityMappingManager implements EntityMappingManager
+class DbEntityMappingManager extends DbMyEquivalentsManager implements EntityMappingManager
 {
-	private EntityManager entityManager;
 	private EntityMappingDAO entityMappingDAO;
+	
+	/**
+	 * Logins as anonymous.
+	 */
+	DbEntityMappingManager ( EntityManager em ) {
+		this ( em, null, null );
+	}
+
 	
 	/**
 	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
 	 */
-	DbEntityMappingManager ( EntityManager em )
+	DbEntityMappingManager ( EntityManager em, String email, String apiPassword )
 	{
-		this.entityManager = em;
+		super ( em, email, apiPassword );
 		this.entityMappingDAO = new EntityMappingDAO ( entityManager );
 	}
 
@@ -65,6 +75,7 @@ class DbEntityMappingManager implements EntityMappingManager
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 		  entityMappingDAO.storeMappingBundle ( entityIds );
 		ts.commit ();
 	}
@@ -77,6 +88,7 @@ class DbEntityMappingManager implements EntityMappingManager
 		int result = 0;
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			if ( entityIds.length == 1 )
 				result = entityMappingDAO.deleteMappings ( entityIds [ 0 ] );
 			else
@@ -93,6 +105,7 @@ class DbEntityMappingManager implements EntityMappingManager
 		int result = 0;
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			if ( entityIds.length == 1 )
 				result = entityMappingDAO.deleteEntity ( entityIds [ 0 ] ) ? 1 : 0;
 			else
@@ -109,8 +122,11 @@ class DbEntityMappingManager implements EntityMappingManager
 		EntityMappingSearchResult result = new EntityMappingSearchResult ( wantRawResult );
 		if ( entityIds == null || entityIds.length == 0 ) return result;
 		
+		User user = userDao.getLoggedInUser ();
+		boolean mustBePublic = user == null ? true : !user.hasPowerOf ( EDITOR );
+
 		for ( int i = 0; i < entityIds.length; i++ )
-			result.addAllEntityMappings ( entityMappingDAO.findEntityMappings ( entityIds [ i ] ) );
+			result.addAllEntityMappings ( entityMappingDAO.findEntityMappings ( entityIds [ i ], mustBePublic ) );
 		
 		return result;
 	}
@@ -121,7 +137,10 @@ class DbEntityMappingManager implements EntityMappingManager
 		if ( wantRawResult == null ) wantRawResult = false;
 		EntityMappingSearchResult result = new EntityMappingSearchResult ( wantRawResult );
 		
-		result.addAllEntityMappings ( entityMappingDAO.findMappingsForTarget ( targetServiceName, entityId ) );
+		User user = userDao.getLoggedInUser ();
+		boolean mustBePublic = user == null ? true : !user.hasPowerOf ( EDITOR );
+
+		result.addAllEntityMappings ( entityMappingDAO.findMappingsForTarget ( targetServiceName, entityId, mustBePublic ) );
 		return result;
 	}
 

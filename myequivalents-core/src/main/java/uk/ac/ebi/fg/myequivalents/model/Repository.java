@@ -22,7 +22,9 @@ import org.hibernate.annotations.Index;
 @org.hibernate.annotations.Table ( 
 	appliesTo = "repository", 
 	indexes = {
-		@Index ( name = "repo_t", columnNames = "title" )
+		@Index ( name = "repo_t", columnNames = "title" ),
+		@Index ( name = "repo_pub_flag", columnNames = "public_flag" ), // TODO: needed?! Do we need a combined one?
+		@Index ( name = "repo_rel_date", columnNames = "release_date" )
 	}
 )
 @XmlRootElement ( name = "repository" )
@@ -60,8 +62,8 @@ public class Repository extends Describeable
 	public String toString ()
 	{
 		return String.format ( 
-			"Repository { name: '%s', title: '%s', url: '%s', description: '%.15s' }", 
-			this.getName (), this.getTitle (), this.getUrl (), getDescription ()
+			"Repository { name: '%s', title: '%s', url: '%s', description: '%.15s', public-flag: %s, release-date: %s }", 
+			this.getName (), this.getTitle (), this.getUrl (), this.getDescription (), this.getPublicFlag (), this.getReleaseDate ()
 		);
 	}
 

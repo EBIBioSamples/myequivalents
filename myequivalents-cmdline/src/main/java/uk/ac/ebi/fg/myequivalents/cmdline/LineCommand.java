@@ -146,7 +146,7 @@ abstract class LineCommand
 			opts.addOption ( OptionBuilder
 			 	.hasArg ( true )
 				.withDescription ( 
-			 		"The result output format. ** ONLY 'xml' IS SUPPORTED IN THIS VERSION"
+			 		"The result output format. ** ONLY 'xml' IS SUPPORTED IN THIS VERSION **"
 			 	)
 				.withLongOpt ( "format" )
 				.withArgName ( "out-format" )
@@ -156,10 +156,10 @@ abstract class LineCommand
 			if ( "mapping get".equals ( commandString ) )
 				opts.addOption ( OptionBuilder
 				 	.withDescription ( 
-					 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
-					 	)
-						.withLongOpt ( "raw" )
-						.create ( "r" ) 
+				 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
+				 	)
+					.withLongOpt ( "raw" )
+					.create ( "r" ) 
 			);
 		} // if ' get'
 		

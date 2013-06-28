@@ -5,12 +5,21 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 import java.io.StringReader;
+import java.util.GregorianCalendar;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.xml.bind.JAXBException;
 
+import org.apache.commons.lang.time.DateUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
+import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
@@ -34,11 +43,28 @@ public class ServiceManagerTest
 	private ServiceCollection sc1;
 	private Repository repo1;
 	
+	// An editor is needed for writing operations.
+	private String editorPass = "test.password";
+	private String editorSecret = User.generateSecret ();
+	private User editorUser = new User ( 
+		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
+
+	
 	@Before
 	public void init ()
 	{
+		// An editor is needed for writing operations.
+		EntityManager em = ( (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory () )
+			.getEntityManagerFactory ().createEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.storeUnauthorized ( editorUser );
+		ts.commit ();
+
 		// This is how you should obtain a manager from a factory
-		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( editorUser.getEmail (), editorSecret );
 		
 		service1 = new Service ( "test.testservmgr.service1", "testservmgr.someType1", "A Test Service 1", "The Description of a Test Service 1" );
 		service1.setUriPrefix ( "http://somewhere.in.the.net/testservmgr/service1/" );
@@ -54,6 +80,9 @@ public class ServiceManagerTest
 
 		service2 = new Service ( "test.testservmgr.service2", "testservmgr.someType1", "A Test Service 2", "The Description of a Test Service 2" );
 		service1.setUriPrefix ( "http://somewhere.in.the.net/testservmgr/service2/" );
+		// Should pop-up on the XML
+		service2.setReleaseDate ( new GregorianCalendar ( 2010, GregorianCalendar.APRIL, 25, 18, 13 ).getTime () );
+
 
 		service3 = new Service ( "test.testservmgr.service3", "testservmgr.someType2", "A Test Service 3", "The Description of a Test Service 3" );
 		service3.setUriPrefix ( "http://somewhere-else.in.the.net/testservmgr/service3/" );
@@ -86,10 +115,27 @@ public class ServiceManagerTest
 		assertEquals ( "Service-Collection not created!", 1, serviceMgr.getServiceCollections ( sc1.getName () ).getServiceCollections ().size () );
 	}
 
+	@After
+	public void cleanUp () 
+	{
+		// An editor is needed for writing operations.
+		EntityManager em = ( (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory () )
+			.getEntityManagerFactory ().createEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.deleteUnauthorized ( editorUser.getEmail () );
+		ts.commit ();
+	}
+	
 
 	@Test
 	public void testSearch ()
 	{
+		// Work as anonymous
+		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+
 		ServiceSearchResult result = serviceMgr.getServices ( 
 			service4.getName (), service2.getName (), service5.getName (), "test.servMgr.foo" 
 		);
