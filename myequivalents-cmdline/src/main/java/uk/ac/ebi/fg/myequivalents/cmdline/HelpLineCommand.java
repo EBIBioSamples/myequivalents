@@ -48,6 +48,7 @@ class HelpLineCommand extends LineCommand
 	 *  
 	 */
 	@Override
+	@SuppressWarnings ( "unchecked" )
 	public void printUsage ()
 	{
 		err.println ();

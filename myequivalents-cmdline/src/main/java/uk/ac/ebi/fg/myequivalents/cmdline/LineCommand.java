@@ -13,6 +13,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Represents one of the sub-commands available in {@link Main}. E.g., 'service store' is managed by 
@@ -24,10 +25,12 @@ import org.apache.commons.cli.ParseException;
  */
 abstract class LineCommand
 {
+	protected String email, apiPassword;
+	
 	/**
 	 * All the accepted commands and how they're recognised (in the map keys). For example, 'service store' is recognised
-	 * because is one of the keys of this map, and {@link ServiceStoreCommandLineCommand} is used for this command, cause
-	 * it's the value corresponding to such key.
+	 * because is one of the keys of this map, and, when such key is detected, the command line string is dispatched 
+	 * to {@link ServiceStoreCommandLineCommand}, the map value for the key.
 	 */
 	@SuppressWarnings ( "serial" )
 	public final static Map<String, Class<? extends LineCommand>> LINE_COMMANDS = 
@@ -115,6 +118,10 @@ abstract class LineCommand
 		try 
 		{
 			cmdLine = clparser.parse ( getOptions (), args );
+			
+			email = StringUtils.trimToNull ( cmdLine.getOptionValue ( 'u' ) );
+			apiPassword = StringUtils.trimToNull ( cmdLine.getOptionValue ( 's' ) );
+			
 			return cmdLine;
 		} 
 		catch ( ParseException e ) {
@@ -140,7 +147,21 @@ abstract class LineCommand
 			.withLongOpt ( "help" )
 			.create ( "h" ) 
 		);
-		
+
+		opts.addOption ( OptionBuilder
+		 	.withDescription ( "User email to be used to login the myEquivalents repository"	)
+			.withLongOpt ( "user" )
+			.hasArg ( true ).withArgName ( "email" )
+			.create ( "u" )
+		);
+
+		opts.addOption ( OptionBuilder
+		 	.withDescription ( "API secret (i.e., password), used for common commands"	)
+			.withLongOpt ( "secret" )
+			.hasArg ( true ).withArgName ( "value" )
+			.create ( "s" ) 
+		);
+
 		if ( commandString.endsWith ( " get" ) )
 		{
 			opts.addOption ( OptionBuilder

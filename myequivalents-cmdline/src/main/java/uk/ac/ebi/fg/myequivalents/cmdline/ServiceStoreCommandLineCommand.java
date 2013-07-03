@@ -52,7 +52,9 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 			}
 		  in = new BufferedReader ( in );
 			
-			ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+			ServiceManager servMgr = 
+				Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
+			
 			servMgr.storeServicesFromXML ( in );
 		} 
 		catch ( FileNotFoundException ex ) 

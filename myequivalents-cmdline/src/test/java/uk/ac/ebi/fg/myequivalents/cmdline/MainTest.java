@@ -11,12 +11,18 @@ import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
+import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
@@ -66,6 +72,10 @@ public class MainTest
     "  </service-collections>\n" +
     "</service-items>";
 
+	private String editorPass = "test.password";
+	private String editorSecret = User.generateSecret ();
+	private User editorUser = new User ( 
+		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
 	
 	static {
 		System.setProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", "true" );
@@ -74,7 +84,17 @@ public class MainTest
 	@Before
 	public void init ()
 	{
-		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+		// An editor is needed for writing operations.
+		EntityManager em = ( (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory () )
+			.getEntityManagerFactory ().createEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.storeUnauthorized ( editorUser );
+		ts.commit ();
+
+		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( editorUser.getEmail (), this.editorSecret );
 		
 		ServiceCollection sc1 = new ServiceCollection ( 
 			"test.testmain.serviceColl1", null, "Test Service Collection 1", "The Description of the SC 1" 
@@ -95,7 +115,7 @@ public class MainTest
 	public void testServiceCommands () throws UnsupportedEncodingException
 	{
 		System.setIn ( new ByteArrayInputStream ( testServiceXml.getBytes ( "UTF-8" ) ));
-		Main.main ( "service", "store" );
+		Main.main ( "service", "store", "--user", editorUser.getEmail (), "--secret", editorSecret );
 		
 		ServiceSearchResult result = serviceMgr.getServices ( 
 			"test.testmain.service6", "test.testmain.service7", "test.testmain.service8" );
@@ -117,7 +137,10 @@ public class MainTest
 		PrintStream devNull = new PrintStream ( new NullOutputStream () );
 		System.setErr ( devNull ); 
 		
-		Main.main ( "service", "get", "--format", "xml", "test.testmain.service7", "test.testmain.service8" );
+		Main.main ( 
+			"service", "get", "-u", editorUser.getEmail (), "-s", editorSecret, 
+			"--format", "xml", "test.testmain.service7", "test.testmain.service8" 
+		);
 		String getOutStr = getOut.toString ( "UTF-8" );
 		System.setOut ( stdOut );
 		System.setErr ( stdErr );
@@ -129,9 +152,11 @@ public class MainTest
 		assertTrue ( "Wrong result from 'service get' (xml)!", 
 			getOutStr.contains ( "<service-items>" ) );
 		assertTrue ( "Wrong result from 'service get' (xml, addedRepo1)!", 
-			getOutStr.contains ( "<repository name=\"test.testmain.addedRepo1\">" ) );
+			getOutStr.contains ( "<repository name=\"test.testmain.addedRepo1\"" ) );
 		
-		Main.main ( "service", "delete", "test.testmain.service8" );
+		Main.main ( 
+			"service", "delete", "-u", editorUser.getEmail (), "-s", editorSecret, "test.testmain.service8" 
+		);
 		assertTrue ( "Service not deleted!", this.serviceMgr.getServices ( "test.testmain.service8" ).getServices ().isEmpty () );
 		assertEquals ( "'service delete' returned a wrong exit code!", 0, Main.exitCode );
 

@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
