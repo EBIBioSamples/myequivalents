@@ -14,9 +14,9 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  * @author Marco Brandizi
  *
  */
-public class MappingGetCommandLineCommand extends LineCommand
+public class MappingGetLineCommand extends LineCommand
 {
-	public MappingGetCommandLineCommand ()
+	public MappingGetLineCommand ()
 	{
 		super ( "mapping get" );
 	}
@@ -27,7 +27,8 @@ public class MappingGetCommandLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( this.email, this.apiPassword );
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 ) 
 		{

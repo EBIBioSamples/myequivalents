@@ -17,7 +17,7 @@ import org.apache.commons.lang.StringUtils;
  * @author Marco Brandizi
  *
  */
-public class JaxbXmlAdapter extends XmlAdapter<String, Date> 
+public class DateJaxbXmlAdapter extends XmlAdapter<String, Date> 
 {
 
 	/**
@@ -29,15 +29,16 @@ public class JaxbXmlAdapter extends XmlAdapter<String, Date>
 	};
 
   @Override
-  public String marshal ( Date d ) throws Exception 
+  public String marshal ( Date d )
   {
   	return d == null ? null : DATE_FMTS [ 0 ].format ( d );
   }
 
   @Override
-  public Date unmarshal ( String ds ) throws Exception 
+  public Date unmarshal ( String ds )
   {
   	if ( ( ds = StringUtils.trimToNull ( ds ) ) == null ) return null;
+  	if ( "null".equalsIgnoreCase ( ds ) ) return null;
   	
   	for ( DateFormat dfmt: DATE_FMTS )
   		try {
@@ -45,6 +46,6 @@ public class JaxbXmlAdapter extends XmlAdapter<String, Date>
   		}
   		catch ( ParseException ex ) {}
   	
-  	throw new IllegalArgumentException ( "Syntax error on the date: " + ds );
+  	throw new IllegalArgumentException ( "Syntax error on the date xml attribute value: " + ds );
   }
 }

@@ -52,8 +52,8 @@ public interface AccessControlManager extends MyEquivalentsManager
 	 * define more specific details.
 	 * 
 	 */
-	public void setServicesVisibility ( Boolean publicFlag, Date releaseDate, String ... serviceNames );
-	public void setRepositoriesVisibility ( Boolean publicFlag, Date releaseDate, String ... repositoryNames );
-	public void setServiceCollectionVisibility ( Boolean publicFlag, Date releaseDate, String ... serviceCollNames );
-	public void setEntityVisibility ( Boolean publicFlag, Date releaseDate, String ... entityIds );
+	public void setServicesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames );
+	public void setRepositoriesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... repositoryNames );
+	public void setServiceCollectionVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceCollNames );
+	public void setEntityVisibility ( String publicFlagStr, String releaseDateStr, String ... entityIds );
 }

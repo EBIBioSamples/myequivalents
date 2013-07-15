@@ -14,9 +14,9 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  * @author Marco Brandizi
  *
  */
-public class MappingDeleteCommandLineCommand extends LineCommand
+public class MappingDeleteLineCommand extends LineCommand
 {
-	public MappingDeleteCommandLineCommand ()
+	public MappingDeleteLineCommand ()
 	{
 		super ( "mapping delete" );
 	}
@@ -27,7 +27,8 @@ public class MappingDeleteCommandLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emMgr = 
+			Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( this.email, this.apiPassword );
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
 			emMgr.deleteMappings ( (String[]) ArrayUtils.subarray ( args, 2, args.length ) );

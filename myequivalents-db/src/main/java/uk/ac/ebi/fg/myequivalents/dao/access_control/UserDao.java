@@ -3,6 +3,7 @@ package uk.ac.ebi.fg.myequivalents.dao.access_control;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.StringUtils;
@@ -102,17 +103,20 @@ public class UserDao
 		if ( loggedInUser == null ) login ( null, null ); // As anonymous
 		
 		// Just in case anonymous authentication didn't work for some reason.
-		if ( loggedInUser == null ) throw new SecurityException ( 
-			"Security violation: the operation requires an authenticated user" 
-		);
-		if ( !loggedInUser.hasPowerOf ( role ) ) throw new SecurityException ( String.format (
-			"Security violation: the operation requires the %s access level and the user '%s' has only %s", 
-			role, loggedInUser.getEmail (), loggedInUser.getRole ()
-		));
-		if ( needsFullAuthentication && isLoggedViaAPI () ) throw new SecurityException ( String.format (
-			"Security violation: the operation requires to login via user password, not just the API password", 
-			role, loggedInUser.getEmail (), loggedInUser.getRole ()
-		));
+		if ( loggedInUser == null ) 
+			throw new SecurityException ( 
+				"Security violation: the operation requires an authenticated user" 
+			);
+		if ( !loggedInUser.hasPowerOf ( role ) ) 
+			throw new SecurityException ( String.format (
+				"Security violation: the operation requires the %s access level and the user '%s' has only %s", 
+				role, loggedInUser.getEmail (), loggedInUser.getRole ()
+			));
+		if ( needsFullAuthentication && isLoggedViaAPI () )
+			throw new SecurityException ( String.format (
+				"Security violation: the operation requires to login via user password, not just the API password", 
+				role, loggedInUser.getEmail (), loggedInUser.getRole ()
+			));
 	}
 
 	/**
@@ -124,6 +128,7 @@ public class UserDao
 		enforceRole ( role, false );
 	}
 
+	
 	/**
 	 * Log off the currently logged user 
 	 */

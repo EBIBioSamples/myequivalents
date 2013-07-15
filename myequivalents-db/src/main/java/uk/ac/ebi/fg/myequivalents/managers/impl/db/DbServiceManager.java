@@ -106,7 +106,7 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 					String servCollName = service.getServiceCollectionName ();
 					if ( servCollName != null ) 
 					{
-						ServiceCollection servColl = serviceCollDAO.findByName ( servCollName );
+						ServiceCollection servColl = serviceCollDAO.findByName ( servCollName, false );
 						if ( servColl == null ) throw new RuntimeException ( String.format ( 
 							"Cannot store service '%s' linked to the non-existing service-collection '%s'", 
 							service.getName (), service.getServiceCollectionName ()
@@ -120,7 +120,7 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 					String repoName = service.getRepositoryName ();
 					if ( repoName != null )
 					{
-						Repository repo = repoDAO.findByName ( repoName );
+						Repository repo = repoDAO.findByName ( repoName, false );
 						if ( repo == null ) throw new RuntimeException ( String.format ( 
 							"Cannot store service '%s' linked to the non-existing repository '%s'", 
 							service.getName (), service.getRepositoryName ()

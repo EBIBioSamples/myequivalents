@@ -14,9 +14,9 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  * @author Marco Brandizi
  *
  */
-public class MappingStoreBundleCommandLineCommand extends LineCommand
+public class MappingStoreBundleLineCommand extends LineCommand
 {
-	public MappingStoreBundleCommandLineCommand ()
+	public MappingStoreBundleLineCommand ()
 	{
 		super ( "mapping store-bundle" );
 	}
@@ -27,7 +27,8 @@ public class MappingStoreBundleCommandLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( this.email, this.apiPassword );
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
 			emMgr.storeMappingBundle ( (String[]) ArrayUtils.subarray ( args, 2, args.length ) );

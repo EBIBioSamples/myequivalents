@@ -1,9 +1,13 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
+
+import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
@@ -15,6 +19,8 @@ import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.utils.DateJaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.NullBooleanJaxbXmlAdapter;
 
 /**
  * The relational version of {@link AccessControlManager}.
@@ -25,6 +31,8 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
  */
 public class DbAccessControlManager extends DbMyEquivalentsManager implements AccessControlManager
 {
+	private static final NullBooleanJaxbXmlAdapter STR2BOOL = new NullBooleanJaxbXmlAdapter ();
+	private static final DateJaxbXmlAdapter STR2DATE = new DateJaxbXmlAdapter ();
 	
 	public DbAccessControlManager ( EntityManager entityManager, String email, String apiPassword ) {
 		this ( entityManager, email, apiPassword, false);
@@ -81,47 +89,140 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 	}
 
 	@Override
-	public void setServicesVisibility ( Boolean publicFlag, Date releaseDate, String ... serviceNames ) 
-	{
-		setDescribVisibility ( Service.class, "Service", publicFlag, releaseDate, serviceNames );
-	}
-
-	@Override
-	public void setRepositoriesVisibility ( Boolean publicFlag, Date releaseDate, String ... repositoryNames )
-	{
-		setDescribVisibility ( Service.class, "Repository", publicFlag, releaseDate, repositoryNames );
-	}
-
-	@Override
-	public void setServiceCollectionVisibility ( Boolean publicFlag, Date releaseDate, String ... serviceCollNames ) 
-	{
-		setDescribVisibility ( ServiceCollection.class, "Service collection", publicFlag, releaseDate, serviceCollNames );
-	}
-	
-	private <D extends Describeable> void setDescribVisibility ( 
-		Class<D> targetClass, String describeableLabel, boolean publicFlag, Date releaseDate, String ... names )
+	public void setServicesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames )
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+		setServicesVisibilityUnCommitted ( publicFlagStr, releaseDateStr, cascade, serviceNames );
+		ts.commit ();
+	}
+
+	private void setServicesVisibilityUnCommitted ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames ) 
+	{
+		setDescribVisibility ( Service.class, "Service", publicFlagStr, releaseDateStr, serviceNames );
 		
-			userDao.enforceRole ( User.Role.EDITOR );
-			DescribeableDAO<D> descrDao = new DescribeableDAO<D> ( entityManager, targetClass );
+		if ( !cascade )
+			return;
+		
+		publicFlagStr = StringUtils.trimToNull ( publicFlagStr );
+		releaseDateStr = StringUtils.trimToNull ( releaseDateStr );
+		
+		Boolean publicFlag = null;
+		if ( publicFlagStr != null ) publicFlag = STR2BOOL.unmarshal ( publicFlagStr );
+		
+		Date releaseDate = null;
+		if ( releaseDateStr != null ) releaseDate = STR2DATE.unmarshal ( releaseDateStr );
+		
+		for ( String serviceName: serviceNames )
+		{
+			String sql = "UPDATE entity_mapping\nSET ";
 			
-			for ( String dname: names )
-			{
-				D descr = descrDao.findByName ( dname );
-				if ( descr == null ) throw new RuntimeException ( String.format ( 
-					"%s '%s' not found", describeableLabel, dname 
-				));
-				descr.setReleaseDate ( releaseDate );
-				descr.setPublicFlag ( publicFlag );
-			}
+			String sep = "";
+			if ( publicFlagStr != null ) { sql += "public_flag = :publicFlag"; sep = ", "; }
+			if ( releaseDateStr != null ) { sql += sep + "release_date = :releaseDate"; }
+
+			sql += "\nWHERE service_name = :serviceName";
+			
+			Query q = entityManager.createNativeQuery ( sql );
+			
+			q.setParameter ( "serviceName", serviceName );
+			if ( publicFlagStr != null ) q.setParameter ( "publicFlag", publicFlag );
+			if ( releaseDateStr != null ) q.setParameter ( "releaseDate", releaseDate );
+			
+			q.executeUpdate ();
+		}
+	}
+
+	@Override
+	public void setRepositoriesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... repositoryNames )
+	{
+		EntityTransaction ts = entityManager.getTransaction ();
+		
+		ts.begin ();
+		setDescribVisibility ( Service.class, "Repository", publicFlagStr, releaseDateStr, repositoryNames );
+		
+		if ( !cascade ) {
+			ts.commit ();
+			return;
+		}
+		
+		for ( String repoName: repositoryNames )
+		{
+			@SuppressWarnings ( "unchecked" )
+			List<String> servNames = entityManager.createQuery ( 
+				"SELECT s.name FROM Service s JOIN s.repository r WHERE r.name = '" + repoName + "'" )
+				.getResultList ();
+			setServicesVisibilityUnCommitted ( publicFlagStr, releaseDateStr, true, servNames.toArray ( new String [ servNames.size () ] ) );
+		}
+		
+		ts.commit ();
+	}
+
+	@Override
+	public void setServiceCollectionVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceCollNames ) 
+	{
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+		setDescribVisibility ( ServiceCollection.class, "Service collection", publicFlagStr, releaseDateStr, serviceCollNames );
+
+		if ( !cascade ) {
+			ts.commit ();
+			return;
+		}
+
+		for ( String scName: serviceCollNames )
+		{
+			@SuppressWarnings ( "unchecked" )
+			List<String> servNames = entityManager.createQuery ( 
+				"SELECT s.name FROM Service s JOIN s.serviceCollection sc WHERE sc.name = '" + scName + "'" )
+				.getResultList ();
+			setServicesVisibilityUnCommitted ( publicFlagStr, releaseDateStr, true, servNames.toArray ( new String [ servNames.size () ] ) );			
+		}
+		
 		ts.commit ();
 	}
 	
-	@Override
-	public void setEntityVisibility ( Boolean publicFlag, Date releaseDate, String ... entityIds )
+	private <D extends Describeable> void setDescribVisibility ( 
+		Class<D> targetClass, String describeableLabel, String publicFlagStr, String releaseDateStr, String ... names )
 	{
+		publicFlagStr = StringUtils.trimToNull ( publicFlagStr );
+		releaseDateStr = StringUtils.trimToNull ( releaseDateStr );
+		
+		if ( publicFlagStr == null && releaseDateStr == null ) throw new IllegalArgumentException (
+			"At least one of the public-flag or release-date parameter must be specified"
+		);
+		
+		Boolean publicFlag = publicFlagStr != null ? STR2BOOL.unmarshal ( publicFlagStr ) : null;
+		Date releaseDate = releaseDateStr != null ? STR2DATE.unmarshal ( releaseDateStr ) : null;
+		
+		userDao.enforceRole ( User.Role.EDITOR );
+		DescribeableDAO<D> descrDao = new DescribeableDAO<D> ( entityManager, targetClass );
+		
+		for ( String dname: names )
+		{
+			D descr = descrDao.findByName ( dname );
+			if ( descr == null ) throw new RuntimeException ( String.format ( 
+				"%s '%s' not found", describeableLabel, dname 
+			));
+			if ( publicFlagStr != null ) descr.setPublicFlag ( publicFlag );
+			if ( releaseDateStr != null ) descr.setReleaseDate ( releaseDate );
+		}
+	}
+	
+	@Override
+	public void setEntityVisibility ( String publicFlagStr, String releaseDateStr, String ... entityIds )
+	{
+		publicFlagStr = StringUtils.trimToNull ( publicFlagStr );
+		releaseDateStr = StringUtils.trimToNull ( releaseDateStr );
+		
+		if ( publicFlagStr == null && releaseDateStr == null ) throw new IllegalArgumentException (
+			"At least one of the public-flag or release-date parameter must be specified"
+		);
+
+		
+		Boolean publicFlag = publicFlagStr != null ? STR2BOOL.unmarshal ( publicFlagStr ) : null;
+		Date releaseDate = releaseDateStr != null ? STR2DATE.unmarshal ( releaseDateStr ) : null;
+		
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
 		
@@ -133,9 +234,11 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 				EntityMapping emap = emDao.findEntityMapping ( entityId );
 				if ( emap == null ) throw 
 					new RuntimeException ( String.format ( "Entity mapping '%s' not found", entityId ));
-				emap.setReleaseDate ( releaseDate );
-				emap.setPublicFlag ( publicFlag );
+				
+				if ( publicFlagStr != null ) emap.setPublicFlag ( publicFlag );
+				if ( releaseDateStr != null ) emap.setReleaseDate ( releaseDate );
 			}
+			
 		ts.commit ();
 	}
 

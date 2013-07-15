@@ -3,6 +3,8 @@ package uk.ac.ebi.fg.myequivalents.managers;
 import static java.lang.System.out;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertFalse;
 
 import java.io.StringReader;
 import java.util.GregorianCalendar;
@@ -11,7 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -201,7 +203,8 @@ public class ServiceManagerTest
 		"  <services>\n" +
     "    <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/${accession}'\n" + 
 		"           uri-prefix='http://somewhere.in.the.net/testservmgr/service6/'\n" + 
-    "           entity-type='testservmgr.someType1' title='A Test Service 6' name='test.testservmgr.service6'>\n" +
+    "           entity-type='testservmgr.someType1' title='A Test Service 6' name='test.testservmgr.service6'\n" +
+    "						release-date = '20130110' public-flag = 'null'>\n" +
     "      <description>The Description of a Test Service 6</description>\n" + 
     "    </service>\n" + 
     "    <service entity-type='testservmgr.someType7' title='A Test Service 7' name='test.testservmgr.service7'" +
@@ -216,7 +219,7 @@ public class ServiceManagerTest
     "    </service>\n" +
     "  </services>\n" +
     "  <repositories>" +
-    "  		<repository name = 'test.testservmgr.addedRepo1'>\n" +
+    "  		<repository name = 'test.testservmgr.addedRepo1' public-flag = 'false'>\n" +
     "       <description>A test Added Repo 1</description>\n" +
     "     </repository>\n" +
     "  </repositories>\n" +
@@ -247,7 +250,15 @@ public class ServiceManagerTest
 		xml = serviceMgr.getServiceCollectionsAs ( "xml", "test.testservmgr.added-sc-1" );
 		out.println ( "Search Result (XML):\n" + xml );
 		// TODO: checks on the XML
-			
-}
+		
+		Service srv6 = serviceMgr.getServices ( "test.testservmgr.service6" ).getServices ().iterator ().next ();
+		assertTrue ( "release date defined in the XML not stored!", 
+			new DateMidnight ( 2013, 01, 10 ).isEqual ( srv6.getReleaseDate ().getTime () )
+		);
+		assertNull ( "public flag defined in the XML not stored!", srv6.getPublicFlag () );
+		
+		Repository repo1 = serviceMgr.getRepositories ( "test.testservmgr.addedRepo1" ).getRepositories ().iterator ().next ();
+		assertFalse ( "public flag defined in the XML not stored (repo1)!", repo1.getPublicFlag () );
+	}
 	
 }

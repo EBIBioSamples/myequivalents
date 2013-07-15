@@ -24,11 +24,11 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  * @author Marco Brandizi
  *
  */
-public class ServiceStoreCommandLineCommand extends LineCommand
+public class ServiceStoreLineCommand extends LineCommand
 {
 	private String inFileName = null;
 	
-	public ServiceStoreCommandLineCommand ()
+	public ServiceStoreLineCommand ()
 	{
 		super ( "service store" );
 	}

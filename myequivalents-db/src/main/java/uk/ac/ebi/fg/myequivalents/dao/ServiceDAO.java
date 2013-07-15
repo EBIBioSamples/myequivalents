@@ -52,4 +52,24 @@ public class ServiceDAO extends DescribeableDAO<Service>
 		
 		return results.isEmpty () ? null : results.iterator ().next ();
 	}
+
+	/**
+	 * First deletes linked entities.
+	 */
+	@Override
+	public boolean delete ( String serviceName )
+	{
+		serviceName = StringUtils.trimToNull ( serviceName );
+		if ( serviceName == null ) return false;
+		if ( !exists ( serviceName ) ) return false;
+		
+		EntityManager em = getEntityManager ();
+		em.createNativeQuery ( "DELETE FROM entity_mapping WHERE service_name = '" + serviceName + "'" ).executeUpdate ();
+		em.createNativeQuery ( 
+			"DELETE FROM entity_mapping WHERE bundle IN\n" +
+			"( SELECT bundle FROM ENTITY_MAPPING GROUP BY bundle HAVING count(accession) < 2 )" ).executeUpdate ();
+		
+		return super.delete ( serviceName );
+	}
+	
 }

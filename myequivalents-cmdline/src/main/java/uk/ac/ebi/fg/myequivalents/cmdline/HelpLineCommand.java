@@ -71,9 +71,6 @@ class HelpLineCommand extends LineCommand
 					allOpts.addOption ( opt ); 
 		}
 		
-		err.println ( "\n --help" );
-		err.println (   "   Prints this help message" );
-		
 		err.println ( "\nOptions:" );
 		
 		HelpFormatter helpFormatter = new HelpFormatter ();

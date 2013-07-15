@@ -75,7 +75,7 @@ class DbEntityMappingManager extends DbMyEquivalentsManager implements EntityMap
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-			userDao.enforceRole ( EDITOR );
+				userDao.enforceRole ( EDITOR );
 		  entityMappingDAO.storeMappingBundle ( entityIds );
 		ts.commit ();
 	}

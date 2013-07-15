@@ -46,7 +46,7 @@ public class ServiceDeleteLineCommand extends LineCommand
 	{
 		err.println ( "\n service delete name..." );
 		err.println (   "   Deletes services, identified by their symbolic names" );
-		err.println (   "   Will generate an error if any of the service is being referred by some other entity." );
+		err.println (   "   WARNING This removes ALL the entities referring to the service!" );
 	}	
 
 }

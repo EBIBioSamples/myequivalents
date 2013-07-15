@@ -210,9 +210,9 @@ public class EntityMappingDAO
 			"DELETE FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'"
 		).executeUpdate ();
 		if ( ((Number) entityManager.createNativeQuery ( 
-			    "SELECT COUNT( bundle ) AS ct FROM entity_mapping WHERE bundle = '" + bundle + "'" 
-			   ).getSingleResult () ).longValue () == 1 )
-			entityManager.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
+		    "SELECT COUNT( bundle ) AS ct FROM entity_mapping WHERE bundle = '" + bundle + "'" 
+		   ).getSingleResult () ).longValue () == 1 )
+		entityManager.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
 		
 		return true;
 	}

@@ -9,12 +9,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.GregorianCalendar;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 
+import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +28,10 @@ import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
@@ -180,13 +184,15 @@ public class AccessControlManagerTest
 		ServiceManager servMgr = mgrFactory.newServiceManager ( editorUser.getEmail (), editorSecret );
 		servMgr.storeServices ( service );
 		
+		EntityMappingManager emMgr = mgrFactory.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
+		emMgr.storeMappings ( service.getName () + ":e1", service.getName () + ":e2" );
+		
 		AccessControlManager accMgr = mgrFactory.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass );
 		accMgr.setRole ( user.getEmail (), User.Role.EDITOR );
 		
+		Date testDate = new DateMidnight ( 2013, 4, 25 ).toDate ();
 		accMgr.setAuthenticationCredentials ( editorUser.getEmail (), editorSecret );
-		GregorianCalendar cal = new GregorianCalendar ();
-		cal.set ( 2013, GregorianCalendar.APRIL, 25 );
-		accMgr.setServicesVisibility ( false, cal.getTime (), service.getName () );
+		accMgr.setServicesVisibility ( "false", new SimpleDateFormat ( "YYYYMMdd" ).format ( testDate ), true, service.getName () );
 
 		ServiceDAO servDao = new ServiceDAO ( ((DbManagerFactory) mgrFactory ).getEntityManagerFactory ().createEntityManager () );
 		Service serviceDB = servDao.findByName ( service.getName () );
@@ -198,8 +204,14 @@ public class AccessControlManagerTest
 		out.println ( serviceDB );
 		
 		assertFalse ( "Public Flag not stored!", serviceDB.getPublicFlag () );
-		assertEquals ( "Release date not stored!", cal.getTime (), serviceDB.getReleaseDate () );
+		assertEquals ( "Release date not stored!", testDate, serviceDB.getReleaseDate () );
 		assertFalse ( "The service should be private!", serviceDB.isPublic () );
+
+		Entity ent = emMgr.getMappings ( false, service.getName () + ":e1" ).getBundles ().iterator ().next ().getEntities ().iterator ().next ();
+		assertFalse ( "setServicesVisibility() wasn't cascaded!", ent.getPublicFlag () );
+		assertEquals ( "setServicesVisibility() wasn't cascaded!", testDate, ent.getReleaseDate () );
+		
+		servMgr.deleteServices ( service.getName () );
 	}
 	
 	

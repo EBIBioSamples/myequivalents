@@ -194,7 +194,7 @@ public class MainTest
 		assertTrue ( "Wrong result from 'service-collection get' (serviceColl1)!", getOutStr.contains ( "test.testmain.serviceColl1" ) );
 		assertTrue ( "Wrong result from 'service-collection get' (xml)!",	getOutStr.contains ( "<service-items>" ) );
 		
-		Main.main ( "service-collection", "delete", "test.testmain.added-sc-1" );
+		Main.main ( "service-collection", "delete", "-u", editorUser.getEmail (), "-s", editorSecret, "test.testmain.added-sc-1" );
 		assertTrue ( "Service-collection not deleted!", this.serviceMgr.getServices ( "test.testmain.added-sc-1" ).getServices ().isEmpty () );
 		assertEquals ( "'service-collection delete' returned a wrong exit code!", 0, Main.exitCode );
 
@@ -232,7 +232,7 @@ public class MainTest
 		assertTrue ( "Wrong result from 'repository get' (repo1)!", getOutStr.contains ( "test.testmain.repo1" ) );
 		assertTrue ( "Wrong result from 'repository get' (xml)!", getOutStr.contains ( "<service-items>" ) );
 		
-		Main.main ( "service-collection", "delete", "test.testmain.added-sc-1" );
+		Main.main ( "service-collection", "delete", "-u", editorUser.getEmail (), "-s", editorSecret, "test.testmain.added-sc-1" );
 		assertTrue ( "Service-collection not deleted!", this.serviceMgr.getServices ( "test.testmain.added-sc-1" ).getServices ().isEmpty () );
 		assertEquals ( "'service-collection delete' returned a wrong exit code!", 0, Main.exitCode );
 	}	
@@ -245,11 +245,11 @@ public class MainTest
 	public void testMappingCommands () throws JAXBException, UnsupportedEncodingException
 	{
 		serviceMgr.storeServicesFromXML ( new StringReader ( testServiceXml ) );
-		Main.main ( "mapping", "store", 
+		Main.main ( "mapping", "store", "-u", editorUser.getEmail (), "-s", editorSecret,
 			"test.testmain.service6:acc1", "test.testmain.service8:acc2", 
 			"test.testmain.service6:acc3", "test.testmain.service6:acc4" 
 		);
-		Main.main ( "mapping", "store-bundle",
+		Main.main ( "mapping", "store-bundle", "-u", editorUser.getEmail (), "-s", editorSecret,
 			"test.testmain.service7:acc1", "test.testmain.service6:acc4", "test.testmain.service6:acc1"
 		);
 		
@@ -285,14 +285,16 @@ public class MainTest
 		
 		// Deletion
 		//
-		Main.main ( "mapping", "delete-entity", "test.testmain.service6:acc3" );
-		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
+		Main.main ( "mapping", "delete-entity",  "-u", editorUser.getEmail (), "-s", editorSecret, "test.testmain.service6:acc3" );
+		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( 
+			this.editorUser.getEmail (), this.editorSecret 
+		);
 		assertTrue ( "'mapping delete-entity' didn't work!", 
 			emMgr.getMappings ( true, "test.testmain.service6:acc3" ).getBundles ().isEmpty () );
 		
-		Main.main ( "mapping", "delete", "test.testmain.service7:acc1" );
+		Main.main ( "mapping", "delete", "-u", editorUser.getEmail (), "-s", editorSecret, "test.testmain.service7:acc1" );
 		assertTrue ( "'mapping delete' didn't work!", 
-				emMgr.getMappings ( true, "test.testmain.service6:acc1" ).getBundles ().isEmpty () );
+			emMgr.getMappings ( true, "test.testmain.service6:acc1" ).getBundles ().isEmpty () );
 	}
 	
 	

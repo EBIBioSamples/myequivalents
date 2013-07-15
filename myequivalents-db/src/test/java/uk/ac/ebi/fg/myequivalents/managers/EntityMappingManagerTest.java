@@ -129,15 +129,20 @@ public class EntityMappingManagerTest
 		serviceDao.delete ( service3 );
 		serviceDao.delete ( service4 );
 		serviceDao.delete ( service5 );
-		
-		new RepositoryDAO ( emProvider.getEntityManager () ).delete ( repo1 );
 
+		ts.commit ();
+		
+		ts.begin ();
+		new RepositoryDAO ( emProvider.getEntityManager () ).delete ( repo1 );
+		ts.commit ();
+		
 		assertEquals ( "Entities not deleted!", 0, emMgr.getMappings ( 
 				true, service1.getName () + ":acc1", service2.getName () + ":acc2" 
 			).getBundles ().size () 
 		);
 		// TODO: more 
 		
+		ts.begin ();
 		serviceDao.store ( service1 );
 		serviceDao.store ( service2 );
 		serviceDao.store ( service3 );
@@ -277,8 +282,8 @@ public class EntityMappingManagerTest
 			.contains ( new Entity ( service1, "b1.1" ) )
 	  );
 
-	  acMgr.setServicesVisibility ( false, null, service1.getName () );
-	  acMgr.setEntityVisibility ( null, null, service1.getName () + ":b1.1" );
+	  acMgr.setServicesVisibility ( "false", "null", false, service1.getName () );
+	  acMgr.setEntityVisibility ( "null", "null", service1.getName () + ":b1.1" );
 	  
 		emMgr = managerFactory.newEntityMappingManager ();
 	  emsr = emMgr.getMappings ( true, service2.getName () + ":b2.2" );

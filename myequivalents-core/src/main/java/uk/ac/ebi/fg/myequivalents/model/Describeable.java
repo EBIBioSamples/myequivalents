@@ -15,7 +15,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.StringUtils;
 
-import uk.ac.ebi.fg.myequivalents.utils.JaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.DateJaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.NullBooleanJaxbXmlAdapter;
 
 
 /**
@@ -44,11 +45,12 @@ public abstract class Describeable
 	private String description;
 	
 	@XmlAttribute ( name = "public-flag" )
+	@XmlJavaTypeAdapter ( NullBooleanJaxbXmlAdapter.class )	
 	@Column ( name = "public_flag", nullable = true )
 	private Boolean publicFlag = true;
 	
 	@XmlAttribute ( name = "release-date" )
-	@XmlJavaTypeAdapter ( JaxbXmlAdapter.class )	
+	@XmlJavaTypeAdapter ( DateJaxbXmlAdapter.class )	
 	@Column ( name = "release_date", nullable = true )
 	private Date releaseDate = null;
 	

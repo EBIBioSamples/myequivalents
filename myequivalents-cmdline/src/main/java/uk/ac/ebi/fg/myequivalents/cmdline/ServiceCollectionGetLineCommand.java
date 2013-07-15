@@ -29,7 +29,8 @@ public class ServiceCollectionGetLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+		ServiceManager servMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
