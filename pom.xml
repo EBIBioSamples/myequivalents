@@ -123,7 +123,7 @@
 			<dependency>
 				<groupId>uk.ac.ebi</groupId>
 				<artifactId>jutils</artifactId>
-				<version>2.0</version>
+				<version>3.0</version>
 			</dependency>
 
 			<dependency>
@@ -212,11 +212,11 @@
 	
   <repositories>
 
-		<repository>
-			<id>ebi-repo-old</id>
-			<name>EBI repo</name>
-			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
-		</repository>
+    <repository>
+	    <id>coconut.ebi.ac.uk</id>
+	    <name>coconut.ebi.ac.uk-releases</name>
+	    <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+    </repository>
 
 
 		<repository>
@@ -230,18 +230,17 @@
 	
   <distributionManagement>
 
-	  <repository>
-		  <id>ebi-repo-old</id>
-		  <name>EBI Repository</name>
-		  <url>scp://parrot.ebi.ac.uk/homes/maven/public_html/m2repo</url>
-	  </repository>
-		
-	  <snapshotRepository>
-		  <id>ebi-repo-old-snapshots</id>
-		  <uniqueVersion>false</uniqueVersion>
-		  <name>EBI Snapshots Repository</name>
-		  <url>scp://parrot.ebi.ac.uk/homes/maven/public_html/m2repo_snapshots</url>
-	  </snapshotRepository>
+    <repository>
+	    <id>coconut.ebi.ac.uk</id>
+	    <name>coconut.ebi.ac.uk-releases</name>
+	    <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+    </repository>
+    
+    <snapshotRepository>
+	    <id>coconut.ebi.ac.uk</id>
+	    <name>coconut.ebi.ac.uk-snapshots</name>
+	    <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
+    </snapshotRepository>
 	
   </distributionManagement>
   
