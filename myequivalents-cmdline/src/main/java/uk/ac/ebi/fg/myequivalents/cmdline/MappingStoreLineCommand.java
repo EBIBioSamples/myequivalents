@@ -8,7 +8,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'mapping store' command. This will use {@link DbEntityMappingManager#storeMappings(String...)}.
+ * The 'mapping store' command. This will use {@link EntityMappingManager#storeMappings(String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi

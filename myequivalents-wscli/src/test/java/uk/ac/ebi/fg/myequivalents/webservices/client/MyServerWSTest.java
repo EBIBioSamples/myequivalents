@@ -22,7 +22,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
  */
 public class MyServerWSTest
 {
-	@Test @Ignore ( "This is a sort of quick/dirty manual test against your new web service instance. Usually disabled" )
+	@Test @Ignore ( "This is a sort of quick/dirty manual test against our new web service instance. Usually disabled" )
 	public void testGetMapping ()
 	{
 

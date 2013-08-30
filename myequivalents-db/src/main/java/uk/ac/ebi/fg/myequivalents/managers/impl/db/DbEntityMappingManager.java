@@ -148,7 +148,7 @@ class DbEntityMappingManager extends DbMyEquivalentsManager implements EntityMap
 	/**
 	 * Invokes {@link #getMappings(boolean, String...)} and format the result in XML format. 
 	 * TODO: document the format. This is based on JAXB and reflects the structure of {@link EntityMappingSearchResult}. 
-	 * See {@link EntityMappingManagerTest} for details. 
+	 * See {@link uk.ac.ebi.fg.myequivalents.managers.EntityMappingManagerTest} for details. 
 	 * 
 	 */
 	private String getMappingsAsXml ( boolean wantRawResult, String... entityIds )
@@ -184,10 +184,13 @@ class DbEntityMappingManager extends DbMyEquivalentsManager implements EntityMap
 		String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId )
 	{
 		if ( wantRawResult == null ) wantRawResult = false;
-		if ( StringUtils.trimToNull ( outputFormat ) == null || "xml".equals ( outputFormat ) )
-			return getMappingsForTargetAsXml ( wantRawResult, targetServiceName, entityId );
-		else
-			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+
+		outputFormat = StringUtils.trimToNull ( outputFormat );
+		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
+			"Unsopported output format '" + outputFormat + "'" 
+		);
+		
+		return getMappingsForTargetAsXml ( wantRawResult, targetServiceName, entityId );
 	}
 
 

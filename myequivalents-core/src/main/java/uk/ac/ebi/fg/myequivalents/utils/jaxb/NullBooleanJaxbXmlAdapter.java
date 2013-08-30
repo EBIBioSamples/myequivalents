@@ -1,4 +1,4 @@
-package uk.ac.ebi.fg.myequivalents.utils;
+package uk.ac.ebi.fg.myequivalents.utils.jaxb;
 
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;

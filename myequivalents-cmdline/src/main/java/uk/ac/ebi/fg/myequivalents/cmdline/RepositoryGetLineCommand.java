@@ -35,8 +35,9 @@ public class RepositoryGetLineCommand extends LineCommand
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
 		{
-			String fmtTag = cmdLine.getOptionValue ( "format", "xml" );
-			System.out.print ( servMgr.getRepositoriesAs ( fmtTag, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) );
+			System.out.print ( 
+				servMgr.getRepositoriesAs ( this.outputFormat, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) 
+			);
 		}
 		
 		err.println ( "\nRepository(ies) Fetched" );

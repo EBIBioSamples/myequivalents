@@ -39,7 +39,7 @@ public interface ServiceManager extends MyEquivalentsManager
 	 * TODO: document the format. This is auto-generated via JAXB from {@link ExposedService} and reflects that class, for
 	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 */
-	public void storeServicesFromXML ( Reader reader ) throws JAXBException;
+	public void storeServicesFromXML ( Reader reader );
 
 	/**
 	 * Deletes services by name and returns the number of services that were actually deleted.

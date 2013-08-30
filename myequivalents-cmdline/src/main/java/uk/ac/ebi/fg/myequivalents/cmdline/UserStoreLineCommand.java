@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
@@ -9,28 +12,24 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.cli.CommandLine;
 
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'service store' command. Syntax is: service store [xml-file]. This will use 
- * {@link DbServiceManager#storeServicesFromXML(Reader)}. See an example of usage in {@link MainTest#testServiceStore()}. 
+ * The 'user store' command, a wrapper for {@link AccessControlManager#storeUserFromXml(Reader)}.
  *
- * <dl><dt>date</dt><dd>Jul 18, 2012</dd></dl>
+ * <dl><dt>date</dt><dd>Aug 22, 2013</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class ServiceStoreLineCommand extends LineCommand
+public class UserStoreLineCommand extends LineCommand
 {
 	private String inFileName = null;
-	
-	public ServiceStoreLineCommand ()
-	{
-		super ( "service store" );
+
+	public UserStoreLineCommand () {
+		super ( "user store" );
 	}
 	
 	@Override
@@ -40,23 +39,22 @@ public class ServiceStoreLineCommand extends LineCommand
 		if ( this.exitCode != 0 ) return;
 
 		File inFile = null; 
-		
 		try
 		{
 			Reader in = null;
 			if ( inFileName == null )
 				in = new InputStreamReader ( System.in );
-			else
+			else 
 			{
 				inFile = new File ( inFileName );
 				in = new FileReader ( inFile );
 			}
 		  in = new BufferedReader ( in );
 			
-			ServiceManager servMgr = 
-				Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
+			AccessControlManager accMgr =
+				Resources.getInstance ().getMyEqManagerFactory ().newAccessControlManagerFullAuth ( this.email, this.userPassword );
 			
-			servMgr.storeServicesFromXML ( in );
+			accMgr.storeUserFromXml ( in );
 		} 
 		catch ( FileNotFoundException ex ) 
 		{
@@ -64,8 +62,8 @@ public class ServiceStoreLineCommand extends LineCommand
 			throw new RuntimeException ( "Error: cannot find the input file '" + inFile.getAbsolutePath () + "'" );
 		} 
 		
-		err.println ( "\nServices Updated" );
-		return;
+		err.println ( "\nUser Updated" );
+		return;		
 	}
 
 	/**
@@ -83,9 +81,8 @@ public class ServiceStoreLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n service store [xml file]" );
-		err.println (   "   Creates/Updates service definitions and related entities (service-collections, repositories)" );
+		err.println ( "\n user store [xml file]" );
+		err.println (   "   Creates/Updates a user definition." );
 		err.println (   "   Reads from the standard input if the file is omitted. See the documentation and tests for the XML format to use." );
 	}
-
 }

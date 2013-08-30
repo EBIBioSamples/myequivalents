@@ -3,7 +3,6 @@ package uk.ac.ebi.fg.myequivalents.dao.access_control;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +62,9 @@ public class UserDao
 	 */
 	public User login ( String email, String password, boolean isUserPassword ) 
 	{
+		email = StringUtils.trimToNull ( email );
+		password = StringUtils.trimToNull ( password );
+		
 		if ( email == null || "[anonymous]".equalsIgnoreCase ( email ) )
 		{
 			this.loggedViaAPI = true;
@@ -70,8 +72,7 @@ public class UserDao
 				"[anonymous]", "Anonymous", "User", null, "The fictitious/unauthenticated user", Role.VIEWER, null );
 		}
 		
-		Validate.notNull ( email = StringUtils.trimToNull ( email ), "Must provide an email" );
-		Validate.notNull ( password = StringUtils.trimToNull ( password ), "Must provide a password" );
+		Validate.notNull ( password, "Must provide a password to authenticate as '" + email + "'" );
 		
 		User user = findByEmailUnauthorized ( email );
 		if ( user == null ) throw new SecurityException ( "User '" + email + "' not found" );
@@ -225,6 +226,8 @@ public class UserDao
 				throw new SecurityException ( String.format ( 
 					"store ( '%s' ): this is a new user and you must be an admin to do that", user.getEmail ()
 				));
+			Validate.notNull ( user.getApiPasswordHash (), "Cannot accept to save a new user with null API secret" );
+			Validate.notNull ( user.getPasswordHash (), "Cannot accept to save a new user with null user password" );
 			entityManager.merge ( user );
 			return;
 		}

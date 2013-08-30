@@ -19,6 +19,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
@@ -44,9 +46,29 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  *
  */
 @Path ( "/mapping" )
-public class EntityMappingWebService implements EntityMappingManager
+public class EntityMappingWebService
 {
-	@Context ServletContext servletContext;
+	@Context 
+	private ServletContext servletContext;
+		
+	/**
+	 * We need this version of {@link #getMappings(Boolean, String...)} because Jersey/JAX-WS doesn't like arrays.
+	 */
+	@POST
+	@Path( "/get" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public EntityMappingSearchResult getMappings ( 
+		@FormParam ( "email" ) String email, 
+		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "raw" ) Boolean isRaw, 
+		@FormParam ( "entity" ) List<String> entitites 
+	) 
+	{
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		EntityMappingSearchResult result = emgr.getMappings ( isRaw, entitites.toArray ( new String [ 0 ] ) );
+		emgr.close();
+		return result; 
+	}
 	
 	/** 
 	 * This is just the HTTP/GET version of {@link #getMappings(Boolean, List)}. Normally you will want the 
@@ -56,66 +78,39 @@ public class EntityMappingWebService implements EntityMappingManager
 	@Path( "/get" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappingsViaGET ( 
+		@QueryParam ( "email" ) String email, 
+		@QueryParam ( "secret" ) String apiPassword,
 		@QueryParam ( "raw" ) Boolean isRaw, 
 		@QueryParam ( "entity" ) List<String> entitites 
 	) 
 	{
-		return getMappings ( isRaw, entitites.toArray ( new String [ 0 ] ) );
-	}
-	
-	/**
-	 * We need this version of {@link #getMappings(Boolean, String...)} because Jersey/JAX-WS doesn't like arrays.
-	 */
-	@POST
-	@Path( "/get" )
-	@Produces ( MediaType.APPLICATION_XML )
-	public EntityMappingSearchResult getMappings ( 
-		@FormParam ( "raw" ) Boolean isRaw, 
-		@FormParam ( "entity" ) List<String> entitites 
-	) 
-	{
-		return getMappings ( isRaw, entitites.toArray ( new String [ 0 ] ) );
-	}
-	
-
-	@Override
-	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String ... entityIds ) 
-	{
-		EntityMappingManager emgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
-		EntityMappingSearchResult result = emgr.getMappings ( wantRawResult, entityIds );
-		emgr.close();
-		return result; 
+		return getMappings ( email, apiPassword, isRaw, entitites );
 	}
 	
 	
-	@Override
 	public void storeMappings ( String ... entityIds )
 	{
 		// TODO Auto-generated method stub
 	}
 
-	@Override
 	public void storeMappingBundle ( String ... entityIds )
 	{
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public int deleteMappings ( String ... entityIds )
 	{
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public int deleteEntities ( String ... entityIds )
 	{
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds )
 	{
 		// TODO Auto-generated method stub
@@ -126,13 +121,14 @@ public class EntityMappingWebService implements EntityMappingManager
 	@POST
 	@Path( "/get-target" )
 	@Produces ( MediaType.APPLICATION_XML )
-	@Override
-	public EntityMappingSearchResult getMappingsForTarget ( 
-			@FormParam ( "raw" ) Boolean wantRawResult, 
-			@FormParam ( "service" ) String targetServiceName, 
-			@FormParam ( "entity" ) String entityId )
+	public EntityMappingSearchResult getMappingsForTarget (
+		@FormParam ( "email" ) String email, 
+		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "raw" ) Boolean wantRawResult, 
+		@FormParam ( "service" ) String targetServiceName, 
+		@FormParam ( "entity" ) String entityId )
 	{
-		EntityMappingManager emgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
 		EntityMappingSearchResult result = emgr.getMappingsForTarget ( wantRawResult, targetServiceName, entityId );
 		emgr.close();
 		return result; 
@@ -145,12 +141,14 @@ public class EntityMappingWebService implements EntityMappingManager
 	@GET
 	@Path( "/get-target" )
 	@Produces ( MediaType.APPLICATION_XML )
-	public EntityMappingSearchResult getMappingsForTargetViaGET ( 
+	public EntityMappingSearchResult getMappingsForTargetViaGET (
+			@QueryParam ( "email" ) String email, 
+			@QueryParam ( "secret" ) String apiPassword,
 			@QueryParam ( "raw" ) Boolean wantRawResult, 
 			@QueryParam ( "service" ) String targetServiceName, 
 			@QueryParam ( "entity" ) String entityId )
 	{
-		return getMappingsForTarget ( wantRawResult, targetServiceName, entityId );
+		return getMappingsForTarget ( email, apiPassword, wantRawResult, targetServiceName, entityId );
 	}
 
 	/**
@@ -172,13 +170,15 @@ public class EntityMappingWebService implements EntityMappingManager
 	@GET
 	@Path( "/go-to-target" )
 	@Produces ( MediaType.TEXT_XML )
-	public Response getMappingsForTargetRedirection (  
+	public Response getMappingsForTargetRedirection (
+			@QueryParam ( "email" ) String email, 
+			@QueryParam ( "secret" ) String apiPassword,
 			@QueryParam ( "service" ) String targetServiceName, 
 			@QueryParam ( "entity" ) String entityId,
 			@QueryParam ( "xsl" ) String xslUri 
 	) throws URISyntaxException
 	{
-		EntityMappingSearchResult result = getMappingsForTarget ( false, targetServiceName, entityId );
+		EntityMappingSearchResult result = getMappingsForTarget ( email, apiPassword, false, targetServiceName, entityId );
 		Collection<Bundle> bundles = result.getBundles ();
 
 		if ( bundles.size () == 0 ) return Response.status ( Status.NOT_FOUND ).build ();
@@ -192,7 +192,6 @@ public class EntityMappingWebService implements EntityMappingManager
 			return Response.status ( Status.MOVED_PERMANENTLY ).location ( 
 					new URI ( entities.iterator ().next ().getURI () ) ).build ();
 		
-		// TODO: get this from a request param
 		if ( xslUri == null )
 			xslUri = UriBuilder.fromPath ( 
 				servletContext.getContextPath () + "/go-to-target/multiple-results.xsl" ).build ().toASCIIString ();
@@ -207,21 +206,44 @@ public class EntityMappingWebService implements EntityMappingManager
 		
 		return Response.ok ( resultXml, MediaType.TEXT_XML ).build ();		
 	}
-	
-	
-	@Override
-	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}	
-	
 
 	/**
-	 * Does nothing, it's stateless.
+	 * TODO: comment me. 
+	 * TODO: auth requests should be factorised to an Access service (they're not used by other WS requests)
 	 */
-	@Override
-	public void close () {
+	@POST
+	@Path( "/login" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public User setAuthenticationCredentials ( 
+		@FormParam ( "email" ) String email, @FormParam ( "secret" ) String apiPassword
+	) 
+		throws SecurityException
+	{
+		EntityMappingManager em = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();		
+		return em.setAuthenticationCredentials ( email, apiPassword );
 	}
 
+	/**
+	 * The GET variant of {@link #setAuthenticationCredentials(String, String)}, used for testing purposes only.
+	 * @param email
+	 * @param apiPassword
+	 * @return
+	 * @throws SecurityException
+	 */
+	@GET
+	@Path( "/login" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public User setAuthenticationCredentialsViaGET ( 
+		@QueryParam ( "email" ) String email, @QueryParam ( "secret" ) String apiPassword
+	) 
+		throws SecurityException
+	{
+		return setAuthenticationCredentials ( email, apiPassword );
+	}
+
+	/** TODO: Comment met! TODO: AOP */
+	private EntityMappingManager getEntityMappingManager ( String email, String apiPassword )
+	{
+		return Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( email, apiPassword );
+	}
 }

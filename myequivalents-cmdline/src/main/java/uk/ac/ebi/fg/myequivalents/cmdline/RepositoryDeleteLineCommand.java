@@ -12,7 +12,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
- * The 'repository delete' command, a wrapper for {@link DbServiceManager#deleteRepositories(String...)}.
+ * The 'repository delete' command, a wrapper for {@link ServiceManager#deleteRepositories(String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi

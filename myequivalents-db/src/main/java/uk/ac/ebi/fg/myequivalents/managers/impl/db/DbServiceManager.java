@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
+import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.EDITOR;
+
 import java.io.Reader;
 
 import javax.persistence.EntityManager;
@@ -7,6 +9,8 @@ import javax.persistence.EntityTransaction;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+
+import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
@@ -20,8 +24,6 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
-
-import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.*;
 
 /**
  * <h2>The Service (and related things) Manager that access a relational database connection straight, based on the 
@@ -83,11 +85,18 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 	}
 	
 	@Override
-	public void storeServicesFromXML ( Reader reader ) throws JAXBException 
+	public void storeServicesFromXML ( Reader reader )
 	{
-		JAXBContext context = JAXBContext.newInstance ( ServiceSearchResult.class );
-		Unmarshaller u = context.createUnmarshaller ();
-		ServiceSearchResult servRes = (ServiceSearchResult) u.unmarshal ( reader );
+		ServiceSearchResult servRes = null;
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance ( ServiceSearchResult.class );
+			Unmarshaller u = context.createUnmarshaller ();
+			servRes = (ServiceSearchResult) u.unmarshal ( reader );
+		} 
+		catch ( JAXBException ex ) {
+			throw new RuntimeException ( "Error while reading services description from XML: " + ex.getMessage (), ex );
+		}
 		
 		// Some massage and then the storage
 		//
@@ -191,10 +200,11 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 	@Override
 	public String getServicesAs ( String outputFormat, String... names ) 
 	{
-		if ( "xml".equals ( outputFormat ) )
-			return getServicesAsXml ( names );
-		else
-			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+		outputFormat = StringUtils.trimToNull ( outputFormat );
+		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
+			"Unsopported output format '" + outputFormat + "'" 
+		);
+		return getServicesAsXml ( names );
 	}
 	
 
@@ -251,7 +261,9 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 	 * Invokes {@link #getServiceCollections(String...)} and wraps the result into XML.
 	 *   
 	 * TODO: document the format. This is auto-generated via JAXB from {@link ServiceSearchResult} and reflects that class, for
-	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
+	 * the moment examples are available in JUnit tests: 
+	 * {@link uk.ac.ebi.fg.myequivalents.managers.ServiceManagerTest}, 
+	 * {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 * 
 	 */
 	private String getServiceCollectionAsXml ( String... names )

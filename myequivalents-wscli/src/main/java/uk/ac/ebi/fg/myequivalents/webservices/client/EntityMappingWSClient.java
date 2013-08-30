@@ -1,20 +1,13 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 
-import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
 
 /**
@@ -24,35 +17,38 @@ import com.sun.jersey.api.representation.Form;
  * @author Marco Brandizi
  *
  */
-public class EntityMappingWSClient implements EntityMappingManager
+public class EntityMappingWSClient extends MyEquivalentsWSClient implements EntityMappingManager
 {
-	private final String baseUrl;	
-	
-	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
-	
-	
-	/**
-	 * All the invocations provided by this client will be routed at the web service base address passed here. The default
-	 * it 'http://localhost:8080/ws', /ws is usually the path where the web service package locates its implementation. 
-	 */
-	public EntityMappingWSClient ( String baseUrl )
+
+	public EntityMappingWSClient ()
 	{
 		super ();
-		baseUrl = StringUtils.trimToNull ( baseUrl );
-		if ( baseUrl == null ) baseUrl = "http://localhost:8080/myequivalents/ws";
-		else if ( baseUrl.charAt ( baseUrl.length () - 1 ) == '/' ) baseUrl = baseUrl.substring ( 0, baseUrl.length () - 2 );
-		
-		this.baseUrl = baseUrl;
-	}
-	
-	public EntityMappingWSClient () {
-		this ( null );
 	}
 
-	private void throwUnsupportedException () {
-		throw new UnsupportedOperationException ( 
-			"This operation from the WS client is not implemented yet. Please ask developers" );
+
+	public EntityMappingWSClient ( String baseUrl )
+	{
+		super ( baseUrl );
 	}
+
+
+	@Override
+	protected String getServicePath () {
+		return "/mapping";
+	}
+
+
+	@Override
+	public User setAuthenticationCredentials ( String email, String apiPassword, boolean connectServer ) throws SecurityException
+	{
+		this.email = StringUtils.trimToNull ( email );
+		this.apiPassword = StringUtils.trimToNull ( apiPassword );
+		if ( !connectServer ) return null;
+					
+		Form req = prepareReq ();
+		return invokeWsReq ( "/login", req, User.class );
+	}
+	
 	
 
 	/**
@@ -87,31 +83,11 @@ public class EntityMappingWSClient implements EntityMappingManager
 	@Override
 	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String ... entityIds )
 	{
-		try
-		{
-			Form req = new Form ();
-		  req.add ( "raw", wantRawResult.toString () );
-		  for ( String eid: entityIds )
-		  	req.add ( "entity", eid );
-			
-			if ( log.isTraceEnabled () ) log.trace ( "requested web service\n: " + req );
+		Form req = prepareReq ();
+	  req.add ( "raw", wantRawResult.toString () );
+	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-			// DEBUG
-			//try { while ( "".equals ( "" ) ) Thread.sleep ( 3000 ); } catch ( InterruptedException ex ) { throw new RuntimeException ( ex ); }
-
-			Client cli = Client.create ();
-			WebResource webres = cli.resource ( this.baseUrl + "/mapping/get" );
-			
-			return webres
-				.accept( MediaType.APPLICATION_XML_TYPE )
-			  .post ( EntityMappingSearchResult.class, req );
-		} 
-		catch ( Exception ex )
-		{
-			throw new RuntimeException ( 
-				"Internal error while invoking the myequivalents web-service: " + ex.getMessage (), ex 
-			);
-		}
+		return invokeWsReq ( "/get", req, EntityMappingSearchResult.class );
 	}
 
 	@Override
@@ -125,31 +101,12 @@ public class EntityMappingWSClient implements EntityMappingManager
 	@Override
 	public EntityMappingSearchResult getMappingsForTarget ( Boolean wantRawResult, String targetServiceName, String entityId )
 	{
-		try
-		{
-			Form req = new Form ();
-		  req.add ( "raw", wantRawResult.toString () );
-		  req.add ( "service", targetServiceName );
-		  req.add ( "entity", entityId );
-			
-			if ( log.isTraceEnabled () ) log.trace ( "requested web service\n: " + req );
+		Form req = prepareReq ();
+	  req.add ( "raw", wantRawResult.toString () );
+	  req.add ( "service", targetServiceName );
+	  req.add ( "entity", entityId );
 
-			// DEBUG
-			//try { while ( "".equals ( "" ) ) Thread.sleep ( 3000 ); } catch ( InterruptedException ex ) { throw new RuntimeException ( ex ); }
-
-			Client cli = Client.create ();
-			WebResource webres = cli.resource ( this.baseUrl + "/mapping/get-target" );
-			
-			return webres
-				.accept( MediaType.APPLICATION_XML_TYPE )
-			  .post ( EntityMappingSearchResult.class, req );
-		} 
-		catch ( Exception ex )
-		{
-			throw new RuntimeException ( 
-				"Internal error while invoking the myequivalents web-service: " + ex.getMessage (), ex 
-			);
-		}	
+	  return invokeWsReq ( "/get-target", req, EntityMappingSearchResult.class );
 	}
 
 	@Override
@@ -159,11 +116,9 @@ public class EntityMappingWSClient implements EntityMappingManager
 		return null;
 	}
 
-	/** 
-	 * Does nothing, it's stateless.
-	 */
-	@Override
-	public void close () {
+	private void throwUnsupportedException () 
+	{
+		throw new UnsupportedOperationException ( 
+			"This operation from the WS client is not implemented yet. Please ask developers" );
 	}
-
 }

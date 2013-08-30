@@ -15,8 +15,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.StringUtils;
 
-import uk.ac.ebi.fg.myequivalents.utils.DateJaxbXmlAdapter;
-import uk.ac.ebi.fg.myequivalents.utils.NullBooleanJaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
 
 
 /**

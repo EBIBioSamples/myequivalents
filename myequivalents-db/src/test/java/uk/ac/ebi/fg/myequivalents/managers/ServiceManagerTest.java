@@ -2,9 +2,9 @@ package uk.ac.ebi.fg.myequivalents.managers;
 
 import static java.lang.System.out;
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.util.GregorianCalendar;

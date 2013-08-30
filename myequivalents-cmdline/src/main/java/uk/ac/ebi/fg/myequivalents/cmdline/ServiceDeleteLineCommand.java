@@ -11,7 +11,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'service delete' command, a wrapper for {@link DbServiceManager#deleteServices(String...)}.
+ * The 'service delete' command, a wrapper for {@link ServiceManager#deleteServices(String...)}.
  *
  * <dl><dt>date</dt><dd>Jul 31, 2012</dd></dl>
  * @author Marco Brandizi

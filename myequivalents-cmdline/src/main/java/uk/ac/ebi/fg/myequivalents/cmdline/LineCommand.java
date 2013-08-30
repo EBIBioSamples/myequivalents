@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
  */
 abstract class LineCommand
 {
-	protected String email, apiPassword;
+	protected String email, apiPassword, userPassword, outputFormat;
 	
 	/**
 	 * All the accepted commands and how they're recognised (in the map keys). For example, 'service store' is recognised
@@ -52,6 +52,10 @@ abstract class LineCommand
 		put ( "repository set visibility", RepositoryVisibilitySetLineCommand.class );
 		put ( "service-collection set visibility", ServiceCollectionVisibilitySetLineCommand.class );
 		put ( "entity set visibility", EntityVisibilitySetLineCommand.class );
+		put ( "user get", UserGetLineCommand.class );
+		put ( "user store", UserStoreLineCommand.class );
+		put ( "user delete", UserDeleteLineCommand.class );
+		put ( "user set role", UserSetRoleLineCommand.class );
 	}};
 	
 	/**
@@ -125,6 +129,8 @@ abstract class LineCommand
 			
 			email = StringUtils.trimToNull ( cmdLine.getOptionValue ( 'u' ) );
 			apiPassword = StringUtils.trimToNull ( cmdLine.getOptionValue ( 's' ) );
+			userPassword = StringUtils.trimToNull ( cmdLine.getOptionValue ( 'w' ) );
+			outputFormat = cmdLine.getOptionValue ( "format", "xml" );
 			
 			return cmdLine;
 		} 
@@ -160,10 +166,17 @@ abstract class LineCommand
 		);
 
 		opts.addOption ( OptionBuilder
-		 	.withDescription ( "API secret (i.e., password), used for common commands"	)
+		 	.withDescription ( "API secret (i.e., password), used for common commands (see documentation)" )
 			.withLongOpt ( "secret" )
 			.hasArg ( true ).withArgName ( "value" )
 			.create ( "s" ) 
+		);
+
+		opts.addOption ( OptionBuilder
+		 	.withDescription ( "User password, needed for administrative/access-control/user-change operations (see documentation)"	)
+			.withLongOpt ( "password" )
+			.hasArg ( true ).withArgName ( "value" )
+			.create ( "w" ) 
 		);
 
 		if ( commandString.endsWith ( " get" ) )
@@ -263,6 +276,7 @@ abstract class LineCommand
 		if ( args.length >= 2 )
 		{
 			String cmdStr = ( args [ 0 ].trim () + ' ' + args [ 1 ].trim () ).toLowerCase ();
+			if ( "user set".equalsIgnoreCase ( cmdStr ) ) cmdStr += ' ' + args [ 2 ].trim ().toLowerCase (); // 'role' expected
 			cmdClass = LINE_COMMANDS.get ( cmdStr );
 			if ( cmdClass == null ) {
 				err.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );

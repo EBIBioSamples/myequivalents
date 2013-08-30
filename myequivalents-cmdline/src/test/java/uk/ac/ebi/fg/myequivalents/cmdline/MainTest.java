@@ -3,6 +3,7 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 import static java.lang.System.out;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,7 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
@@ -74,8 +76,13 @@ public class MainTest
 
 	private String editorPass = "test.password";
 	private String editorSecret = User.generateSecret ();
+	private String adminPass = "test.admin.pwd";
+	private String adminSecret = User.generateSecret ();
+	
 	private User editorUser = new User ( 
 		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
+	private User adminUser = new User ( 
+			"test.admin", "Test Admin", "User", User.hashPassword ( adminPass ), "test admin notes", Role.ADMIN, User.hashPassword ( adminSecret ) );
 	
 	static {
 		System.setProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", "true" );
@@ -92,6 +99,7 @@ public class MainTest
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		userDao.storeUnauthorized ( editorUser );
+		userDao.storeUnauthorized ( adminUser );
 		ts.commit ();
 
 		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( editorUser.getEmail (), this.editorSecret );
@@ -295,6 +303,77 @@ public class MainTest
 		Main.main ( "mapping", "delete", "-u", editorUser.getEmail (), "-s", editorSecret, "test.testmain.service7:acc1" );
 		assertTrue ( "'mapping delete' didn't work!", 
 			emMgr.getMappings ( true, "test.testmain.service6:acc1" ).getBundles ().isEmpty () );
+	}
+	
+	
+	/** Tests 'user get' command. */
+	@Test
+	public void testUserGet () throws Exception
+	{
+		// Before the invocation, capture the standard output
+		PrintStream stdOut = System.out;
+		ByteArrayOutputStream getOut = new ByteArrayOutputStream ();
+		System.setOut ( new PrintStream ( getOut ) );
+		
+		// And get rid of stuff like log messages. Unfortunately this won't be enough if hibernate.show_sql=true, 
+		// but at least we move out of our way as much as possible
+		PrintStream stdErr = System.err;
+		PrintStream devNull = new PrintStream ( new NullOutputStream () );
+		System.setErr ( devNull ); 
+		
+		Main.main ( "user", "get", editorUser.getEmail (), "-u" + editorUser.getEmail (), "-s", editorSecret );
+		String getOutStr = getOut.toString ( "UTF-8" );
+		System.setOut ( stdOut );
+		System.setErr ( stdErr );
+		
+		out.println ( "\n\n ====================== 'user get' says:\n" + getOutStr + "============================" );
+		// TODO: checks
+	}
+	
+	
+	/**
+	 * Tests user-related line commands
+	 */
+	@Test
+	public void testUserCommands () throws Exception
+	{
+		String testEmail = "cmdline.test.user";
+		String uxml = String.format ( 
+			"<user email = '%s' name = 'Test User from' surname = 'Command Line Tests' role = 'VIEWER' " +
+			"      secret = 'test.secret' password = 'test.password'>" +
+			"  <notes>Test User from Command Line Tests, Test Note</notes>" + 
+			"</user>",
+			testEmail
+		);
+		System.setIn ( new ByteArrayInputStream ( uxml.getBytes ( "UTF-8" ) ));
+		Main.main ( "user", "store", "--user", adminUser.getEmail (), "--password", adminPass );
+
+		EntityManager em = ( (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory () )
+			.getEntityManagerFactory ().createEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		User u = userDao.findByEmailUnauthorized ( testEmail );
+		assertNotNull ( "User Not saved!", u );
+		assertEquals ( "user.getEmail() doesn't correspond to the stored user!", testEmail, u.getEmail () );
+
+		Main.main ( 
+			"user", "set", "role", testEmail, User.Role.EDITOR.toString (), 
+			"--user", adminUser.getEmail (), "--password", adminPass 
+		);
+		
+		em = ( (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory () )
+			.getEntityManagerFactory ().createEntityManager ();
+		userDao = new UserDao ( em );
+		u = userDao.findByEmailUnauthorized ( testEmail );
+		out.println ( "Modified User after 'set role':\n" + u );
+		assertTrue ( "'user set role' didn't work!", u.hasPowerOf ( User.Role.EDITOR ) );
+
+		
+		Main.main (	"user", "delete", testEmail, "--user", adminUser.getEmail (), "--password", adminPass	);
+
+		em = ( (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory () )
+			.getEntityManagerFactory ().createEntityManager ();
+		userDao = new UserDao ( em );
+		assertNull ( "'user delete' didn't work!", userDao.findByEmailUnauthorized ( testEmail ) );
 	}
 	
 	

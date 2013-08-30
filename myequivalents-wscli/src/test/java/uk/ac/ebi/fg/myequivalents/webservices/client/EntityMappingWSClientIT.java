@@ -62,17 +62,17 @@ public class EntityMappingWSClientIT
 		out.println ( "\n\n ====================== '/mapping/get-target' says:\n" + resultStr + "============================" );
 		out.println ( "\n\n\n ---------------------------> WARNING!!! It is known that this test MIGHT NOT WORK with Java < 7\n\n" );
 		
-		assertNotNull ( "'mapping get' didn't work!", result );
-		assertTrue ( "Wrong result from 'mapping get' (service6/acc4)!", 
+		assertNotNull ( "'mapping get-target' didn't work!", result );
+		assertTrue ( "Wrong result from 'mapping get-target' (service6/acc4)!", 
 			resultStr.toString ().contains ( "test.testweb.service6" ) && resultStr.contains ( "acc4" )
 		);
-		assertTrue ( "Wrong result from 'repository get' (service6/acc3)!", 
+		assertTrue ( "Wrong result from 'mapping get-target' (service6/acc3)!", 
 			resultStr.contains ( "test.testweb.service6" ) && resultStr.contains ( "acc3" ) 
 		);
-		assertTrue ( "Wrong result from 'repository get' (service6/acc1)!", 
+		assertTrue ( "Wrong result from 'mapping get-target' (service6/acc1)!", 
 			resultStr.contains ( "test.testweb.service6" ) && resultStr.contains ( "acc1" ) 
 		);
-		assertFalse ( "Wrong result from 'repository get' (service7) should not be here!", 
+		assertFalse ( "Wrong result from 'mapping get-target' (service7) should not be here!", 
 			resultStr.contains ( "test.testweb.service7" ) 
 		);
 	}

@@ -12,7 +12,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
- * The 'service-collection delete' command, a wrapper for {@link DbServiceManager#deleteServiceCollections(String...)}.
+ * The 'service-collection delete' command, a wrapper for {@link ServiceManager#deleteServiceCollections(String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi

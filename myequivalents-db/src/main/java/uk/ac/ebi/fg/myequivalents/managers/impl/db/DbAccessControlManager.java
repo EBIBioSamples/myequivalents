@@ -1,11 +1,15 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
+import java.io.Reader;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -15,12 +19,14 @@ import uk.ac.ebi.fg.myequivalents.dao.DescribeableDAO;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
-import uk.ac.ebi.fg.myequivalents.utils.DateJaxbXmlAdapter;
-import uk.ac.ebi.fg.myequivalents.utils.NullBooleanJaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
 
 /**
  * The relational version of {@link AccessControlManager}.
@@ -61,12 +67,42 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		ts.commit ();
 	}
 
+	@Override
+	public void storeUserFromXml ( Reader reader )
+	{
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance ( User.class );
+			Unmarshaller u = context.createUnmarshaller ();
+			User user = (User) u.unmarshal ( reader );
+			this.storeUser ( user );
+		} 
+		catch ( JAXBException ex ) {
+			throw new RuntimeException ( "Error while reading user description from XML: " + ex.getMessage (), ex );
+		}
+	}
+	
 	/**
 	 * TODO: ExposedUser?
 	 */
 	@Override
 	public User getUser ( String email ) {
 		return userDao.findByEmail ( email );
+	}
+
+	private String getUserAsXml ( String email ) 
+	{
+		return JAXBUtils.marshal ( getUser ( email ), User.class );
+	}
+	
+	@Override
+	public String getUserAs ( String outputFormat, String email )
+	{
+		outputFormat = StringUtils.trimToNull ( outputFormat );
+		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
+			"Unsopported output format '" + outputFormat + "'" 
+		);
+		return getUserAsXml ( email );
 	}
 
 	@Override

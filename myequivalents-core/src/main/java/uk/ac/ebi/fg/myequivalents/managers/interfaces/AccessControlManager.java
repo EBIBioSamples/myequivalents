@@ -1,6 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
-import java.util.Date;
+import java.io.Reader;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
@@ -29,11 +29,24 @@ public interface AccessControlManager extends MyEquivalentsManager
 	 */
 	public void storeUser ( User user );
 	
+	/**
+	 * Does the same as {@link #storeUser(User)}, but taking data from XML. TODO: document the format. This is 
+	 * auto-generated via JAXB from {@link User} and reflects that class, for the moment examples are available 
+	 * in JUnit tests (TODO).
+	 */
+	public void storeUserFromXml ( Reader reader );
+
 	/** 
 	 * Get a user by email. It gives a result only if the user has proper rights, i.e., if the current user has a 
 	 * {@link Role#VIEWER} and is the same as the parameter here, or if it has a {@link Role#ADMIN} role. 
 	 */
-	public User getUser ( String emails );
+	public User getUser ( String email );
+	
+	/**
+	 * Like {@link #getUser(String)}, but returns the output as a string in the specified format. This is useful for 
+	 * things like web services. Only 'xml' is supported at the moment. We plan formats like RDF or JSON for the future. 
+	 */
+	public String getUserAs ( String outputFormat, String email );
 	
 	/**
 	 * Change the role of a user. It allows to do that only if the current user is an {@link Role#ADMIN}. It requires

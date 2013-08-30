@@ -5,14 +5,8 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.ArrayUtils;
-
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
-import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * The 'service delete' command, a wrapper for {@link DbServiceManager#deleteServices(String...)}.
@@ -54,16 +48,10 @@ public abstract class AbstractVisibilitySetLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n service set visibility service-name..." );
-		err.println (   "   Set the service visibility." ); 
+		String typeStr = this.commandString.split ( " " ) [ 0 ];
+		String typeStrUI = "entity".equals ( typeStr ) ? "<service:accession|uri>" : "name";
+		
+		err.format ( "\n %s %s...\n", this.commandString, typeStrUI );
+		err.format (   "   Set %s visibility.\n", typeStr ); 
 	}
-
-	@Override
-	protected Options getOptions ()
-	{
-		// TODO Auto-generated method stub
-		return super.getOptions ();
-	}	
-
-	
 }
