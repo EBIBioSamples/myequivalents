@@ -29,8 +29,7 @@
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
-		</dependency>
-						
+		</dependency>												
 
 		<!-- TEST -->
 		<!-- There are no tests at the moment here, yet we keep these deps for possible future ref. -->

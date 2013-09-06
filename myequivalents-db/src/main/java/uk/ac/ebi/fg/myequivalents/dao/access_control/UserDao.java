@@ -72,7 +72,9 @@ public class UserDao
 				"[anonymous]", "Anonymous", "User", null, "The fictitious/unauthenticated user", Role.VIEWER, null );
 		}
 		
-		Validate.notNull ( password, "Must provide a password to authenticate as '" + email + "'" );
+		if ( password == null ) throw new SecurityException ( 
+			"Must provide a password to authenticate as '" + email + "'" 
+		);
 		
 		User user = findByEmailUnauthorized ( email );
 		if ( user == null ) throw new SecurityException ( "User '" + email + "' not found" );
@@ -226,8 +228,13 @@ public class UserDao
 				throw new SecurityException ( String.format ( 
 					"store ( '%s' ): this is a new user and you must be an admin to do that", user.getEmail ()
 				));
-			Validate.notNull ( user.getApiPasswordHash (), "Cannot accept to save a new user with null API secret" );
-			Validate.notNull ( user.getPasswordHash (), "Cannot accept to save a new user with null user password" );
+			if ( user.getApiPasswordHash () == null ) throw new SecurityException ( 
+				"Cannot accept to save a new user with null API secret"
+			);
+			if ( user.getApiPasswordHash () == null ) throw new SecurityException ( 
+				"Cannot accept to save a new user with null user password"
+			);
+			
 			entityManager.merge ( user );
 			return;
 		}

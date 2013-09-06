@@ -19,6 +19,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
@@ -41,6 +44,8 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * "http://localhost:8080/ws/mapping/get?entityId=service1:acc1". You can build the path by appending the value in 
  * &#064;Path to /mapping.</p> 
  *
+ * <p>TODO: We need proper exception handling, see <a href = "http://jersey.java.net/documentation/latest/user-guide.html#d0e3490">here</a>.</p>
+ * 
  * <dl><dt>date</dt><dd>Sep 11, 2012</dd></dl>
  * @author Marco Brandizi
  *
@@ -51,6 +56,8 @@ public class EntityMappingWebService
 	@Context 
 	private ServletContext servletContext;
 		
+	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
+
 	/**
 	 * We need this version of {@link #getMappings(Boolean, String...)} because Jersey/JAX-WS doesn't like arrays.
 	 */
@@ -61,11 +68,11 @@ public class EntityMappingWebService
 		@FormParam ( "email" ) String email, 
 		@FormParam ( "secret" ) String apiPassword,
 		@FormParam ( "raw" ) Boolean isRaw, 
-		@FormParam ( "entity" ) List<String> entitites 
+		@FormParam ( "entity" ) List<String> entityIds 
 	) 
 	{
 		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
-		EntityMappingSearchResult result = emgr.getMappings ( isRaw, entitites.toArray ( new String [ 0 ] ) );
+		EntityMappingSearchResult result = emgr.getMappings ( isRaw, entityIds.toArray ( new String [ 0 ] ) );
 		emgr.close();
 		return result; 
 	}
@@ -87,35 +94,63 @@ public class EntityMappingWebService
 		return getMappings ( email, apiPassword, isRaw, entitites );
 	}
 	
-	
-	public void storeMappings ( String ... entityIds )
+	@POST
+	@Path( "/store-mappings" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public void storeMappings (
+		@FormParam ( "email" ) String email, 
+		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		// TODO Auto-generated method stub
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		emgr.storeMappings ( entityIds.toArray ( new String [ 0 ]) );
+		emgr.close();
 	}
 
-	public void storeMappingBundle ( String ... entityIds )
+	@POST
+	@Path( "/store-bundle" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public void storeMappingBundle (
+		@FormParam ( "email" ) String email, 
+		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		// TODO Auto-generated method stub
-		
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		emgr.storeMappingBundle ( entityIds.toArray ( new String [ 0 ]) );
+		emgr.close();
 	}
 
-	public int deleteMappings ( String ... entityIds )
+	@POST
+	@Path( "/delete-mappings" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public int deleteMappings ( 
+		@FormParam ( "email" ) String email, 
+		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		int result = emgr.deleteMappings ( entityIds.toArray ( new String [ 0 ]) );
+		emgr.close ();
+		return result;
 	}
 
-	public int deleteEntities ( String ... entityIds )
+	@POST
+	@Path( "/delete-entities" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public int deleteEntities ( 
+		@FormParam ( "email" ) String email, 
+		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		int result = emgr.deleteEntities ( entityIds.toArray ( new String [ 0 ]) );
+		emgr.close ();
+		return result;
 	}
-
-	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}	
 	
 
 	@POST
@@ -244,6 +279,7 @@ public class EntityMappingWebService
 	/** TODO: Comment met! TODO: AOP */
 	private EntityMappingManager getEntityMappingManager ( String email, String apiPassword )
 	{
+		log.trace ( "Returning manager for the user {}, {}", email, apiPassword == null ? null : "***" );
 		return Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( email, apiPassword );
 	}
 }

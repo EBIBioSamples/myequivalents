@@ -257,7 +257,7 @@ public class EntityMappingManagerTest
 		emMgr = managerFactory.newEntityMappingManager ();
 		catchException ( emMgr ).storeMappingBundle ( 
 		  service1.getName () + ":b1.1", service2.getName () + ":b1.2", service1.getName () + ":b1.3" );
-		assertTrue ( "Authenticated EntityMappingManeger.store() didn't work!", caughtException () instanceof SecurityException );
+		assertTrue ( "Authenticated EntityMappingManager.store() didn't work!", caughtException () instanceof SecurityException );
 	}
 	
 	@Test

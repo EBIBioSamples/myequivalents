@@ -48,36 +48,41 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 		return invokeWsReq ( "/login", req, User.class );
 	}
-	
-	
 
-	/**
-	 * TODO: NOT IMPLEMENTED YET, THEY RAISE AN EXCEPTION
-	 */
 	@Override
 	public void storeMappings ( String ... entityIds )
 	{
-		throwUnsupportedException ();		
+		Form req = prepareReq ();
+	  for ( String eid: entityIds ) req.add ( "entity", eid );
+
+	  invokeWsReq ( "/store-mappings", req );
 	}
 
 	@Override
 	public void storeMappingBundle ( String ... entityIds )
 	{
-		throwUnsupportedException ();		
+		Form req = prepareReq ();
+	  for ( String eid: entityIds ) req.add ( "entity", eid );
+
+	  invokeWsReq ( "/store-bundle", req );
 	}
 
 	@Override
 	public int deleteMappings ( String ... entityIds )
 	{
-		throwUnsupportedException ();
-		return 0;
+		Form req = prepareReq ();
+	  for ( String eid: entityIds ) req.add ( "entity", eid );
+
+	  return invokeWsReq ( "/delete-mappings", req, Integer.class );
 	}
 
 	@Override
 	public int deleteEntities ( String ... entityIds )
 	{
-		throwUnsupportedException ();
-		return 0;
+		Form req = prepareReq ();
+	  for ( String eid: entityIds ) req.add ( "entity", eid );
+
+	  return invokeWsReq ( "/delete-entities", req, Integer.class );
 	}
 
 	@Override
@@ -91,14 +96,6 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	}
 
 	@Override
-	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds )
-	{
-		throwUnsupportedException ();
-		return null;
-	}
-
-
-	@Override
 	public EntityMappingSearchResult getMappingsForTarget ( Boolean wantRawResult, String targetServiceName, String entityId )
 	{
 		Form req = prepareReq ();
@@ -110,15 +107,29 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	}
 
 	@Override
+	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds )
+	{
+		Form req = prepareReq ();
+	  req.add ( "raw", wantRawResult.toString () );
+	  for ( String eid: entityIds ) req.add ( "entity", eid );
+	  
+	  return getRawResult ( "/get", req, outputFormat );
+	}
+	
+	@Override
 	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId )
 	{
-		throwUnsupportedException ();
-		return null;
+		Form req = prepareReq ();
+	  req.add ( "raw", wantRawResult.toString () );
+	  req.add ( "service", targetServiceName );
+	  req.add ( "entity", entityId );
+	  
+	  return getRawResult ( "/get-target", req, outputFormat );
 	}
 
-	private void throwUnsupportedException () 
-	{
-		throw new UnsupportedOperationException ( 
-			"This operation from the WS client is not implemented yet. Please ask developers" );
-	}
+//	private void throwUnsupportedException () 
+//	{
+//		throw new UnsupportedOperationException ( 
+//			"This operation from the WS client is not implemented yet. Please ask developers" );
+//	}
 }

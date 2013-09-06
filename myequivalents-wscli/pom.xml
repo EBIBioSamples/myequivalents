@@ -47,7 +47,6 @@
 		<dependency>
 			<groupId>uk.ac.ebi</groupId>
 			<artifactId>jutils</artifactId>
-			<scope>test</scope>
 		</dependency>
 	
 	
@@ -79,6 +78,21 @@
 			<type>war</type>
 			<scope>runtime</scope>
 		</dependency>	      
+			
+			
+		<!-- XML output is obtained by low-level REST requests, bypassing Jersey, it's simpler/faster  -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.2.5</version>
+		</dependency>            
+			
+		<!-- Brilliant! package to verify expected exceptions (http://code.google.com/p/catch-exception/) -->
+		<dependency>
+	    <groupId>com.googlecode.catch-exception</groupId>
+	    <artifactId>catch-exception</artifactId>
+	    <scope>test</scope>
+		</dependency>
 			
   </dependencies>
   

@@ -32,9 +32,10 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 public class WebTestDataInitializer implements ServletContextListener
 {
 
-	private static String editorPass = "test.password";
-	private static String editorSecret = User.generateSecret ();
-	private final User editorUser = new User ( 
+	public static String editorPass = "test.password";
+	// Alternatively you can use: User.generateSecret (); using something else here cause we need to test with the browser 
+	public static String editorSecret = "test.secret"; 
+	public static final User editorUser = new User ( 
 		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
 
 	@Override

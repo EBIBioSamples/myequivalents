@@ -11,6 +11,11 @@
 		   <param-name>com.sun.jersey.config.property.packages</param-name>
 		   <param-value>uk.ac.ebi.fg.myequivalents.webservices.server</param-value>
 		</init-param>
+		<init-param>
+			<!-- TODO: this spawns a nice-to-read output but adds some overhead to it. To check it's still efficient enough -->
+			<param-name>com.sun.jersey.config.feature.Formatted</param-name>
+			<param-value>true</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>  
 	

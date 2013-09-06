@@ -4,8 +4,8 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 
 /**
- * Common functionality for the myEquivalents managers.  
- *
+ * Common functionality for the myEquivalents managers.
+ * 
  * <dl><dt>date</dt><dd>Mar 18, 2013</dd></dl>
  * @author Marco Brandizi
  *

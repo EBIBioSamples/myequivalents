@@ -60,6 +60,9 @@ public interface ServiceManager extends MyEquivalentsManager
 	 *  Returns the same result returned by {@link #getServices(String...)} in the format specified by the parameter. 
 	 *  At the moment this is only 'xml' and {@link #getServicesAsXml(String...)} is used for this. We plan formats 
 	 *  like RDF or JSON for the future.
+	 *  
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getServicesAs ( String outputFormat, String ... names );
 
@@ -85,6 +88,9 @@ public interface ServiceManager extends MyEquivalentsManager
 	 *  Returns the same result returned by {@link #getServiceCollections(String...)} in the format specified by the parameter. 
 	 *  At the moment this is only 'xml' and {@link #getServiceCollectionAsXml(String...)} is used for this. We plan formats 
 	 *  like RDF or JSON for the future.
+	 *  
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getServiceCollectionsAs ( String outputFormat, String ... names );
 
@@ -109,6 +115,9 @@ public interface ServiceManager extends MyEquivalentsManager
 	 *  Returns the same result returned by {@link #getRepositories(String...)} in the format specified by the parameter. 
 	 *  At the moment this is only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats 
 	 *  like RDF or JSON for the future.
+	 *  
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getRepositoriesAs ( String outputFormat, String ... names );
 

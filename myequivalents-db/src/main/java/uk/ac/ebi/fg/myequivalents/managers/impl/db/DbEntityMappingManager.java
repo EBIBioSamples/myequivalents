@@ -163,13 +163,14 @@ class DbEntityMappingManager extends DbMyEquivalentsManager implements EntityMap
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String... entityIds )
 	{
 		if ( wantRawResult == null ) wantRawResult = false;
-		if ( StringUtils.trimToNull ( outputFormat ) == null || "xml".equals ( outputFormat ) )
-			return getMappingsAsXml ( wantRawResult, entityIds );
-		else
-			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
-	}
 
-	
+		outputFormat = StringUtils.trimToNull ( outputFormat );
+		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
+			"Unsopported output format '" + outputFormat + "'" 
+		);
+		
+		return getMappingsAsXml ( wantRawResult, entityIds );
+	}
 
 	private String getMappingsForTargetAsXml ( Boolean wantRawResult, String targetServiceName, String entityId )
 	{

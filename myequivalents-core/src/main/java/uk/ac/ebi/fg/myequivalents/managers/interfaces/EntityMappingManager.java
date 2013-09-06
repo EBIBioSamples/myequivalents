@@ -90,6 +90,9 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 * only 'xml' and the JAXB mapping of {@link EntityMappingSearchResult} is used for this. 
 	 * 
 	 * We plan formats like RDF or JSON for the future. See the documentation for more details.
+	 * 
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds );
 
@@ -98,6 +101,9 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 * the moment this is only 'xml' and the JAXB mapping of {@link EntityMappingSearchResult} is used for this. 
 	 * 
 	 * We plan formats like RDF or JSON for the future. See the documentation for more details.  
+	 * 
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId );
 

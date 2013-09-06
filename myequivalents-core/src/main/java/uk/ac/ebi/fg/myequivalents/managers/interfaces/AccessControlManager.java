@@ -44,7 +44,10 @@ public interface AccessControlManager extends MyEquivalentsManager
 	
 	/**
 	 * Like {@link #getUser(String)}, but returns the output as a string in the specified format. This is useful for 
-	 * things like web services. Only 'xml' is supported at the moment. We plan formats like RDF or JSON for the future. 
+	 * things like web services. Only 'xml' is supported at the moment. We plan formats like RDF or JSON for the future.
+	 * 
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getUserAs ( String outputFormat, String email );
 	
