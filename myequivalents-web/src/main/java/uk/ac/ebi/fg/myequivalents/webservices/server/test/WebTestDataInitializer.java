@@ -39,26 +39,6 @@ public class WebTestDataInitializer implements ServletContextListener
 		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
 
 	@Override
-	public void contextDestroyed ( ServletContextEvent e )
-	{
-		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
-
-		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
-		
-		EntityMappingManager emapMgr = mgrf.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
-		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
-		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
-		emapMgr.close ();
-		
-		EntityManager em = ((DbManagerFactory) mgrf).getEntityManagerFactory ().createEntityManager ();
-		UserDao userDao = new UserDao ( em );
-		EntityTransaction ts = em.getTransaction ();
-		ts.begin ();
-		userDao.deleteUnauthorized ( editorUser.getEmail () );
-		ts.commit ();
-	}
-
-	@Override
 	public void contextInitialized ( ServletContextEvent e )
 	{
 		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
@@ -136,5 +116,28 @@ public class WebTestDataInitializer implements ServletContextListener
 		);
 		
 		emapMgr.close ();
+	}	
+	
+	
+	@Override
+	public void contextDestroyed ( ServletContextEvent e )
+	{
+		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
+
+		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
+		
+		EntityMappingManager emapMgr = mgrf.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
+		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
+		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
+		emapMgr.close ();
+		
+		EntityManager em = ((DbManagerFactory) mgrf).getEntityManagerFactory ().createEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.deleteUnauthorized ( editorUser.getEmail () );
+		ts.commit ();
 	}
+
+
 }
