@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 import static com.googlecode.catchexception.CatchException.catchException;
@@ -102,14 +99,24 @@ public class EntityMappingWSClientIT
 			"test.testweb.service6:new-acc1", "test.testweb.service7:new-acc2", "test.testweb.service7:new-acc3" );
 		
 		EntityMappingSearchResult sr = mmgr.getMappings ( true, "test.testweb.service7:new-acc2" );
-		out.println ( "\n\n ================== 'authenticated /mapping/get' says:\n" + sr + "=======================" );
+		out.println ( "\n\n ================== authenticated '/mapping/get' says:\n" + sr + "=======================" );
 
 		
 		Collection<Bundle> bundles = sr.getBundles ();
 		assertEquals ( "Wrong no of bundles saved by the authenticated user!", 1, bundles.size () );
 		assertEquals ( "Wrong no of mappings saved by the authenticated user!", 3, bundles.iterator ().next ().getEntities ().size () );
+
+		// TODO: Make stuff private
 		
-		// TODO: test private mappings
+		
+		// Deletion
+		
+		assertEquals ( "deleteMappings() didn't return a correct value!", 3, mmgr.deleteMappings ( "test.testweb.service6:new-acc1" ) );
+		
+		sr = mmgr.getMappings ( true, "test.testweb.service7:new-acc2" );
+		out.println ( "\n\n ================== after 'mapping/delete-mappings' I get:\n" + sr + "=======================" );
+		assertTrue ( "deleteMappings() didn't work!", mmgr.getMappings ( false, "test.testweb.service7:new-acc2" ).getBundles ().isEmpty () );
+		
 	}
 
 

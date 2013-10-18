@@ -66,7 +66,7 @@ public class EntityMappingManagerTest
 	private String editorPass = "test.password";
 	private String editorSecret = User.generateSecret ();
 	private User editorUser = new User ( 
-		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
 	@Before
 	public void init ()
@@ -282,7 +282,7 @@ public class EntityMappingManagerTest
 	  );
 
 	  acMgr.setServicesVisibility ( "false", "null", false, service1.getName () );
-	  acMgr.setEntityVisibility ( "null", "null", service1.getName () + ":b1.1" );
+	  acMgr.setEntitiesVisibility ( "null", "null", service1.getName () + ":b1.1" );
 	  
 		emMgr = managerFactory.newEntityMappingManager ();
 	  emsr = emMgr.getMappings ( true, service2.getName () + ":b2.2" );

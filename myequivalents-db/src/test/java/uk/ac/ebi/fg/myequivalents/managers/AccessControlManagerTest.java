@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.EntityManager;
@@ -35,6 +34,7 @@ import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
  * TODO: Comment me!
@@ -53,19 +53,18 @@ public class AccessControlManagerTest
 	private String adminPass = "test.password";
 	private String adminSecret = User.generateSecret ();
 	private User adminUser = new User ( 
-		"test.admin", "Test", "Admin", User.hashPassword ( adminPass ), "test notes", Role.ADMIN, 
-		 User.hashPassword ( adminSecret ) 
+		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
 	);
 	
 	private String userPass = "test.password";
 	private String userSecret = User.generateSecret ();
 	private User user = new User ( 
-		"test.user", "Test", "User", User.hashPassword ( userPass ), "test notes", Role.VIEWER, User.hashPassword ( userSecret ) );
+		"test.user", "Test", "User", userPass, "test notes", Role.VIEWER, userSecret );
 
 	private String editorPass = "test.password";
 	private String editorSecret = User.generateSecret ();
 	private User editorUser = new User ( 
-		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
 	
 	private UserDao userDao = new UserDao ( em );
@@ -168,14 +167,75 @@ public class AccessControlManagerTest
 		// Same for deletion
 		ts = em.getTransaction ();
 		ts.begin ();
-		catchException ( userDao ).store ( adminUser );
+		catchException ( userDao ).delete ( adminUser.getEmail () );
 		assertTrue ( "Unauthorised user removal should fail!", caughtException () instanceof SecurityException );
 		
 		// Deletion of yourself not possible
-		userDao.login ( adminUser.getEmail (), adminSecret );
+		userDao.login ( adminUser.getEmail (), adminPass, true );
 		catchException ( userDao ).delete ( adminUser.getEmail () );
-		assertTrue ( "User self-removal should fail!", caughtException () instanceof SecurityException );
+		Exception caught = caughtException ();
+		if ( ! ( caught instanceof SecurityException ) )
+			throw new IllegalStateException ( "Error while checking failure of self-removal!", caught );
 	}
+	
+	
+	@Test
+	public void testAccessControlManagerForUser ()
+	{
+		// Must login with pass to change yourself
+		AccessControlManager accMgr = mgrFactory.newAccessControlManager ( adminUser.getEmail (), adminSecret );
+		catchException ( accMgr ).storeUser ( user );
+		assertTrue ( "User modification with API password should fail!", caughtException () instanceof SecurityException );
+
+		// Was the reg user saved?
+		accMgr = mgrFactory.newAccessControlManager ( user.getEmail (), userSecret );
+		User userDB = accMgr.getUser ( user.getEmail () );
+		assertNotNull ( "User not stored!", userDB );
+		
+		out.println ( "Stored user: " + userDB );
+
+		// You can change non-critical data about yourself
+		userDB.setNotes ( "Modified User Notes" );
+		
+		accMgr = mgrFactory.newAccessControlManagerFullAuth ( user.getEmail (), userPass );
+		accMgr.storeUser ( userDB );
+
+		// But not this!
+		userDB.setRole ( Role.ADMIN );
+
+		// But not stuff like role.
+		catchException ( accMgr ).storeUser ( userDB );
+		assertTrue ( "Unauthorised user role modification should fail!", caughtException () instanceof SecurityException );
+		
+		// Unless you're an admin
+		accMgr = mgrFactory.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass );
+		accMgr.setUserRole ( userDB.getEmail (), Role.EDITOR );
+
+		// Reload changes see if they went fine.
+		//
+		accMgr = mgrFactory.newAccessControlManager ( user.getEmail (), userSecret );
+		
+		userDB = accMgr.getUser ( user.getEmail () );
+		assertNotNull ( "User not stored!", userDB );
+		
+		out.println ( "Modified user: " + userDB );
+		
+		assertNotNull( "user.notes not changed!", userDB.getName () );
+		assertFalse ( "User role not changed!", user.getRole ().equals ( userDB.getRole () ) );
+		
+		// Same for deletion
+		catchException ( accMgr ).deleteUser ( adminUser.getEmail () );
+		assertTrue ( "Unauthorised user removal should fail!", caughtException () instanceof SecurityException );
+		
+		// Deletion of yourself not possible
+		accMgr = mgrFactory.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass  );
+		catchException ( accMgr ).deleteUser ( adminUser.getEmail () );
+		Exception caught = caughtException ();
+		if ( ! ( caught instanceof SecurityException ) )
+			throw new IllegalStateException ( "Error while checking failure of self-removal!", caught );
+	}
+	
+	
 	
 	@Test
 	public void testPermssionCommands ()
@@ -188,11 +248,11 @@ public class AccessControlManagerTest
 		emMgr.storeMappings ( service.getName () + ":e1", service.getName () + ":e2" );
 		
 		AccessControlManager accMgr = mgrFactory.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass );
-		accMgr.setRole ( user.getEmail (), User.Role.EDITOR );
+		accMgr.setUserRole ( user.getEmail (), User.Role.EDITOR );
 		
 		Date testDate = new DateMidnight ( 2013, 4, 25 ).toDate ();
 		accMgr.setAuthenticationCredentials ( editorUser.getEmail (), editorSecret );
-		accMgr.setServicesVisibility ( "false", new SimpleDateFormat ( "YYYYMMdd" ).format ( testDate ), true, service.getName () );
+		accMgr.setServicesVisibility ( "false", DateJaxbXmlAdapter.STR2DATE.marshal ( testDate ), true, service.getName () );
 
 		ServiceDAO servDao = new ServiceDAO ( ((DbManagerFactory) mgrFactory ).getEntityManagerFactory ().createEntityManager () );
 		Service serviceDB = servDao.findByName ( service.getName () );

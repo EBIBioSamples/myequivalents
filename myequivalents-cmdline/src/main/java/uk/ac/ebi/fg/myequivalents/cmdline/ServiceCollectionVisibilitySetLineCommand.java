@@ -23,7 +23,7 @@ public class ServiceCollectionVisibilitySetLineCommand extends AbstractVisibilit
 	protected void doVisibilitySet ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames )
 	{
 		AccessControlManager acMgr = Resources.getInstance ().getMyEqManagerFactory ().newAccessControlManager ( this.email, this.apiPassword );
-		acMgr.setServiceCollectionVisibility ( publicFlagStr, releaseDateStr, cascade, serviceNames );
+		acMgr.setServiceCollectionsVisibility ( publicFlagStr, releaseDateStr, cascade, serviceNames );
 	}
 
 }

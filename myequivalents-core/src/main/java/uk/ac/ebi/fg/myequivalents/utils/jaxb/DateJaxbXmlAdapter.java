@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class DateJaxbXmlAdapter extends XmlAdapter<String, Date> 
 {
+	public static final DateJaxbXmlAdapter STR2DATE = new DateJaxbXmlAdapter ();
 
 	/**
 	 * All the elements are used for parsing, the first element is used for output.

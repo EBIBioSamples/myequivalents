@@ -10,7 +10,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +32,6 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.MyEquivalentsManager;
 import uk.ac.ebi.utils.io.IOUtils;
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
@@ -80,19 +78,27 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 		return setAuthenticationCredentials ( email, apiPassword, false );
 	}
 
-	public abstract User setAuthenticationCredentials ( String email, String apiPassword, boolean connectServer ) throws SecurityException;
+	public User setAuthenticationCredentials ( String email, String apiPassword, boolean connectServer ) throws SecurityException
+	{
+		this.email = StringUtils.trimToNull ( email );
+		this.apiPassword = StringUtils.trimToNull ( apiPassword );
+		if ( !connectServer ) return null;
+					
+		Form req = prepareReq ();
+		return invokeWsReq ( "/perms", "/login", req, User.class );
+	}
 
 	protected Form prepareReq ()
 	{
 		Form req = new Form ();
 		
-		if ( this.email != null ) req.add ( "email", this.email );
-		if ( this.apiPassword != null ) req.add ( "secret", this.apiPassword );
+		if ( this.email != null ) req.add ( "login", this.email );
+		if ( this.apiPassword != null ) req.add ( "login-secret", this.apiPassword );
 
 		return req;
 	}
 	
-	protected <T> T invokeWsReq ( String reqPath, Form req, Class<T> targetClass )
+	private <T> T invokeWsReq ( String servicePath, String reqPath, Form req, Class<T> targetClass )
 	{
 		try
 		{
@@ -105,7 +111,7 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 		  }
 
 			Client cli = Client.create ();
-			WebResource wr = cli.resource ( this.baseUrl + getServicePath () + reqPath );
+			WebResource wr = cli.resource ( this.baseUrl + servicePath + reqPath );
 			WebResource.Builder builder = wr.accept ( MediaType.APPLICATION_XML_TYPE );
 			
 			if ( targetClass == null ) 
@@ -124,10 +130,28 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 		} 
 	}
 
-	protected void invokeWsReq ( String reqPath, Form req ) {
+	protected <T> T invokeWsReq ( String reqPath, Form req, Class<T> targetClass )
+	{
+		return invokeWsReq ( getServicePath (), reqPath, req, targetClass );
+	}
+	
+	
+	protected void invokeVoidWsReq ( String reqPath, Form req ) {
 		invokeWsReq ( reqPath, req, null );
 	}
 
+	protected int invokeIntWsReq ( String reqPath, Form req ) 
+	{
+		String sresult = invokeWsReq ( reqPath, req, String.class );
+		return Integer.parseInt ( sresult );
+	}
+	
+	protected boolean invokeBooleanWsReq ( String reqPath, Form req ) 
+	{
+		String sresult = invokeWsReq ( reqPath, req, String.class );
+		return Boolean.parseBoolean ( sresult );
+	}
+	
 	protected String getRawResult ( String reqPath, Form req, String outputFormat ) 
 	{
 		outputFormat = StringUtils.trimToNull ( outputFormat );
@@ -202,5 +226,11 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 	{
 		email = apiPassword = null;
 	}
+
+//protected static void throwUnsupportedException () 
+//{
+//	throw new UnsupportedOperationException ( 
+//		"This operation from the WS client is not implemented yet. Please ask developers" );
+//}
 
 }

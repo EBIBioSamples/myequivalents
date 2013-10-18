@@ -19,17 +19,16 @@ import uk.ac.ebi.fg.myequivalents.dao.DescribeableDAO;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
-import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
-import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
+import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.STR2DATE;
+import static uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter.STR2BOOL;
 
 /**
- * The relational version of {@link AccessControlManager}.
+ * The relational version of {@link AccessControlManager}. 
  *
  * <dl><dt>date</dt><dd>Mar 18, 2013</dd></dl>
  * @author Marco Brandizi
@@ -37,9 +36,6 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
  */
 public class DbAccessControlManager extends DbMyEquivalentsManager implements AccessControlManager
 {
-	private static final NullBooleanJaxbXmlAdapter STR2BOOL = new NullBooleanJaxbXmlAdapter ();
-	private static final DateJaxbXmlAdapter STR2DATE = new DateJaxbXmlAdapter ();
-	
 	public DbAccessControlManager ( EntityManager entityManager, String email, String apiPassword ) {
 		this ( entityManager, email, apiPassword, false);
 	}
@@ -106,7 +102,7 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 	}
 
 	@Override
-	public void setRole ( String email, Role role ) 
+	public void setUserRole ( String email, Role role ) 
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
@@ -124,6 +120,7 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		return result;
 	}
 
+
 	@Override
 	public void setServicesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames )
 	{
@@ -132,43 +129,41 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		setServicesVisibilityUnCommitted ( publicFlagStr, releaseDateStr, cascade, serviceNames );
 		ts.commit ();
 	}
-
+	
+	
 	private void setServicesVisibilityUnCommitted ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames ) 
 	{
 		setDescribVisibility ( Service.class, "Service", publicFlagStr, releaseDateStr, serviceNames );
 		
 		if ( !cascade )
 			return;
-		
-		publicFlagStr = StringUtils.trimToNull ( publicFlagStr );
-		releaseDateStr = StringUtils.trimToNull ( releaseDateStr );
-		
-		Boolean publicFlag = null;
-		if ( publicFlagStr != null ) publicFlag = STR2BOOL.unmarshal ( publicFlagStr );
-		
-		Date releaseDate = null;
-		if ( releaseDateStr != null ) releaseDate = STR2DATE.unmarshal ( releaseDateStr );
+
+		Boolean publicFlag = STR2BOOL.unmarshal ( publicFlagStr );
+		Date releaseDate = STR2DATE.unmarshal ( releaseDateStr );
 		
 		for ( String serviceName: serviceNames )
 		{
 			String sql = "UPDATE entity_mapping\nSET ";
 			
 			String sep = "";
-			if ( publicFlagStr != null ) { sql += "public_flag = :publicFlag"; sep = ", "; }
-			if ( releaseDateStr != null ) { sql += sep + "release_date = :releaseDate"; }
+			if ( publicFlag != null ) { sql += "public_flag = :publicFlag"; sep = ", "; }
+			if ( releaseDate != null ) { sql += sep + "release_date = :releaseDate"; }
 
 			sql += "\nWHERE service_name = :serviceName";
 			
 			Query q = entityManager.createNativeQuery ( sql );
 			
 			q.setParameter ( "serviceName", serviceName );
-			if ( publicFlagStr != null ) q.setParameter ( "publicFlag", publicFlag );
-			if ( releaseDateStr != null ) q.setParameter ( "releaseDate", releaseDate );
+			if ( publicFlag != null ) q.setParameter ( "publicFlag", publicFlag );
+			if ( releaseDate != null ) q.setParameter ( "releaseDate", releaseDate );
 			
 			q.executeUpdate ();
 		}
 	}
+	
 
+
+	
 	@Override
 	public void setRepositoriesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... repositoryNames )
 	{
@@ -193,9 +188,10 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		
 		ts.commit ();
 	}
-
+	
+	
 	@Override
-	public void setServiceCollectionVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceCollNames ) 
+	public void setServiceCollectionsVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceCollNames ) 
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
@@ -217,7 +213,7 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		
 		ts.commit ();
 	}
-	
+
 	private <D extends Describeable> void setDescribVisibility ( 
 		Class<D> targetClass, String describeableLabel, String publicFlagStr, String releaseDateStr, String ... names )
 	{
@@ -228,9 +224,9 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 			"At least one of the public-flag or release-date parameter must be specified"
 		);
 		
-		Boolean publicFlag = publicFlagStr != null ? STR2BOOL.unmarshal ( publicFlagStr ) : null;
-		Date releaseDate = releaseDateStr != null ? STR2DATE.unmarshal ( releaseDateStr ) : null;
-		
+		Boolean publicFlag = STR2BOOL.unmarshal ( publicFlagStr );
+		Date releaseDate = STR2DATE.unmarshal ( releaseDateStr );
+				
 		userDao.enforceRole ( User.Role.EDITOR );
 		DescribeableDAO<D> descrDao = new DescribeableDAO<D> ( entityManager, targetClass );
 		
@@ -240,13 +236,14 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 			if ( descr == null ) throw new RuntimeException ( String.format ( 
 				"%s '%s' not found", describeableLabel, dname 
 			));
-			if ( publicFlagStr != null ) descr.setPublicFlag ( publicFlag );
-			if ( releaseDateStr != null ) descr.setReleaseDate ( releaseDate );
-		}
+			if ( publicFlag != null ) descr.setPublicFlag ( publicFlag );
+			if ( releaseDate != null ) descr.setReleaseDate ( releaseDate );
+		}		
 	}
+
 	
 	@Override
-	public void setEntityVisibility ( String publicFlagStr, String releaseDateStr, String ... entityIds )
+	public void setEntitiesVisibility ( String publicFlagStr, String releaseDateStr, String ... entityIds )
 	{
 		publicFlagStr = StringUtils.trimToNull ( publicFlagStr );
 		releaseDateStr = StringUtils.trimToNull ( releaseDateStr );
@@ -255,10 +252,9 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 			"At least one of the public-flag or release-date parameter must be specified"
 		);
 
-		
-		Boolean publicFlag = publicFlagStr != null ? STR2BOOL.unmarshal ( publicFlagStr ) : null;
-		Date releaseDate = releaseDateStr != null ? STR2DATE.unmarshal ( releaseDateStr ) : null;
-		
+		Boolean publicFlag = STR2BOOL.unmarshal ( publicFlagStr );
+		Date releaseDate = STR2DATE.unmarshal ( releaseDateStr );
+				
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
 		
@@ -271,11 +267,9 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 				if ( emap == null ) throw 
 					new RuntimeException ( String.format ( "Entity mapping '%s' not found", entityId ));
 				
-				if ( publicFlagStr != null ) emap.setPublicFlag ( publicFlag );
-				if ( releaseDateStr != null ) emap.setReleaseDate ( releaseDate );
+				if ( publicFlag != null ) emap.setPublicFlag ( publicFlag );
+				if ( releaseDate != null ) emap.setReleaseDate ( releaseDate );
 			}
-			
 		ts.commit ();
 	}
-
 }

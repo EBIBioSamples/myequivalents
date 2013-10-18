@@ -25,7 +25,7 @@ public class UserDao
 {
 	private EntityManager entityManager;
 	private User loggedInUser = null;
-	private boolean loggedViaAPI;
+	private boolean loggedInViaAPI;
 
 	/**
 	 * Creates a user DAO and logins the (admin) user that will use it, by calling {@link #login(String, String, boolean)}.
@@ -55,8 +55,8 @@ public class UserDao
 	
 	/**
 	 * Logins a user to allow it to use the DAO. This has to be called by either the DAO constructor or before any 
-	 * administration operation occur. If isUserPassword is true, checks against {@link User#getPasswordHash()}, else
-	 * it uses {@link User#getApiPasswordHash()}.
+	 * administration operation occur. If isUserPassword is true, checks against {@link User#getPassword()}, else
+	 * it uses {@link User#getApiPassword()}.
 	 * 
 	 * TODO: return ExposedUser
 	 */
@@ -67,7 +67,7 @@ public class UserDao
 		
 		if ( email == null || "[anonymous]".equalsIgnoreCase ( email ) )
 		{
-			this.loggedViaAPI = true;
+			this.loggedInViaAPI = true;
 			return loggedInUser = new User ( 
 				"[anonymous]", "Anonymous", "User", null, "The fictitious/unauthenticated user", Role.VIEWER, null );
 		}
@@ -79,18 +79,21 @@ public class UserDao
 		User user = findByEmailUnauthorized ( email );
 		if ( user == null ) throw new SecurityException ( "User '" + email + "' not found" );
 		
-		String passToCheck = isUserPassword ? user.getPasswordHash () : user.getApiPasswordHash ();
+		String passToCheck = isUserPassword ? user.getPassword () : user.getApiPassword ();
 		
 		if ( !User.hashPassword ( password ).equals ( passToCheck ) ) throw new SecurityException ( 
 			"Wrong password for user '" + email + "', '" + user.getName () + " " + user.getSurname () + "'" );
 		
-		this.loggedViaAPI = !isUserPassword;
+		this.loggedInViaAPI = !isUserPassword;
 		// It must not come back with permissions changed, so we return a clone.
-		return loggedInUser = new User ( user );
+		loggedInUser = new User ( user );
+		loggedInUser.setPassword ( null );
+		loggedInUser.setApiPassword ( null );
+		return loggedInUser;
 	}
 
 	/**
-	 * Authenticate with the {@link User#getApiPasswordHash() API password}.
+	 * Authenticate with the {@link User#getApiPassword() API password}.
 	 */
 	public User login ( String email, String apiPassword )
 	{
@@ -115,7 +118,7 @@ public class UserDao
 				"Security violation: the operation requires the %s access level and the user '%s' has only %s", 
 				role, loggedInUser.getEmail (), loggedInUser.getRole ()
 			));
-		if ( needsFullAuthentication && isLoggedViaAPI () )
+		if ( needsFullAuthentication && isLoggedInViaAPI () )
 			throw new SecurityException ( String.format (
 				"Security violation: the operation requires to login via user password, not just the API password", 
 				role, loggedInUser.getEmail (), loggedInUser.getRole ()
@@ -152,8 +155,8 @@ public class UserDao
 	 * {@link #login(String, String) login ( mail, api-pass )}
 	 * @return
 	 */
-	public boolean isLoggedViaAPI () {
-		return loggedViaAPI;
+	public boolean isLoggedInViaAPI () {
+		return loggedInViaAPI;
 	}
 
 	/**
@@ -192,7 +195,14 @@ public class UserDao
 	  	return loggedInUser;
 		}
 		
-		return findByEmailUnauthorized ( email );
+		User result = findByEmailUnauthorized ( email );
+		
+		if ( result != null ) {
+			result.setApiPassword ( null );
+			result.setPassword ( null );
+		}
+		
+		return result;
 	} 
 
 	/**
@@ -205,7 +215,7 @@ public class UserDao
 		Validate.notNull ( role, String.format ( "Error for changeRole( '%s' ): role cannot be null", email ));
 		enforceRole ( Role.ADMIN, true );
 
-		User user = findByEmail ( email );
+		User user = findByEmailUnauthorized ( email );
 		if ( user.getRole () == role ) return;
 		
 		user.setRole ( role );
@@ -216,36 +226,63 @@ public class UserDao
 	 * Store a new user or, depending on {@link User#getName()}, saves changes to an existing one. Allows you to do that
 	 * only if the current {@link #getLoggedInUser() logged user} is an ADMIN.
 	 */
-	public void store ( User user )
+	private void store ( User user, boolean mustBeAutorized )
 	{
 		Validate.notNull ( user, "Cannot update a null object" );
-		enforceRole ( Role.VIEWER, true );
 		
-		User userDB = findByEmail ( user.getEmail () );
-		if ( userDB == null) 
+		if ( mustBeAutorized )
+			enforceRole ( Role.VIEWER, true );
+		
+		String 
+			pwd = StringUtils.trimToNull ( user.getPassword () ),
+			apiPwd = StringUtils.trimToNull ( user.getApiPassword () ); 
+			
+		User userDB = findByEmailUnauthorized ( user.getEmail () );
+
+		if ( userDB == null ) 
 		{
-			if ( !loggedInUser.hasPowerOf ( Role.ADMIN ) ) 
+			if ( mustBeAutorized && !loggedInUser.hasPowerOf ( Role.ADMIN ) ) 
 				throw new SecurityException ( String.format ( 
 					"store ( '%s' ): this is a new user and you must be an admin to do that", user.getEmail ()
 				));
-			if ( user.getApiPasswordHash () == null ) throw new SecurityException ( 
-				"Cannot accept to save a new user with null API secret"
-			);
-			if ( user.getApiPasswordHash () == null ) throw new SecurityException ( 
+
+			if ( pwd == null ) throw new SecurityException ( 
 				"Cannot accept to save a new user with null user password"
 			);
+						
+			if ( apiPwd == null ) throw new SecurityException ( 
+				"Cannot accept to save a new user with null API secret"
+			);
+			
+			user.setPassword ( User.hashPassword ( pwd ) );
+			user.setApiPassword ( User.hashPassword ( apiPwd ) );
 			
 			entityManager.merge ( user );
 			return;
 		}
 		
-		Role newRole = user.getRole ();
-		if ( newRole != null && !newRole.equals ( userDB.getRole () ) && !getLoggedInUser ().hasPowerOf ( Role.ADMIN ) ) 
-			throw new SecurityException ( String.format ( 
-				"store ( '%s' ): You must be an admin to change your role, ", user.getEmail ()
-		));
+		if ( mustBeAutorized && !loggedInUser.hasPowerOf ( Role.ADMIN ) && !userDB.getEmail ().equals ( user.getEmail () ) ) 
+			throw new SecurityException ( 
+				"Security Violation for getUser( '" + user.getEmail () + "' ): you can only change your own user" 
+		);
 
-		storeUnauthorized ( user );
+		user.setPassword ( pwd == null ? userDB.getPassword () : User.hashPassword ( pwd ) );
+		user.setApiPassword ( apiPwd == null ? userDB.getApiPassword () : User.hashPassword ( apiPwd ));
+				
+		if ( mustBeAutorized )
+		{
+			Role newRole = user.getRole ();
+			if ( newRole != null && !newRole.equals ( userDB.getRole () ) && !getLoggedInUser ().hasPowerOf ( Role.ADMIN ) ) 
+				throw new SecurityException ( String.format ( 
+					"store ( '%s' ): You must be an admin to change your role, ", user.getEmail ()
+			));
+		}
+
+		entityManager.merge ( user );
+	}
+	
+	public void store ( User user ) {
+		store ( user, true );
 	}
 	
 	/**
@@ -255,7 +292,7 @@ public class UserDao
 	 */
 	public void storeUnauthorized ( User user ) 
 	{
-		entityManager.merge ( user );
+		store ( user, false );
 	}
 	
 	/**

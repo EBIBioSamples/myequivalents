@@ -22,8 +22,6 @@ import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.ebi.fg.myequivalents.access_control.model.User;
-import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
@@ -65,8 +63,8 @@ public class EntityMappingWebService
 	@Path( "/get" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappings ( 
-		@FormParam ( "email" ) String email, 
-		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
 		@FormParam ( "raw" ) Boolean isRaw, 
 		@FormParam ( "entity" ) List<String> entityIds 
 	) 
@@ -85,21 +83,21 @@ public class EntityMappingWebService
 	@Path( "/get" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappingsViaGET ( 
-		@QueryParam ( "email" ) String email, 
-		@QueryParam ( "secret" ) String apiPassword,
+		@QueryParam ( "login" ) String email, 
+		@QueryParam ( "login-secret" ) String apiPassword,
 		@QueryParam ( "raw" ) Boolean isRaw, 
-		@QueryParam ( "entity" ) List<String> entitites 
+		@QueryParam ( "entity" ) List<String> entityIds 
 	) 
 	{
-		return getMappings ( email, apiPassword, isRaw, entitites );
+		return getMappings ( email, apiPassword, isRaw, entityIds );
 	}
 	
 	@POST
 	@Path( "/store-mappings" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public void storeMappings (
-		@FormParam ( "email" ) String email, 
-		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
 		@FormParam ( "entity" ) List<String> entityIds 
 	)
 	{
@@ -112,8 +110,8 @@ public class EntityMappingWebService
 	@Path( "/store-bundle" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public void storeMappingBundle (
-		@FormParam ( "email" ) String email, 
-		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
 		@FormParam ( "entity" ) List<String> entityIds 
 	)
 	{
@@ -125,31 +123,31 @@ public class EntityMappingWebService
 	@POST
 	@Path( "/delete-mappings" )
 	@Produces ( MediaType.APPLICATION_XML )
-	public int deleteMappings ( 
-		@FormParam ( "email" ) String email, 
-		@FormParam ( "secret" ) String apiPassword,
+	public String deleteMappings ( 
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
 		@FormParam ( "entity" ) List<String> entityIds 
 	)
 	{
 		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
 		int result = emgr.deleteMappings ( entityIds.toArray ( new String [ 0 ]) );
 		emgr.close ();
-		return result;
+		return String.valueOf ( result );
 	}
 
 	@POST
 	@Path( "/delete-entities" )
 	@Produces ( MediaType.APPLICATION_XML )
-	public int deleteEntities ( 
-		@FormParam ( "email" ) String email, 
-		@FormParam ( "secret" ) String apiPassword,
+	public String deleteEntities ( 
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
 		@FormParam ( "entity" ) List<String> entityIds 
 	)
 	{
 		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
 		int result = emgr.deleteEntities ( entityIds.toArray ( new String [ 0 ]) );
 		emgr.close ();
-		return result;
+		return String.valueOf ( result );
 	}
 	
 
@@ -157,8 +155,8 @@ public class EntityMappingWebService
 	@Path( "/get-target" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappingsForTarget (
-		@FormParam ( "email" ) String email, 
-		@FormParam ( "secret" ) String apiPassword,
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
 		@FormParam ( "raw" ) Boolean wantRawResult, 
 		@FormParam ( "service" ) String targetServiceName, 
 		@FormParam ( "entity" ) String entityId )
@@ -177,8 +175,8 @@ public class EntityMappingWebService
 	@Path( "/get-target" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappingsForTargetViaGET (
-			@QueryParam ( "email" ) String email, 
-			@QueryParam ( "secret" ) String apiPassword,
+			@QueryParam ( "login" ) String email, 
+			@QueryParam ( "login-secret" ) String apiPassword,
 			@QueryParam ( "raw" ) Boolean wantRawResult, 
 			@QueryParam ( "service" ) String targetServiceName, 
 			@QueryParam ( "entity" ) String entityId )
@@ -206,8 +204,8 @@ public class EntityMappingWebService
 	@Path( "/go-to-target" )
 	@Produces ( MediaType.TEXT_XML )
 	public Response getMappingsForTargetRedirection (
-			@QueryParam ( "email" ) String email, 
-			@QueryParam ( "secret" ) String apiPassword,
+			@QueryParam ( "login" ) String email, 
+			@QueryParam ( "login-secret" ) String apiPassword,
 			@QueryParam ( "service" ) String targetServiceName, 
 			@QueryParam ( "entity" ) String entityId,
 			@QueryParam ( "xsl" ) String xslUri 
@@ -242,44 +240,11 @@ public class EntityMappingWebService
 		return Response.ok ( resultXml, MediaType.TEXT_XML ).build ();		
 	}
 
-	/**
-	 * TODO: comment me. 
-	 * TODO: auth requests should be factorised to an Access service (they're not used by other WS requests)
-	 */
-	@POST
-	@Path( "/login" )
-	@Produces ( MediaType.APPLICATION_XML )
-	public User setAuthenticationCredentials ( 
-		@FormParam ( "email" ) String email, @FormParam ( "secret" ) String apiPassword
-	) 
-		throws SecurityException
-	{
-		EntityMappingManager em = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();		
-		return em.setAuthenticationCredentials ( email, apiPassword );
-	}
-
-	/**
-	 * The GET variant of {@link #setAuthenticationCredentials(String, String)}, used for testing purposes only.
-	 * @param email
-	 * @param apiPassword
-	 * @return
-	 * @throws SecurityException
-	 */
-	@GET
-	@Path( "/login" )
-	@Produces ( MediaType.APPLICATION_XML )
-	public User setAuthenticationCredentialsViaGET ( 
-		@QueryParam ( "email" ) String email, @QueryParam ( "secret" ) String apiPassword
-	) 
-		throws SecurityException
-	{
-		return setAuthenticationCredentials ( email, apiPassword );
-	}
-
-	/** TODO: Comment met! TODO: AOP */
+	
+	/** Gets the {@link EntityMappingManager} that is used internally in this web service TODO: AOP */
 	private EntityMappingManager getEntityMappingManager ( String email, String apiPassword )
 	{
-		log.trace ( "Returning manager for the user {}, {}", email, apiPassword == null ? null : "***" );
+		log.trace ( "Returning mapping manager for the user {}, {}", email, apiPassword == null ? null : "***" );
 		return Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( email, apiPassword );
 	}
 }

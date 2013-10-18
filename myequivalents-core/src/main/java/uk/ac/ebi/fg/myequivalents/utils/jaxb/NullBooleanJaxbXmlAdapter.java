@@ -15,7 +15,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class NullBooleanJaxbXmlAdapter extends XmlAdapter<String, Boolean> 
 {
-
+	/** This can be useful when you want to make conversions on your own */
+	public static final NullBooleanJaxbXmlAdapter STR2BOOL = new NullBooleanJaxbXmlAdapter ();
 
   @Override
   public String marshal ( Boolean b )

@@ -1,10 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 
-import org.apache.commons.lang.StringUtils;
-
-import uk.ac.ebi.fg.myequivalents.access_control.model.User;
-import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 
@@ -37,25 +33,13 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		return "/mapping";
 	}
 
-
-	@Override
-	public User setAuthenticationCredentials ( String email, String apiPassword, boolean connectServer ) throws SecurityException
-	{
-		this.email = StringUtils.trimToNull ( email );
-		this.apiPassword = StringUtils.trimToNull ( apiPassword );
-		if ( !connectServer ) return null;
-					
-		Form req = prepareReq ();
-		return invokeWsReq ( "/login", req, User.class );
-	}
-
 	@Override
 	public void storeMappings ( String ... entityIds )
 	{
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  invokeWsReq ( "/store-mappings", req );
+	  invokeVoidWsReq ( "/store-mappings", req );
 	}
 
 	@Override
@@ -64,7 +48,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  invokeWsReq ( "/store-bundle", req );
+	  invokeVoidWsReq ( "/store-bundle", req );
 	}
 
 	@Override
@@ -73,7 +57,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  return invokeWsReq ( "/delete-mappings", req, Integer.class );
+	  return invokeIntWsReq ( "/delete-mappings", req );
 	}
 
 	@Override
@@ -82,7 +66,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  return invokeWsReq ( "/delete-entities", req, Integer.class );
+	  return invokeIntWsReq ( "/delete-entities", req );
 	}
 
 	@Override
@@ -126,10 +110,4 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	  
 	  return getRawResult ( "/get-target", req, outputFormat );
 	}
-
-//	private void throwUnsupportedException () 
-//	{
-//		throw new UnsupportedOperationException ( 
-//			"This operation from the WS client is not implemented yet. Please ask developers" );
-//	}
 }

@@ -49,7 +49,7 @@ public class ServiceManagerTest
 	private String editorPass = "test.password";
 	private String editorSecret = User.generateSecret ();
 	private User editorUser = new User ( 
-		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
 	
 	@Before

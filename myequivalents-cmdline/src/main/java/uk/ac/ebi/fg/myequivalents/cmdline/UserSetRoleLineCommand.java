@@ -12,7 +12,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * The 'user set role' command, a wrapper for 
- * {@link AccessControlManager#setRole(String, uk.ac.ebi.fg.myequivalents.access_control.model.User.Role)}.
+ * {@link AccessControlManager#setUserRole(String, uk.ac.ebi.fg.myequivalents.access_control.model.User.Role)}.
  *
  * <dl><dt>date</dt><dd>Aug 22, 2013</dd></dl>
  * @author Marco Brandizi
@@ -34,7 +34,7 @@ public class UserSetRoleLineCommand extends LineCommand
 			Resources.getInstance ().getMyEqManagerFactory ().newAccessControlManagerFullAuth ( this.email, this.userPassword );
 
 		args = cmdLine.getArgs ();
-		if ( args != null && args.length >= 5 ) accMgr.setRole ( args [ 3 ], User.Role.valueOf ( args [ 4 ].toUpperCase () ) );
+		if ( args != null && args.length >= 5 ) accMgr.setUserRole ( args [ 3 ], User.Role.valueOf ( args [ 4 ].toUpperCase () ) );
 		
 		err.println ( "\nUser's role Updated" );
 		return;

@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
+import java.util.Date;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
@@ -26,6 +27,10 @@ public interface AccessControlManager extends MyEquivalentsManager
 	/**
 	 * Changes user data. You need {@link #setFullAuthenticationCredentials(String, String)} for this and you need 
 	 * to be administrator to change a user different than the one is logged in or to change the role of any user.
+	 * 
+	 * WARNING: When storing a user {@link User#getPassword() user.passwordHash} 
+	 * or {@link User#getApiPassword() user.apiPasswordHash}. The parameter will send to  
+
 	 */
 	public void storeUser ( User user );
 	
@@ -55,7 +60,7 @@ public interface AccessControlManager extends MyEquivalentsManager
 	 * Change the role of a user. It allows to do that only if the current user is an {@link Role#ADMIN}. It requires
 	 * {@link #setFullAuthenticationCredentials(String, String)}.
 	 */
-	public void setRole ( String email, User.Role role );
+	public void setUserRole ( String email, User.Role role );
 	
 	/**
 	 * Removes a user. It allows to do that only if the current user is an {@link Role#ADMIN} and if you did 
@@ -65,11 +70,11 @@ public interface AccessControlManager extends MyEquivalentsManager
 	
 	/**
 	 * Changes the visibility parameters for {@link Service}. This cascades to all {@link EntityMapping} if these don't
-	 * define more specific details.
+	 * define more specific details. TODO: more comments
 	 * 
 	 */
 	public void setServicesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames );
 	public void setRepositoriesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... repositoryNames );
-	public void setServiceCollectionVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceCollNames );
-	public void setEntityVisibility ( String publicFlagStr, String releaseDateStr, String ... entityIds );
+	public void setServiceCollectionsVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceCollNames );
+	public void setEntitiesVisibility ( String publicFlagStr, String releaseDateStr, String ... entityIds );
 }

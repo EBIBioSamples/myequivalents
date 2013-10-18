@@ -54,10 +54,10 @@ public class User
 	private String name;
 	private String surname;
 	private String email;
-	private String passwordHash;
+	private String password;
 	private String notes;
   private Role role;
-  private String apiPasswordHash;
+  private String apiPassword;
 	
 	protected User () {
 		super ();
@@ -74,16 +74,16 @@ public class User
 		this.setEmail ( email );
 	}
 	
-	public User ( String email, String name, String surname, String passwordHash, String notes, Role role, String apiPasswordHash )
+	public User ( String email, String name, String surname, String password, String notes, Role role, String apiPassword )
 	{
 		super ();
 		this.name = name;
 		this.surname = surname;
 		this.email = email;
-		this.passwordHash = passwordHash;
+		this.password = password;
 		this.notes = notes;
 		this.role = role;
-		this.apiPasswordHash = apiPasswordHash;
+		this.apiPassword = apiPassword;
 	}
 	
 	public User ( User original ) {
@@ -91,10 +91,10 @@ public class User
 			original.getEmail (), 
 			original.getName (),
 			original.getSurname (),
-			original.getPasswordHash (), 
+			original.getPassword (), 
 			original.getNotes (), 
 			original.getRole (), 
-			original.getApiPasswordHash () 
+			original.getApiPassword () 
 		);
 	}
 	
@@ -136,23 +136,24 @@ public class User
 
 	/**
 	 * The SHA1+Base64 encrypted version of the password for this user. This is used for user management operations, 
-	 * {@link #getApiPasswordHash()} is used for API invocations. The hashed password is expected to have the same format 
+	 * {@link #getApiPassword()} is used for API invocations. The hashed password is expected to have the same format 
 	 * that {@link #hashPassword(String)} generates.
 	 * 
 	 */
 	@Column ( name = "password", columnDefinition = "char(27)", nullable = false )
 	@XmlAttribute ( name = "password" )
 	@XmlJavaTypeAdapter ( PasswordJaxbXmlAdapter.class )
-	public String getPasswordHash ()
+	public String getPassword ()
 	{
-		return passwordHash;
+		return password;
 	}
 
-	public void setPasswordHash ( String passwordHash )
+	public void setPassword ( String password )
 	{
-		this.passwordHash = passwordHash;
+		this.password = password;
 	}
 
+	
 	@Lob
 	@XmlElement ( name = "notes" )
 	public String getNotes ()
@@ -185,21 +186,22 @@ public class User
 	}
 	
 	/**
-	 * A SHA1+Base64 password to be used for API invocations. {@link #getPasswordHash()} is used for user management operations.
+	 * A SHA1+Base64 password to be used for API invocations. {@link #getPassword()} is used for user management operations.
 	 * The hashed password is expected to have the same format that {@link #hashPassword(String)} generates.	 * 
 	 */
 	@Column ( name = "secret", columnDefinition = "char(27)", nullable = false )
 	@XmlAttribute ( name = "secret" )
 	@XmlJavaTypeAdapter ( PasswordJaxbXmlAdapter.class )
-	public String getApiPasswordHash ()
+	public String getApiPassword ()
 	{
-		return apiPasswordHash;
+		return apiPassword;
 	}
 
-	public void setApiPasswordHash ( String apiPasswordHash )
+	public void setApiPassword ( String apiPassword )
 	{
-		this.apiPasswordHash = apiPasswordHash;
+		this.apiPassword = apiPassword;
 	}
+		
 	
 	public boolean hasPowerOf ( Role role ) {
 		return this.getRole ().hasPowerOf ( role );
@@ -266,5 +268,5 @@ public class User
 		// Last char is always a padding '=' and we don't need it here
 		return DatatypeConverter.printBase64Binary ( secret ).substring ( 0, 43 );
   }
-
+  
 }

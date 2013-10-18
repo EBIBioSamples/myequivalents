@@ -43,9 +43,9 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	public void storeMappingBundle ( String ... entityIds );
 
 	/**
-	 * Deletes mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
-	 * of service/accession. This deletes all the mappings that involve the entity, i.e., the whole equivalence class it 
-	 * belongs to.
+	 * Deletes mappings between entities. The parameter consists of a list of pairs, where every pairs is an 
+	 * {@link EntityMappingUtils#parseEntityId(String) entityId} of service/accession.
+	 * This deletes all the mappings that involve the entity, i.e., the whole equivalence class it belongs to.
    *
 	 * @return the number of entities (including the parameter) that were in the same equivalence relationship and are
 	 * now deleted. Returns 0 if no such mapping exists.

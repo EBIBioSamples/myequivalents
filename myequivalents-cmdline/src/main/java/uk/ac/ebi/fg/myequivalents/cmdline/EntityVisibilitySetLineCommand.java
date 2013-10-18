@@ -24,7 +24,7 @@ public class EntityVisibilitySetLineCommand extends AbstractVisibilitySetLineCom
 	protected void doVisibilitySet ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames )
 	{
 		AccessControlManager acMgr = Resources.getInstance ().getMyEqManagerFactory ().newAccessControlManager ( this.email, this.apiPassword );
-		acMgr.setEntityVisibility ( publicFlagStr, releaseDateStr, serviceNames );
+		acMgr.setEntitiesVisibility ( publicFlagStr, releaseDateStr, serviceNames );
 	}
 
 }
