@@ -32,11 +32,17 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 public class WebTestDataInitializer implements ServletContextListener
 {
 
-	public static String editorPass = "test.password";
+	private static String editorPass = "test.password";
 	// Alternatively you can use: User.generateSecret (); using something else here cause we need to test with the browser 
-	public static String editorSecret = "test.secret"; 
-	public static final User editorUser = new User ( 
-		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
+	private static String editorSecret = "test.secret"; 
+	private static final User editorUser = new User ( 
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
+
+	private static String adminPass = "test.password";
+	private static String adminSecret = User.generateSecret ();
+	private static User adminUser = new User ( 
+		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
+	);
 
 	@Override
 	public void contextInitialized ( ServletContextEvent e )
@@ -53,6 +59,7 @@ public class WebTestDataInitializer implements ServletContextListener
 		UserDao userDao = new UserDao ( em );
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
+		userDao.storeUnauthorized ( adminUser );
 		userDao.storeUnauthorized ( editorUser );
 		ts.commit ();
 		em.close ();
@@ -136,6 +143,7 @@ public class WebTestDataInitializer implements ServletContextListener
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		userDao.deleteUnauthorized ( editorUser.getEmail () );
+		userDao.deleteUnauthorized ( adminUser.getEmail () );
 		ts.commit ();
 	}
 

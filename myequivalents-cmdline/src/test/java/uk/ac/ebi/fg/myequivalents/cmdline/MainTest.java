@@ -24,7 +24,6 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
@@ -80,9 +79,9 @@ public class MainTest
 	private String adminSecret = User.generateSecret ();
 	
 	private User editorUser = new User ( 
-		"test.editor", "Test Editor", "User", User.hashPassword ( editorPass ), "test editor notes", Role.EDITOR, User.hashPassword ( editorSecret ) );
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 	private User adminUser = new User ( 
-			"test.admin", "Test Admin", "User", User.hashPassword ( adminPass ), "test admin notes", Role.ADMIN, User.hashPassword ( adminSecret ) );
+			"test.admin", "Test Admin", "User", adminPass, "test admin notes", Role.ADMIN, adminSecret );
 	
 	static {
 		System.setProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", "true" );

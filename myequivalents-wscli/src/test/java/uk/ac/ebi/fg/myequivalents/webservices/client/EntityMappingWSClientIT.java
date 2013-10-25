@@ -36,7 +36,7 @@ public class EntityMappingWSClientIT
 	// Default is http://localhost:8080/myequivalents/ws
 	// We use a non-standard port here cause 8080 is often already taken on EBI hosts
 	//
-	EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:10973/ws" );
+	private EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:10973/ws" );
 	// DEBUG EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:8080/ws" );
 	
 	@Test

@@ -119,7 +119,10 @@ public class AccessControlManagerTest
 		ts.begin ();
 		userDao.login ( adminUser.getEmail (), adminSecret );
 		catchException ( userDao ).store ( user );
-		assertTrue ( "User modification with API password should fail!", caughtException () instanceof SecurityException );
+		Exception caught = caughtException ();
+		if ( !( caught instanceof SecurityException ) ) throw new IllegalStateException ( 
+			"User modification with API password should fail!"
+		);
 		ts.rollback ();
 
 		// Was the reg user saved?
@@ -143,7 +146,9 @@ public class AccessControlManagerTest
 		// But not stuff like role.
 		ts.begin ();
 		catchException ( userDao ).store ( userDB );
-		assertTrue ( "Unauthorised user role modification should fail!", caughtException () instanceof SecurityException );
+		if ( !( caught instanceof SecurityException ) ) throw new IllegalStateException ( 
+			"Unauthorised user role modification should fail!"
+		);
 		
 		// Unless you're an admin
 		userDao.login ( adminUser.getEmail (), adminPass, true );
@@ -173,8 +178,7 @@ public class AccessControlManagerTest
 		// Deletion of yourself not possible
 		userDao.login ( adminUser.getEmail (), adminPass, true );
 		catchException ( userDao ).delete ( adminUser.getEmail () );
-		Exception caught = caughtException ();
-		if ( ! ( caught instanceof SecurityException ) )
+		if ( ! ( ( caught = caughtException () ) instanceof SecurityException ) )
 			throw new IllegalStateException ( "Error while checking failure of self-removal!", caught );
 	}
 	
@@ -182,10 +186,13 @@ public class AccessControlManagerTest
 	@Test
 	public void testAccessControlManagerForUser ()
 	{
-		// Must login with pass to change yourself
+		// Must login with pass to change these things
 		AccessControlManager accMgr = mgrFactory.newAccessControlManager ( adminUser.getEmail (), adminSecret );
 		catchException ( accMgr ).storeUser ( user );
-		assertTrue ( "User modification with API password should fail!", caughtException () instanceof SecurityException );
+		Exception caught = caughtException ();
+		if ( ! ( caught instanceof SecurityException ) ) throw new IllegalStateException ( 
+			"User modification with API password should fail!" 
+		);
 
 		// Was the reg user saved?
 		accMgr = mgrFactory.newAccessControlManager ( user.getEmail (), userSecret );
@@ -205,7 +212,9 @@ public class AccessControlManagerTest
 
 		// But not stuff like role.
 		catchException ( accMgr ).storeUser ( userDB );
-		assertTrue ( "Unauthorised user role modification should fail!", caughtException () instanceof SecurityException );
+		if ( ! ( (caught = caughtException ()) instanceof SecurityException ) ) throw new IllegalStateException ( 
+			"Unauthorised user role modification should fail!"
+		);
 		
 		// Unless you're an admin
 		accMgr = mgrFactory.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass );
@@ -225,13 +234,14 @@ public class AccessControlManagerTest
 		
 		// Same for deletion
 		catchException ( accMgr ).deleteUser ( adminUser.getEmail () );
-		assertTrue ( "Unauthorised user removal should fail!", caughtException () instanceof SecurityException );
+		if ( ! ( (caught = caughtException ()) instanceof SecurityException ) ) throw new IllegalStateException ( 
+			"Unauthorised user removal should fail!"
+		);
 		
 		// Deletion of yourself not possible
 		accMgr = mgrFactory.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass  );
 		catchException ( accMgr ).deleteUser ( adminUser.getEmail () );
-		Exception caught = caughtException ();
-		if ( ! ( caught instanceof SecurityException ) )
+		if ( ! ( ( caught = caughtException () ) instanceof SecurityException ) )
 			throw new IllegalStateException ( "Error while checking failure of self-removal!", caught );
 	}
 	

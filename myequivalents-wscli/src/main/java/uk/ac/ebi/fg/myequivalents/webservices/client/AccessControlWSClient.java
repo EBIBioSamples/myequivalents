@@ -62,13 +62,21 @@ public class AccessControlWSClient extends MyEquivalentsWSClient implements Acce
 	private User setFullAuthenticationCredentials ( String email, String userPassword, boolean connectServer ) throws SecurityException
 	{
 		this.email = StringUtils.trimToNull ( email );
-		this.userPassword = StringUtils.trimToNull ( apiPassword );
+		this.userPassword = StringUtils.trimToNull ( userPassword );
+		this.apiPassword = null;
+		
 		if ( !connectServer ) return null;
 					
 		Form req = prepareReq ();
 		return invokeWsReq ( "/login", req, User.class );
 	}
 
+	public User setAuthenticationCredentials ( String email, String apiPassword, boolean connectServer ) throws SecurityException
+	{
+		this.userPassword = null;
+		return super.setAuthenticationCredentials ( email, apiPassword, connectServer );
+	}
+	
 	/**
 	 * TODO: comment me
 	 * 

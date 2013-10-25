@@ -23,7 +23,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  * @author Marco Brandizi
  *
  */
-public class InitListener implements ServletContextListener
+public class WebInitializer implements ServletContextListener
 {
 	/**
 	 * Does nothing

@@ -105,9 +105,11 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 		  if ( log.isTraceEnabled () ) 
 		  {
 		  	Map<String, Object> debugReq = new HashMap<String, Object> ( req );
+		  	if ( debugReq.get ( "login-secret" ) != null ) debugReq.put ( "login-secret", "***" );
+		  	if ( debugReq.get ( "login-pwd" ) != null ) debugReq.put ( "login-pwd", "***" );
 		  	if ( debugReq.get ( "secret" ) != null ) debugReq.put ( "secret", "***" );
 		  	if ( debugReq.get ( "password" ) != null ) debugReq.put ( "password", "***" );
-		  	log.trace ( "Requested web service{}\n: {}", reqPath, debugReq );
+		  	log.trace ( "Requested web service: {}\n: {}", reqPath, debugReq );
 		  }
 
 			Client cli = Client.create ();
@@ -179,7 +181,7 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 			
 			StatusLine statusLine = response.getStatusLine ();
 			if ( statusLine.getStatusCode () == Response.Status.FORBIDDEN.getStatusCode () ) throw new SecurityException ( 
-				"Security problem with the myEquivalents web service:" + statusLine.getReasonPhrase () 
+				"Security problem with the myEquivalents web service: " + statusLine.getReasonPhrase () 
 			);
 			
 			HttpEntity entity = response.getEntity ();

@@ -81,9 +81,9 @@ public class AccessControlWebService
 	{
 		AccessControlManager mgr = getAccessControlManager ( authEmail, authPassword, null );
 		mgr.storeUser ( new User ( 
-			email, name, surname, User.hashPassword ( userPassword ), notes, 
+			email, name, surname, userPassword, notes, 
 			Role.valueOf ( StringUtils.upperCase ( role ) ), 
-			User.hashPassword ( apiPassword  ) 
+			apiPassword 
 		));
 		mgr.close ();
 	}
@@ -252,7 +252,7 @@ public class AccessControlWebService
 			email, userPassword == null ? null: "***", apiPassword == null ? null : "***" ));
 		ManagerFactory fact = Resources.getInstance ().getMyEqManagerFactory ();
 		return userPassword == null 
-			? fact.newAccessControlManagerFullAuth ( email, userPassword )
-			: fact.newAccessControlManager ( email, apiPassword );
+			? fact.newAccessControlManager ( email, apiPassword )
+			: fact.newAccessControlManagerFullAuth ( email, userPassword );
 	}
 }
