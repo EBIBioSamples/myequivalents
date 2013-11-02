@@ -2,8 +2,6 @@ package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
 
-import javax.xml.bind.JAXBException;
-
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
@@ -36,7 +34,7 @@ public interface ServiceManager extends MyEquivalentsManager
 
 	/**
 	 * Stores services described by means of XML passed to the parameter reader. 
-	 * TODO: document the format. This is auto-generated via JAXB from {@link ExposedService} and reflects that class, for
+	 * TODO: document the format. This is auto-generated via JAXB from {@link ServiceSearchResult} and reflects that class, for
 	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 */
 	public void storeServicesFromXML ( Reader reader );

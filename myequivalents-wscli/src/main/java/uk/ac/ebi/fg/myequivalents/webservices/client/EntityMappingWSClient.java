@@ -7,7 +7,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import com.sun.jersey.api.representation.Form;
 
 /**
- * The myequivalents web-service client. This can be used to access myequivalents web-services. 
+ * TODO: Comment me again! 
  * 
  * <dl><dt>date</dt><dd>Oct 1, 2012</dd></dl>
  * @author Marco Brandizi
@@ -39,7 +39,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  invokeVoidWsReq ( "/store-mappings", req );
+	  invokeVoidWsReq ( "/store", req );
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  invokeVoidWsReq ( "/store-bundle", req );
+	  invokeVoidWsReq ( "/bundle/store", req );
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  return invokeIntWsReq ( "/delete-mappings", req );
+	  return invokeIntWsReq ( "/delete", req );
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 		Form req = prepareReq ();
 	  for ( String eid: entityIds ) req.add ( "entity", eid );
 
-	  return invokeIntWsReq ( "/delete-entities", req );
+	  return invokeIntWsReq ( "/entity/delete", req );
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	  req.add ( "service", targetServiceName );
 	  req.add ( "entity", entityId );
 
-	  return invokeWsReq ( "/get-target", req, EntityMappingSearchResult.class );
+	  return invokeWsReq ( "/target/get", req, EntityMappingSearchResult.class );
 	}
 
 	@Override
@@ -108,6 +108,6 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	  req.add ( "service", targetServiceName );
 	  req.add ( "entity", entityId );
 	  
-	  return getRawResult ( "/get-target", req, outputFormat );
+	  return getRawResult ( "/target/get", req, outputFormat );
 	}
 }

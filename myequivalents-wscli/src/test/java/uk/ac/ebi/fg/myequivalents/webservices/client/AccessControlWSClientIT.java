@@ -39,9 +39,10 @@ public class AccessControlWSClientIT
 	// Default is http://localhost:8080/myequivalents/ws
 	// We use a non-standard port here cause 8080 is often already taken on EBI hosts
 	//
-	private static final String WS_BASE_URL = "http://localhost:10973/ws";
-	//private static final String WS_BASE_URL = "http://localhost:8080/ws";
+	static final String WS_BASE_URL = "http://localhost:10973/ws";
+	//static final String WS_BASE_URL = "http://localhost:8080/ws";
 	
+	// TODO Make them final and upper case throughout all the code base
 	private static String adminPass = "test.password";
 	private static String adminSecret = User.generateSecret ();
 	private static User adminUser = new User ( 
@@ -49,14 +50,14 @@ public class AccessControlWSClientIT
 	);
 	
 	private String userPass = "test.password";
-	private String userSecret = User.generateSecret ();
+	private String userSecret = "test.secret";
 	private User user = new User ( 
 		"test.user", "Test", "User", userPass, "test notes", Role.VIEWER, userSecret );
 
-	private String editorPass = "test.password";
-	private String editorSecret = User.generateSecret ();
-	private User editorUser = new User ( 
-		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
+	static final String EDITOR_PASS = "test.password";
+	static final String EDITOR_SECRET = "test.secret";
+	static final User EDITOR_USER = new User ( 
+		"test.editor", "Test Editor", "User", EDITOR_PASS, "test editor notes", Role.EDITOR, EDITOR_SECRET );
 
 	
 	private AccessControlManager accMgr = new AccessControlWSClient ( WS_BASE_URL );
@@ -133,23 +134,20 @@ public class AccessControlWSClientIT
 		// TODO: store via the service manager
 		
 		EntityMappingManager emMgr = new EntityMappingWSClient ( WS_BASE_URL );
-		emMgr.setAuthenticationCredentials ( editorUser.getEmail (), editorSecret );
+		emMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		emMgr.storeMappings ( service.getName () + ":e1", service.getName () + ":e2" );
 		
 		accMgr.setAuthenticationCredentials ( adminUser.getEmail (), adminPass );
 		accMgr.setUserRole ( user.getEmail (), User.Role.EDITOR );
 		
 		Date testDate = new DateMidnight ( 2013, 4, 25 ).toDate ();
-		accMgr.setAuthenticationCredentials ( editorUser.getEmail (), editorSecret );
+		accMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		accMgr.setServicesVisibility ( "false", DateJaxbXmlAdapter.STR2DATE.marshal ( testDate ), true, service.getName () );
 
-		// TODO: get a serviceDB via the service manager
-		// ServiceDAO servDao = new ServiceDAO ( ((DbManagerFactory) mgrFactory ).getEntityManagerFactory ().createEntityManager () );
-		// Service serviceDB = servDao.findByName ( service.getName () );
-		Service serviceDB = null;
-
-		assertNull ( "ServiceDAO returns a private service!", serviceDB );
-		// TODO serviceDB = servDao.findByName ( service.getName (), false );
+		ServiceManager servMgr = new ServiceWSClient ( WS_BASE_URL );
+		servMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		
+		Service serviceDB = servMgr.getServices ( service.getName () ).getServices ().iterator ().next ();
 		
 		out.println ( "Reloaded service:" );
 		out.println ( serviceDB );
@@ -162,7 +160,7 @@ public class AccessControlWSClientIT
 		assertFalse ( "setServicesVisibility() wasn't cascaded!", ent.getPublicFlag () );
 		assertEquals ( "setServicesVisibility() wasn't cascaded!", testDate, ent.getReleaseDate () );
 		
-		// TODO servMgr.deleteServices ( service.getName () );
+		servMgr.deleteServices ( service.getName () );
 	}
 	
 	
@@ -176,15 +174,16 @@ public class AccessControlWSClientIT
 		service.setReleaseDate ( null );
 		service.setRepository ( repo );
 		
-		// TODO ServiceManager servMgr = mgrFactory.newServiceManager ( editorUser.getEmail (), editorSecret );
-		ServiceManager servMgr = null;
+		// TODO ServiceManager servMgr = mgrFactory.newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		ServiceManager servMgr = new ServiceWSClient ( WS_BASE_URL );
+		servMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+
 		servMgr.storeServices ( service );
 
-		// TODO ServiceDAO servDao = new ServiceDAO ( ((DbManagerFactory) mgrFactory ).getEntityManagerFactory ().createEntityManager () );
-		//TODO Service serviceDB = servDao.findByName ( service.getName () );
-		Service serviceDB = null;
+		Service serviceDB = servMgr.getServices ( service.getName () ).getServices ().iterator ().next ();
 		
 		assertNotNull ( "ServiceDAO doesn't return a cascade-public service!", serviceDB );
 		assertTrue ( "serviceDB.isPublic() is not true!", serviceDB.isPublic () );
 	}	
+	
 }

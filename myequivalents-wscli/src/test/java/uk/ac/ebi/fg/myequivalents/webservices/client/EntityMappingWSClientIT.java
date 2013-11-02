@@ -17,9 +17,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
-
+import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.WS_BASE_URL;
 
 /**
  * Tests the Web service client for the mappings. This relies on some data that are initialised by the myequivalents-web
@@ -33,11 +31,7 @@ import static com.googlecode.catchexception.CatchException.caughtException;
  */
 public class EntityMappingWSClientIT
 {
-	// Default is http://localhost:8080/myequivalents/ws
-	// We use a non-standard port here cause 8080 is often already taken on EBI hosts
-	//
-	private EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:10973/ws" );
-	// DEBUG EntityMappingManager mmgr = new EntityMappingWSClient ( "http://localhost:8080/ws" );
+	private EntityMappingManager mmgr = new EntityMappingWSClient ( WS_BASE_URL );
 	
 	@Test
 	public void testGet ()

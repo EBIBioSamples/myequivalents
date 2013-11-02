@@ -79,8 +79,11 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
 			userDao.enforceRole ( EDITOR );
-			for ( Service service: services )
+			for ( Service service: services ) {
+				// In case needed, unwrap from the wrapper used for web services
+				if ( service instanceof ExposedService ) service = ((ExposedService) service).asService ();
 				serviceDAO.store ( service );
+			}
 		ts.commit ();
 	}
 	

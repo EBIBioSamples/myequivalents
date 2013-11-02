@@ -30,7 +30,7 @@ import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
  * @author Marco Brandizi
  *
  */
-@Path ( "/perms" )
+@Path ( "/access-control" )
 public class AccessControlWebService
 {
 	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
@@ -172,7 +172,7 @@ public class AccessControlWebService
 	}
 	
 	@POST
-	@Path( "/visibility/service-coll/set" )
+	@Path( "/visibility/service-collection/set" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public void setServiceCollectionVisibility ( 
 		@FormParam ( "login" ) String authEmail, 

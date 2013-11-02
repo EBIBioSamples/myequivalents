@@ -40,7 +40,7 @@ public class AccessControlWSClient extends MyEquivalentsWSClient implements Acce
 
 	@Override
 	protected String getServicePath () {
-		return "/perms";
+		return "/access-control";
 	}
 	
 	@Override
@@ -187,7 +187,7 @@ public class AccessControlWSClient extends MyEquivalentsWSClient implements Acce
 		req.add ( "cascade", cascade );
 	  for ( String serviceCollName: serviceCollNames ) req.add ( "service-coll", serviceCollName );
 		
-	  invokeVoidWsReq ( "/visibility/service-coll/set", req );
+	  invokeVoidWsReq ( "/visibility/service-collection/set", req );
 	}
 
 

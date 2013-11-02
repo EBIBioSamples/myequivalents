@@ -9,8 +9,6 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.cli.CommandLine;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;

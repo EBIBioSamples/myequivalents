@@ -93,7 +93,7 @@ public class EntityMappingWebService
 	}
 	
 	@POST
-	@Path( "/store-mappings" )
+	@Path( "/store" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public void storeMappings (
 		@FormParam ( "login" ) String email, 
@@ -107,7 +107,7 @@ public class EntityMappingWebService
 	}
 
 	@POST
-	@Path( "/store-bundle" )
+	@Path( "/bundle/store" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public void storeMappingBundle (
 		@FormParam ( "login" ) String email, 
@@ -121,7 +121,7 @@ public class EntityMappingWebService
 	}
 
 	@POST
-	@Path( "/delete-mappings" )
+	@Path( "/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public String deleteMappings ( 
 		@FormParam ( "login" ) String email, 
@@ -136,7 +136,7 @@ public class EntityMappingWebService
 	}
 
 	@POST
-	@Path( "/delete-entities" )
+	@Path( "/entity/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public String deleteEntities ( 
 		@FormParam ( "login" ) String email, 
@@ -152,7 +152,7 @@ public class EntityMappingWebService
 	
 
 	@POST
-	@Path( "/get-target" )
+	@Path( "/target/get" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappingsForTarget (
 		@FormParam ( "login" ) String email, 
@@ -172,7 +172,7 @@ public class EntityMappingWebService
 	 * POST invocation, this is here for testing purposes only. 
 	 */
 	@GET
-	@Path( "/get-target" )
+	@Path( "/target/get" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappingsForTargetViaGET (
 			@QueryParam ( "login" ) String email, 
@@ -194,14 +194,14 @@ public class EntityMappingWebService
 	 * 
 	 * <p>You can test this with the examples (after 'mvn jetty:run'):
 	 *   <ul>  
-	 *   	<li><a href = "http://localhost:8080/ws/mapping/go-to-target?entity=test.testweb.service8:acc10&service=test.testweb.service7">common case</a></li>
-	 *   	<li><a href = "http://localhost:8080/ws/mapping/go-to-target?entity=test.testweb.service7:acc1&service=test.testweb.service6">multiple entities on the target</a></li>
-	 *   	<li><a href = "http://localhost:8080/ws/mapping/go-to-target?entity=foo-service:foo-acc&service=foo-target">non-existing target</a></li>
+	 *   	<li><a href = "http://localhost:8080/ws/mapping/target/go-to?entity=test.testweb.service8:acc10&service=test.testweb.service7">common case</a></li>
+	 *   	<li><a href = "http://localhost:8080/ws/mapping/target/go-to?entity=test.testweb.service7:acc1&service=test.testweb.service6">multiple entities on the target</a></li>
+	 *   	<li><a href = "http://localhost:8080/ws/mapping/target/go-to?entity=foo-service:foo-acc&service=foo-target">non-existing target</a></li>
 	 *   </ul>
 	 * </p>
 	 */
 	@GET
-	@Path( "/go-to-target" )
+	@Path( "/target/go-to" )
 	@Produces ( MediaType.TEXT_XML )
 	public Response getMappingsForTargetRedirection (
 			@QueryParam ( "login" ) String email, 
