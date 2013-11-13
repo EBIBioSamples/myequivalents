@@ -6,7 +6,6 @@ import static java.lang.System.out;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
@@ -21,6 +20,7 @@ import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
@@ -164,7 +164,7 @@ public class AccessControlWSClientIT
 	}
 	
 	
-	@Test @Ignore ( "not ready yet (TODO)" )
+	@Test
 	public void testServicePermissionCascading ()
 	{
 		Repository repo = new Repository ( "test.perms.repo1", "A test repo 1", "Descr about A test Repo 1" );
@@ -174,15 +174,17 @@ public class AccessControlWSClientIT
 		service.setReleaseDate ( null );
 		service.setRepository ( repo );
 		
-		// TODO ServiceManager servMgr = mgrFactory.newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		ServiceManager servMgr = new ServiceWSClient ( WS_BASE_URL );
 		servMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 
 		servMgr.storeServices ( service );
 
-		Service serviceDB = servMgr.getServices ( service.getName () ).getServices ().iterator ().next ();
+		ServiceSearchResult sr = servMgr.getServices ( service.getName () );
+		Service serviceDB = sr.getServices ().iterator ().next ();
+		Repository repoDB = serviceDB.getRepository ();
 		
-		assertNotNull ( "ServiceDAO doesn't return a cascade-public service!", serviceDB );
+		assertNotNull ( "ServiceMgr doesn't return a cascade-public service!", serviceDB );
+		assertNotNull ( "ServiceMgr doesn't return the service's repo!", repoDB );
 		assertTrue ( "serviceDB.isPublic() is not true!", serviceDB.isPublic () );
 	}	
 	

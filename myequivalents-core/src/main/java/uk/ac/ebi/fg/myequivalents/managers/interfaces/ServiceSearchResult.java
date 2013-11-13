@@ -36,6 +36,7 @@ public class ServiceSearchResult
 	private Set<ServiceCollection> serviceCollections = new HashSet<ServiceCollection> ();
 	private Set<Repository> repositories = new HashSet<Repository> ();
 	
+	// TODO: remove
 	private String authEmail, authApiPassword;
 
 	

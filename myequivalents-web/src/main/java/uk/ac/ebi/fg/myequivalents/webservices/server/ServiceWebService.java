@@ -2,7 +2,6 @@ package uk.ac.ebi.fg.myequivalents.webservices.server;
 
 import java.io.StringReader;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -17,9 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
-import uk.ac.ebi.fg.myequivalents.model.Repository;
-import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**

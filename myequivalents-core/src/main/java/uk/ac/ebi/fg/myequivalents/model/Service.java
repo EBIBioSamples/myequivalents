@@ -63,7 +63,6 @@ import org.hibernate.annotations.Index;
 		@Index ( name = "service_t", columnNames = "title" ),
 		@Index ( name = "service_pub_flag", columnNames = "public_flag" ), // TODO: needed?! Do we need a combined one?
 		@Index ( name = "service_rel_date", columnNames = "release_date" )
-
 	}
 )
 @XmlRootElement ( name = "service" )

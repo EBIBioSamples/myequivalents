@@ -37,12 +37,13 @@ public class EntityMappingWSClientIT
 	public void testGet ()
 	{
 		EntityMappingSearchResult result = mmgr.getMappings ( false, "test.testweb.service6:acc1", "test.testweb.service6:foo" );
+		assertNotNull ( "'mapping get' didn't work!", result );
+
 		String resultStr = result.toString ();
 		
 		out.println ( "\n\n ====================== '/mapping/get' says:\n" + resultStr + "============================" );
 		out.println ( "\n\n\n ---------------------------> WARNING!!! It is known that this test DOES NOT WORK with Java < 7\n\n" );
 		
-		assertNotNull ( "'mapping get' didn't work!", result );
 		assertTrue ( "Wrong result from 'mapping get' (service8/acc2)!", 
 			resultStr.toString ().contains ( "test.testweb.service8" ) && resultStr.contains ( "acc2" )
 		);
@@ -59,12 +60,13 @@ public class EntityMappingWSClientIT
 	public void testGetForTarget ()
 	{
 		EntityMappingSearchResult result = mmgr.getMappingsForTarget ( false, "test.testweb.service6", "test.testweb.service7:acc1" );
+		assertNotNull ( "'mapping get-target' didn't work!", result );
+
 		String resultStr = result.toString ();
 		
 		out.println ( "\n\n ====================== '/mapping/get-target' says:\n" + resultStr + "============================" );
 		out.println ( "\n\n\n ---------------------------> WARNING!!! It is known that this test MIGHT NOT WORK with Java < 7\n\n" );
 		
-		assertNotNull ( "'mapping get-target' didn't work!", result );
 		assertTrue ( "Wrong result from 'mapping get-target' (service6/acc4)!", 
 			resultStr.toString ().contains ( "test.testweb.service6" ) && resultStr.contains ( "acc4" )
 		);
