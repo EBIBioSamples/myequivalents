@@ -39,7 +39,7 @@ public class WebTestDataInitializer implements ServletContextListener
 		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
 	private static String adminPass = "test.password";
-	private static String adminSecret = User.generateSecret ();
+	private static String adminSecret = "test.secret";
 	private static User adminUser = new User ( 
 		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
 	);

@@ -46,7 +46,6 @@ public class Entity implements Serializable
 	
 	@NotBlank
 	@Column( length = 50 )
-	@XmlAttribute
 	private String accession;
 
 	@Transient
@@ -75,6 +74,7 @@ public class Entity implements Serializable
 		this.service = service;
 	}
 
+	@XmlAttribute
 	public String getAccession ()
 	{
 		return accession;

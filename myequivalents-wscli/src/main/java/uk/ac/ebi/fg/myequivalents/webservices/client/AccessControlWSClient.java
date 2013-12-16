@@ -59,7 +59,7 @@ public class AccessControlWSClient extends MyEquivalentsWSClient implements Acce
 		return setFullAuthenticationCredentials ( email, userPassword, false );
 	}
 
-	private User setFullAuthenticationCredentials ( String email, String userPassword, boolean connectServer ) throws SecurityException
+	public User setFullAuthenticationCredentials ( String email, String userPassword, boolean connectServer ) throws SecurityException
 	{
 		this.email = StringUtils.trimToNull ( email );
 		this.userPassword = StringUtils.trimToNull ( userPassword );

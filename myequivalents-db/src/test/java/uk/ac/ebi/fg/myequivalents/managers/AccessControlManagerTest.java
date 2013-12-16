@@ -25,6 +25,7 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbAccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
@@ -37,7 +38,8 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
- * TODO: Comment me!
+ * JUnit tests for the access control features available from the {@link AccessControlManager} interface and its 
+ * {@link DbAccessControlManager database implementation}, as well as from DAOs like {@link UserDao}.
  *
  * <dl><dt>date</dt><dd>Apr 22, 2013</dd></dl>
  * @author Marco Brandizi
@@ -69,6 +71,9 @@ public class AccessControlManagerTest
 	
 	private UserDao userDao = new UserDao ( em );
 
+	/**
+	 * Stores an admin and a regular user to be used in the tests below.
+	 */
 	@Before
 	public void init ()
 	{
@@ -85,6 +90,9 @@ public class AccessControlManagerTest
 		ts.commit ();
 	}
 	
+	/**
+	 * Cleans up test users.
+	 */
 	@After
 	public void shutdown ()
 	{
@@ -111,6 +119,9 @@ public class AccessControlManagerTest
 		assertNull ( "Admin User not deleted!", userDao.findByEmailUnauthorized ( adminUser.getEmail () ) );
 	}
 	
+	/**
+	 * Test features available from the {@link UserDao}. 
+	 */
 	@Test
 	public void testUserDao ()
 	{
@@ -182,7 +193,9 @@ public class AccessControlManagerTest
 			throw new IllegalStateException ( "Error while checking failure of self-removal!", caught );
 	}
 	
-	
+	/**
+	 * Tests user-related commands available from the {@link AccessControlManager}.
+	 */
 	@Test
 	public void testAccessControlManagerForUser ()
 	{
@@ -246,7 +259,9 @@ public class AccessControlManagerTest
 	}
 	
 	
-	
+	/**
+	 * Tests permission-related commands available from {@link AccessControlManager}.
+	 */
 	@Test
 	public void testPermssionCommands ()
 	{
@@ -284,7 +299,10 @@ public class AccessControlManagerTest
 		servMgr.deleteServices ( service.getName () );
 	}
 	
-	
+	/**
+	 * Tests cascading properties of service permission features, e.g., when you set a permission on a service and 
+	 * that is cascaded to all its entities. 
+	 */
 	@Test
 	public void testServicePermissionCascading ()
 	{

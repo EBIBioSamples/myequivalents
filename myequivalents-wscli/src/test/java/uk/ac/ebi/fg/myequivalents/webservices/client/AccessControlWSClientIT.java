@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Date;
 
 import org.joda.time.DateMidnight;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
@@ -28,7 +27,9 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 
 /**
- * TODO: Comment me!
+ * Integration tests for the web service client concerning the access control features, i.e. the 
+ * {@link AccessControlManager} interface. Most of these tests are almost the same as the ones available in 
+ * uk.ac.ebi.fg.myequivalents.managers.AccessControlManagerTest in the myequivalents-db package.
  *
  * <dl><dt>date</dt><dd>24 Oct 2013</dd></dl>
  * @author Marco Brandizi
@@ -39,12 +40,12 @@ public class AccessControlWSClientIT
 	// Default is http://localhost:8080/myequivalents/ws
 	// We use a non-standard port here cause 8080 is often already taken on EBI hosts
 	//
-	static final String WS_BASE_URL = "http://localhost:10973/ws";
-	//static final String WS_BASE_URL = "http://localhost:8080/ws";
+  static final String WS_BASE_URL = "http://localhost:10973/ws";
+	// static final String WS_BASE_URL = "http://localhost:8080/ws";
 	
 	// TODO Make them final and upper case throughout all the code base
 	private static String adminPass = "test.password";
-	private static String adminSecret = User.generateSecret ();
+	private static String adminSecret = "test.secret";
 	private static User adminUser = new User ( 
 		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
 	);
@@ -62,6 +63,9 @@ public class AccessControlWSClientIT
 	
 	private AccessControlManager accMgr = new AccessControlWSClient ( WS_BASE_URL );
 
+	/**
+	 * Test users access features. 
+	 */
 	@Test
 	public void testUserCommands ()
 	{
@@ -127,25 +131,33 @@ public class AccessControlWSClientIT
 			throw new IllegalStateException ( "Error while checking failure of self-removal!", caught );
 	}
 	
-	@Test @Ignore ( "not ready yet (TODO)" )
+	/**
+	 * Test commands related to visibility permissions.
+	 */
+	@Test
 	public void testPermssionCommands ()
 	{
 		Service service = new Service ( "test.perms.service1", "someType", "A Test Service", "The Description of a Test Service" );
-		// TODO: store via the service manager
+
+		ServiceManager servMgr = new ServiceWSClient ( WS_BASE_URL );
+		servMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		
+		servMgr.storeServices ( service );
 		
 		EntityMappingManager emMgr = new EntityMappingWSClient ( WS_BASE_URL );
 		emMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		emMgr.storeMappings ( service.getName () + ":e1", service.getName () + ":e2" );
 		
-		accMgr.setAuthenticationCredentials ( adminUser.getEmail (), adminPass );
+		accMgr.setFullAuthenticationCredentials ( adminUser.getEmail (), adminPass );
+		accMgr.storeUser ( user );
 		accMgr.setUserRole ( user.getEmail (), User.Role.EDITOR );
 		
+		user = accMgr.getUser ( user.getEmail () );
+		assertEquals ( "User role not changed!", Role.EDITOR, user.getRole () );
+		
+		accMgr.setAuthenticationCredentials ( adminUser.getEmail (), adminSecret );
 		Date testDate = new DateMidnight ( 2013, 4, 25 ).toDate ();
-		accMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		accMgr.setServicesVisibility ( "false", DateJaxbXmlAdapter.STR2DATE.marshal ( testDate ), true, service.getName () );
-
-		ServiceManager servMgr = new ServiceWSClient ( WS_BASE_URL );
-		servMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		
 		Service serviceDB = servMgr.getServices ( service.getName () ).getServices ().iterator ().next ();
 		
@@ -160,10 +172,14 @@ public class AccessControlWSClientIT
 		assertFalse ( "setServicesVisibility() wasn't cascaded!", ent.getPublicFlag () );
 		assertEquals ( "setServicesVisibility() wasn't cascaded!", testDate, ent.getReleaseDate () );
 		
+		emMgr.deleteEntities ( service.getName () + ":e1", service.getName () + ":e2" );
 		servMgr.deleteServices ( service.getName () );
 	}
 	
-	
+	/**
+	 * Test the cascading of a permission change command, e.g., when a permission is changed on a service and this is 
+	 * supposed to be cascaded to all its entities.
+	 */
 	@Test
 	public void testServicePermissionCascading ()
 	{
