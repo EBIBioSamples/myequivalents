@@ -1,7 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
-import java.util.Date;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
