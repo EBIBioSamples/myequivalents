@@ -1,5 +1,6 @@
 1.0 (Expected)
   - Logical closure over the serviceCollection relation
+ 
   
 0.2 (Expected)
   - Authentication
