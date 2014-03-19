@@ -137,7 +137,7 @@ public class ServiceManagerTest
 	{
 		// Work as anonymous
 		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
-
+			
 		ServiceSearchResult result = serviceMgr.getServices ( 
 			service4.getName (), service2.getName (), service5.getName (), "test.servMgr.foo" 
 		);
@@ -259,6 +259,7 @@ public class ServiceManagerTest
 		
 		Repository repo1 = serviceMgr.getRepositories ( "test.testservmgr.addedRepo1" ).getRepositories ().iterator ().next ();
 		assertFalse ( "public flag defined in the XML not stored (repo1)!", repo1.getPublicFlag () );
+		
 	}
 	
 }
