@@ -158,13 +158,14 @@ abstract class LineCommand
 			.create ( "h" ) 
 		);
 
+		
 		opts.addOption ( OptionBuilder
 		 	.withDescription ( "User email to be used to login the myEquivalents repository"	)
 			.withLongOpt ( "user" )
 			.hasArg ( true ).withArgName ( "email" )
 			.create ( "u" )
 		);
-
+		
 		opts.addOption ( OptionBuilder
 		 	.withDescription ( "API secret (i.e., password), used for common commands (see documentation)" )
 			.withLongOpt ( "secret" )
@@ -178,7 +179,20 @@ abstract class LineCommand
 			.hasArg ( true ).withArgName ( "value" )
 			.create ( "w" ) 
 		);
+		
+		if ( commandString.equals ( "user store" ) )
+		{
+			opts.addOption ( OptionBuilder
+			 	.withDescription ( 
+		 				"When issuing 'user store', creates a first user (typically and admin) in an empty database, bypassing "
+		 				+ "authentication and permission checking (requires the database backend, see documentation)"
+		 		)
+				.withLongOpt ( "first-user" )
+				.create ( "y" ) 
+			);
+		}
 
+		
 		if ( commandString.endsWith ( " get" ) )
 		{
 			opts.addOption ( OptionBuilder
@@ -276,7 +290,10 @@ abstract class LineCommand
 		if ( args.length >= 2 )
 		{
 			String cmdStr = ( args [ 0 ].trim () + ' ' + args [ 1 ].trim () ).toLowerCase ();
-			if ( "user set".equalsIgnoreCase ( cmdStr ) ) cmdStr += ' ' + args [ 2 ].trim ().toLowerCase (); // 'role' expected
+			if ( "set".matches ( args [ 1 ].trim () ) )
+				// commands like 'user set role' or 'entity set visibility', they'll be further checked below
+				cmdStr += ' ' + args [ 2 ].trim ().toLowerCase (); 
+			
 			cmdClass = LINE_COMMANDS.get ( cmdStr );
 			if ( cmdClass == null ) {
 				err.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );

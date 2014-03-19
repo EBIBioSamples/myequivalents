@@ -36,14 +36,14 @@ public abstract class AbstractVisibilitySetLineCommand extends LineCommand
 			String relDateStr = cmdLine.getOptionValue ( 'd' );
 			boolean cascade = cmdLine.hasOption ( 'x' );
 			
-			doVisibilitySet ( publicFlagStr, relDateStr, cascade, (String[]) ArrayUtils.subarray ( args, 2, args.length ) );
+			doVisibilitySet ( publicFlagStr, relDateStr, cascade, (String[]) ArrayUtils.subarray ( args, 3, args.length ) );
 		}
 		
 		err.println ( "\nVisibility command executed." );
 		return;
 	}
 
-	protected abstract void doVisibilitySet ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames );
+	protected abstract void doVisibilitySet ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... entityNames );
 
 	@Override
 	public void printUsage ()

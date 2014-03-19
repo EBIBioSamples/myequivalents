@@ -12,9 +12,20 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import org.apache.commons.cli.CommandLine;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
+import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
@@ -51,16 +62,48 @@ public class UserStoreLineCommand extends LineCommand
 			}
 		  in = new BufferedReader ( in );
 			
-			AccessControlManager accMgr =
-				Resources.getInstance ().getMyEqManagerFactory ().newAccessControlManagerFullAuth ( this.email, this.userPassword );
-			
-			accMgr.storeUserFromXml ( in );
+		  if ( cmdLine.hasOption ( "y" ) )
+		  {
+		  	// This option works only when a database back end is available and allows for the creation of the first 
+		  	// admin user in an empty database. 
+		  	Resources res = Resources.getInstance ();
+		  	ManagerFactory mf = res.getMyEqManagerFactory ();
+		  	if ( ! ( mf instanceof DbManagerFactory ) ) throw new SecurityException ( 
+		  		"The --first-user option is only available when the myEquivaents command line is configured with a database "
+		  		+ "backend. Please read the documentation." 
+		  	);
+		   
+		  	// Managers don't allow us to bypass security
+		  	//
+				JAXBContext context = JAXBContext.newInstance ( User.class );
+				Unmarshaller u = context.createUnmarshaller ();
+				User user = (User) u.unmarshal ( in );
+				
+		  	EntityManager em = ((DbManagerFactory) mf).getEntityManagerFactory ().createEntityManager ();
+		  	EntityTransaction ts = em.getTransaction ();
+		  	ts.begin ();
+		  	UserDao udao = new UserDao ( em );
+		  	udao.storeUnauthorized ( user );
+		  	ts.commit ();
+		  	em.close ();
+		  }
+		  else
+		  {
+		  	// else, do a regular operation, passing through standard managers, authentication, permission control
+				AccessControlManager accMgr =
+					Resources.getInstance ().getMyEqManagerFactory ().newAccessControlManagerFullAuth ( this.email, this.userPassword );
+				
+				accMgr.storeUserFromXml ( in );
+		  }
 		} 
 		catch ( FileNotFoundException ex ) 
 		{
 			exitCode = 1; // TODO: Better reporting needed
 			throw new RuntimeException ( "Error: cannot find the input file '" + inFile.getAbsolutePath () + "'" );
 		} 
+		catch ( JAXBException ex ) {
+			throw new RuntimeException ( "Error while reading user description from XML: " + ex.getMessage (), ex );
+		}
 		
 		err.println ( "\nUser Updated" );
 		return;		
