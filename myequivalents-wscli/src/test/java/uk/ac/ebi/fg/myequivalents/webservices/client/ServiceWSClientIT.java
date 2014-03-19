@@ -21,7 +21,9 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
+import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.WS_BASE_URL;
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_USER;
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_SECRET;
@@ -44,9 +46,12 @@ public class ServiceWSClientIT
 	@Before
 	public void init ()
 	{
-		// This is how you should obtain a manager from a factory
-		serviceMgr = new ServiceWSClient ( WS_BASE_URL );
-		serviceMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		// This is how you should obtain a manager from a factory. Well, almost: normally you'll invoke getMyEqManagerFactory()
+		// without parameters and a default file name will be picked. This is instead an extended approach, needed to cope 
+		// with client/server conflicting files in the Maven-built environment.
+		//
+		serviceMgr = Resources.getInstance ()
+				.getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME ).newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET  );
 		
 		service1 = new Service ( "test.testweb.service1", "testweb.someType1", "A Test Service 1", "The Description of a Test Service 1" );
 		service1.setUriPrefix ( "http://somewhere.in.the.net/testweb/service1/" );
@@ -92,8 +97,9 @@ public class ServiceWSClientIT
 	@After
 	public void cleanUp () 
 	{
-		serviceMgr = new ServiceWSClient ( WS_BASE_URL );
+		// That's another way to get managers, but should be avoided, prefer the factory.
 		serviceMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		serviceMgr = new ServiceWSClient ( WS_BASE_URL );
 		
 		String servNames[] = new String[] { 
 			service1.getName (), service2.getName (), service3.getName (), service4.getName (), service5.getName (),
@@ -114,8 +120,9 @@ public class ServiceWSClientIT
 	public void testSearch ()
 	{
 		// Work as anonymous
-		serviceMgr = new ServiceWSClient ( WS_BASE_URL );
-
+		serviceMgr = Resources.getInstance ()
+				.getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME ).newServiceManager ();
+		
 		ServiceSearchResult result = serviceMgr.getServices ( 
 			service4.getName (), service2.getName (), service5.getName (), "test.servMgr.foo" 
 		);
@@ -156,8 +163,8 @@ public class ServiceWSClientIT
     "  </services>\n" +
     "</service-items>";
 
-		serviceMgr.storeServicesFromXML ( new StringReader ( xml ) );
 		serviceMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		serviceMgr.storeServicesFromXML ( new StringReader ( xml ) );
 
 		String servNames[] = new String[] { 
 				"test.testweb.service6", "test.testweb.service7", "test.testweb.service8" };

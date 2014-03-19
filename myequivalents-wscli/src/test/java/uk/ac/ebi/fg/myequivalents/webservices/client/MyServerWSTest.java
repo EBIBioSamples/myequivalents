@@ -25,7 +25,9 @@ public class MyServerWSTest
 	@Test @Ignore ( "This is a sort of quick/dirty manual test against our new web service instance. Usually disabled" )
 	public void testGetMapping ()
 	{
-
+		// Avoid to use this method to get the clients, prefer the factory manager obtained by means of the
+		// uk.ac.ebi.fg.myequivalents.resources.Resources
+		//
 		EntityMappingManager mmgr = new EntityMappingWSClient ( "http://wwwdev.ebi.ac.uk/fg/myequivalents/ws" );
 		EntityMappingSearchResult result = mmgr.getMappings ( false, "biosamples-service:SAMEA1006750" );
 		String resultStr = result.toString ();

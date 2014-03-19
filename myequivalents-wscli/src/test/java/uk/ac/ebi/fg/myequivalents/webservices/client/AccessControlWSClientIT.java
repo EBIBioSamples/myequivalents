@@ -18,11 +18,13 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 
@@ -37,11 +39,13 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
  */
 public class AccessControlWSClientIT
 {
+	public static final String CLI_SPRING_CONFIG_FILE_NAME = "myeq-cli-config.xml"; 
+	
 	// Default is http://localhost:8080/myequivalents/ws
 	// We use a non-standard port here cause 8080 is often already taken on EBI hosts
 	//
-  static final String WS_BASE_URL = "http://localhost:10973/ws";
-	// static final String WS_BASE_URL = "http://localhost:8080/ws";
+  public static final String WS_BASE_URL = "http://localhost:10973/ws";
+	//public static final String WS_BASE_URL = "http://localhost:8080/ws";
 	
 	// TODO Make them final and upper case throughout all the code base
 	private static String adminPass = "test.password";
@@ -61,7 +65,7 @@ public class AccessControlWSClientIT
 		"test.editor", "Test Editor", "User", EDITOR_PASS, "test editor notes", Role.EDITOR, EDITOR_SECRET );
 
 	
-	private AccessControlManager accMgr = new AccessControlWSClient ( WS_BASE_URL );
+	private AccessControlManager accMgr;
 
 	/**
 	 * Test users access features. 
@@ -69,8 +73,14 @@ public class AccessControlWSClientIT
 	@Test
 	public void testUserCommands ()
 	{
+		// This is how you should obtain a manager from a factory. Well, almost: normally you'll invoke getMyEqManagerFactory()
+		// without parameters and a default file name will be picked. This is instead an extended approach, needed to cope 
+		// with client/server conflicting files in the Maven-built environment.
+		//
 		// Must login with pass to change these things
-		accMgr.setAuthenticationCredentials ( adminUser.getEmail (), adminSecret );
+		accMgr = Resources.getInstance ().getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME )
+			.newAccessControlManager ( adminUser.getEmail (), adminSecret );  
+		
 		catchException ( accMgr ).storeUser ( user );
 		Exception caught = caughtException ();
 		if ( ! ( caught instanceof SecurityException ) ) throw new IllegalStateException ( 
@@ -137,18 +147,17 @@ public class AccessControlWSClientIT
 	@Test
 	public void testPermssionCommands ()
 	{
-		Service service = new Service ( "test.perms.service1", "someType", "A Test Service", "The Description of a Test Service" );
-
-		ServiceManager servMgr = new ServiceWSClient ( WS_BASE_URL );
-		servMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		// See above the notes about the magers and theit factory
+		ManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME );
+		ServiceManager servMgr = mgrFact.newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET  );
 		
+		Service service = new Service ( "test.perms.service1", "someType", "A Test Service", "The Description of a Test Service" );
 		servMgr.storeServices ( service );
 		
-		EntityMappingManager emMgr = new EntityMappingWSClient ( WS_BASE_URL );
-		emMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		EntityMappingManager emMgr = mgrFact.newEntityMappingManager ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		emMgr.storeMappings ( service.getName () + ":e1", service.getName () + ":e2" );
 		
-		accMgr.setFullAuthenticationCredentials ( adminUser.getEmail (), adminPass );
+		accMgr = mgrFact.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass  );  
 		accMgr.storeUser ( user );
 		accMgr.setUserRole ( user.getEmail (), User.Role.EDITOR );
 		
@@ -183,15 +192,17 @@ public class AccessControlWSClientIT
 	@Test
 	public void testServicePermissionCascading ()
 	{
+		// See above the notes about the magers and theit factory
+		ManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME );
+		ServiceManager servMgr = mgrFact.newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET  );
+
+		
 		Repository repo = new Repository ( "test.perms.repo1", "A test repo 1", "Descr about A test Repo 1" );
 		repo.setPublicFlag ( true );
 		Service service = new Service ( "test.perms.service1", "someType", "A Test Service", "The Description of a Test Service" );
 		service.setPublicFlag ( null );
 		service.setReleaseDate ( null );
 		service.setRepository ( repo );
-		
-		ServiceManager servMgr = new ServiceWSClient ( WS_BASE_URL );
-		servMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 
 		servMgr.storeServices ( service );
 

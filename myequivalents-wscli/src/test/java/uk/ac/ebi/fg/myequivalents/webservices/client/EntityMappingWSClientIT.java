@@ -16,8 +16,9 @@ import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
+import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
-import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.WS_BASE_URL;
+import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
 
 /**
  * Tests the Web service client for the mappings. This relies on some data that are initialised by the myequivalents-web
@@ -31,7 +32,12 @@ import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClien
  */
 public class EntityMappingWSClientIT
 {
-	private EntityMappingManager mmgr = new EntityMappingWSClient ( WS_BASE_URL );
+	// This is how you should obtain a manager from a factory. Well, almost: normally you'll invoke getMyEqManagerFactory()
+	// without parameters and a default file name will be picked. This is instead an extended approach, needed to cope 
+	// with client/server conflicting files in the Maven-built environment.
+	//
+	private EntityMappingManager mmgr =  Resources.getInstance ()
+		.getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME ).newEntityMappingManager ();
 	
 	@Test
 	public void testGet ()

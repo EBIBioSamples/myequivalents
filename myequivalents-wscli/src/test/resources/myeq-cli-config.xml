@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  This is specifically used by the automated tests in the web service client module. myeq-manager-config.xml is instead
+  used to setup the web server. This is the easiest arrangement via Maven overlays.  
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation=
+       	"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+>       
+	<!--
+		This is a Spring Framework resource configuration file (see http://static.springsource.org/spring/docs/3.2.x/spring-framework-reference/html/beans.html).
+		 
+		The MyEquivalents applications get the managers (i.e. components needed to access the service and its back-end) via 
+		the factory configured by this bean. See documentation and test classes in the core package for details.
+	-->
+	<bean id="myEquivalentsManagerFactory" class="uk.ac.ebi.fg.myequivalents.webservices.client.WSClientManagerFactory">
+		<constructor-arg>
+			<util:constant static-field="uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.WS_BASE_URL" />
+		</constructor-arg>
+	</bean>
+</beans>

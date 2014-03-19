@@ -2,7 +2,6 @@ package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -138,9 +137,12 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	{
 		if ( emsr == null ) return null;
 		
+		// Do you have more than mappings?
+		
 		Set<Service> orgServs = emsr.getServices ();
 		if ( orgServs == null ) return emsr;
 		
+		// OK, first let's index that
 	  Map<String, Service> servs = new HashMap<String, Service> ();
 	  for ( Service s: orgServs ) servs.put ( s.getName (), s );
 
@@ -150,24 +152,31 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	  Map<String, ServiceCollection> scs = new HashMap<String, ServiceCollection> ();
 	  for ( ServiceCollection sc: emsr.getServiceCollections () ) scs.put ( sc.getName (), sc );
 
+	  // Do you *really* have something?
 	  if ( servs.isEmpty () && repos.isEmpty () && scs.isEmpty () ) return emsr;
 	  
+	  // If yes, let's rebuild entity mappings with proper links
 	  List<EntityMapping> newEms = new LinkedList<EntityMapping> ();
-	  
-	  int bid = 0;
+	  int bid = 0; // It's OK to have fictitious bundlle IDs, you're not supposed to mess up with these anyway
+
 		for ( Bundle b: emsr.getBundles () )
 		{
 			String bidStr = Integer.toString ( bid++ );
 			for ( Entity e : b.getEntities () )
 			{
+				// Try with either the service or its name reference
 				Service s = e.getService ();
 				if ( s == null ) s = servs.get ( e.getServiceName () );
-				newEms.add ( new EntityMapping ( s, e.getAccession (), bidStr ) );
+				
+				// Create the new entity mapping and clone from the old one.
+				EntityMapping newEm = new EntityMapping ( s, e.getAccession (), bidStr );
+				newEm.setPublicFlag ( e.getPublicFlag () );
+				newEm.setReleaseDate ( e.getReleaseDate () );
+				newEms.add ( newEm );
 			}
 		}
-		
-		EntityMappingSearchResult result = new EntityMappingSearchResult ( false );
-		
+
+		// Rebuild the service->repository relationship
 		for ( Service s: orgServs ) 
 		{
 			String rname = s.getRepositoryName ();
@@ -177,8 +186,9 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 			if ( scname != null ) s.setServiceCollection ( scs.get ( scname ) );
 		}
 		
+		// Whoaa! Last bit and return
+		EntityMappingSearchResult result = new EntityMappingSearchResult ( false );
 		result.addAllEntityMappings ( newEms );
-		
 		return result;
 	}
 }
