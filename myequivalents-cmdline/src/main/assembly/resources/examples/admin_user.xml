@@ -1,0 +1,16 @@
+<!-- 
+  This used can be passed to the line command 'user store \-\-first-user', when the command line is configured to use
+  the database back end directly. This allows you bootstrap an empty database with an administrator account, so that
+  you can start using that to populate the DB with other users, services and repositories and then start add mappings.
+  
+  See the documentation for further details.  
+-->
+<user 
+  email = 'admin' 
+  name = 'Admin'
+  surname = 'User' 
+  role = 'ADMIN'
+  secret = 'admin.secret' 
+  password = 'admin.password'>
+  <notes>Administrator user</notes> 
+</user>
