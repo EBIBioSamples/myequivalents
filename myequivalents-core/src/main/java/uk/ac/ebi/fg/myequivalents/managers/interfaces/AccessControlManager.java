@@ -36,7 +36,7 @@ public interface AccessControlManager extends MyEquivalentsManager
 	/**
 	 * Does the same as {@link #storeUser(User)}, but taking data from XML. TODO: document the format. This is 
 	 * auto-generated via JAXB from {@link User} and reflects that class, for the moment examples are available 
-	 * in JUnit tests (TODO).
+	 * in JUnit tests (see uk.ac.ebi.fg.myequivalents.managers.AccessControlManagerTest in the -db package).
 	 */
 	public void storeUserFromXml ( Reader reader );
 
@@ -69,8 +69,7 @@ public interface AccessControlManager extends MyEquivalentsManager
 	
 	/**
 	 * Changes the visibility parameters for {@link Service}. This cascades to all {@link EntityMapping} if these don't
-	 * define more specific details. TODO: more comments
-	 * 
+	 * define more specific details.
 	 */
 	public void setServicesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames );
 	public void setRepositoriesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... repositoryNames );

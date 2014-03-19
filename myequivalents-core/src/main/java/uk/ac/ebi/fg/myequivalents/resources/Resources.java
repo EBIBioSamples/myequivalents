@@ -57,6 +57,12 @@ public class Resources
 		this.configLocation = configLocation;
 	}
 
+	
+	/** Defaults to {@link #MYEQ_MANAGER_FACTORY_FILE_NAME}. */
+	public <MF extends ManagerFactory> MF getMyEqManagerFactory () {
+		return getMyEqManagerFactory ( MYEQ_MANAGER_FACTORY_FILE_NAME );
+	}
+
 	/**
 	 * Returns the manager factory used for this application, based on spring and the resource configuration file named 
    * {@value #MYEQ_MANAGER_FACTORY_FILE_NAME}. The returned factory is the bean named 'myEquivalentsManagerFactory' that
@@ -64,17 +70,28 @@ public class Resources
    * that's not null.
    * 
 	 */
-	public ManagerFactory getMyEqManagerFactory ()
+	@SuppressWarnings ( "unchecked" )
+	public <MF extends ManagerFactory> MF getMyEqManagerFactory ( String springConfigFileName )
 	{
-		if ( myEqManagerFactory != null ) return myEqManagerFactory;
-		return myEqManagerFactory = (ManagerFactory) getSpringApplicationContext().getBean ( "myEquivalentsManagerFactory" );
+		if ( myEqManagerFactory != null ) return (MF) myEqManagerFactory;
+		return (MF) (myEqManagerFactory = (ManagerFactory) getSpringApplicationContext( springConfigFileName )
+			.getBean ( "myEquivalentsManagerFactory" ));
 	}
+
 	
+
+	
+	/** Defaults to {@value #MYEQ_MANAGER_FACTORY_FILE_NAME} */
+	public ApplicationContext getSpringApplicationContext ()
+	{
+		return getSpringApplicationContext ( MYEQ_MANAGER_FACTORY_FILE_NAME );
+	}
+
 	/**
-	 * Get the spring application context from the {@value #MYEQ_MANAGER_FACTORY_FILE_NAME} spring file. The locations
+	 * Get the spring application context from the configFileName spring file. The locations
 	 * this file is looked for are described in {@link #getMyEqManagerFactory()}. 
 	 */
-	public ApplicationContext getSpringApplicationContext ()
+	public ApplicationContext getSpringApplicationContext ( String configFileName )
 	{
 		if ( springApplicationContext != null ) return springApplicationContext;
 		 
@@ -86,13 +103,13 @@ public class Resources
 	
 			if ( configLocation != null )
 			{
-				springFile = new File ( springFilePath = configLocation + "/" + MYEQ_MANAGER_FACTORY_FILE_NAME );
+				springFile = new File ( springFilePath = configLocation + "/" + configFileName );
 				if ( !springFile.exists () ) springFile = null;
 			}
 			
 			if ( springFile == null ) {
-				log.info ( "Loading MyEquivalents's Manager Configuration (" + MYEQ_MANAGER_FACTORY_FILE_NAME + ") from CLASSPATH" );
-				return springApplicationContext = new ClassPathXmlApplicationContext ( MYEQ_MANAGER_FACTORY_FILE_NAME );
+				log.info ( "Loading MyEquivalents's Manager Configuration (" + configFileName + ") from CLASSPATH" );
+				return springApplicationContext = new ClassPathXmlApplicationContext ( configFileName );
 			}
 			
 			log.info ( "Loading MyEquivalents's Manager Configuration from '" + springFile.getCanonicalPath () + "'" );
@@ -100,12 +117,14 @@ public class Resources
 			
 		} 
 		catch ( FileNotFoundException ex ) {
-			throw new RuntimeException ( "MyEquivalents's Manager Configuration (" + MYEQ_MANAGER_FACTORY_FILE_NAME + ") not found at: '" + configLocation + "'" );
+			throw new RuntimeException ( 
+				"MyEquivalents's Manager Configuration (" + configFileName + ") not found at: '" + configLocation + "'", ex );
 		} 
 		catch ( IOException ex ) {
 			throw new RuntimeException ( 
-				"Error while initialising MyEquivalents's Manager Configuration (" + MYEQ_MANAGER_FACTORY_FILE_NAME + ") from '" + configLocation + "': " + ex.getMessage (), ex );
+				"Error while initialising MyEquivalents's Manager Configuration (" + configFileName + ") from '" 
+				+ configLocation + "': " + ex.getMessage (), ex );
 		}
-		
 	}
+	
 }

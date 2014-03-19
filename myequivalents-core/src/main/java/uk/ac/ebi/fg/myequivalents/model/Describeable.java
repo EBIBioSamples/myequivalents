@@ -136,6 +136,9 @@ public abstract class Describeable
 		this.releaseDate = releaseDate;
 	}
 
+	/**
+	 * isPublic evaluates to {@link #getPublicFlag()} if that's not null, or {@link #getReleaseDate()} not in future.
+	 */
 	@Transient
 	public boolean isPublic ()
 	{

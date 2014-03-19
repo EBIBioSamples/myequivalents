@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
@@ -48,9 +49,15 @@ public class Entity implements Serializable
 	@Column( length = 50 )
 	private String accession;
 
+	/**
+	 * This must be transient, cause a specific implementation has to be given in {@link EntityMapping}. 
+	 */
 	@Transient
 	private Boolean publicFlag = true;
 
+	/**
+	 * This must be transient, cause a specific implementation has to be given in {@link EntityMapping}. 
+	 */
 	@Transient
 	private Date releaseDate = null;
 	
@@ -93,7 +100,7 @@ public class Entity implements Serializable
 	}
 	
   /**
-   * TODO: comment me (special method for JAXB)!
+   * This is only used with JAXB and implemented in specific sub-classes.
    */
 	protected void setServiceName ( String serviceName ) 
 	{
@@ -115,11 +122,13 @@ public class Entity implements Serializable
 	public void setPublicFlag ( Boolean publicFlag ) {
 		this.publicFlag = publicFlag;
 	}
-	
+
+	@XmlAttribute ( name = "public-flag" )
 	public Boolean getPublicFlag () {
 		return this.publicFlag;
 	}
 	
+	@XmlAttribute ( name = "release-date" )
 	public Date getReleaseDate ()
 	{
 		return releaseDate;
@@ -131,6 +140,9 @@ public class Entity implements Serializable
 		this.releaseDate = releaseDate;
 	}
 
+	/**
+	 * isPublic evaluates to {@link #getPublicFlag()} if that's not null, or {@link #getReleaseDate()} not in future.
+	 */
 	@Transient
 	public boolean isPublic ()
 	{
