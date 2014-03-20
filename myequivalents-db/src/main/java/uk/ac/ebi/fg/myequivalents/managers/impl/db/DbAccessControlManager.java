@@ -232,7 +232,7 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		
 		for ( String dname: names )
 		{
-			D descr = descrDao.findByName ( dname );
+			D descr = descrDao.findByName ( dname, false );
 			if ( descr == null ) throw new RuntimeException ( String.format ( 
 				"%s '%s' not found", describeableLabel, dname 
 			));

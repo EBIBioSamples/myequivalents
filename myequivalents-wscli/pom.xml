@@ -170,6 +170,44 @@
           </execution>
         </executions>	      
 	    </plugin>
+
+
+			<!-- This creates a zip with all the dependencies that a non-maven app might need -->
+	    <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>deps</id>
+            <configuration>
+              <finalName>myequivalents_deps</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <attach>false</attach>
+              <descriptors>
+              	<descriptor>src/main/assembly/deps.xml</descriptor>
+              </descriptors>
+            </configuration>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+          <execution>
+              <id>pkg</id>
+              <configuration>
+                  <finalName>myequivalents-wscli_${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <attach>false</attach>
+                  <descriptors>
+                      <descriptor>src/main/assembly/pkg.xml</descriptor>
+                  </descriptors>
+              </configuration>
+              <phase>package</phase>
+              <goals>
+              	<goal>single</goal>
+              </goals>
+          </execution>
+        </executions>
+	    </plugin>
 	    			
 		</plugins>  
   </build>
