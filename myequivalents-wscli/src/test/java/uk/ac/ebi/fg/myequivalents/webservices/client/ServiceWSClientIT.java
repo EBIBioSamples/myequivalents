@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 
 import org.joda.time.DateMidnight;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,9 +23,7 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
-import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.WS_BASE_URL;
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_USER;
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_SECRET;
 
@@ -98,8 +97,11 @@ public class ServiceWSClientIT
 	public void cleanUp () 
 	{
 		// That's another way to get managers, but should be avoided, prefer the factory.
-		serviceMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
-		serviceMgr = new ServiceWSClient ( WS_BASE_URL );
+		//serviceMgr = new ServiceWSClient ( WS_BASE_URL );
+		//serviceMgr.setAuthenticationCredentials ( EDITOR_USER.getEmail (), EDITOR_SECRET );
+		
+		serviceMgr = Resources.getInstance ()
+		.getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME ).newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET  );
 		
 		String servNames[] = new String[] { 
 			service1.getName (), service2.getName (), service3.getName (), service4.getName (), service5.getName (),
