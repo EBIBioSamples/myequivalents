@@ -225,11 +225,12 @@
 	
   <repositories>
 
-    <repository>
-	    <id>coconut.ebi.ac.uk</id>
-	    <name>coconut.ebi.ac.uk-releases</name>
-	    <url>http://coconut.ebi.ac.uk:8081/artifactory/local-repo</url>
-    </repository>
+		<repository>
+			<id>ebi-repo-old</id>
+			<name>EBI repo</name>
+			<url>http://www.ebi.ac.uk/~maven/m2repo</url>
+		</repository>
+
 
 		<repository>
 			<id>springsource-repo</id>
