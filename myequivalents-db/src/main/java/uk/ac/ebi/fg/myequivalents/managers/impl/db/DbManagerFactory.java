@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
@@ -35,20 +36,49 @@ public class DbManagerFactory implements ManagerFactory
 		entityManagerFactory = Persistence.createEntityManagerFactory ( "defaultPersistenceUnit", hibernateProperties );
 	}
 	
+	
 	@Override
 	public EntityMappingManager newEntityMappingManager ()
 	{
 		return new DbEntityMappingManager ( entityManagerFactory.createEntityManager () );
 	}
+	
+	@Override
+	public EntityMappingManager newEntityMappingManager ( String email, String apiPassword )
+	{
+		return new DbEntityMappingManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
+	
 
 	@Override
 	public ServiceManager newServiceManager ()
 	{
-		return new DbServiceManager ( entityManagerFactory.createEntityManager ()  );
+		return new DbServiceManager ( entityManagerFactory.createEntityManager () );
 	}
 
+	@Override
+	public ServiceManager newServiceManager ( String email, String apiPassword )
+	{
+		return new DbServiceManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
+
+	
+	@Override
+	public AccessControlManager newAccessControlManager ( String email, String apiPassword )
+	{
+		return new DbAccessControlManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
+
+	@Override
+	public AccessControlManager newAccessControlManagerFullAuth ( String email, String userPassword )
+	{
+		return new DbAccessControlManager ( entityManagerFactory.createEntityManager (), email, userPassword, true );
+	}
+
+	
 	public EntityManagerFactory getEntityManagerFactory ()
 	{
 		return entityManagerFactory;
 	}
+
 }

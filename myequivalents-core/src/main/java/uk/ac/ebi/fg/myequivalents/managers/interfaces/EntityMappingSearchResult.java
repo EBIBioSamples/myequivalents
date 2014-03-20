@@ -23,7 +23,7 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 /**
  * 
  * This is the class used to format the responses returned by the {@link DbEntityMappingManager}. For instance, the REST-based
- * web service uses this class to format its output in XML (thanks to JAXB mappings).  
+ * web service uses this class to format its output in XML (thanks to JAXB mappings).
  * 
  * <dl><dt>date</dt><dd>Jun 11, 2012</dd></dl>
  * @author Marco Brandizi
@@ -68,7 +68,7 @@ public class EntityMappingSearchResult
 	}
 	
 	private final boolean wantRawResult;
-	
+		
 	private Set<Service> services;
 	private Set<ServiceCollection> serviceCollections;
 	private Set<Repository> repositories;
@@ -189,6 +189,8 @@ public class EntityMappingSearchResult
 	public void addAllEntityMappings ( Collection<EntityMapping> mappings ) {
 		for ( EntityMapping em: mappings ) addEntityMapping ( em );
 	}
+	
+
 
 	@Override
 	public String toString ()

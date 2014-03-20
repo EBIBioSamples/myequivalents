@@ -19,13 +19,13 @@ import uk.ac.ebi.utils.reflection.ReflectionUtils;
  * @author Marco Brandizi
  *
  */
-public abstract class DescribeableDAO<D extends Describeable>
+public class DescribeableDAO<D extends Describeable>
 {
 	private EntityManager entityManager;
 	protected final Class<? super D> targetClass;
 	
 	
-	protected DescribeableDAO ( EntityManager entityManager, Class<? super D> targetClass )
+	public DescribeableDAO ( EntityManager entityManager, Class<? super D> targetClass )
 	{
 		super ();
 		this.entityManager = entityManager;
@@ -60,13 +60,18 @@ public abstract class DescribeableDAO<D extends Describeable>
 	}
 	
 	
-	public D findByName ( String describeableName )
+	/**
+	 * @param mustBePublic filters out those entities that are not {@link Describeable#isPublic()}.
+	 */
+	public D findByName ( String describeableName, boolean mustBePublic )
 	{
 		describeableName = StringUtils.trimToNull ( describeableName );
 		if ( describeableName == null ) return null;
 		
-		Query q = entityManager.createQuery ( 
-			"FROM " + targetClass.getName () + " WHERE name = '" + describeableName + "'" );
+		String hql = "FROM " + targetClass.getName () + " WHERE name = '" + describeableName + "'"; 
+		if ( mustBePublic )	hql += " AND ( publicFlag IS NULL AND releaseDate <= current_time() OR publicFlag = true )";
+
+		Query q = entityManager.createQuery ( hql );
 
 		@SuppressWarnings ( "unchecked" )
 		List<D> results = q.getResultList ();
@@ -74,20 +79,28 @@ public abstract class DescribeableDAO<D extends Describeable>
 		return results.isEmpty () ? null : results.iterator ().next ();
 	}
 
-	public D findByName ( D describeable )
-	{
-		if ( describeable == null ) return null;
-		return findByName ( describeable.getName () );
+	public D findByName ( String describeableName ) {
+		return findByName ( describeableName, true );
 	}
 
-	
-	public boolean exists ( String describeableName )
+	public D findByName ( D describeable, boolean mustBePublic )
 	{
-		describeableName = StringUtils.trimToNull ( describeableName );
-		if ( describeableName == null ) return false;
+		if ( describeable == null ) return null;
+		return findByName ( describeable.getName (), mustBePublic );
+	}
+
+	public D findByName ( D describeable ) {
+		return findByName ( describeable, true );
+	}
+	
+	/** TODO: requires isRestrictedToPublic */ 
+	public boolean exists ( String mustBePublic )
+	{
+		mustBePublic = StringUtils.trimToNull ( mustBePublic );
+		if ( mustBePublic == null ) return false;
 
 		Query q = entityManager.createQuery ( 
-			"SELECT name FROM " + targetClass.getName () + " WHERE name = '" + describeableName + "'" );
+			"SELECT name FROM " + targetClass.getName () + " WHERE name = '" + mustBePublic + "'" );
 		
 		@SuppressWarnings ( "unchecked" )
 		List<String> names = q.getResultList ();
@@ -95,6 +108,7 @@ public abstract class DescribeableDAO<D extends Describeable>
 		return !names.isEmpty ();
 	}
 
+	/** TODO: requires isRestrictedToPublic */ 
 	public boolean exists ( D describeable )
 	{
 		if ( describeable == null ) return false;

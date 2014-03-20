@@ -1,27 +1,38 @@
 package uk.ac.ebi.fg.myequivalents.managers;
 
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
 import static java.lang.System.out;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
+import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
+import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
+import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
@@ -52,14 +63,27 @@ public class EntityMappingManagerTest
 	private ServiceCollection sc1;
 	private Repository repo1;
 	
+	private String editorPass = "test.password";
+	private String editorSecret = User.generateSecret ();
+	private User editorUser = new User ( 
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
+
 	@Before
 	public void init ()
 	{
 		EntityManager em = emProvider.getEntityManager ();
+
+		// An editor is needed for writing operations.
+		UserDao userDao = new UserDao ( em );
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.storeUnauthorized ( editorUser );
+		ts.commit ();
+
 		serviceDao = new ServiceDAO ( em );
 		
 		// This is how you should obtain a manager from a factory
-		emMgr = managerFactory.newEntityMappingManager ();
+		emMgr = managerFactory.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
 		
 		service1 = new Service ( "test.testemsrv.service1", "testemsrv.someType1", "A Test Service 1", "The Description of a Test Service 1" );
 		service1.setUriPrefix ( "http://somewhere.in.the.net/testemsrv/service1/" );
@@ -85,7 +109,7 @@ public class EntityMappingManagerTest
 		service5 = new Service ( "test.testemsrv.service5", "testemsrv.someType2", "A Test Service 5", "The Description of a Test Service 5" );
 		service5.setUriPrefix ( "http://somewhere-else.in.the.net/testemsrv/service5/" );
 
-		EntityTransaction ts = em.getTransaction ();
+		ts = em.getTransaction ();
 
 		ts.begin ();
 		emMgr.deleteEntities ( 
@@ -104,15 +128,20 @@ public class EntityMappingManagerTest
 		serviceDao.delete ( service3 );
 		serviceDao.delete ( service4 );
 		serviceDao.delete ( service5 );
-		
-		new RepositoryDAO ( emProvider.getEntityManager () ).delete ( repo1 );
 
+		ts.commit ();
+		
+		ts.begin ();
+		new RepositoryDAO ( emProvider.getEntityManager () ).delete ( repo1 );
+		ts.commit ();
+		
 		assertEquals ( "Entities not deleted!", 0, emMgr.getMappings ( 
 				true, service1.getName () + ":acc1", service2.getName () + ":acc2" 
 			).getBundles ().size () 
 		);
 		// TODO: more 
 		
+		ts.begin ();
 		serviceDao.store ( service1 );
 		serviceDao.store ( service2 );
 		serviceDao.store ( service3 );
@@ -121,6 +150,21 @@ public class EntityMappingManagerTest
 		ts.commit ();
 	}
 	
+	
+	@After
+	public void cleanUp () 
+	{
+		// An editor is needed for writing operations.
+		EntityManager em = emProvider.getEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.deleteUnauthorized ( editorUser.getEmail () );
+		ts.commit ();
+	}
+
+
 	@Test
 	public void testBasicSearch ()
 	{
@@ -205,4 +249,74 @@ public class EntityMappingManagerTest
 
 		// TODO Use XPath to test the XML
 	}
+	
+	
+	@Test
+	public void testAuthentication ()
+	{
+		emMgr = managerFactory.newEntityMappingManager ();
+		catchException ( emMgr ).storeMappingBundle ( 
+		  service1.getName () + ":b1.1", service2.getName () + ":b1.2", service1.getName () + ":b1.3" );
+		assertTrue ( "Authenticated EntityMappingManager.store() didn't work!", caughtException () instanceof SecurityException );
+	}
+	
+	@Test
+	public void testVisibility ()
+	{
+		AccessControlManager acMgr = managerFactory.newAccessControlManager ( editorUser.getEmail (), editorSecret );
+		
+		// b1 ( (s1, b1.1) (s2, b1.2) (s1, b1.3) (s1, b1.4)
+	  // b2 ( (s2, b2.1) (s3, b2.2) )
+	  emMgr.storeMappingBundle ( 
+	  	service1.getName () + ":b1.1", service2.getName () + ":b2.1", service1.getName () + ":b1.2" );
+	  emMgr.storeMappings ( 
+	  	service1.getName () + ":b1.3", service1.getName () + ":b1.1",
+	  	service2.getName () + ":b2.2", service1.getName () + ":b1.3"
+	  );
+
+	  EntityMappingSearchResult emsr = emMgr.getMappings ( true, service2.getName () + ":b2.2" );
+	  out.println ( "\n\nStored mappings:\n" + emsr + "\n\n" );
+	  
+	  assertTrue ( "Private entity is not created!", emsr.getBundles ().iterator().next ().getEntities ()
+			.contains ( new Entity ( service1, "b1.1" ) )
+	  );
+
+	  acMgr.setServicesVisibility ( "false", "null", false, service1.getName () );
+	  acMgr.setEntitiesVisibility ( "null", "null", service1.getName () + ":b1.1" );
+	  
+		emMgr = managerFactory.newEntityMappingManager ();
+	  emsr = emMgr.getMappings ( true, service2.getName () + ":b2.2" );
+	  out.println ( "\n\nProtected mappings:\n" + emsr + "\n\n" );
+		assertFalse ( "Private entity is accessible!", emsr.getBundles ().iterator().next ().getEntities ()
+			.contains ( new Entity ( service1, "b1.1" ) )
+	  );
+
+		/** 
+		 * The result is void when asked about a private entity, cause otherwise you would be able to investigate its
+		 * equivalents.
+		 */
+	  emsr = emMgr.getMappings ( true, service1.getName () + ":b1.1" );
+	  out.println ( "\n\nProtected mapping (sent as parameter):\n" + emsr + "\n\n" );
+		assertTrue ( 
+			"Private entity is accessible (as parameter)!", 
+			emMgr.getMappings ( true, service1.getName () + ":b1.1" ).getBundles ().isEmpty () 
+		);
+
+		// Test with fast calls (which are not used by managers, but we've implemented them after all...
+		EntityManager em = emProvider.getEntityManager ();
+		EntityMappingDAO emDao = new EntityMappingDAO ( em );
+		
+		List<String> entStrings = emDao.findMappings ( service2.getName () + ":b2.2", false );
+		out.println ( "\n\nResult from fast call (!mustBePublic):\n" + entStrings );
+		assertTrue ( "Private entity not accessible through fast call + !mustBePublic !", entStrings.contains ( "b1.1" ) );
+
+		entStrings = emDao.findMappings ( service2.getName () + ":b2.2", true );
+		out.println ( "\n\nResult from fast call + mustBePublic:\n" + entStrings );
+		assertFalse ( "Private entity is accessible through fast call!", entStrings.contains ( "b1.1" )	);
+
+		entStrings = emDao.findMappings ( service1.getName () + ":b1.1", true );
+		out.println ( "\n\nResult from fast call + mustBePublic + private parameter:\n" + entStrings );
+		assertTrue ( "Private parameter is accessible through fast call!", entStrings.isEmpty () );
+	}
+
 }

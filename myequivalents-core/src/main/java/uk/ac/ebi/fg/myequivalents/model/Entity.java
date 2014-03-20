@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,6 +14,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
@@ -45,8 +47,19 @@ public class Entity implements Serializable
 	
 	@NotBlank
 	@Column( length = 50 )
-	@XmlAttribute
 	private String accession;
+
+	/**
+	 * This must be transient, cause a specific implementation has to be given in {@link EntityMapping}. 
+	 */
+	@Transient
+	private Boolean publicFlag = true;
+
+	/**
+	 * This must be transient, cause a specific implementation has to be given in {@link EntityMapping}. 
+	 */
+	@Transient
+	private Date releaseDate = null;
 	
 	protected Entity () {
 	}
@@ -56,6 +69,7 @@ public class Entity implements Serializable
 		this.service = service;
 		this.accession = accession;
 	}
+	
 
 	public Service getService ()
 	{
@@ -67,6 +81,7 @@ public class Entity implements Serializable
 		this.service = service;
 	}
 
+	@XmlAttribute
 	public String getAccession ()
 	{
 		return accession;
@@ -85,7 +100,7 @@ public class Entity implements Serializable
 	}
 	
   /**
-   * TODO: comment me (special method for JAXB)!
+   * This is only used with JAXB and implemented in specific sub-classes.
    */
 	protected void setServiceName ( String serviceName ) 
 	{
@@ -103,7 +118,41 @@ public class Entity implements Serializable
 		if ( uriPattern == null ) return null;
 		return uriPattern.replaceAll ( "\\$\\{accession\\}", this.getAccession () );
 	}
+	
+	public void setPublicFlag ( Boolean publicFlag ) {
+		this.publicFlag = publicFlag;
+	}
 
+	@XmlAttribute ( name = "public-flag" )
+	public Boolean getPublicFlag () {
+		return this.publicFlag;
+	}
+	
+	@XmlAttribute ( name = "release-date" )
+	public Date getReleaseDate ()
+	{
+		return releaseDate;
+	}
+
+
+	public void setReleaseDate ( Date releaseDate )
+	{
+		this.releaseDate = releaseDate;
+	}
+
+	/**
+	 * isPublic evaluates to {@link #getPublicFlag()} if that's not null, or {@link #getReleaseDate()} not in future.
+	 */
+	@Transient
+	public boolean isPublic ()
+	{
+		Date now = new Date ();
+		return this.getPublicFlag () == null 
+			? this.getReleaseDate ().before ( now ) || this.releaseDate.equals ( now ) 
+			: this.publicFlag;
+	}
+
+	
 	@Override
 	public boolean equals ( Object obj )
 	{
@@ -125,7 +174,8 @@ public class Entity implements Serializable
 	public String toString ()
 	{
 		return String.format ( 
-			"Entity { service.name: '%s', accession: '%s' }", this.getServiceName (), this.getAccession ()  
+			"Entity { service.name: '%s', accession: '%s', public-flag: %s, release-date: %s }", 
+				this.getServiceName (), this.getAccession (), this.getPublicFlag (), this.getReleaseDate ()  
 		);
 	}
 

@@ -48,6 +48,7 @@ class HelpLineCommand extends LineCommand
 	 *  
 	 */
 	@Override
+	@SuppressWarnings ( "unchecked" )
 	public void printUsage ()
 	{
 		err.println ();
@@ -56,9 +57,9 @@ class HelpLineCommand extends LineCommand
 		err.println ( "\nCommand-line access to several functions in the MyEquivalents Infrastructure." );
 
 		err.println ( "\nGeneral Syntax:" );
-		err.println ( "\n myeq.sh <command> [options]" );
+		err.println ( "\n myeq.sh <command> [dash options] [further options]" );
 				
-		err.println ( "\nAvailable Commands: " );
+		err.println ( "\nAvailable Commands (and specific options)" );
 		
 		Options allOpts = new Options ();
 		for ( Class<? extends LineCommand> cmdClass: LINE_COMMANDS.values () ) 
@@ -70,10 +71,7 @@ class HelpLineCommand extends LineCommand
 					allOpts.addOption ( opt ); 
 		}
 		
-		err.println ( "\n --help" );
-		err.println (   "   Prints this help message" );
-		
-		err.println ( "\nOptions:" );
+		err.println ( "\nOptions (to be given after 'command' and before further options):" );
 		
 		HelpFormatter helpFormatter = new HelpFormatter ();
 		PrintWriter pw = new PrintWriter ( err, true );

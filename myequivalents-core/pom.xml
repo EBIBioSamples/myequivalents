@@ -29,8 +29,7 @@
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
-		</dependency>
-						
+		</dependency>												
 
 		<!-- TEST -->
 		<!-- There are no tests at the moment here, yet we keep these deps for possible future ref. -->
@@ -62,10 +61,16 @@
 			<scope>test</scope>
 		</dependency>
 		
+		<!-- bundles in entity mappings and password encryption are built via SHA1+Base64 encoding -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>commons-codec</groupId> -->
+<!-- 			<artifactId>commons-codec</artifactId> -->
+<!-- 			<version>1.6</version> -->
+<!-- 		</dependency> -->
+		
 		<dependency>
 			<groupId>uk.ac.ebi</groupId>
 			<artifactId>jutils</artifactId>
-			<scope>test</scope>
 		</dependency>
 		
 		<dependency>

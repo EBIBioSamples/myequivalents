@@ -60,7 +60,9 @@ import org.hibernate.annotations.Index;
 @org.hibernate.annotations.Table ( 
 	appliesTo = "service", 
 	indexes = {
-		@Index ( name = "service_t", columnNames = "title" )
+		@Index ( name = "service_t", columnNames = "title" ),
+		@Index ( name = "service_pub_flag", columnNames = "public_flag" ), // TODO: needed?! Do we need a combined one?
+		@Index ( name = "service_rel_date", columnNames = "release_date" )
 	}
 )
 @XmlRootElement ( name = "service" )
@@ -88,7 +90,7 @@ public class Service extends Describeable
 	@JoinColumn( name = "service_collection_name" )
 	@Index( name = "service_c" )
 	private ServiceCollection serviceCollection;
-	
+		
 	protected Service () {
 		super();
 	}
@@ -198,9 +200,24 @@ public class Service extends Describeable
 	{
 		return String.format ( 
 			"Service { name: '%s', title: '%s', entity-type: '%s', uri-pattern: '%s', uri-prefix: '%s', " +
-			"description: '%.15s', service-collection: '%s', repository: '%s' }", 
+			"description: '%.15s', service-collection: '%s', repository: '%s', public-flag: %s, release-date: %s }", 
 			this.getName (), this.getTitle (), this.getEntityType (), this.getUriPattern (),
-			this.getUriPrefix (), this.getDescription (), this.getServiceCollectionName (), this.getRepositoryName () );
+			this.getUriPrefix (), this.getDescription (), this.getServiceCollectionName (), this.getRepositoryName (),
+			this.getPublicFlag (), this.getReleaseDate ()
+		);
 	}
 	
+	/** 
+	 * Applies cascading rules to the service's repository, i.e., if the service has no visibility attribute (both 
+	 * {@link #getPublicFlag()} and {@link #getReleaseDate()} are null), checks if {@link #getRepository()}.{@link Repository#isPublic()}.
+	 */
+	@Override
+	public boolean isPublic ()
+	{
+		if ( this.getPublicFlag () == null && this.getReleaseDate () == null )
+			return this.getRepository () == null ? false : this.repository.isPublic ();
+		
+		return super.isPublic ();
+	}
+
 }

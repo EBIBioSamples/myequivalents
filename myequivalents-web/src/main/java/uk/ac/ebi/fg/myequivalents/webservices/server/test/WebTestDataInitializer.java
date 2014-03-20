@@ -5,10 +5,14 @@ package uk.ac.ebi.fg.myequivalents.webservices.server.test;
 
 import java.io.StringReader;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.xml.bind.JAXBException;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
+import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
@@ -28,16 +32,17 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 public class WebTestDataInitializer implements ServletContextListener
 {
 
-	@Override
-	public void contextDestroyed ( ServletContextEvent e )
-	{
-		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
+	private static String editorPass = "test.password";
+	// Alternatively you can use: User.generateSecret (); using something else here cause we need to test with the browser 
+	private static String editorSecret = "test.secret"; 
+	private static final User editorUser = new User ( 
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
-		EntityMappingManager emapMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
-		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
-		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
-		emapMgr.close ();
-	}
+	private static String adminPass = "test.password";
+	private static String adminSecret = "test.secret";
+	private static User adminUser = new User ( 
+		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
+	);
 
 	@Override
 	public void contextInitialized ( ServletContextEvent e )
@@ -46,71 +51,101 @@ public class WebTestDataInitializer implements ServletContextListener
 	
 		System.out.println ( "\n\n _________________________________ Creating Test Data ________________________________ \n\n\n" );
 		
-		try 
-		{
-			ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
-			ServiceManager serviceMgr = mgrf.newServiceManager ();
-			
-			ServiceCollection sc1 = new ServiceCollection ( 
-				"test.testweb.serviceColl1", null, "Test Service Collection 1", "The Description of the SC 1" 
-			);
-			serviceMgr.storeServiceCollections ( sc1 );
-			
-			Repository repo1 = new Repository ( "test.testweb.repo1", "Test Repo 1", "The Description of Repo1" );
-			serviceMgr.storeRepositories ( repo1 );
+		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
+		
+		// An editor is needed for writing operations.
+		//
+		EntityManager em = ((DbManagerFactory) mgrf).getEntityManagerFactory ().createEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.storeUnauthorized ( adminUser );
+		userDao.storeUnauthorized ( editorUser );
+		ts.commit ();
+		em.close ();
+		
+		ServiceManager serviceMgr = mgrf.newServiceManager ( editorUser.getEmail (), editorSecret );
+		
+		ServiceCollection sc1 = new ServiceCollection ( 
+			"test.testweb.serviceColl1", null, "Test Service Collection 1", "The Description of the SC 1" 
+		);
+		serviceMgr.storeServiceCollections ( sc1 );
+		
+		Repository repo1 = new Repository ( "test.testweb.repo1", "Test Repo 1", "The Description of Repo1" );
+		serviceMgr.storeRepositories ( repo1 );
+
+		String testServiceXml =
+			"<service-items>\n" +
+			"  <services>\n" +
+	    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/${accession}'\n" + 
+			"           uri-prefix='http://somewhere.in.the.net/testweb/service6/'\n" + 
+	    "           entity-type='testweb.someType1' title='A Test Service 6' name='test.testweb.service6'>\n" +
+	    "      <description>The Description of a Test Service 6</description>\n" + 
+	    "    </service>\n" + 
+	    "    <service entity-type='testweb.someType7' title='A Test Service 7' name='test.testweb.service7'" +
+	    "           repository-name = 'test.testweb.repo1'" +
+	    "           service-collection-name = 'test.testweb.serviceColl1'" +
+	    "           uri-pattern = 'http://somewhere.in.the.net/testweb/service7/someType1/${accession}'>\n" +
+	    "      <description>The Description of a Test Service 7</description>\n" +
+	    "    </service>\n" +
+	    "    <service uri-prefix='http://somewhere-else.in.the.net/testweb/service8/'\n" +
+	    "             entity-type='testweb.someType2' title='A Test Service 8' name='test.testweb.service8'" +
+	    "             repository-name = 'test.testweb.addedRepo1'" +
+	    "             uri-pattern = 'http://somewhere.else.in.the.net/testweb/service8/someType1/${accession}'>\n" + 
+	    "      <description>The Description of a Test Service 8</description>\n" + 
+	    "    </service>\n" +
+	    "  </services>\n" +
+	    "  <repositories>" +
+	    "  		<repository name = 'test.testweb.addedRepo1'>\n" +
+	    "       <description>A test Added Repo 1</description>\n" +
+	    "     </repository>\n" +
+	    "  </repositories>\n" +
+	    "  <service-collections>" +
+	    "  		<service-collection name = 'test.testweb.added-sc-1' title = 'Added Test SC 1'>\n" +
+	    "       <description>A test Added SC 1</description>\n" +
+	    "     </service-collection>\n" +
+	    "  </service-collections>\n" +
+	    "</service-items>";		
+
+		serviceMgr.storeServicesFromXML ( new StringReader ( testServiceXml ) );
+		
+		EntityMappingManager emapMgr = mgrf.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
+		emapMgr.storeMappings (
+			"test.testweb.service6:acc1", "test.testweb.service8:acc2", 
+			"test.testweb.service6:acc3", "test.testweb.service6:acc4" 
+		);
+		emapMgr.storeMappingBundle ( 
+			"test.testweb.service7:acc1", "test.testweb.service6:acc4", "test.testweb.service6:acc1"
+		);
+		
+		emapMgr.storeMappings (
+			"test.testweb.service7:acc10", "test.testweb.service8:acc10" 
+		);
+		
+		emapMgr.close ();
+	}	
 	
-			String testServiceXml =
-				"<service-items>\n" +
-				"  <services>\n" +
-		    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/${accession}'\n" + 
-				"           uri-prefix='http://somewhere.in.the.net/testweb/service6/'\n" + 
-		    "           entity-type='testweb.someType1' title='A Test Service 6' name='test.testweb.service6'>\n" +
-		    "      <description>The Description of a Test Service 6</description>\n" + 
-		    "    </service>\n" + 
-		    "    <service entity-type='testweb.someType7' title='A Test Service 7' name='test.testweb.service7'" +
-		    "           repository-name = 'test.testweb.repo1'" +
-		    "           service-collection-name = 'test.testweb.serviceColl1'" +
-		    "           uri-pattern = 'http://somewhere.in.the.net/testweb/service7/someType1/${accession}'>\n" +
-		    "      <description>The Description of a Test Service 7</description>\n" +
-		    "    </service>\n" +
-		    "    <service uri-prefix='http://somewhere-else.in.the.net/testweb/service8/'\n" +
-		    "             entity-type='testweb.someType2' title='A Test Service 8' name='test.testweb.service8'" +
-		    "             repository-name = 'test.testweb.addedRepo1'" +
-		    "             uri-pattern = 'http://somewhere.else.in.the.net/testweb/service8/someType1/${accession}'>\n" + 
-		    "      <description>The Description of a Test Service 8</description>\n" + 
-		    "    </service>\n" +
-		    "  </services>\n" +
-		    "  <repositories>" +
-		    "  		<repository name = 'test.testweb.addedRepo1'>\n" +
-		    "       <description>A test Added Repo 1</description>\n" +
-		    "     </repository>\n" +
-		    "  </repositories>\n" +
-		    "  <service-collections>" +
-		    "  		<service-collection name = 'test.testweb.added-sc-1' title = 'Added Test SC 1'>\n" +
-		    "       <description>A test Added SC 1</description>\n" +
-		    "     </service-collection>\n" +
-		    "  </service-collections>\n" +
-		    "</service-items>";		
 	
-			serviceMgr.storeServicesFromXML ( new StringReader ( testServiceXml ) );
-			
-			EntityMappingManager emapMgr = mgrf.newEntityMappingManager ();
-			emapMgr.storeMappings (
-				"test.testweb.service6:acc1", "test.testweb.service8:acc2", 
-				"test.testweb.service6:acc3", "test.testweb.service6:acc4" 
-			);
-			emapMgr.storeMappingBundle ( 
-				"test.testweb.service7:acc1", "test.testweb.service6:acc4", "test.testweb.service6:acc1"
-			);
-			
-			emapMgr.storeMappings (
-				"test.testweb.service7:acc10", "test.testweb.service8:acc10" 
-			);
-			
-			emapMgr.close ();
-		}
-		catch ( JAXBException ex ){
-			throw new RuntimeException ( "Internal error while loading test data: '" + ex.getMessage () + "'", ex );
-		}
+	@Override
+	public void contextDestroyed ( ServletContextEvent e )
+	{
+		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
+
+		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
+		
+		EntityMappingManager emapMgr = mgrf.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
+		emapMgr.deleteEntities ( "test.testweb.service6:acc3" );
+		emapMgr.deleteMappings ( "test.testweb.service7:acc1" );
+		emapMgr.close ();
+		
+		EntityManager em = ((DbManagerFactory) mgrf).getEntityManagerFactory ().createEntityManager ();
+		UserDao userDao = new UserDao ( em );
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.deleteUnauthorized ( editorUser.getEmail () );
+		userDao.deleteUnauthorized ( adminUser.getEmail () );
+		ts.commit ();
 	}
+
+
 }

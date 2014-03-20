@@ -5,14 +5,13 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
-
 import org.apache.commons.lang.ArrayUtils;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'service delete' command, a wrapper for {@link DbServiceManager#deleteServices(String...)}.
+ * The 'service delete' command, a wrapper for {@link ServiceManager#deleteServices(String...)}.
  *
  * <dl><dt>date</dt><dd>Jul 31, 2012</dd></dl>
  * @author Marco Brandizi
@@ -30,7 +29,8 @@ public class ServiceDeleteLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+		ServiceManager servMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
@@ -46,7 +46,7 @@ public class ServiceDeleteLineCommand extends LineCommand
 	{
 		err.println ( "\n service delete name..." );
 		err.println (   "   Deletes services, identified by their symbolic names" );
-		err.println (   "   Will generate an error if any of the service is being referred by some other entity." );
+		err.println (   "   WARNING This removes ALL the entities referring to the service!" );
 	}	
 
 }

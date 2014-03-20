@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.webservices.server;
 
 import java.net.URI;
@@ -22,6 +19,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
@@ -42,14 +42,38 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * "http://localhost:8080/ws/mapping/get?entityId=service1:acc1". You can build the path by appending the value in 
  * &#064;Path to /mapping.</p> 
  *
+ * <p>TODO: We need proper exception handling, see <a href = "http://jersey.java.net/documentation/latest/user-guide.html#d0e3490">here</a>.</p>
+ * 
  * <dl><dt>date</dt><dd>Sep 11, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
 @Path ( "/mapping" )
-public class EntityMappingWebService implements EntityMappingManager
+public class EntityMappingWebService
 {
-	@Context ServletContext servletContext;
+	@Context 
+	private ServletContext servletContext;
+		
+	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
+
+	/**
+	 * We need this version of {@link #getMappings(Boolean, String...)} because Jersey/JAX-WS doesn't like arrays.
+	 */
+	@POST
+	@Path( "/get" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public EntityMappingSearchResult getMappings ( 
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
+		@FormParam ( "raw" ) Boolean isRaw, 
+		@FormParam ( "entity" ) List<String> entityIds 
+	) 
+	{
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		EntityMappingSearchResult result = emgr.getMappings ( isRaw, entityIds.toArray ( new String [ 0 ] ) );
+		emgr.close();
+		return result; 
+	}
 	
 	/** 
 	 * This is just the HTTP/GET version of {@link #getMappings(Boolean, List)}. Normally you will want the 
@@ -59,83 +83,85 @@ public class EntityMappingWebService implements EntityMappingManager
 	@Path( "/get" )
 	@Produces ( MediaType.APPLICATION_XML )
 	public EntityMappingSearchResult getMappingsViaGET ( 
+		@QueryParam ( "login" ) String email, 
+		@QueryParam ( "login-secret" ) String apiPassword,
 		@QueryParam ( "raw" ) Boolean isRaw, 
-		@QueryParam ( "entity" ) List<String> entitites 
+		@QueryParam ( "entity" ) List<String> entityIds 
 	) 
 	{
-		return getMappings ( isRaw, entitites.toArray ( new String [ 0 ] ) );
+		return getMappings ( email, apiPassword, isRaw, entityIds );
 	}
 	
-	/**
-	 * We need this version of {@link #getMappings(Boolean, String...)} because Jersey/JAX-WS doesn't like arrays.
-	 */
 	@POST
-	@Path( "/get" )
+	@Path( "/store" )
 	@Produces ( MediaType.APPLICATION_XML )
-	public EntityMappingSearchResult getMappings ( 
-		@FormParam ( "raw" ) Boolean isRaw, 
-		@FormParam ( "entity" ) List<String> entitites 
-	) 
+	public void storeMappings (
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		return getMappings ( isRaw, entitites.toArray ( new String [ 0 ] ) );
-	}
-	
-
-	@Override
-	public EntityMappingSearchResult getMappings ( Boolean wantRawResult, String ... entityIds ) 
-	{
-		EntityMappingManager emgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
-		EntityMappingSearchResult result = emgr.getMappings ( wantRawResult, entityIds );
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		emgr.storeMappings ( entityIds.toArray ( new String [ 0 ]) );
 		emgr.close();
-		return result; 
-	}
-	
-	
-	@Override
-	public void storeMappings ( String ... entityIds )
-	{
-		// TODO Auto-generated method stub
 	}
 
-	@Override
-	public void storeMappingBundle ( String ... entityIds )
+	@POST
+	@Path( "/bundle/store" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public void storeMappingBundle (
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		// TODO Auto-generated method stub
-		
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		emgr.storeMappingBundle ( entityIds.toArray ( new String [ 0 ]) );
+		emgr.close();
 	}
 
-	@Override
-	public int deleteMappings ( String ... entityIds )
+	@POST
+	@Path( "/delete" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public String deleteMappings ( 
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		int result = emgr.deleteMappings ( entityIds.toArray ( new String [ 0 ]) );
+		emgr.close ();
+		return String.valueOf ( result );
 	}
 
-	@Override
-	public int deleteEntities ( String ... entityIds )
+	@POST
+	@Path( "/entity/delete" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public String deleteEntities ( 
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
+		@FormParam ( "entity" ) List<String> entityIds 
+	)
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		int result = emgr.deleteEntities ( entityIds.toArray ( new String [ 0 ]) );
+		emgr.close ();
+		return String.valueOf ( result );
 	}
-
-	@Override
-	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}	
 	
 
 	@POST
-	@Path( "/get-target" )
+	@Path( "/target/get" )
 	@Produces ( MediaType.APPLICATION_XML )
-	@Override
-	public EntityMappingSearchResult getMappingsForTarget ( 
-			@FormParam ( "raw" ) Boolean wantRawResult, 
-			@FormParam ( "service" ) String targetServiceName, 
-			@FormParam ( "entity" ) String entityId )
+	public EntityMappingSearchResult getMappingsForTarget (
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
+		@FormParam ( "raw" ) Boolean wantRawResult, 
+		@FormParam ( "service" ) String targetServiceName, 
+		@FormParam ( "entity" ) String entityId )
 	{
-		EntityMappingManager emgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
 		EntityMappingSearchResult result = emgr.getMappingsForTarget ( wantRawResult, targetServiceName, entityId );
 		emgr.close();
 		return result; 
@@ -146,14 +172,16 @@ public class EntityMappingWebService implements EntityMappingManager
 	 * POST invocation, this is here for testing purposes only. 
 	 */
 	@GET
-	@Path( "/get-target" )
+	@Path( "/target/get" )
 	@Produces ( MediaType.APPLICATION_XML )
-	public EntityMappingSearchResult getMappingsForTargetViaGET ( 
+	public EntityMappingSearchResult getMappingsForTargetViaGET (
+			@QueryParam ( "login" ) String email, 
+			@QueryParam ( "login-secret" ) String apiPassword,
 			@QueryParam ( "raw" ) Boolean wantRawResult, 
 			@QueryParam ( "service" ) String targetServiceName, 
 			@QueryParam ( "entity" ) String entityId )
 	{
-		return getMappingsForTarget ( wantRawResult, targetServiceName, entityId );
+		return getMappingsForTarget ( email, apiPassword, wantRawResult, targetServiceName, entityId );
 	}
 
 	/**
@@ -166,22 +194,24 @@ public class EntityMappingWebService implements EntityMappingManager
 	 * 
 	 * <p>You can test this with the examples (after 'mvn jetty:run'):
 	 *   <ul>  
-	 *   	<li><a href = "http://localhost:8080/ws/mapping/go-to-target?entity=test.testweb.service8:acc10&service=test.testweb.service7">common case</a></li>
-	 *   	<li><a href = "http://localhost:8080/ws/mapping/go-to-target?entity=test.testweb.service7:acc1&service=test.testweb.service6">multiple entities on the target</a></li>
-	 *   	<li><a href = "http://localhost:8080/ws/mapping/go-to-target?entity=foo-service:foo-acc&service=foo-target">non-existing target</a></li>
+	 *   	<li><a href = "http://localhost:8080/ws/mapping/target/go-to?entity=test.testweb.service8:acc10&service=test.testweb.service7">common case</a></li>
+	 *   	<li><a href = "http://localhost:8080/ws/mapping/target/go-to?entity=test.testweb.service7:acc1&service=test.testweb.service6">multiple entities on the target</a></li>
+	 *   	<li><a href = "http://localhost:8080/ws/mapping/target/go-to?entity=foo-service:foo-acc&service=foo-target">non-existing target</a></li>
 	 *   </ul>
 	 * </p>
 	 */
 	@GET
-	@Path( "/go-to-target" )
+	@Path( "/target/go-to" )
 	@Produces ( MediaType.TEXT_XML )
-	public Response getMappingsForTargetRedirection (  
+	public Response getMappingsForTargetRedirection (
+			@QueryParam ( "login" ) String email, 
+			@QueryParam ( "login-secret" ) String apiPassword,
 			@QueryParam ( "service" ) String targetServiceName, 
 			@QueryParam ( "entity" ) String entityId,
 			@QueryParam ( "xsl" ) String xslUri 
 	) throws URISyntaxException
 	{
-		EntityMappingSearchResult result = getMappingsForTarget ( false, targetServiceName, entityId );
+		EntityMappingSearchResult result = getMappingsForTarget ( email, apiPassword, false, targetServiceName, entityId );
 		Collection<Bundle> bundles = result.getBundles ();
 
 		if ( bundles.size () == 0 ) return Response.status ( Status.NOT_FOUND ).build ();
@@ -195,7 +225,6 @@ public class EntityMappingWebService implements EntityMappingManager
 			return Response.status ( Status.MOVED_PERMANENTLY ).location ( 
 					new URI ( entities.iterator ().next ().getURI () ) ).build ();
 		
-		// TODO: get this from a request param
 		if ( xslUri == null )
 			xslUri = UriBuilder.fromPath ( 
 				servletContext.getContextPath () + "/go-to-target/multiple-results.xsl" ).build ().toASCIIString ();
@@ -210,21 +239,12 @@ public class EntityMappingWebService implements EntityMappingManager
 		
 		return Response.ok ( resultXml, MediaType.TEXT_XML ).build ();		
 	}
+
 	
-	
-	@Override
-	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId )
+	/** Gets the {@link EntityMappingManager} that is used internally in this web service TODO: AOP */
+	private EntityMappingManager getEntityMappingManager ( String email, String apiPassword )
 	{
-		// TODO Auto-generated method stub
-		return null;
-	}	
-	
-
-	/**
-	 * Does nothing, it's stateless.
-	 */
-	@Override
-	public void close () {
+		log.trace ( "Returning mapping manager for the user {}, {}", email, apiPassword == null ? null : "***" );
+		return Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( email, apiPassword );
 	}
-
 }

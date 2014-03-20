@@ -21,14 +21,7 @@
 		   <groupId>org.hibernate</groupId>
 		   <artifactId>hibernate-entitymanager</artifactId>
 		</dependency>
-				
-		<!-- bundles in entity mappings are built via SHA1+Base64 encoding -->
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.6</version>
-		</dependency>
-            
+		
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
@@ -88,6 +81,19 @@
 			<scope>test</scope>
 		</dependency>
 		
+		<!-- Brilliant! package to verify expected exceptions (http://code.google.com/p/catch-exception/) -->
+		<dependency>
+	    <groupId>com.googlecode.catch-exception</groupId>
+	    <artifactId>catch-exception</artifactId>
+	    <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<scope>test</scope>
+		</dependency>
+            		
 	</dependencies>  
 
 

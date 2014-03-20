@@ -29,13 +29,15 @@ public class RepositoryGetLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+		ServiceManager servMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
 		{
-			String fmtTag = cmdLine.getOptionValue ( "format", "xml" );
-			System.out.print ( servMgr.getRepositoriesAs ( fmtTag, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) );
+			System.out.print ( 
+				servMgr.getRepositoriesAs ( this.outputFormat, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) 
+			);
 		}
 		
 		err.println ( "\nRepository(ies) Fetched" );

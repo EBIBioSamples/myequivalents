@@ -35,6 +35,10 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  *   mapping store-bundle serviceName:accession|<uri>...
  *   mapping delete serviceName:accession|<uri>...
  *   mapping delete-entity serviceName:accession|<uri>...
+ *   user delete email
+ *   user get email
+ *   user set role email role
+ *   user store [xml file]
  * </pre>
  * 
  * TODO: The <uri> support is not implemented yet. 

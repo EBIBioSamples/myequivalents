@@ -8,15 +8,15 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'mapping store' command. This will use {@link DbEntityMappingManager#storeMappings(String...)}.
+ * The 'mapping store' command. This will use {@link EntityMappingManager#getMappingsAs(String, Boolean, String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
-public class MappingGetCommandLineCommand extends LineCommand
+public class MappingGetLineCommand extends LineCommand
 {
-	public MappingGetCommandLineCommand ()
+	public MappingGetLineCommand ()
 	{
 		super ( "mapping get" );
 	}
@@ -27,14 +27,14 @@ public class MappingGetCommandLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ();
+		EntityMappingManager emMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( this.email, this.apiPassword );
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 ) 
 		{
-			String fmtTag = cmdLine.getOptionValue ( "format", "xml" );
 			boolean wantRawResult = cmdLine.hasOption ( "raw" );
 			System.out.print ( 
-				emMgr.getMappingsAs ( fmtTag, wantRawResult, (String[]) ArrayUtils.subarray ( args, 2, args.length ) )
+				emMgr.getMappingsAs ( this.outputFormat, wantRawResult, (String[]) ArrayUtils.subarray ( args, 2, args.length ) )
 			);
 		}
 		

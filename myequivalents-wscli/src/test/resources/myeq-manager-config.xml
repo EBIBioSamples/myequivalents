@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  myeq-cli-config.xml is specifically used by the automated tests in the web service client module. 
+  myeq-manager-config.xml is instead used to setup the web server. This is the easiest arrangement via Maven overlays.  
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
@@ -42,3 +46,4 @@
 		</props></constructor-arg>
 	</bean>
 </beans>
+ 

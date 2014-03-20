@@ -13,10 +13,11 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Represents one of the sub-commands available in {@link Main}. E.g., 'service store' is managed by 
- * {@link ServiceStoreCommandLineCommand}. As expected, this is based on the command pattern.
+ * {@link ServiceStoreLineCommand}. As expected, this is based on the command pattern.
  *
  * <dl><dt>date</dt><dd>Jul 18, 2012</dd></dl>
  * @author Marco Brandizi
@@ -24,27 +25,37 @@ import org.apache.commons.cli.ParseException;
  */
 abstract class LineCommand
 {
+	protected String email, apiPassword, userPassword, outputFormat;
+	
 	/**
 	 * All the accepted commands and how they're recognised (in the map keys). For example, 'service store' is recognised
-	 * because is one of the keys of this map, and {@link ServiceStoreCommandLineCommand} is used for this command, cause
-	 * it's the value corresponding to such key.
+	 * because is one of the keys of this map, and, when such key is detected, the command line string is dispatched 
+	 * to {@link ServiceStoreLineCommand}, the map value for the key.
 	 */
 	@SuppressWarnings ( "serial" )
 	public final static Map<String, Class<? extends LineCommand>> LINE_COMMANDS = 
 		new LinkedHashMap<String, Class<? extends LineCommand>> ()
 	{{
-		put ( "service store", ServiceStoreCommandLineCommand.class );
+		put ( "service store", ServiceStoreLineCommand.class );
 		put ( "service delete", ServiceDeleteLineCommand.class );
 		put ( "service get", ServiceGetLineCommand.class );
 		put ( "service-collection delete", ServiceCollectionDeleteLineCommand.class );
 		put ( "service-collection get", ServiceCollectionGetLineCommand.class );
 		put ( "repository delete", RepositoryDeleteLineCommand.class );
 		put ( "repository get", RepositoryGetLineCommand.class );
-		put ( "mapping store", MappingStoreCommandLineCommand.class );
-		put ( "mapping store-bundle", MappingStoreBundleCommandLineCommand.class );
-		put ( "mapping delete", MappingDeleteCommandLineCommand.class );
-		put ( "mapping delete-entity", MappingDeleteEntityCommandLineCommand.class );
-		put ( "mapping get", MappingGetCommandLineCommand.class );
+		put ( "mapping store", MappingStoreLineCommand.class );
+		put ( "mapping store-bundle", MappingStoreBundleLineCommand.class );
+		put ( "mapping delete", MappingDeleteLineCommand.class );
+		put ( "mapping delete-entity", MappingDeleteEntityLineCommand.class );
+		put ( "mapping get", MappingGetLineCommand.class );
+		put ( "service set visibility", ServiceVisibilitySetLineCommand.class );
+		put ( "repository set visibility", RepositoryVisibilitySetLineCommand.class );
+		put ( "service-collection set visibility", ServiceCollectionVisibilitySetLineCommand.class );
+		put ( "entity set visibility", EntityVisibilitySetLineCommand.class );
+		put ( "user get", UserGetLineCommand.class );
+		put ( "user store", UserStoreLineCommand.class );
+		put ( "user delete", UserDeleteLineCommand.class );
+		put ( "user set role", UserSetRoleLineCommand.class );
 	}};
 	
 	/**
@@ -115,6 +126,12 @@ abstract class LineCommand
 		try 
 		{
 			cmdLine = clparser.parse ( getOptions (), args );
+			
+			email = StringUtils.trimToNull ( cmdLine.getOptionValue ( 'u' ) );
+			apiPassword = StringUtils.trimToNull ( cmdLine.getOptionValue ( 's' ) );
+			userPassword = StringUtils.trimToNull ( cmdLine.getOptionValue ( 'w' ) );
+			outputFormat = cmdLine.getOptionValue ( "format", "xml" );
+			
 			return cmdLine;
 		} 
 		catch ( ParseException e ) {
@@ -140,13 +157,48 @@ abstract class LineCommand
 			.withLongOpt ( "help" )
 			.create ( "h" ) 
 		);
+
+		
+		opts.addOption ( OptionBuilder
+		 	.withDescription ( "User email to be used to login the myEquivalents repository"	)
+			.withLongOpt ( "user" )
+			.hasArg ( true ).withArgName ( "email" )
+			.create ( "u" )
+		);
+		
+		opts.addOption ( OptionBuilder
+		 	.withDescription ( "API secret (i.e., password), used for common commands (see documentation)" )
+			.withLongOpt ( "secret" )
+			.hasArg ( true ).withArgName ( "value" )
+			.create ( "s" ) 
+		);
+
+		opts.addOption ( OptionBuilder
+		 	.withDescription ( "User password, needed for administrative/access-control/user-change operations (see documentation)"	)
+			.withLongOpt ( "password" )
+			.hasArg ( true ).withArgName ( "value" )
+			.create ( "w" ) 
+		);
+		
+		if ( commandString.equals ( "user store" ) )
+		{
+			opts.addOption ( OptionBuilder
+			 	.withDescription ( 
+		 				"When issuing 'user store', creates a first user (typically and admin) in an empty database, bypassing "
+		 				+ "authentication and permission checking (requires the database backend, see documentation)"
+		 		)
+				.withLongOpt ( "first-user" )
+				.create ( "y" ) 
+			);
+		}
+
 		
 		if ( commandString.endsWith ( " get" ) )
 		{
 			opts.addOption ( OptionBuilder
 			 	.hasArg ( true )
 				.withDescription ( 
-			 		"The result output format. ** ONLY 'xml' IS SUPPORTED IN THIS VERSION"
+			 		"The result output format. ** ONLY 'xml' IS SUPPORTED IN THIS VERSION **"
 			 	)
 				.withLongOpt ( "format" )
 				.withArgName ( "out-format" )
@@ -156,13 +208,37 @@ abstract class LineCommand
 			if ( "mapping get".equals ( commandString ) )
 				opts.addOption ( OptionBuilder
 				 	.withDescription ( 
-					 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
-					 	)
-						.withLongOpt ( "raw" )
-						.create ( "r" ) 
+				 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
+				 	)
+					.withLongOpt ( "raw" )
+					.create ( "r" ) 
 			);
 		} // if ' get'
 		
+		if ( commandString.endsWith ( " visibility" ) )
+		{
+			opts.addOption ( OptionBuilder
+			 	.withDescription ( "Public flag (visibility commands, see documentation)"	)
+				.withLongOpt ( "public-flag" )
+				.hasArg ( true )
+				.withArgName ( "true|false|null" )
+				.create ( "p" ) 
+			);
+
+			opts.addOption ( OptionBuilder
+			 	.withDescription ( "Release date (visibility commands, see documentation)"	)
+				.hasArg ( true )
+				.withLongOpt ( "release-date" )
+				.withArgName ( "YYYMMDD[-HHMMSS]" )
+				.create ( "d" ) 
+			);
+
+			opts.addOption ( OptionBuilder
+			 	.withDescription ( "Cascades the visibility settings to referring elements (e.g., from services to entitities)"	)
+				.withLongOpt ( "cascade" )
+				.create ( "x" ) 
+			);
+		}
 		return opts;
 	}
 	
@@ -205,7 +281,7 @@ abstract class LineCommand
 	
 	/**
 	 * This gets the specific {@link LineCommand} that is associated to args[0] and args[1], e.g., 
-	 * returns {@link ServiceStoreCommandLineCommand} for { "service", "store" }. This uses {@link #getCommand(Class)}.
+	 * returns {@link ServiceStoreLineCommand} for { "service", "store" }. This uses {@link #getCommand(Class)}.
 	 */
 	static LineCommand getCommand ( String... args )
 	{
@@ -214,6 +290,10 @@ abstract class LineCommand
 		if ( args.length >= 2 )
 		{
 			String cmdStr = ( args [ 0 ].trim () + ' ' + args [ 1 ].trim () ).toLowerCase ();
+			if ( "set".matches ( args [ 1 ].trim () ) )
+				// commands like 'user set role' or 'entity set visibility', they'll be further checked below
+				cmdStr += ' ' + args [ 2 ].trim ().toLowerCase (); 
+			
 			cmdClass = LINE_COMMANDS.get ( cmdStr );
 			if ( cmdClass == null ) {
 				err.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );

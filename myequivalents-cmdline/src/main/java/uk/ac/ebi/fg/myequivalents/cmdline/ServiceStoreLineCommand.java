@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
-import static java.lang.System.out;
 import static java.lang.System.err;
 
 import java.io.BufferedReader;
@@ -10,11 +9,8 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.cli.CommandLine;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
@@ -26,11 +22,11 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  * @author Marco Brandizi
  *
  */
-public class ServiceStoreCommandLineCommand extends LineCommand
+public class ServiceStoreLineCommand extends LineCommand
 {
 	private String inFileName = null;
 	
-	public ServiceStoreCommandLineCommand ()
+	public ServiceStoreLineCommand ()
 	{
 		super ( "service store" );
 	}
@@ -48,13 +44,16 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 			Reader in = null;
 			if ( inFileName == null )
 				in = new InputStreamReader ( System.in );
-			else {
+			else
+			{
 				inFile = new File ( inFileName );
 				in = new FileReader ( inFile );
 			}
 		  in = new BufferedReader ( in );
 			
-			ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+			ServiceManager servMgr = 
+				Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
+			
 			servMgr.storeServicesFromXML ( in );
 		} 
 		catch ( FileNotFoundException ex ) 
@@ -62,15 +61,6 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 			exitCode = 1; // TODO: Better reporting needed
 			throw new RuntimeException ( "Error: cannot find the input file '" + inFile.getAbsolutePath () + "'" );
 		} 
-		catch ( JAXBException ex ) 
-		{
-			exitCode = 1; // TODO: Better reporting needed
-			throw new RuntimeException ( String.format ( 
-				"Error while tryint to read %s: %s", 
-				inFile == null ? "<standard input>" : "'" + inFile.getAbsolutePath () + "'", 
-				ex.getMessage () 
-			));
-		}
 		
 		err.println ( "\nServices Updated" );
 		return;
@@ -91,7 +81,7 @@ public class ServiceStoreCommandLineCommand extends LineCommand
 	@Override
 	public void printUsage ()
 	{
-		err.println ( "\n service store [xml-file]" );
+		err.println ( "\n service store [xml file]" );
 		err.println (   "   Creates/Updates service definitions and related entities (service-collections, repositories)" );
 		err.println (   "   Reads from the standard input if the file is omitted. See the documentation and tests for the XML format to use." );
 	}

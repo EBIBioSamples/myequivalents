@@ -1,12 +1,8 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
 
-import javax.xml.bind.JAXBException;
-
+import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
@@ -21,13 +17,13 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
  * The persistence-related invocations does the transaction management automatically (i.e., they commit all implied changes).</p>
  * 
  * <p>In general, you should assume that implementations of this interface are not thread-safe. The idea is that you 
- * create a new instance per thread, do some operations, release, all whitin the same thread.</p> 
+ * create a new instance per thread, do some operations, release, all within the same thread.</p> 
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
-public interface ServiceManager
+public interface ServiceManager extends MyEquivalentsManager
 {
 
 	/**
@@ -38,10 +34,10 @@ public interface ServiceManager
 
 	/**
 	 * Stores services described by means of XML passed to the parameter reader. 
-	 * TODO: document the format. This is auto-generated via JAXB from {@link ExposedService} and reflects that class, for
+	 * TODO: document the format. This is auto-generated via JAXB from {@link ServiceSearchResult} and reflects that class, for
 	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 */
-	public void storeServicesFromXML ( Reader reader ) throws JAXBException;
+	public void storeServicesFromXML ( Reader reader );
 
 	/**
 	 * Deletes services by name and returns the number of services that were actually deleted.
@@ -52,7 +48,9 @@ public interface ServiceManager
 	 * Gets services by name. It pulls up related stuff (i.e., {@link ServiceCollection}s and {@link Repository repositories} 
 	 * referred by the service) and put it all inside the {@link ServiceSearchResult} used as result.
 	 * 
-	 * This method uses {@link ServiceDAO}. 
+	 * It returns all the available services and related entities or only those that are public, depending on the current
+	 * logged-in user (see {@link Describeable#isPublic()} and {@link #setAuthenticationCredentials(String, String)}).
+	 *  
 	 */
 	public ServiceSearchResult getServices ( String ... names );
 
@@ -60,6 +58,9 @@ public interface ServiceManager
 	 *  Returns the same result returned by {@link #getServices(String...)} in the format specified by the parameter. 
 	 *  At the moment this is only 'xml' and {@link #getServicesAsXml(String...)} is used for this. We plan formats 
 	 *  like RDF or JSON for the future.
+	 *  
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getServicesAs ( String outputFormat, String ... names );
 
@@ -85,6 +86,9 @@ public interface ServiceManager
 	 *  Returns the same result returned by {@link #getServiceCollections(String...)} in the format specified by the parameter. 
 	 *  At the moment this is only 'xml' and {@link #getServiceCollectionAsXml(String...)} is used for this. We plan formats 
 	 *  like RDF or JSON for the future.
+	 *  
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getServiceCollectionsAs ( String outputFormat, String ... names );
 
@@ -109,6 +113,9 @@ public interface ServiceManager
 	 *  Returns the same result returned by {@link #getRepositories(String...)} in the format specified by the parameter. 
 	 *  At the moment this is only 'xml' and {@link #getRepositoriesAsXml(String...)} is used for this. We plan formats 
 	 *  like RDF or JSON for the future.
+	 *  
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getRepositoriesAs ( String outputFormat, String ... names );
 

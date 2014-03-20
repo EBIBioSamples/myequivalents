@@ -11,7 +11,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'service get' command, a wrapper for {@link DbServiceManager#getServicesAs(String, String...)}.
+ * The 'service get' command, a wrapper for {@link ServiceManager#getServices(String...)}
  *
  * <dl><dt>date</dt><dd>Jul 31, 2012</dd></dl>
  * @author Marco Brandizi
@@ -29,13 +29,15 @@ public class ServiceGetLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+		ServiceManager servMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
 		{
-			String fmtTag = cmdLine.getOptionValue ( "format", "xml" );
-			System.out.print ( servMgr.getServicesAs ( fmtTag, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) );
+			System.out.print ( 
+				servMgr.getServicesAs ( this.outputFormat, (String[]) ArrayUtils.subarray ( args, 2, args.length ) ) 
+			);
 		}
 		
 		err.println ( "\nService(s) Fetched" );

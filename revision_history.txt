@@ -1,8 +1,10 @@
 1.0 (Expected)
   - Logical closure over the serviceCollection relation
+ 
   
 0.2 (Expected)
   - Authentication
+  - Provenance tracking features
   - Completion of the web service
   - /go-to-target added to the web service
 

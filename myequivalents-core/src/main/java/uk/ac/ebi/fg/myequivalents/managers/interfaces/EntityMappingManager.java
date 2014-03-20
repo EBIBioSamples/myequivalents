@@ -20,7 +20,7 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
  * @author Marco Brandizi
  *
  */
-public interface EntityMappingManager
+public interface EntityMappingManager extends MyEquivalentsManager
 {
 
 	/**
@@ -43,9 +43,9 @@ public interface EntityMappingManager
 	public void storeMappingBundle ( String ... entityIds );
 
 	/**
-	 * Deletes mappings between entities. The parameter consists of a list of quadruples, where every quadruple is a pair
-	 * of service/accession. This deletes all the mappings that involve the entity, i.e., the whole equivalence class it 
-	 * belongs to.
+	 * Deletes mappings between entities. The parameter consists of a list of pairs, where every pairs is an 
+	 * {@link EntityMappingUtils#parseEntityId(String) entityId} of service/accession.
+	 * This deletes all the mappings that involve the entity, i.e., the whole equivalence class it belongs to.
    *
 	 * @return the number of entities (including the parameter) that were in the same equivalence relationship and are
 	 * now deleted. Returns 0 if no such mapping exists.
@@ -90,6 +90,9 @@ public interface EntityMappingManager
 	 * only 'xml' and the JAXB mapping of {@link EntityMappingSearchResult} is used for this. 
 	 * 
 	 * We plan formats like RDF or JSON for the future. See the documentation for more details.
+	 * 
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String ... entityIds );
 
@@ -98,6 +101,9 @@ public interface EntityMappingManager
 	 * the moment this is only 'xml' and the JAXB mapping of {@link EntityMappingSearchResult} is used for this. 
 	 * 
 	 * We plan formats like RDF or JSON for the future. See the documentation for more details.  
+	 * 
+	 * <b>WARNING</b>: due to the sake of performance, the output <b>is not</b> guaranteed to be pretty-printed, i.e. having
+	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId );
 

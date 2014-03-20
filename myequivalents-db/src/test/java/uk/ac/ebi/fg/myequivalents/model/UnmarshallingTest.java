@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import static java.lang.System.out;
+
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,8 +14,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.junit.Test;
-
-import static java.lang.System.out;
 
 /**
  * 

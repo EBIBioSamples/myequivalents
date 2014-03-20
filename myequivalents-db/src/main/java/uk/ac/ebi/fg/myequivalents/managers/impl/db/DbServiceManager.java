@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
+import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.EDITOR;
+
 import java.io.Reader;
 
 import javax.persistence.EntityManager;
@@ -8,6 +10,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.lang.StringUtils;
+
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceCollectionDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
@@ -40,19 +45,26 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * @author Marco Brandizi
  *
  */
-class DbServiceManager implements ServiceManager
+class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 {
-	private EntityManager entityManager;
 	private ServiceDAO serviceDAO;
 	private ServiceCollectionDAO serviceCollDAO;
 	private RepositoryDAO repoDAO;
+
+	/**
+	 * Logins as anonymous.
+	 */
+	DbServiceManager ( EntityManager em ) {
+		this ( em, null, null );
+	}
+
 	
 	/**
 	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
 	 */
-	DbServiceManager ( EntityManager em )
+	DbServiceManager ( EntityManager em, String email, String apiPassword )
 	{
-		this.entityManager = em;
+		super ( em, email, apiPassword );
 		this.serviceDAO = new ServiceDAO ( entityManager );
 		this.serviceCollDAO = new ServiceCollectionDAO ( entityManager );
 		this.repoDAO = new RepositoryDAO ( entityManager );
@@ -66,22 +78,34 @@ class DbServiceManager implements ServiceManager
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-			for ( Service service: services )
+			userDao.enforceRole ( EDITOR );
+			for ( Service service: services ) {
+				// In case needed, unwrap from the wrapper used for web services
+				if ( service instanceof ExposedService ) service = ((ExposedService) service).asService ();
 				serviceDAO.store ( service );
+			}
 		ts.commit ();
 	}
 	
 	@Override
-	public void storeServicesFromXML ( Reader reader ) throws JAXBException 
+	public void storeServicesFromXML ( Reader reader )
 	{
-		JAXBContext context = JAXBContext.newInstance ( ServiceSearchResult.class );
-		Unmarshaller u = context.createUnmarshaller ();
-		ServiceSearchResult servRes = (ServiceSearchResult) u.unmarshal ( reader );
+		ServiceSearchResult servRes = null;
+		try
+		{
+			JAXBContext context = JAXBContext.newInstance ( ServiceSearchResult.class );
+			Unmarshaller u = context.createUnmarshaller ();
+			servRes = (ServiceSearchResult) u.unmarshal ( reader );
+		} 
+		catch ( JAXBException ex ) {
+			throw new RuntimeException ( "Error while reading services description from XML: " + ex.getMessage (), ex );
+		}
 		
 		// Some massage and then the storage
 		//
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			for ( ServiceCollection sc: servRes.getServiceCollections () )
 				serviceCollDAO.store ( sc );
 
@@ -94,7 +118,7 @@ class DbServiceManager implements ServiceManager
 					String servCollName = service.getServiceCollectionName ();
 					if ( servCollName != null ) 
 					{
-						ServiceCollection servColl = serviceCollDAO.findByName ( servCollName );
+						ServiceCollection servColl = serviceCollDAO.findByName ( servCollName, false );
 						if ( servColl == null ) throw new RuntimeException ( String.format ( 
 							"Cannot store service '%s' linked to the non-existing service-collection '%s'", 
 							service.getName (), service.getServiceCollectionName ()
@@ -108,7 +132,7 @@ class DbServiceManager implements ServiceManager
 					String repoName = service.getRepositoryName ();
 					if ( repoName != null )
 					{
-						Repository repo = repoDAO.findByName ( repoName );
+						Repository repo = repoDAO.findByName ( repoName, false );
 						if ( repo == null ) throw new RuntimeException ( String.format ( 
 							"Cannot store service '%s' linked to the non-existing repository '%s'", 
 							service.getName (), service.getRepositoryName ()
@@ -132,6 +156,7 @@ class DbServiceManager implements ServiceManager
 		int ct = 0;
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			for ( String name: names )
 				if ( serviceDAO.delete ( name ) ) ct++;
 		ts.commit ();
@@ -139,23 +164,26 @@ class DbServiceManager implements ServiceManager
 	}
 
 	/**
-	 * Uses {@link ServiceDAO#findByName(String)}.
+	 * Uses {@link ServiceDAO#findByName(String, boolean))}.
 	 */
 	@Override
 	public ServiceSearchResult getServices ( String... names ) 
 	{
+		User user = userDao.getLoggedInUser ();
+		boolean mustBePublic = user == null ? true : !user.hasPowerOf ( EDITOR );
+		
 		ServiceSearchResult result = new ServiceSearchResult ();
 		for ( String name: names )
 		{
-			Service service = serviceDAO.findByName ( name );
+			Service service = serviceDAO.findByName ( name, mustBePublic );
 			if ( service == null ) continue; 
 			result.addService ( service );
 			
 			ServiceCollection sc = service.getServiceCollection ();
-			if ( sc != null ) result.addServiceCollection ( sc );
+			if ( sc != null && ( !mustBePublic || sc.isPublic () ) ) result.addServiceCollection ( sc );
 			
 			Repository repo = service.getRepository ();
-			if ( repo != null ) result.addRepository ( repo );
+			if ( repo != null && ( !mustBePublic || repo.isPublic () ) ) result.addRepository ( repo );
 		}
 		return result;
 	}
@@ -175,10 +203,11 @@ class DbServiceManager implements ServiceManager
 	@Override
 	public String getServicesAs ( String outputFormat, String... names ) 
 	{
-		if ( "xml".equals ( outputFormat ) )
-			return getServicesAsXml ( names );
-		else
-			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+		outputFormat = StringUtils.trimToNull ( outputFormat );
+		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
+			"Unsopported output format '" + outputFormat + "'" 
+		);
+		return getServicesAsXml ( names );
 	}
 	
 
@@ -190,6 +219,7 @@ class DbServiceManager implements ServiceManager
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			for ( ServiceCollection sc: servColls )
 				serviceCollDAO.store ( sc );
 		ts.commit ();
@@ -204,6 +234,7 @@ class DbServiceManager implements ServiceManager
 		int ct = 0;
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			for ( String name: names )
 				if ( serviceCollDAO.delete ( name ) ) ct++;
 		ts.commit ();
@@ -216,10 +247,13 @@ class DbServiceManager implements ServiceManager
 	@Override
 	public ServiceSearchResult getServiceCollections ( String... names ) 
 	{
+		User user = userDao.getLoggedInUser ();
+		boolean mustBePublic = user == null ? true : !user.hasPowerOf ( EDITOR );
+
 		ServiceSearchResult result = new ServiceSearchResult ();
 		for ( String name: names )
 		{
-			ServiceCollection sc = serviceCollDAO.findByName ( name );
+			ServiceCollection sc = serviceCollDAO.findByName ( name, mustBePublic );
 			if ( sc == null ) continue; 
 			result.addServiceCollection ( sc );
 		}
@@ -230,7 +264,9 @@ class DbServiceManager implements ServiceManager
 	 * Invokes {@link #getServiceCollections(String...)} and wraps the result into XML.
 	 *   
 	 * TODO: document the format. This is auto-generated via JAXB from {@link ServiceSearchResult} and reflects that class, for
-	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
+	 * the moment examples are available in JUnit tests: 
+	 * {@link uk.ac.ebi.fg.myequivalents.managers.ServiceManagerTest}, 
+	 * {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 * 
 	 */
 	private String getServiceCollectionAsXml ( String... names )
@@ -257,6 +293,7 @@ class DbServiceManager implements ServiceManager
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			for ( Repository repo: repos )
 				repoDAO.store ( repo );
 		ts.commit ();
@@ -271,6 +308,7 @@ class DbServiceManager implements ServiceManager
 		int ct = 0;
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+		userDao.enforceRole ( EDITOR );
 			for ( String name: names )
 				if ( repoDAO.delete ( name ) ) ct++;
 		ts.commit ();
@@ -283,10 +321,13 @@ class DbServiceManager implements ServiceManager
 	@Override
 	public ServiceSearchResult getRepositories ( String... names ) 
 	{
+		User user = userDao.getLoggedInUser ();
+		boolean mustBePublic = user == null ? true : !user.hasPowerOf ( EDITOR );
+
 		ServiceSearchResult result = new ServiceSearchResult ();
 		for ( String name: names )
 		{
-			Repository repo = repoDAO.findByName ( name );
+			Repository repo = repoDAO.findByName ( name, mustBePublic );
 			if ( repo == null ) continue; 
 			result.addRepository ( repo );
 		}

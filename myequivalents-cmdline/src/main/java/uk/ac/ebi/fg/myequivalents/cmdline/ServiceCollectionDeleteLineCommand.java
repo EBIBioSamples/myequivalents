@@ -5,7 +5,6 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
-
 import org.apache.commons.lang.ArrayUtils;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
@@ -13,7 +12,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
- * The 'service-collection delete' command, a wrapper for {@link DbServiceManager#deleteServiceCollections(String...)}.
+ * The 'service-collection delete' command, a wrapper for {@link ServiceManager#deleteServiceCollections(String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi
@@ -31,7 +30,8 @@ public class ServiceCollectionDeleteLineCommand extends LineCommand
 		super.run ( args );
 		if ( this.exitCode != 0 ) return;
 
-		ServiceManager servMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ();
+		ServiceManager servMgr =
+			Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( this.email, this.apiPassword );
 
 		args = cmdLine.getArgs ();
 		if ( args != null && args.length > 2 )
