@@ -21,6 +21,7 @@ import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
+import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
@@ -170,7 +171,7 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		EntityTransaction ts = entityManager.getTransaction ();
 		
 		ts.begin ();
-		setDescribVisibility ( Service.class, "Repository", publicFlagStr, releaseDateStr, repositoryNames );
+		setDescribVisibility ( Repository.class, "Repository", publicFlagStr, releaseDateStr, repositoryNames );
 		
 		if ( !cascade ) {
 			ts.commit ();
@@ -263,7 +264,7 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 			
 			for ( String entityId: entityIds )
 			{
-				EntityMapping emap = emDao.findEntityMapping ( entityId );
+				EntityMapping emap = emDao.findEntityMapping ( entityId, false );
 				if ( emap == null ) throw 
 					new RuntimeException ( String.format ( "Entity mapping '%s' not found", entityId ));
 				

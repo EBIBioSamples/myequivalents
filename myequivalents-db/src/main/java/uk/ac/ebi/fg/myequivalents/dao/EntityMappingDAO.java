@@ -323,21 +323,21 @@ public class EntityMappingDAO
 				"WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'\n" +
 				// First of all the parameter entity must be public (or, transitively, one of its containers)
 				"AND (\n" + 
-				"  (em2.public_flag IS NULL AND em2.release_date <= NOW() OR em2.public_flag = true )\n" + 
+				"  (em2.public_flag = true OR em2.public_flag IS NULL AND em2.release_date IS NOT NULL AND em2.release_date <= NOW() )\n" + 
 				"  OR em2.public_flag IS NULL AND em2.release_date IS NULL AND em2.service_name IN (" +
-				"    SELECT name FROM service s WHERE ( s.public_flag IS NULL AND s.release_date <= NOW() OR s.public_flag = true )\n" +
+				"    SELECT name FROM service s WHERE ( s.public_flag = true OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= NOW() )\n" +
 				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
-				"        (SELECT name FROM repository r WHERE r.public_flag IS NULL AND r.release_date <= NOW() OR r.public_flag = true)" +
+				"        (SELECT name FROM repository r WHERE r.public_flag = true OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= NOW() ) )" +
 				"    )\n" +
 				"  )\n" +
 				")\n" + 
 				// then, all the linked entities must be pub too 
 				"AND (\n" + 
-				"  (em1.public_flag IS NULL AND em1.release_date <= NOW() OR em1.public_flag = true )\n" + 
+				"  (em1.public_flag = true OR em1.public_flag IS NULL AND em1.release_date IS NOT NULL AND em1.release_date <= NOW() )\n" + 
 				"  OR em1.public_flag IS NULL AND em1.release_date IS NULL AND em1.service_name IN (" +
-				"    SELECT name FROM service s WHERE ( s.public_flag IS NULL AND s.release_date <= NOW() OR s.public_flag = true )\n" +
+				"    SELECT name FROM service s WHERE ( s.public_flag = true OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= NOW() )\n" +
 				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
-				"        (SELECT name FROM repository r WHERE r.public_flag IS NULL AND r.release_date <= NOW() OR r.public_flag = true)" +
+				"        (SELECT name FROM repository r WHERE r.public_flag = true OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= NOW() ) )" +
 				"    )\n" +
 				"  )\n" +
 				")" 
@@ -403,25 +403,25 @@ public class EntityMappingDAO
 			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "'\n" +
 			// First of all the parameter entity must be public (or, transitively, one of its containers)
 			"AND (\n" +
-			"  (em1.publicFlag IS NULL AND em1.releaseDate <= current_time() OR em1.publicFlag = true)\n" +
+			"  ( em1.publicFlag = true OR em1.publicFlag IS NULL AND em1.releaseDate IS NOT NULL AND em1.releaseDate <= current_time() )\n" +
 			"  OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
 			"  AND em1.service IN (\n" +
-			"    SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        (SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true))\n" +
+			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
 			"      )\n" +
 			"  )\n" +
 			")\n" +
 			// then, all the linked entities must be pub too 
 			"AND (\n" +
-			"  (em.publicFlag IS NULL AND em.releaseDate <= current_time() OR em.publicFlag = true)\n" +
+			"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
 			"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
 			"  AND em.service IN (\n" +
-			"    SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        (SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true))\n" +
+			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
 			"      )\n" +
-			"  )\n" + 
+			"  )\n" +
 			")"
 		:
 			"SELECT em FROM EntityMapping em, EntityMapping em1 " +
@@ -452,13 +452,15 @@ public class EntityMappingDAO
 		?
 			"SELECT em FROM EntityMapping em " +
 			"WHERE em.service.name = '" + serviceName + "' AND em.accession = '" + accession + "'\n" +
-			"AND (em.publicFlag IS NULL AND em.releaseDate <= current_time() OR em.publicFlag = true)\n" +
-			"OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
-			"AND em.service IN (\n" +
-			"  SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
-			"    OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"      (SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true))\n" +
-			"    )\n" +
+			"AND (\n" +
+			"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
+			"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
+			"  AND em.service IN (\n" +
+			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
+			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+			"      )\n" +
+			"  )\n" +
 			")"
 		:
 			"SELECT em FROM EntityMapping em " +
@@ -521,28 +523,28 @@ public class EntityMappingDAO
 			"WHERE em.bundle = em1.bundle\n" + 
 			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "'\n" +
 			"AND em.service.name = '" + targetServiceName + "'\n" +
-			// The parameter must be accessible
+			// First of all the parameter entity must be public (or, transitively, one of its containers)
 			"AND (\n" +
-			"  (em1.publicFlag IS NULL AND em1.releaseDate <= current_time() OR em1.publicFlag = true)\n" +
+			"  ( em1.publicFlag = true OR em1.publicFlag IS NULL AND em1.releaseDate IS NOT NULL AND em1.releaseDate <= current_time() )\n" +
 			"  OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
 			"  AND em1.service IN (\n" +
-			"    SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true)\n" +
+			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
 			"      )\n" +
 			"  )\n" +
 			")\n" +
-			// And the linked entities as well
+			// then, all the linked entities must be pub too 
 			"AND (\n" +
-			"  (em.publicFlag IS NULL AND em.releaseDate <= current_time() OR em.publicFlag = true)\n" +
+			"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
 			"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
 			"  AND em.service IN (\n" +
-			"    SELECT s FROM Service s WHERE (s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true)\n" +
+			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        SELECT r FROM Repository r WHERE (r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true)\n" +
+			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
 			"      )\n" +
 			"  )\n" +
-			")\n"
+			")"			
 		:
 			"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1 " +
 			"WHERE em.bundle = em1.bundle " + 

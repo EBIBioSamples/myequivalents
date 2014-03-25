@@ -69,7 +69,8 @@ public class DescribeableDAO<D extends Describeable>
 		if ( describeableName == null ) return null;
 		
 		String hql = "FROM " + targetClass.getName () + " WHERE name = '" + describeableName + "'"; 
-		if ( mustBePublic )	hql += " AND ( publicFlag IS NULL AND releaseDate <= current_time() OR publicFlag = true )";
+		if ( mustBePublic )	hql += 
+			" AND ( publicFlag = true OR publicFlag IS NULL AND ( releaseDate IS NULL OR releaseDate <= current_time() ) )";
 
 		Query q = entityManager.createQuery ( hql );
 

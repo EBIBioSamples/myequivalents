@@ -36,13 +36,17 @@ public class ServiceDAO extends DescribeableDAO<Service>
 		
 		String hql = mustBePublic
 		  ? 
-		  	"SELECT s FROM " + Service.class.getName () + " s LEFT JOIN s.repository r WHERE s.name = :serviceName AND (\n" +
+		  	"SELECT s FROM " + Service.class.getName () + " s LEFT JOIN s.repository r WHERE s.name = :serviceName\n" +
+				"AND (\n" +
 		    // The service has some specific visibility attribute
-			  "  ( s.publicFlag IS NULL AND s.releaseDate <= current_time() OR s.publicFlag = true )\n" +
+				"	  ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 		    // if the service has nothing, check its repo has something
-		  	"  OR ( r IS NOT NULL AND s.publicFlag IS NULL AND s.releaseDate IS NULL AND ( r.publicFlag IS NULL AND r.releaseDate <= current_time() OR r.publicFlag = true ) )\n" +
-			  ")"
-      : 
+				"	  OR (\n" +
+				"	    r IS NOT NULL AND s.publicFlag IS NULL AND s.releaseDate IS NULL\n" +
+				"	    AND ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ))\n" +
+				"	  )\n" +
+				"	)"		  	
+			: 
       	"FROM " + Service.class.getName () + " WHERE name = :serviceName";
 
 		Query q = getEntityManager ().createQuery ( hql ).setParameter ( "serviceName", serviceName );
