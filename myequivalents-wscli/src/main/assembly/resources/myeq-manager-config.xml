@@ -10,7 +10,7 @@
 		The MyEquivalents applications get the managers (i.e. components needed to access the service and its back-end) via 
 		the factory configured by this bean. See documentation and test classes in the core package for details.
 	-->
-	<bean id="myEquivalentsManagerFactory" class="uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory">
+	<bean id="myEquivalentsManagerFactory" class="uk.ac.ebi.fg.myequivalents.webservices.client.WSClientManagerFactory">
 		<constructor-arg value = "http://localhost:8080/test/myeq/ws" />
 	</bean>
 </beans>
