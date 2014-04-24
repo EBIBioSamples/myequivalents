@@ -111,51 +111,56 @@
 		
 			<!-- This is activated before tests and uses the overlay import mechanism -->
 			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
+				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>8.1.5.v20120716</version>
-					<configuration>
+				
+				<configuration>
+				
+					<systemProperties>
+						<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer -->
+				  	<systemProperty>
+				    	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
+				      <value>true</value>
+				    </systemProperty>
+				 	</systemProperties>	      	
+				
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<useTestScope>true</useTestScope>
+
+				  <httpConnector>
+				  	<!-- 8080 is often busy on EBI hosts -->
+				    <port>10973</port>
+				  </httpConnector>
 					
-						<systemProperties>
-							<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer -->
-			      	<systemProperty>
-			        	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
-			          <value>true</value>
-			        </systemProperty>
-			     	</systemProperties>	      	
-			   	
-						<scanIntervalSeconds>10</scanIntervalSeconds>
-						<useTestScope>true</useTestScope>
-						<connectors>
-						  <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-						  	<!-- 8080 is often busy on EBI hosts -->
-						    <port>10973</port>
-						    <maxIdleTime>60000</maxIdleTime>
-						  </connector>
-						</connectors>
-						
-			  	</configuration>
-			   
-					<dependencies>
-					</dependencies>
-			   
-					<executions>
-						<!-- 
-							starts jetty before tests and stops it afterwards. Note that no stop goal is needed, it magically stops
-							after tests 
-						-->
-						<execution>
-							<id>start-jetty</id>
-							<phase>pre-integration-test</phase>
-							<goals>
-								<goal>run</goal>
-			      	</goals>
-							<configuration>
-							  <scanIntervalSeconds>0</scanIntervalSeconds>
-							  <daemon>true</daemon>
-							</configuration>
-			    	</execution>
-			   </executions>	      
+					<stopPort>10974</stopPort>
+        	<stopKey>KILL</stopKey>
+        
+				</configuration>
+				
+				<executions>
+					<!-- 
+						starts jetty before tests and stops it afterwards. Note that no stop goal is needed, it magically stops
+						after tests 
+					-->
+					<execution>
+						<id>start-jetty</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>run</goal>
+				  	</goals>
+						<configuration>
+						  <scanIntervalSeconds>0</scanIntervalSeconds>
+						  <daemon>true</daemon>
+						</configuration>
+					</execution>
+					<execution>
+				    <id>stop-jetty</id>
+				    <phase>post-integration-test</phase>
+				    <goals>
+			        <goal>stop</goal>
+				    </goals>
+					</execution>					
+				</executions>
 			</plugin>
 			
 	    <plugin>
@@ -211,6 +216,8 @@
 	    </plugin>
 	    			
 		</plugins>  
+		
+
   </build>
   
 </project>

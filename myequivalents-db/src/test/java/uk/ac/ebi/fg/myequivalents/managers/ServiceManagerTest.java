@@ -46,15 +46,20 @@ public class ServiceManagerTest
 	private Repository repo1;
 	
 	// An editor is needed for writing operations.
-	private String editorPass = "test.password";
-	private String editorSecret = User.generateSecret ();
-	private User editorUser = new User ( 
+	public static String editorPass = "test.password";
+	public static String editorSecret = User.generateSecret ();
+	public static User editorUser = new User ( 
 		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
 	
 	@Before
 	public void init ()
 	{
+		// Someone around is changing this
+		editorUser = new User ( 
+			"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret 
+		);
+		
 		// An editor is needed for writing operations.
 		EntityManager em = ( (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory () )
 			.getEntityManagerFactory ().createEntityManager ();

@@ -23,6 +23,10 @@ import org.hibernate.annotations.Index;
 @javax.persistence.Entity
 @IdClass ( value = Entity.class )
 @Table( name = "entity_mapping" )
+@org.hibernate.annotations.Table ( 
+	appliesTo = "entity_mapping", 
+	indexes = { @Index ( name = "entity_mapping_s", columnNames = "service_name" ) } 
+)
 public class EntityMapping
 {
 	@Id

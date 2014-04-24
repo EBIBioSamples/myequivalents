@@ -10,6 +10,7 @@ import static junit.framework.Assert.assertEquals;
 
 import java.util.Collection;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
@@ -17,7 +18,6 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
 
 /**

@@ -76,7 +76,7 @@
 			<artifactId>myequivalents-db</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-						
+												
 	</dependencies>  
 
 
@@ -120,9 +120,9 @@
 		
 			<!-- This allows to test with mvn jetty:run -->
 	    <plugin>
-				<groupId>org.mortbay.jetty</groupId>
+				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>8.1.5.v20120716</version>
+				
 	      <configuration>
 
 					<systemProperties>
@@ -136,12 +136,14 @@
 	      	
 	        <scanIntervalSeconds>10</scanIntervalSeconds>
 	        <useTestScope>true</useTestScope>
-	        <connectors>
-	          <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-	            <port>8080</port>
-	            <maxIdleTime>60000</maxIdleTime>
-	          </connector>
-	        </connectors>
+				  
+				  <httpConnector>
+				    <port>8080</port>
+				  </httpConnector>
+				  
+					<stopPort>10974</stopPort>
+        	<stopKey>KILL</stopKey>
+				  
 	      </configuration>
 	    </plugin>
 	    		

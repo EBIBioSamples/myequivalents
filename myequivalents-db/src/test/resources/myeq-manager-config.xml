@@ -30,17 +30,33 @@
 			<prop key = "hibernate.connection.autocommit">false</prop>
 			<prop key = "hibernate.jdbc.batch_size">50</prop>
 			<prop key = "hibernate.show_sql">true</prop>
-			<prop key = "hibernate.connection.pool_size">1</prop>
 			
 			<prop key = "hibernate.jdbc.use_scrollable_resultset">true</prop>
 			
 			<prop key = "hibernate.jdbc.wrap_result_sets">true</prop>
-			<!-- hibernate.statement_cache.size=0 -->
+			<prop key = "cache.use_second_level_cache">false</prop>
+			<prop key = "cache.region.factory_cla­ss">org.hibernate.cache.ehcache.Si­ngletonEhCacheRegionFactory</prop>
+
+			<!-- Internal connection pool -->
+			<prop key = "hibernate.connection.pool_size">1</prop>
+
+<!--
+			<prop key = "hibernate.c3p0.min_size">5</prop>
+			<prop key = "hibernate.c3p0.max_size">20</prop>
+			<prop key = "hibernate.c3p0.timeout">900</prop>			
+			<prop key = "hibernate.c3p0.max_statements">50</prop>			
+			<prop key = "hibernate.c3p0.idle_test_period">300</prop>
+-->
 			
-			<!-- hibernate.dbcp.ps.maxIdle = 0 -->
-			<!-- hibernate.cache.use_second_level_cache=false -->
-			
-			<prop key = "hibernate.show_sql">true</prop>	
+
+			<!-- Possibly troubleshoots lost connections and alike  -->
+			<!-- prop key = "hibernate.connection.autoReconnect">true</prop>
+			<prop key = "hibernate.connection.autoReconnectForPools">true</prop -->
+			<!-- prop key = "hibernate.c3p0.testConnectionOnCheckIn">true</prop -->			
+
+
+			<!-- For prepared statments -->
+			<!-- prop key = "hibernate.statement_cache.size">100</prop -->
 		</props></constructor-arg>
 	</bean>
 </beans>

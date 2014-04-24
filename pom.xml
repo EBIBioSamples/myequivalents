@@ -12,6 +12,9 @@
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   	<jersey.version>1.15</jersey.version>
   	<h2.version>1.3.168</h2.version>
+  	<oracle.version>11.2.0.3.0</oracle.version>
+  	<jetty.version>9.1.3.v20140225</jetty.version>
+  	<hibernate.version>4.1.3.Final</hibernate.version>
   </properties>
 
 	<modules>
@@ -75,13 +78,19 @@
 			<dependency>
 			   <groupId>org.hibernate</groupId>
 			   <artifactId>hibernate-entitymanager</artifactId>
-			   <version>4.1.3.Final</version>
+			   <version>${hibernate.version}</version>
 			</dependency>
 			
 			<dependency>
 			   <groupId>org.hibernate</groupId>
 			   <artifactId>hibernate-validator</artifactId>
 			   <version>4.3.0.Final</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-c3p0</artifactId>
+			   <version>${hibernate.version}</version>
 			</dependency>
 		
 	<!-- 		<dependency> -->
@@ -124,7 +133,7 @@
 			<dependency>
 				<groupId>uk.ac.ebi</groupId>
 				<artifactId>jutils</artifactId>
-				<version>4.0</version>
+				<version>4.1</version>
 			</dependency>
 
 			<dependency>
@@ -144,6 +153,15 @@
 				<artifactId>joda-time</artifactId>
 				<version>2.2</version>
 			</dependency>
+				  
+			<!-- Utilities for testing (like JUnit rules) -->
+			<dependency>
+				<groupId>com.google.code.tempus-fugit</groupId>
+				<artifactId>tempus-fugit</artifactId>
+				<version>1.2-SNAPSHOT</version>			
+				<scope>test</scope>
+			</dependency>	  
+				  
 				  
 		</dependencies>
 	
@@ -192,6 +210,11 @@
 			    </configuration>
 			  </plugin>
 			
+				<plugin>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>${jetty.version}</version>				
+				</plugin>
 	    </plugins>
 		</pluginManagement>
 		
@@ -237,6 +260,13 @@
 			<id>springsource-repo</id>
 			<name>SpringSource Repository</name>
 			<url>http://repo.springsource.org/release</url>
+		</repository>
+
+		<repository>
+			<id>sonatype-snapshots</id>
+			<name>Sonatype Snapshots</name>
+			<url>http://oss.sonatype.org/content/repositories/snapshots</url>
+			<snapshots><enabled>true</enabled></snapshots>
 		</repository>
 
   </repositories>
@@ -293,8 +323,8 @@
   		<dependencies>
 				<dependency>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc5</artifactId>
-					<version>11.1.0.7.0</version>
+					<artifactId>ojdbc6</artifactId>
+					<version>${oracle.version}</version>
 				</dependency>
   		</dependencies>
   	</profile>  	  		
@@ -313,8 +343,8 @@
   		<dependencies>
 				<dependency>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc5</artifactId>
-					<version>11.1.0.7.0</version>
+					<artifactId>ojdbc6</artifactId>
+					<version>${oracle.version}</version>
 				</dependency>
   		</dependencies>
   	</profile>
@@ -335,8 +365,8 @@
   		<dependencies>
 				<dependency>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc5</artifactId>
-					<version>11.1.0.7.0</version>
+					<artifactId>ojdbc6</artifactId>
+					<version>${oracle.version}</version>
 				</dependency>
   		</dependencies>
   	</profile>  	  		  	
@@ -355,8 +385,8 @@
   		<dependencies>
 				<dependency>
 					<groupId>com.oracle</groupId>
-					<artifactId>ojdbc5</artifactId>
-					<version>11.1.0.7.0</version>
+					<artifactId>ojdbc6</artifactId>
+					<version>${oracle.version}</version>
 				</dependency>
   		</dependencies>
   	</profile>

@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
