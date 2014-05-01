@@ -318,7 +318,7 @@
 				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</jdbc.url>
 				<jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</jdbc.driverClassName>
 				<hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
+				<hibernate.hbm2ddl.auto></hibernate.hbm2ddl.auto>
   		</properties>
   		<dependencies>
 				<dependency>
@@ -360,7 +360,7 @@
 				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</jdbc.url>
 				<jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</jdbc.driverClassName>
 				<hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
+				<hibernate.hbm2ddl.auto></hibernate.hbm2ddl.auto>
   		</properties>
   		<dependencies>
 				<dependency>
