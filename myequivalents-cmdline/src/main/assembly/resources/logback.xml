@@ -21,7 +21,7 @@
   <appender name="FileApp" class="ch.qos.logback.core.FileAppender">
     <!-- Adds up to a possibly existing file -->
     <Append>false</Append>
-    <File>myequivalents.log</File>
+    <File>log/myequivalents.log</File>
     <encoder>
     	<!-- TODO: %C and %L are useful, but possibly slow, is it worth to ship with these? -->
       <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-6t] [%-5p] \(%C{1},%L\): %m%n</pattern>
