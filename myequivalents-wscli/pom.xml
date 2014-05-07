@@ -3,7 +3,7 @@
   <parent>
     <groupId>uk.ac.ebi.fg</groupId>
     <artifactId>myequivalents</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3RC3</version>
   </parent>
   <artifactId>myequivalents-wscli</artifactId>
   <name>My Equivalents Web Service Client</name>
