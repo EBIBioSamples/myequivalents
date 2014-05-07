@@ -401,7 +401,7 @@
 				<jdbc.url>jdbc:oracle:thin:@ora-vm-023.ebi.ac.uk:1531:biosdpro</jdbc.url>
 				<jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</jdbc.driverClassName>
 				<hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</hibernate.dialect>
-				<hibernate.hbm2ddl.auto></hibernate.hbm2ddl.auto>
+				<hibernate.hbm2ddl.auto />
   		</properties>
   		<dependencies>
 				<dependency>
