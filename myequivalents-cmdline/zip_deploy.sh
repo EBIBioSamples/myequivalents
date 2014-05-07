@@ -18,15 +18,17 @@ if [ "$target" == "" ]; then
   target=target
 fi
 
+cd "$MYDIR"
+export PRJ_VERSION=$(mvn help:evaluate -Dexpression=project.version |grep -E '^[0-9,.]+.*')
 
-cd "$MYDIR/target"
+cd target
 
 if [ "$target" != "target" ]; then
-  cp -f ./myequivalents_shell_*.zip "$target"
+  cp -f ./myequivalents_shell_${PRJ_VERSION}.zip "$target"
   cd "$target"
 fi
 
-yes | unzip "./myequivalents_shell_*.zip"
+yes | unzip "./myequivalents_shell_${PRJ_VERSION}.zip"
 
 exit_code=$?
 
@@ -34,6 +36,5 @@ echo
 echo
 echo The End
 
-exit $?
-
+exit $exit_code
   
