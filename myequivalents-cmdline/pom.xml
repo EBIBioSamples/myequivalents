@@ -113,7 +113,7 @@
               <configuration>
                   <finalName>myequivalents_shell_${project.version}</finalName>
                   <appendAssemblyId>false</appendAssemblyId>
-                  <attach>false</attach>
+                  <attach>true</attach>
                   <descriptors>
                       <descriptor>src/main/assembly/pkg.xml</descriptor>
                   </descriptors>

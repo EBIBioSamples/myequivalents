@@ -391,7 +391,7 @@
   		</dependencies>
   	</profile>
   	
-  	
+
   	
 		<profile>
 			<id>test.h2</id>
@@ -437,7 +437,7 @@
 			<properties>
 				<jdbc.username>sa</jdbc.username>
 				<jdbc.password />
-				<jdbc.url>jdbc:h2:target/database/testdb;DB_CLOSE_ON_EXIT=FALSE</jdbc.url>
+				<jdbc.url>jdbc:h2:database/testdb;DB_CLOSE_ON_EXIT=TRUE</jdbc.url>
 				<!-- You need java -cp h2*.jar org.h2.tools.Server for this (-? for options) 
 				<jdbc.url>jdbc:h2:tcp://localhost/~/testdb</jdbc.url -->
 				<jdbc.driverClassName>org.h2.Driver</jdbc.driverClassName>
