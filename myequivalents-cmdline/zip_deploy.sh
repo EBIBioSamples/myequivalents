@@ -14,6 +14,9 @@ EOT
 exit 1
 fi
 
+# This is needed at the EBI, it should be safely ignored elsewhere
+export PATH="$PATH:/ebi/microarray/home/bamboo/maven-3.0.4/bin"
+
 if [ "$target" == "" ]; then
   target=target
 fi
