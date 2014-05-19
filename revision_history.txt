@@ -1,13 +1,16 @@
 1.0 (Expected)
   - Logical closure over the serviceCollection relation
- 
-0.3
+    
+0.4 (Expected)
   - Provenance tracking features
   
-0.2 (Expected)
+0.3
   - Authentication and access control
   - Completion of the web service
   - /go-to-target added to the web service
+
+0.2
+  - Skipped, due to errors in the release process
 
 0.1  
   - Factory design pattern used to obtain the managers

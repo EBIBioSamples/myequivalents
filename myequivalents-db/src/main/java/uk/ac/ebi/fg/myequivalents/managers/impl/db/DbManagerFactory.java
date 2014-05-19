@@ -33,7 +33,7 @@ public class DbManagerFactory implements ManagerFactory
 	 */
 	public DbManagerFactory ( Properties hibernateProperties )
 	{
-		entityManagerFactory = Persistence.createEntityManagerFactory ( "defaultPersistenceUnit", hibernateProperties );
+		entityManagerFactory = Persistence.createEntityManagerFactory ( "myEquivalentsPersistenceUnit", hibernateProperties );
 	}
 	
 	
