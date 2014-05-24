@@ -50,13 +50,13 @@ public class EntityMappingSearchResult
 		protected Bundle () {
 		}
 		
-		@XmlElement ( name = "entity", type = ExposedEntity.class )
 		private Set<Entity> entities = new HashSet<Entity> ();
 
 		private void addEntity ( Entity entity ) {
 			this.entities.add ( entity );
 		}
 
+		@XmlElement ( name = "entity", type = ExposedEntity.class )
 		public Set<Entity> getEntities () {
 			return entities;
 		}

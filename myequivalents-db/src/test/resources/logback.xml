@@ -41,5 +41,5 @@
 	<!-- Add Loggers this way if you want finer reports for selected components -->
   <!-- logger name="uk.ac.ebi.fg.myequivalents" level="ALL"/ -->
   
-  <logger name = "org.hibernate" level = "DEBUG" />
+  <!-- logger name = "org.hibernate" level = "DEBUG" / -->
 </configuration>

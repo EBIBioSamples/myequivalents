@@ -3,6 +3,7 @@ package uk.ac.ebi.fg.myequivalents.model;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -13,6 +14,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 /**
  *
@@ -71,22 +74,21 @@ public class Service extends Describeable
 {
 	@Column ( name = "entity_type" )
 	@Index( name = "service_et" )
-	@XmlAttribute ( name = "entity-type" )
 	private String entityType;
 
 	@Index( name = "service_up" )
-	@XmlAttribute ( name = "uri-prefix" )
 	private String uriPrefix;
 	
-	@XmlAttribute ( name = "uri-pattern" )
 	private String uriPattern;
 	
 	@ManyToOne( cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE } )
+	@LazyToOne ( LazyToOneOption.PROXY )
 	@JoinColumn( name = "repository_name" )
 	@Index( name = "service_r" )
 	private Repository repository;
 	
 	@ManyToOne( cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE } )
+	@LazyToOne ( LazyToOneOption.PROXY )
 	@JoinColumn( name = "service_collection_name" )
 	@Index( name = "service_c" )
 	private ServiceCollection serviceCollection;
@@ -113,6 +115,7 @@ public class Service extends Describeable
 		this.setEntityType ( entityType );
 	}
 
+	@XmlAttribute ( name = "entity-type" )
 	public String getEntityType ()
 	{
 		return entityType;
@@ -123,6 +126,7 @@ public class Service extends Describeable
 		this.entityType = entityType;
 	}
 
+	@XmlAttribute ( name = "uri-prefix" )
 	public String getUriPrefix ()
 	{
 		return uriPrefix;
@@ -133,6 +137,7 @@ public class Service extends Describeable
 		this.uriPrefix = uriPrefix;
 	}
 
+	@XmlAttribute ( name = "uri-pattern" )
 	public String getUriPattern ()
 	{
 		return uriPattern;

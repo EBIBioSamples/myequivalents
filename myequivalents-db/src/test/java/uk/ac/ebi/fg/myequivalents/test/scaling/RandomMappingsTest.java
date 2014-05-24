@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
+import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 
 import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
 import uk.ac.ebi.fg.myequivalents.managers.ServiceManagerTest;
@@ -76,7 +77,7 @@ public class RandomMappingsTest
 	/**
 	 * How many parallel threads are instantiated that run {@link #readRandomMappings()}.
 	 */
-	public final static int NREADING_THREADS = 10;
+	public final static int NREADING_THREADS = 100;
 	
 	@Rule
 	public ConcurrentRule concurrentRule = new ConcurrentRule ();
@@ -196,7 +197,7 @@ public class RandomMappingsTest
 	
 	
 	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
-	// @Concurrent ( count = NREADING_THREADS )
+	//@Concurrent ( count = NREADING_THREADS )
 	public void readRandomMappings () throws Exception
 	{
 		DbManagerFactory dbMgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
@@ -237,11 +238,55 @@ public class RandomMappingsTest
 		
 		// How many mapping entities you worked with?
 		EntityManager em = dbMgrFact.getEntityManagerFactory ().createEntityManager ();
+		/*long nents = ((Number) em.createNativeQuery ( 
+			"select count(*) from ENTITY_MAPPING where SERVICE_NAME LIKE '%scaling%'" ).getSingleResult ()).longValue ();*/
 		long nents = ((Number) em.createNativeQuery ( 
-			"select count(*) from ENTITY_MAPPING where SERVICE_NAME LIKE '%scaling%'" ).getSingleResult ()).longValue ();
+				"select count(*) from ENTITY_MAPPING where SERVICE_NAME LIKE '%scaling%'" ).getSingleResult ()).longValue ();
 		
 		log.info ( String.format ( "-------- Test finished, I've read %d mappings (from %d entities) in %f secs -------", 
 			NREADINGS, nents, stopw.getTime () / 1000.0 ));
 		
 	} // readRandomMappings()
+
+
+	/**
+	 * Reads all the mappings in a id list, stored in target/random_generated_entity_ids.lst
+	 */
+	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
+	// @Concurrent ( count = NREADING_THREADS )
+	public void readAllRandomMappings () throws Exception
+	{
+		DbManagerFactory dbMgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		EntityMappingManager mapMgr = dbMgrFact.newEntityMappingManager ();
+
+		Random rnd = new Random ( System.currentTimeMillis () );
+
+		List<String> entityIds = FileUtils.readLines ( new File ( "target/random_generated_entity_ids.lst" )  );
+		int nreads = entityIds.size ();
+		
+		XStopWatch stopw = new XStopWatch ();
+		for ( int ireading = 0; ireading < nreads; ireading++ )
+		{
+			String entityId = entityIds.get ( ireading );
+			
+			boolean wantRawResult = rnd.nextBoolean ();
+			
+			stopw.resumeOrStart ();
+			EntityMappingSearchResult mappings = mapMgr.getMappings ( wantRawResult, entityId );
+			String payLoad = mappings.toString (); // simulate a reading operation
+			stopw.suspend ();
+			// System.out.println ( "---- Mappings for " + entityId + ":\n" + mappings );
+			
+			if ( ireading % 1000 == 0 ) System.out.println ( "--- Up to #" + ireading );
+		}
+		
+		// How many mapping entities you worked with?
+		EntityManager em = dbMgrFact.getEntityManagerFactory ().createEntityManager ();
+		long nents = ((Number) em.createNativeQuery ( 
+			"select count(*) from ENTITY_MAPPING" ).getSingleResult ()).longValue ();
+		
+		log.info ( String.format ( "-------- Test finished, I've read %d mappings (from %d entities) in %f secs -------", 
+			nreads, nents, stopw.getTime () / 1000.0 ));
+		
+	} // readAllRandomMappings()
 }

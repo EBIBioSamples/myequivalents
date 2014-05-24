@@ -40,7 +40,7 @@ public class Entity implements Serializable
 {
 	private static final long serialVersionUID = -3887901613707959679L;
 
-	@ManyToOne( optional = false, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
+	@ManyToOne( optional = false, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH } )
 	@JoinColumn ( name = "service_name" )
 	private Service service;
 	
@@ -113,10 +113,21 @@ public class Entity implements Serializable
 	@XmlAttribute ( name = "uri" )
 	public String getURI()
 	{
-		String uriPattern = this.service.getUriPattern ();
+		String uriPattern = this.getService ().getUriPattern ();
 		if ( uriPattern == null ) return null;
 		return uriPattern.replaceAll ( "\\$\\{accession\\}", this.getAccession () );
 	}
+
+  /**
+   * This is only used with JAXB and implemented in specific sub-classes.
+   */
+	protected void setURI ( String uri ) 
+	{
+		throw new UnsupportedOperationException ( 
+			"Internal error: you cannot call Entity.setURI(), this is here just to make JAXB annotations working. " +
+			"You need to override this setter, if you have a reasonable semantics for it" );
+	}
+	
 	
 	public void setPublicFlag ( Boolean publicFlag ) {
 		this.publicFlag = publicFlag;
@@ -173,8 +184,8 @@ public class Entity implements Serializable
 	public String toString ()
 	{
 		return String.format ( 
-			"Entity { service.name: '%s', accession: '%s', public-flag: %s, release-date: %s }", 
-				this.getServiceName (), this.getAccession (), this.getPublicFlag (), this.getReleaseDate ()  
+			"Entity { service.name: '%s', accession: '%s', public-flag: %s, release-date: %s, uri: '%s' }", 
+				this.getServiceName (), this.getAccession (), this.getPublicFlag (), this.getReleaseDate (), this.getURI ()  
 		);
 	}
 

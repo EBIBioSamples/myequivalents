@@ -3,9 +3,10 @@ package uk.ac.ebi.fg.myequivalents.dao;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -41,7 +42,8 @@ public class EntityMappingDAO
 	private EntityManager entityManager;
 	private static MessageDigest messageDigest = null;
 	private final Random random = new Random ( System.currentTimeMillis () );
-
+	
+	
 	public EntityMappingDAO ( EntityManager entityManager )
 	{
 		this.entityManager = entityManager;
@@ -309,10 +311,10 @@ public class EntityMappingDAO
 	 * It returns an empty list if either parameter is empty. It never returns null.
 	 * 
 	 */
-	public List<String> findMappings ( String serviceName, String accession, boolean mustBePublic )
+	public List<String> findMappings ( String serviceName, String accession, final boolean mustBePublic )
 	{
-		serviceName = StringUtils.trimToNull ( serviceName );
-		accession = StringUtils.trimToNull ( accession );
+		final String serviceNameTrim = StringUtils.trimToNull ( serviceName );
+		final String accessionTrim = StringUtils.trimToNull ( accession );
 		final List<String> result = new ArrayList<String> ();
 		if ( serviceName == null || accession == null ) return result; 
 		
@@ -320,36 +322,42 @@ public class EntityMappingDAO
 			?
 				"SELECT em1.service_name AS service_name, em1.accession AS accession\n" +
 				"FROM entity_mapping em1, entity_mapping em2\n" + 
-				"WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'\n" +
+				"WHERE em1.bundle = em2.bundle AND em2.service_name = ? AND em2.accession = ?\n" +
 				// First of all the parameter entity must be public (or, transitively, one of its containers)
 				"AND (\n" + 
-				"  (em2.public_flag = true OR em2.public_flag IS NULL AND em2.release_date IS NOT NULL AND em2.release_date <= NOW() )\n" + 
+				"  (em2.public_flag = 1 OR em2.public_flag IS NULL AND em2.release_date IS NOT NULL AND em2.release_date <= ? )\n" + 
 				"  OR em2.public_flag IS NULL AND em2.release_date IS NULL AND em2.service_name IN (" +
-				"    SELECT name FROM service s WHERE ( s.public_flag = true OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= NOW() )\n" +
+				"    SELECT name FROM service s WHERE ( s.public_flag = 1 OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= ? )\n" +
 				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
-				"        (SELECT name FROM repository r WHERE r.public_flag = true OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= NOW() ) )" +
+				"        (SELECT name FROM repository r WHERE r.public_flag = 1 OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= ? ) )" +
 				"    )\n" +
 				"  )\n" +
 				")\n" + 
 				// then, all the linked entities must be pub too 
 				"AND (\n" + 
-				"  (em1.public_flag = true OR em1.public_flag IS NULL AND em1.release_date IS NOT NULL AND em1.release_date <= NOW() )\n" + 
+				"  (em1.public_flag = 1 OR em1.public_flag IS NULL AND em1.release_date IS NOT NULL AND em1.release_date <= ? )\n" + 
 				"  OR em1.public_flag IS NULL AND em1.release_date IS NULL AND em1.service_name IN (" +
-				"    SELECT name FROM service s WHERE ( s.public_flag = true OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= NOW() )\n" +
+				"    SELECT name FROM service s WHERE ( s.public_flag = 1 OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= ? )\n" +
 				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
-				"        (SELECT name FROM repository r WHERE r.public_flag = true OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= NOW() ) )" +
+				"        (SELECT name FROM repository r WHERE r.public_flag = 1 OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= ? ) )" +
 				"    )\n" +
 				"  )\n" +
 				")" 
 			:
 				"SELECT em1.service_name AS service_name, em1.accession AS accession FROM entity_mapping em1, entity_mapping em2\n" +
-				"  WHERE em1.bundle = em2.bundle AND em2.service_name = '" + serviceName + "' AND em2.accession = '" + accession + "'";
+				"  WHERE em1.bundle = em2.bundle AND em2.service_name = ? AND em2.accession = ?";
 		
 		((HibernateEntityManager)entityManager).getSession ().doWork ( new Work() {
 			@Override
 			public void execute ( Connection conn ) throws SQLException {
-				Statement stmt = conn.createStatement ();
-				for ( ResultSet rs = stmt.executeQuery ( sql ); rs.next (); )
+				PreparedStatement stmt = conn.prepareStatement ( sql );
+				stmt.setString ( 1, serviceNameTrim );
+			  stmt.setString ( 2, accessionTrim );
+			  if ( mustBePublic ) {
+			  	Date now = new Date ( System.currentTimeMillis () );
+			  	for ( int i = 3; i <= 8; i++ ) stmt.setDate ( i, now );
+			  }
+				for ( ResultSet rs = stmt.executeQuery (); rs.next (); )
 				{
 					String serviceNamei = rs.getString ( "service_name" ), accessioni = rs.getString ( "accession" );
 					result.add ( serviceNamei ); 
@@ -396,39 +404,10 @@ public class EntityMappingDAO
 		accession = StringUtils.trimToNull ( accession );
 		if ( serviceName == null || accession == null ) return new ArrayList<EntityMapping> (); 
 
-		String hql = mustBePublic 
-		?
-			"SELECT em FROM EntityMapping em, EntityMapping em1 " +
-			"WHERE em.bundle = em1.bundle " +
-			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "'\n" +
-			// First of all the parameter entity must be public (or, transitively, one of its containers)
-			"AND (\n" +
-			"  ( em1.publicFlag = true OR em1.publicFlag IS NULL AND em1.releaseDate IS NOT NULL AND em1.releaseDate <= current_time() )\n" +
-			"  OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
-			"  AND em1.service IN (\n" +
-			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
-			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
-			"      )\n" +
-			"  )\n" +
-			")\n" +
-			// then, all the linked entities must be pub too 
-			"AND (\n" +
-			"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
-			"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
-			"  AND em.service IN (\n" +
-			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
-			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
-			"      )\n" +
-			"  )\n" +
-			")"
-		:
-			"SELECT em FROM EntityMapping em, EntityMapping em1 " +
-			"WHERE em.bundle = em1.bundle " +
-			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "' ";
-		
-		Query q = entityManager.createQuery ( hql );
+		String queryName = mustBePublic ? "getPublicMappings" : "getAllMappings";
+		Query q = entityManager.createNamedQuery ( queryName, EntityMapping.class )
+			.setParameter ( "serviceName", serviceName )
+			.setParameter ( "accession", accession );
 		return q.getResultList ();
 	}
 	
@@ -448,25 +427,11 @@ public class EntityMappingDAO
 		accession = StringUtils.trimToNull ( accession );
 		if ( serviceName == null || accession == null ) return null; 
 		
-		String hql = mustBePublic
-		?
-			"SELECT em FROM EntityMapping em " +
-			"WHERE em.service.name = '" + serviceName + "' AND em.accession = '" + accession + "'\n" +
-			"AND (\n" +
-			"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
-			"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
-			"  AND em.service IN (\n" +
-			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
-			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
-			"      )\n" +
-			"  )\n" +
-			")"
-		:
-			"SELECT em FROM EntityMapping em " +
-			"WHERE em.service.name = '" + serviceName + "' AND em.accession = '" + accession + "' ";
+		String queryName = mustBePublic ? "findPublicEntityMapping" : "findEntityMapping";
+		Query q = entityManager.createNamedQuery ( queryName, EntityMapping.class )
+			.setParameter ( "serviceName", serviceName )
+			.setParameter ( "accession", accession );
 		
-		Query q = entityManager.createQuery ( hql );
 		List<EntityMapping> result = q.getResultList ();
 		
 		return result == null || result.isEmpty () ? null : result.get ( 0 );
@@ -517,41 +482,12 @@ public class EntityMappingDAO
 		targetServiceName = StringUtils.trimToNull ( targetServiceName );
 		if ( serviceName == null || accession == null || targetServiceName == null ) return new ArrayList<EntityMapping> (); 
 
-		String hql = mustBePublic 
-		?
-			"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1\n" +
-			"WHERE em.bundle = em1.bundle\n" + 
-			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "'\n" +
-			"AND em.service.name = '" + targetServiceName + "'\n" +
-			// First of all the parameter entity must be public (or, transitively, one of its containers)
-			"AND (\n" +
-			"  ( em1.publicFlag = true OR em1.publicFlag IS NULL AND em1.releaseDate IS NOT NULL AND em1.releaseDate <= current_time() )\n" +
-			"  OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
-			"  AND em1.service IN (\n" +
-			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
-			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
-			"      )\n" +
-			"  )\n" +
-			")\n" +
-			// then, all the linked entities must be pub too 
-			"AND (\n" +
-			"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
-			"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
-			"  AND em.service IN (\n" +
-			"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
-			"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-			"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
-			"      )\n" +
-			"  )\n" +
-			")"			
-		:
-			"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1 " +
-			"WHERE em.bundle = em1.bundle " + 
-			"AND em1.service.name = '" + serviceName + "' AND em1.accession = '" + accession + "' " +
-			"AND em.service.name = '" + targetServiceName + "'";
+		String queryName = mustBePublic ? "findPublicMappingsForTarget" : "findMappingsForTarget";
+		Query q = entityManager.createNamedQuery ( queryName, EntityMapping.class )
+			.setParameter ( "serviceName", serviceName )
+			.setParameter ( "accession", accession )
+			.setParameter ( "targetServiceName", targetServiceName );
 		
-		Query q = entityManager.createQuery ( hql );
 		return q.getResultList ();
 	}
 	

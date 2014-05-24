@@ -4,7 +4,7 @@
   <artifactId>myequivalents</artifactId>
   <version>0.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>My Equivalents Crossreference and Equivalence Management Componenets</name>
+  <name>My Equivalents Crossreference and Equivalence Management Components</name>
 
   <description>TODO.</description>
   
@@ -13,8 +13,10 @@
   	<jersey.version>1.15</jersey.version>
   	<h2.version>1.3.168</h2.version>
   	<oracle.version>11.2.0.3.0</oracle.version>
-  	<jetty.version>9.1.3.v20140225</jetty.version>
+  	<!--  jetty.version>9.1.3.v20140225</jetty.version -->
+  	<jetty.version>9.2.0.RC0</jetty.version>
   	<hibernate.version>4.1.3.Final</hibernate.version>
+		<p6spy.version>2.0.2</p6spy.version>
   </properties>
 
 	<modules>
@@ -162,7 +164,6 @@
 				<scope>test</scope>
 			</dependency>	  
 				  
-				  
 		</dependencies>
 	
 	</dependencyManagement>
@@ -178,8 +179,8 @@
 	      <plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 		      <configuration>
-		        <source>1.6</source>
-		        <target>1.6</target>
+		        <source>1.7</source>
+		        <target>1.7</target>
 		        <encoding>utf-8</encoding>
 		      </configuration>
 		    </plugin>
@@ -438,7 +439,7 @@
 			<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
 				<test.jdbc.password />
-				<test.jdbc.url>jdbc:h2:target/database/testdb;DB_CLOSE_ON_EXIT=FALSE</test.jdbc.url>
+				<test.jdbc.url>jdbc:h2:target/database/testdb;DB_CLOSE_ON_EXIT=TRUE</test.jdbc.url>
 				<test.jdbc.driverClassName>org.h2.Driver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
 				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
@@ -465,6 +466,42 @@
 				<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
 			</properties>
 			<dependencies>
+				<dependency>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+					<version>${h2.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+
+
+		<!-- 
+		  This wraps the same settings in h2_file with P6SPY, a filter driver that will log all the SQL statements to
+		  target/spy.log
+		  
+		  You need to have a P6SPY property files in your classpath for this to work 
+		  (see projects like http://github.com/EBIBioSamples/biosd_model_load for details)
+		  
+		  WARNING: we've a few tests not working with this configuration. It seems the old HSQL driver, mentioned in 
+		  spy.properties, is used, instead of the one specified here.
+		-->
+		<profile>
+			<id>test.p6spy.h2_file</id>
+			<properties>
+				<test.jdbc.username>sa</test.jdbc.username>
+				<test.jdbc.password />
+				<test.jdbc.url>jdbc:p6spy:h2:target/database/testdb</test.jdbc.url>
+				<test.jdbc.driverClassName>com.p6spy.engine.spy.P6SpyDriver</test.jdbc.driverClassName>
+				<test.jdbc.spy.driverClassName>org.h2.Driver</test.jdbc.spy.driverClassName>
+				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
+				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>p6spy</groupId>
+					<artifactId>p6spy</artifactId>
+					<version>${p6spy.version}</version>
+				</dependency>			
 				<dependency>
 					<groupId>com.h2database</groupId>
 					<artifactId>h2</artifactId>

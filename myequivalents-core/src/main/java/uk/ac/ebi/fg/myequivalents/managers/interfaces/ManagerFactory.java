@@ -15,7 +15,7 @@ public interface ManagerFactory
 	public EntityMappingManager newEntityMappingManager ();
 	
 	/** Gets an {@link EntityMappingManager} where the parameter used is logged-in and made active */ 
-	public EntityMappingManager newEntityMappingManager ( String email, String apiPassword);
+	public EntityMappingManager newEntityMappingManager ( String email, String apiPassword );
 
 	
 	/** Works with the anonymous user */

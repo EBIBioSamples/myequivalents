@@ -35,22 +35,15 @@ public abstract class Describeable
 {
 	@Id
 	@Column( length = 100 )
-	@XmlAttribute
 	private String name;
 	
-	@XmlAttribute
 	private String title;
 	
-	@XmlElement
 	private String description;
 	
-	@XmlAttribute ( name = "public-flag" )
-	@XmlJavaTypeAdapter ( NullBooleanJaxbXmlAdapter.class )	
-	@Column ( name = "public_flag", nullable = true )
+	@Column ( name = "public_flag", nullable = true, columnDefinition = "decimal(1,0)" )
 	private Boolean publicFlag = true;
 	
-	@XmlAttribute ( name = "release-date" )
-	@XmlJavaTypeAdapter ( DateJaxbXmlAdapter.class )	
 	@Column ( name = "release_date", nullable = true )
 	private Date releaseDate = null;
 	
@@ -85,7 +78,7 @@ public abstract class Describeable
 	}
 
 
-
+	@XmlAttribute
 	public String getName ()
 	{
 		return name;
@@ -96,6 +89,7 @@ public abstract class Describeable
 		this.name = name;
 	}
 
+	@XmlAttribute
 	public String getTitle ()
 	{
 		return title;
@@ -116,7 +110,8 @@ public abstract class Describeable
 		this.description = description;
 	}
 		
-	
+	@XmlAttribute ( name = "public-flag" )
+	@XmlJavaTypeAdapter ( NullBooleanJaxbXmlAdapter.class )	
 	public Boolean getPublicFlag () {
 		return this.publicFlag;
 	}
@@ -124,7 +119,9 @@ public abstract class Describeable
 	public void setPublicFlag ( Boolean publicFlag ) {
 		this.publicFlag = publicFlag;
 	}
-	
+
+	@XmlAttribute ( name = "release-date" )
+	@XmlJavaTypeAdapter ( DateJaxbXmlAdapter.class )	
 	public Date getReleaseDate ()
 	{
 		return releaseDate;

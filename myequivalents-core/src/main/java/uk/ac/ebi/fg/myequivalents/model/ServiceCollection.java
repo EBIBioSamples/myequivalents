@@ -38,7 +38,6 @@ public class ServiceCollection extends Describeable
 {
 	@Column ( name = "entity_type" )
 	@Index( name = "service_coll_et" )
-	@XmlAttribute ( name = "entity-type" )
 	private String entityType;
 	
 	public ServiceCollection () {
@@ -57,6 +56,7 @@ public class ServiceCollection extends Describeable
 		this.setEntityType ( entityType );
 	}
 
+	@XmlAttribute ( name = "entity-type" )
 	public String getEntityType ()
 	{
 		return entityType;

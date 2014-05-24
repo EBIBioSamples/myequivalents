@@ -137,7 +137,7 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 	{
 		if ( emsr == null ) return null;
 		
-		// Do you have more than mappings?
+		// Do you have more than one mapping?
 		
 		Set<Service> orgServs = emsr.getServices ();
 		if ( orgServs == null ) return emsr;

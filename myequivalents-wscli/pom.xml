@@ -134,7 +134,7 @@
 					
 					<stopPort>10974</stopPort>
         	<stopKey>KILL</stopKey>
-        
+          <stopWait>10</stopWait>
 				</configuration>
 				
 				<executions>

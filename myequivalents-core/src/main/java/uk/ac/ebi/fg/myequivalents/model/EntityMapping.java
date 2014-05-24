@@ -10,6 +10,8 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAttribute;
 
 import org.hibernate.annotations.Index;
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
 
 
 /**
@@ -27,6 +29,99 @@ import org.hibernate.annotations.Index;
 	appliesTo = "entity_mapping", 
 	indexes = { @Index ( name = "entity_mapping_s", columnNames = "service_name" ) } 
 )
+
+/* Used in the DAO, improve speed dramatically, cause it saves a lot of parsing time */
+@NamedQueries ({
+	@NamedQuery ( name = "getPublicMappings", cacheable = true, query = 
+	  "SELECT em FROM EntityMapping em, EntityMapping em1\n" +
+		"WHERE em.bundle = em1.bundle\n" +
+		"AND em1.service.name = :serviceName AND em1.accession = :accession\n" +
+		// First of all the parameter entity must be public (or, transitively, one of its containers)
+		"AND (\n" +
+		"  ( em1.publicFlag = true OR em1.publicFlag IS NULL AND em1.releaseDate IS NOT NULL AND em1.releaseDate <= current_time() )\n" +
+		"  OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
+		"  AND em1.service IN (\n" +
+		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
+		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"      )\n" +
+		"  )\n" +
+		")\n" +
+		// then, all the linked entities must be pub too 
+		"AND (\n" +
+		"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
+		"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
+		"  AND em.service IN (\n" +
+		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
+		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"      )\n" +
+		"  )\n" +
+		")" 
+	),
+	
+	@NamedQuery ( name = "getAllMappings", cacheable = true, query = 
+		"SELECT em FROM EntityMapping em, EntityMapping em1\n" +
+		"WHERE em.bundle = em1.bundle\n" +
+		"AND em1.service.name = :serviceName AND em1.accession = :accession"
+	), 
+	
+	@NamedQuery ( name = "findPublicEntityMapping", cacheable = true, query =
+		"SELECT em FROM EntityMapping em\n" +
+		"WHERE em.service.name = :serviceName AND em.accession = :accession\n" +
+		"AND (\n" +
+		"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
+		"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
+		"  AND em.service IN (\n" +
+		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
+		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"      )\n" +
+		"  )\n" +
+		")"
+	),
+	
+	@NamedQuery ( name = "findEntityMapping", cacheable = true, query =
+		"SELECT em FROM EntityMapping em\n" +
+		"WHERE em.service.name = :serviceName AND em.accession = :accession"
+	),
+	
+	@NamedQuery ( name = "findPublicMappingsForTarget", cacheable = true, query =
+		"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1\n" +
+		"WHERE em.bundle = em1.bundle\n" + 
+		"AND em1.service.name = :serviceName AND em1.accession = :accession\n" +
+		"AND em.service.name = :targetServiceName\n" +
+		// First of all the parameter entity must be public (or, transitively, one of its containers)
+		"AND (\n" +
+		"  ( em1.publicFlag = true OR em1.publicFlag IS NULL AND em1.releaseDate IS NOT NULL AND em1.releaseDate <= current_time() )\n" +
+		"  OR em1.publicFlag IS NULL AND em1.releaseDate IS NULL\n" +
+		"  AND em1.service IN (\n" +
+		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
+		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"      )\n" +
+		"  )\n" +
+		")\n" +
+		// then, all the linked entities must be pub too 
+		"AND (\n" +
+		"  ( em.publicFlag = true OR em.publicFlag IS NULL AND em.releaseDate IS NOT NULL AND em.releaseDate <= current_time() )\n" +
+		"  OR em.publicFlag IS NULL AND em.releaseDate IS NULL\n" +
+		"  AND em.service IN (\n" +
+		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
+		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"      )\n" +
+		"  )\n" +
+		")"
+	),
+	
+	@NamedQuery ( name = "findMappingsForTarget", cacheable = true, query = 
+		"SELECT DISTINCT em FROM EntityMapping em, EntityMapping em1\n" +
+		"WHERE em.bundle = em1.bundle\n" + 
+		"AND em1.service.name = :serviceName AND em1.accession = :accession\n" +
+		"AND em.service.name = :targetServiceName"
+	)
+})
 public class EntityMapping
 {
 	@Id
@@ -39,15 +134,14 @@ public class EntityMapping
 	@Index ( name = "entity_mapping_b" )
 	private String bundle;
 
-	@XmlAttribute ( name = "public-flag" )
-	@Column ( name = "public_flag", nullable = true )
+	@Column ( name = "public_flag", nullable = true, columnDefinition = "decimal(1,0)" )
 	@Index ( name = "entity_mapping_pub_flag" )
 	private Boolean publicFlag = true;
 	
-	@XmlAttribute ( name = "release-date" )
 	@Column ( name = "release_date", nullable = true )
 	@Index ( name = "entity_mapping_rel_date" )
 	private Date releaseDate = null;
+	
 	
 	public EntityMapping () {
 		super ();
@@ -58,10 +152,10 @@ public class EntityMapping
 		super ();
 		if ( service == null )
 			// TODO: proper exception
-			throw new NullPointerException ( "service cannot be empty" );
+			throw new NullPointerException ( "service cannot be null" );
 		if ( bundle == null )
 			// TODO: proper exception
-			throw new NullPointerException ( "bundle cannot be empty" );
+			throw new NullPointerException ( "bundle cannot be null" );
 		
 		this.service = service;
 		this.accession = accession;
@@ -100,6 +194,7 @@ public class EntityMapping
 	}
 	
 
+	@XmlAttribute ( name = "public-flag" )
 	public Boolean getPublicFlag ()
 	{
 		return publicFlag;
@@ -110,6 +205,7 @@ public class EntityMapping
 		this.publicFlag = publicFlag;
 	}
 
+	@XmlAttribute ( name = "release-date" )
 	public Date getReleaseDate ()
 	{
 		return releaseDate;

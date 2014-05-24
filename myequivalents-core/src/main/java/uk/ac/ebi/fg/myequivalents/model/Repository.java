@@ -32,7 +32,6 @@ import org.hibernate.annotations.Index;
 public class Repository extends Describeable
 {
 	@Index( name = "repo_url" )
-	@XmlAttribute ( name = "url" )
 	private String url;
 
 	protected Repository () {
@@ -48,6 +47,7 @@ public class Repository extends Describeable
 		super ( name, title, description );
 	}
 
+	@XmlAttribute ( name = "url" )
 	public String getUrl ()
 	{
 		return url;
