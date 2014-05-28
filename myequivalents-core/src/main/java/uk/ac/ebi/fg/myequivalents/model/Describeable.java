@@ -41,7 +41,7 @@ public abstract class Describeable
 	
 	private String description;
 	
-	@Column ( name = "public_flag", nullable = true, columnDefinition = "decimal(1,0)" )
+	@Column ( name = "public_flag", nullable = true, columnDefinition = "number(1,0)" )
 	private Boolean publicFlag = true;
 	
 	@Column ( name = "release_date", nullable = true )

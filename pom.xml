@@ -339,7 +339,7 @@
 				<test.jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</test.jdbc.url>
 				<test.jdbc.driverClassName>oracle.jdbc.driver.OracleDriver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
+				<test.hibernate.hbm2ddl.auto>validate</test.hibernate.hbm2ddl.auto>
   		</properties>
   		<dependencies>
 				<dependency>

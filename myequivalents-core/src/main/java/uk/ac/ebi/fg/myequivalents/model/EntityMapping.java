@@ -134,7 +134,7 @@ public class EntityMapping
 	@Index ( name = "entity_mapping_b" )
 	private String bundle;
 
-	@Column ( name = "public_flag", nullable = true, columnDefinition = "decimal(1,0)" )
+	@Column ( name = "public_flag", nullable = true, columnDefinition = "number(1,0)" )
 	@Index ( name = "entity_mapping_pub_flag" )
 	private Boolean publicFlag = true;
 	
