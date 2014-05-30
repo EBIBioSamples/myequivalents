@@ -142,6 +142,15 @@ public class ServiceSearchResult
 		this.authApiPassword = authApiPassword;
 	}
 	
+	/** The sum of the no of services/repositories/service-collections in this object */
+	public int size () 
+	{
+		int result = 0;
+		if ( this.repositories != null ) result += this.repositories.size ();
+		if ( this.serviceCollections != null ) result += this.serviceCollections.size ();
+		if ( this.services != null ) result += this.services.size ();
+		return result;
+	}
 	
 	@Override
 	public String toString ()

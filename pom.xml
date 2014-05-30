@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.ac.ebi.fg</groupId>
   <artifactId>myequivalents</artifactId>
-  <version>0.3.1-SNAPSHOT</version>
+	<version>0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference and Equivalence Management Components</name>
 
@@ -25,6 +25,7 @@
 		<module>myequivalents-cmdline</module>
 		<module>myequivalents-web</module>
 		<module>myequivalents-wscli</module>
+		<module>myequivalents-prov</module>
 	</modules>
 
 	<dependencies>
@@ -50,7 +51,9 @@
 
 
 	<dependencyManagement>
+	
 		<dependencies>
+		
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>

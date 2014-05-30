@@ -19,7 +19,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.MyEquivalentsManager;
  * @author Marco Brandizi
  *
  */
-abstract class DbMyEquivalentsManager implements MyEquivalentsManager
+public abstract class DbMyEquivalentsManager implements MyEquivalentsManager
 {
 	protected final EntityManager entityManager;
 	protected UserDao userDao;

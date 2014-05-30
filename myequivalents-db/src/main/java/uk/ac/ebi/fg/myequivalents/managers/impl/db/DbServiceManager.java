@@ -45,7 +45,7 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * @author Marco Brandizi
  *
  */
-class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
+public class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 {
 	private ServiceDAO serviceDAO;
 	private ServiceCollectionDAO serviceCollDAO;
@@ -62,7 +62,7 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 	/**
 	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
 	 */
-	DbServiceManager ( EntityManager em, String email, String apiPassword )
+	protected DbServiceManager ( EntityManager em, String email, String apiPassword )
 	{
 		super ( em, email, apiPassword );
 		this.serviceDAO = new ServiceDAO ( entityManager );
@@ -88,7 +88,15 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 	}
 	
 	@Override
-	public void storeServicesFromXML ( Reader reader )
+	public void storeServicesFromXML ( Reader reader ) {
+		storeServicesFromXMLAndGetResult ( reader );
+	}
+
+	/**
+	 * This is like {@link #storeServicesFromXML(Reader)}, but it additionally returns the unserialized objects it found
+	 * inside the XML. This is useful to implement other types of managers.  
+	 */
+	protected ServiceSearchResult storeServicesFromXMLAndGetResult ( Reader reader )
 	{
 		ServiceSearchResult servRes = null;
 		try
@@ -145,6 +153,8 @@ class DbServiceManager extends DbMyEquivalentsManager implements ServiceManager
 				serviceDAO.store ( ((ExposedService) service).asService () );
 			}
 		ts.commit ();
+		
+		return servRes;
 	}
 	
 	/**

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>uk.ac.ebi.fg</groupId>
+    <artifactId>myequivalents</artifactId>
+    <version>0.4-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>myequivalents-prov</artifactId>
+  <name>My Equivalents Provenance</name>
+  <packaging>pom</packaging> 
+  
+  <modules>
+    <module>myequivalents-prov-core</module>
+    <module>myequivalents-prov-db</module>
+  </modules>
+</project>
