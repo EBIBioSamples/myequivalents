@@ -4,7 +4,7 @@
 0.4 (Expected)
   - Provenance tracking features
   
-0.3.1-SNAPSHOT (Expected)
+0.3.1
   - Improvement of mapping readings
   - Some bugfixing about JAXB   
   
