@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
 import java.io.Reader;
+import java.util.Date;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -59,13 +60,14 @@ public class ProvDbServiceManager extends DbServiceManager
 		if ( servRes == null || servRes.size () == 0 ) return;
 		
 		String topOp = "storeServicesFromXML (...)";
-				
+		Date opTs = new Date ();
+		
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
 			for ( ServiceCollection sc: servRes.getServiceCollections () )
 			{
 				ProvenanceRegisterEntry provEntry = new ProvenanceRegisterEntry (
-					sc, Operation.STORE, userDao.getLoggedInUser ().getEmail () 
+					sc, Operation.STORE, userDao.getLoggedInUser ().getEmail (), opTs 
 				);
 				provEntry.setTopOperation ( topOp );
 			}
@@ -73,7 +75,7 @@ public class ProvDbServiceManager extends DbServiceManager
 			for ( Repository repo: servRes.getRepositories () )
 			{
 				ProvenanceRegisterEntry provEntry = new ProvenanceRegisterEntry (
-					repo, Operation.STORE, userDao.getLoggedInUser ().getEmail ()
+					repo, Operation.STORE, userDao.getLoggedInUser ().getEmail (), opTs
 				);
 				provEntry.setTopOperation ( topOp );
 			}
@@ -81,7 +83,7 @@ public class ProvDbServiceManager extends DbServiceManager
 			for ( Service service: servRes.getServices () ) 
 			{
 				ProvenanceRegisterEntry provEntry = new ProvenanceRegisterEntry (
-					service, Operation.STORE, userDao.getLoggedInUser ().getEmail () 
+					service, Operation.STORE, userDao.getLoggedInUser ().getEmail (), opTs 
 				);
 				provEntry.setTopOperation ( topOp );
 				

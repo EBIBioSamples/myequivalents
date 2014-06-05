@@ -1,11 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.provenance.utils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry.Operation;
 
 /**
  * TODO: Comment me!
