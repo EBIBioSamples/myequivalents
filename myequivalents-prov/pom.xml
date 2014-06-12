@@ -16,4 +16,15 @@
     <module>myequivalents-prov-core</module>
     <module>myequivalents-prov-db</module>
   </modules>
+  
+  <dependencyManagement>
+	  <dependencies>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-orm</artifactId>
+			 <version>${spring.version}</version>
+			</dependency>	  	
+	  </dependencies>
+  </dependencyManagement>
+
 </project>

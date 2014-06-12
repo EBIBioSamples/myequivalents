@@ -36,7 +36,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Embeddable
 @XmlRootElement ( name = "entity" )
 @XmlAccessorType ( XmlAccessType.NONE )
-public class Entity implements Serializable
+public class Entity implements Serializable, MyEquivalentsModelMember
 {
 	private static final long serialVersionUID = -3887901613707959679L;
 

@@ -31,7 +31,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
 @XmlRootElement
 @MappedSuperclass
 @XmlAccessorType ( XmlAccessType.NONE )
-public abstract class Describeable
+public abstract class Describeable implements MyEquivalentsModelMember
 {
 	@Id
 	@Column( length = 100 )

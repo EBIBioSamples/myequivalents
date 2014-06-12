@@ -1,0 +1,38 @@
+<service-items>
+	<services>
+		<service
+			uri-pattern='http://somewhere.in.the.net/testmain/service6/someType1/${accession}'
+			uri-prefix='http://somewhere.in.the.net/testmain/service6/'
+			entity-type='testmain.someType1' title='A Test Service 6' name='test.testmain.service6'>
+			<description>The Description of a Test Service 6</description>
+		</service>
+		<service entity-type='testmain.someType7' title='A Test Service 7'
+			name='test.testmain.service7' repository-name='test.testmain.repo1'
+			service-collection-name='test.testmain.serviceColl1'>
+			<description>The Description of a Test Service 7</description>
+		</service>
+		<service uri-prefix='http://somewhere-else.in.the.net/testmain/service8/'
+			entity-type='testmain.someType2' title='A Test Service 8' name='test.testmain.service8'
+			repository-name='test.testmain.addedRepo1'>
+			<description>The Description of a Test Service 8</description>
+		</service>
+	</services>
+	<repositories>
+		<repository name='test.testmain.addedRepo1'>
+			<description>A test Added Repo 1</description>
+		</repository>
+		<repository name='test.testmain.repo1'>
+			<description>A Test Repo 1</description>
+		</repository>
+	</repositories>
+	<service-collections>
+		<service-collection name='test.testmain.added-sc-1'
+			title='Added Test SC 1'>
+			<description>A test Added SC 1</description>
+		</service-collection>
+		<service-collection name='test.testmain.serviceColl1'
+			title='Added Test SC 1'>
+			<description>A test Service Collection 1</description>
+		</service-collection>
+	</service-collections>
+</service-items>

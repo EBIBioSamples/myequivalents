@@ -1,7 +1,11 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegistryParameter.buildFromObjects;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegistryParameter.buildFromValues;
+
 import java.io.Reader;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -12,10 +16,9 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
-import uk.ac.ebi.fg.myequivalents.provenance.db.utils.ProvenanceDbUtils;
+import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry.EntryType;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry.Operation;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegistryParameter;
 
 /**
  * 
@@ -27,6 +30,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry.Opera
  */
 public class ProvDbServiceManager extends DbServiceManager
 {
+	private ProvenanceRegisterEntryDAO provRegDao;
+	
 	/**
 	 * Logins as anonymous.
 	 */
@@ -41,6 +46,7 @@ public class ProvDbServiceManager extends DbServiceManager
 	ProvDbServiceManager ( EntityManager em, String email, String apiPassword )
 	{
 		super ( em, email, apiPassword );
+		provRegDao = new ProvenanceRegisterEntryDAO ( this.entityManager );
 	}
 	
 	
@@ -48,9 +54,15 @@ public class ProvDbServiceManager extends DbServiceManager
 	public void storeServices ( Service... services )
 	{
 		if ( services == null || services.length == 0 ) return;
-		
 		super.storeServices ( services );
-		ProvenanceDbUtils.recordOperation ( entityManager, Operation.STORE, "storeServices", userDao, services );
+		
+		EntityTransaction ts = this.entityManager.getTransaction ();
+	  ts.begin ();
+	  provRegDao.create ( new ProvenanceRegisterEntry ( 
+			getUserEmail (), "service.storeServices", buildFromObjects ( Arrays.asList ( services ) ) 
+	  ));
+	  ts.commit ();
+	  
 	}
 	
 	@Override
@@ -59,36 +71,14 @@ public class ProvDbServiceManager extends DbServiceManager
 		ServiceSearchResult servRes = super.storeServicesFromXMLAndGetResult ( reader );
 		if ( servRes == null || servRes.size () == 0 ) return;
 		
-		String topOp = "storeServicesFromXML (...)";
-		Date opTs = new Date ();
+		List<ProvenanceRegistryParameter> parameters = buildFromObjects ( servRes.getServices () );
+		buildFromObjects ( parameters, servRes.getRepositories () );
+		buildFromObjects ( parameters, servRes.getServiceCollections () );
 		
-		EntityTransaction ts = entityManager.getTransaction ();
-		ts.begin ();
-			for ( ServiceCollection sc: servRes.getServiceCollections () )
-			{
-				ProvenanceRegisterEntry provEntry = new ProvenanceRegisterEntry (
-					sc, Operation.STORE, userDao.getLoggedInUser ().getEmail (), opTs 
-				);
-				provEntry.setTopOperation ( topOp );
-			}
-
-			for ( Repository repo: servRes.getRepositories () )
-			{
-				ProvenanceRegisterEntry provEntry = new ProvenanceRegisterEntry (
-					repo, Operation.STORE, userDao.getLoggedInUser ().getEmail (), opTs
-				);
-				provEntry.setTopOperation ( topOp );
-			}
-			
-			for ( Service service: servRes.getServices () ) 
-			{
-				ProvenanceRegisterEntry provEntry = new ProvenanceRegisterEntry (
-					service, Operation.STORE, userDao.getLoggedInUser ().getEmail (), opTs 
-				);
-				provEntry.setTopOperation ( topOp );
-				
-			}
-		ts.commit ();
+		EntityTransaction ts = this.entityManager.getTransaction ();
+	  ts.begin ();
+	  provRegDao.create ( new ProvenanceRegisterEntry ( this.getUserEmail (), "service.storeServicesFromXML", parameters ) );
+	  ts.commit ();
 	}
 	
 	@Override
@@ -97,7 +87,13 @@ public class ProvDbServiceManager extends DbServiceManager
 		int result = super.deleteServices ( names );
 		if ( result == 0 ) return result;
 		
-		ProvenanceDbUtils.recordOperation ( entityManager, Operation.DELETE, "deleteServices", userDao, EntryType.SERVICE, names );
+		EntityTransaction ts = this.entityManager.getTransaction ();
+	  ts.begin ();
+	  provRegDao.create ( new ProvenanceRegisterEntry ( 
+			this.getUserEmail (), "service.deleteServices", buildFromValues ( "service", Arrays.asList ( names ) ) 
+	  ));
+	  ts.commit ();
+		
 		return result;
 	}
 	
@@ -106,9 +102,14 @@ public class ProvDbServiceManager extends DbServiceManager
 	public void storeServiceCollections ( ServiceCollection... servColls ) 
 	{
 		if ( servColls == null || servColls.length == 0 ) return;
-		
 		super.storeServiceCollections ( servColls );
-		ProvenanceDbUtils.recordOperation ( entityManager, Operation.STORE, "storeServiceCollections", userDao, servColls );
+
+		EntityTransaction ts = this.entityManager.getTransaction ();
+	  ts.begin ();
+	  provRegDao.create ( new ProvenanceRegisterEntry ( 
+			this.getUserEmail (), "service.storeServiceCollections", buildFromObjects ( Arrays.asList ( servColls ) ) 
+	  ));
+	  ts.commit ();
 	}
 	
 	@Override
@@ -117,9 +118,14 @@ public class ProvDbServiceManager extends DbServiceManager
 		int result = super.deleteServiceCollections ( names );
 		if ( result == 0 ) return result;
 		
-		ProvenanceDbUtils.recordOperation ( 
-			entityManager, Operation.DELETE, "deleteServiceCollections", userDao, EntryType.SERVICE_COLLECTION, names );
-		return result;
+		EntityTransaction ts = this.entityManager.getTransaction ();
+	  ts.begin ();
+	  provRegDao.create ( new ProvenanceRegisterEntry ( 
+			this.getUserEmail (), "service.deleteServiceCollections", buildFromValues ( "serviceCollection", Arrays.asList ( names ) ) 
+	  ));
+	  ts.commit ();
+
+	  return result;
 	}
 
 
@@ -130,9 +136,14 @@ public class ProvDbServiceManager extends DbServiceManager
 	public void storeRepositories ( Repository... repos ) 
 	{
 		if ( repos == null || repos.length == 0 ) return;
-		
 		super.storeRepositories ( repos );
-		ProvenanceDbUtils.recordOperation ( entityManager, Operation.STORE, "storeRepositories", userDao, repos );
+
+		EntityTransaction ts = this.entityManager.getTransaction ();
+	  ts.begin ();
+	  provRegDao.create ( new ProvenanceRegisterEntry ( 
+			this.getUserEmail (), "service.storeRepositories", buildFromObjects ( Arrays.asList ( repos ) ) 
+	  ));
+	  ts.commit ();
 	}
 	
 	@Override
@@ -141,9 +152,14 @@ public class ProvDbServiceManager extends DbServiceManager
 		int result = super.deleteRepositories ( names );
 		if ( result == 0 ) return result;
 		
-		ProvenanceDbUtils.recordOperation ( 
-			entityManager, Operation.DELETE, "deleteRepositories", userDao, EntryType.REPOSITORY, names );
-		return result;
-	}
+		EntityTransaction ts = this.entityManager.getTransaction ();
+	  ts.begin ();
+	  provRegDao.create ( new ProvenanceRegisterEntry ( 
+			this.getUserEmail (), "service.deleteRepositories", buildFromValues ( "repository", Arrays.asList ( names ) ) 
+	  ));
+	  ts.commit ();
 
+	  return result;
+	}
+	
 }

@@ -22,7 +22,7 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
  * 
- * This is the class used to format the responses returned by the {@link DbEntityMappingManager}. For instance, the REST-based
+ * This is the class used to format the responses returned by the {@link EntityMappingManager}. For instance, the REST-based
  * web service uses this class to format its output in XML (thanks to JAXB mappings).
  * 
  * <dl><dt>date</dt><dd>Jun 11, 2012</dd></dl>

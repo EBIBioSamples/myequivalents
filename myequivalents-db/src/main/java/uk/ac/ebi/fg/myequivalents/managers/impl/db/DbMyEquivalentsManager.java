@@ -51,6 +51,16 @@ public abstract class DbMyEquivalentsManager implements MyEquivalentsManager
 		return setAuthenticationCredentials ( email, apiPassword, false );
 	}
 
+	/**
+	 * A facility internally useful
+	 */
+	protected String getUserEmail ()
+	{
+		if ( this.userDao == null ) return null;
+		User usr = this.userDao.getLoggedInUser ();
+		return usr == null ? null : usr.getEmail ();
+	}
+	
 	
 	/**
 	 * Invokes {@link #userDao userDao.logOff()} and closes the {@link #entityManager}.

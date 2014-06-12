@@ -1,25 +1,38 @@
 package uk.ac.ebi.fg.myequivalents.provenance.model;
 
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.annotations.Index;
 
-import uk.ac.ebi.fg.myequivalents.model.Describeable;
-import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
-import uk.ac.ebi.fg.myequivalents.model.Repository;
-import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+/*
+ * TODO:
+ * 
+ * an operation is made of 
+ * 
+ * operation-name, including the main entity type, e.g., user.store, user.setRole, service.store
+ * userEmail
+ * timestamp
+ * parameters
+ * 
+ * each parameter is made of
+ * 
+ * paramName, eg, cascade, service, entity
+ * paramValue, eg, true, service1, service1:123
+ * 
+ */
 
 /**
  * 
@@ -40,100 +53,41 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 @Table ( name = "provenance_register" )
 public class ProvenanceRegisterEntry
 {
-	public static enum Operation { DELETE, STORE };
-	public static enum EntryType
-	{ 
-		REPOSITORY ( Repository.class.getSimpleName () ),
-		SERVICE ( Service.class.getSimpleName () ),
-		SERVICE_COLLECTION ( ServiceCollection.class.getSimpleName () ),
-		ENTITY_MAPPING ( EntityMapping.class.getSimpleName () );
-		
-		private String className;
-		private EntryType ( String className ) { this.className = className; }
-		public String toString () { return this.className; }
-		
-		public static EntryType fromClass ( Class<?> clazz )
-		{
-			if ( Repository.class.isAssignableFrom ( clazz ) ) return REPOSITORY;
-			else if ( Service.class.isAssignableFrom ( clazz ) ) return SERVICE;
-			else if ( ServiceCollection.class.isAssignableFrom ( clazz ) ) return SERVICE_COLLECTION;
-			else if ( EntityMapping.class.isAssignableFrom ( clazz ) ) return ENTITY_MAPPING;
-			else throw new IllegalArgumentException ( String.format ( 
-				"%s can only accept %s", EntryType.class.getSimpleName (), Arrays.asList ( EntryType.values () ) ));
-		}
-	};
-	
   private Long id;
-	private String entryId;
-	private EntryType entryType;
-	private Operation operation;
 	private String userEmail;
 	private Date timestamp;
-	private String topOperation;
+	private String operation;
+	private List<ProvenanceRegistryParameter> parameters;
 	
 	protected ProvenanceRegisterEntry () {
-		super ();
 	}
-
-	public ProvenanceRegisterEntry ( String entryId, EntryType entryType, Operation operation, String userEmail, Date timestamp )
+	
+	
+  public ProvenanceRegisterEntry ( String userEmail, Date timestamp, String operation, List<ProvenanceRegistryParameter> parameters )
 	{
-		super ();
-		this.entryId = entryId;
-		this.entryType = entryType;
-		this.operation = operation;
 		this.userEmail = userEmail;
 		this.timestamp = timestamp;
+		this.operation = operation;
+		this.parameters = parameters;
 	}
 
+  public ProvenanceRegisterEntry ( String userEmail, String operation, List<ProvenanceRegistryParameter> parameters )
+	{
+  	this ( userEmail, new Date (), operation, parameters );
+	}
+
+  public ProvenanceRegisterEntry ( String userEmail, Date timestamp, String operation )
+	{
+  	this ( userEmail, timestamp, operation, null );
+	}
+
+  public ProvenanceRegisterEntry ( String userEmail, String operation )
+	{
+  	this ( userEmail, operation, null );
+	}
+
+  
 	/**
-	 * Uses the current time as timestamp.
-	 */
-	public ProvenanceRegisterEntry ( String entryId, EntryType entryType, Operation operation, String userEmail )
-	{
-		this ( entryId, entryType, operation, userEmail, new Date () );
-	}
-
-
-	public ProvenanceRegisterEntry ( Describeable entry, Operation operation, String userEmail, Date timestamp )
-	{
-		super ();
-		if ( entry != null ) 
-		{
-			this.entryId = entry.getName ();
-			this.entryType = EntryType.fromClass ( entry.getClass () );
-		}
-		this.operation = operation;
-		this.userEmail = userEmail;
-		this.timestamp = timestamp;
-	}
-	
-	public ProvenanceRegisterEntry ( Describeable entry, Operation operation, String userEmail )
-	{
-		this ( entry, operation, userEmail, new Date () );
-	}
-
-	public ProvenanceRegisterEntry ( EntityMapping entry, Operation operation, String userEmail, Date timestamp )
-	{
-		super ();
-		if ( entry != null ) 
-		{
-			// TODO: check nulls?
-			this.entryId = entry.getService ().getName () + ":" + entry.getAccession ();
-			this.entryType = EntryType.fromClass ( entry.getClass () );
-		}
-		this.operation = operation;
-		this.userEmail = userEmail;
-		this.timestamp = timestamp;
-	}
-
-	public ProvenanceRegisterEntry ( EntityMapping entry, Operation operation, String userEmail )
-	{
-		this ( entry, operation, userEmail, new Date () );
-	}
-	
-	
-	
-  /**
    * A database primary key for job registry entries.
    */
   @Id
@@ -151,48 +105,8 @@ public class ProvenanceRegisterEntry
     this.id = id;
   }
 	
-	
-	/**
-	 * A string tag to identify the entity that was deleted. We recommend you use {@link Class#getSimpleName()} for this.
-	 * The biosd model has no two classes with the same name and from different packages at the moment and we commit to avoid this
-	 * in future too.
-	 */
-	@Index ( name = "prov_entry_type" )
-	@Column ( name = "entry_type" )
-	@Enumerated ( EnumType.STRING )
-	public EntryType getEntryType ()
-	{
-		return this.entryType;
-	}
 
-	protected void setEntryType ( EntryType entryType )
-	{
-		this.entryType = entryType;
-	}
 
-	@Index ( name = "prov_entry_id" )
-	public String getEntryId ()
-	{
-		return this.entryId;
-	}
-
-	protected void setEntryId ( String entryId )
-	{
-		this.entryId = entryId;
-	}
-
-	@NotNull
-	@Index( name = "prov_op")
-	@Enumerated ( EnumType.STRING )
-	public Operation getOperation () {
-		return operation;
-	}
-
-	
-	protected void setOperation ( Operation operation ) {
-		this.operation = operation;
-	}
-	
 	@NotNull
 	@Index ( name = "prov_email" )
 	@Column ( name = "user_email" )
@@ -201,23 +115,11 @@ public class ProvenanceRegisterEntry
 		return userEmail;
 	}
 
-	public void setUserEmail ( String userEmail )
+	protected void setUserEmail ( String userEmail )
 	{
 		this.userEmail = userEmail;
 	}
 	
-	@Index ( name = "prov_top_op" )
-	@Column ( name = "top_operation", length = 1000 )
-	public String getTopOperation ()
-	{
-		return topOperation;
-	}
-
-	public void setTopOperation ( String topOperation )
-	{
-		this.topOperation = topOperation;
-	}
-
 
 	@NotNull
 	@Index ( name = "prov_ts" )
@@ -229,9 +131,39 @@ public class ProvenanceRegisterEntry
 		this.timestamp = timestamp;
 	}
 	
+
+
 	
-	
-  @Override
+  @ElementCollection
+  @CollectionTable( name = "provenance_register_parameter", joinColumns = @JoinColumn ( name="prov_entry_id" ) )
+  public List<ProvenanceRegistryParameter> getParameters ()
+	{
+		return parameters;
+	}
+
+
+
+	public void setParameters ( List<ProvenanceRegistryParameter> parameters )
+	{
+		this.parameters = parameters;
+	}
+
+
+	@NotNull
+	@Index ( name = "prov_op" )
+	@Column ( name = "operation" )
+	public String getOperation ()
+	{
+		return operation;
+	}
+
+	protected void setOperation ( String operation )
+	{
+		this.operation = operation;
+	}
+
+
+	@Override
   public boolean equals ( Object o ) 
   {
   	if ( o == null ) return false;
@@ -240,8 +172,6 @@ public class ProvenanceRegisterEntry
   	
     // The entity type
   	ProvenanceRegisterEntry that = (ProvenanceRegisterEntry) o;
-    if ( this.getEntryType () == null || that.getEntryType () == null || !this.entryType.equals ( that.entryType ) ) return false; 
-    if ( this.getEntryId () == null || that.getEntryId () == null || !this.entryId.equals ( that.entryId ) ) return false; 
     if ( this.getOperation () == null || that.getOperation () == null || !this.operation.equals ( that.operation ) ) return false; 
     if ( this.getUserEmail () == null || that.getUserEmail () == null || !this.userEmail.equals ( that.userEmail ) ) return false; 
     if ( this.getTimestamp () == null || that.getTimestamp () == null || !this.timestamp.equals ( that.timestamp ) ) return false;
@@ -252,8 +182,6 @@ public class ProvenanceRegisterEntry
 	public int hashCode ()
 	{
 		int result = 1;
-		result = 31 * result + ( ( this.getEntryType () == null ) ? 0 : entryType.hashCode () );
-		result = 31 * result + ( ( this.getEntryId () == null ) ? 0 : entryId.hashCode () );
 		result = 31 * result + ( ( this.getOperation () == null ) ? 0 : operation.hashCode () );
 		result = 31 * result + ( ( this.getUserEmail () == null ) ? 0 : userEmail.hashCode () );
 		result = 31 * result + ( ( this.getTimestamp () == null ) ? 0 : timestamp.hashCode () );
@@ -262,10 +190,11 @@ public class ProvenanceRegisterEntry
   
   @Override
   public String toString() {
+  	// TODO
   	return String.format ( 
-  		"%s { id: %d, entryType: '%s', entryId: '%s', operation: %s, userEmail: '%s', timestamp: %6$tF/%6$tT.%6$tL, topOperation: '%s'", 
-  		this.getClass ().getSimpleName (), this.getId (), this.getEntryType (), this.getEntryId (), 
-  		this.getOperation (), this.getUserEmail (),	this.getTimestamp () 
+  		"%s { id: %d, userEmail: '%s', timestamp: %s, operation: %s, parameters: '%s'",
+  		this.getClass ().getSimpleName (), this.getId (), this.getUserEmail (), this.getTimestamp (), this.getOperation (),
+  		this.getParameters () == null ? "null" : ArrayUtils.toString ( this.parameters )
   	);
   }
 

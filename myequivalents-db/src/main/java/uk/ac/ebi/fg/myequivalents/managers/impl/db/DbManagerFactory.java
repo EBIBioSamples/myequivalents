@@ -23,7 +23,10 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  */
 public class DbManagerFactory implements ManagerFactory
 {
-	private EntityManagerFactory entityManagerFactory;
+	protected EntityManagerFactory entityManagerFactory;
+	
+	protected DbManagerFactory () {
+	}
 	
 	/**
 	 * Creates a factory based on the Hibernate properties (eg, connection to a DB) passes as parameter. These are normally
