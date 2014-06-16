@@ -1,29 +1,21 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
 
 import org.apache.commons.lang3.Validate;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
-import org.hibernate.transform.AliasToBeanResultTransformer;
+import org.joda.time.DateTime;
 
-import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegistryParameter;
 
 /**
  * TODO: Comment me!
@@ -47,7 +39,7 @@ public class ProvenanceRegisterEntryDAO
 	}
 	
 	@SuppressWarnings ( "unchecked" )
-	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, List<String> parameterPairs )
+	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, Date from, Date to, List<String> parameterPairs )
 	{
 		Session sess = (Session) this.entityManager.getDelegate ();
 		DetachedCriteria crit = DetachedCriteria.forClass ( ProvenanceRegisterEntry.class, "prove" );
@@ -56,6 +48,13 @@ public class ProvenanceRegisterEntryDAO
 		
 		if ( userEmail != null )  crit.add ( Restrictions.like ( "userEmail", userEmail ) );
 		if ( operation != null )  crit.add ( Restrictions.like ( "operation", operation ) );
+				
+		if ( from != null ) 
+			crit.add ( to != null 
+				? Restrictions.between ( "timestamp", from, to )
+				: Restrictions.ge ( "timestamp", from )
+			);
+		else if ( to != null ) crit.add ( Restrictions.le ( "timestamp", to ) ); 
 
 		if ( parameterPairs != null && !parameterPairs.isEmpty () )
 		{
@@ -85,4 +84,17 @@ public class ProvenanceRegisterEntryDAO
 			.add ( Property.forName ( "id" ).in ( crit ) )
 			.list ();
 	}
+	
+	/**
+	 * Uses JodaTime, this ease queries like '10 days ago': new DateTime ().minusDays ( 10 ) 
+	 */
+	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, DateTime from, DateTime to, List<String> parameterPairs )
+	{
+		return find ( userEmail, operation, from == null ? null : from.toDate (), to == null ? null : to.toDate (), parameterPairs );
+	}
+	
+	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, List<String> parameterPairs ) {
+		return this.find ( userEmail, operation, (Date) null, (Date) null, parameterPairs );
+	}
+
 }

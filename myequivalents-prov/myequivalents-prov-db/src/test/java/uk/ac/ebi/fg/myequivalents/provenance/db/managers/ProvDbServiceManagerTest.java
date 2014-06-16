@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
@@ -8,6 +10,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.joda.time.DateTime;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
@@ -19,8 +24,6 @@ import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
-import static org.junit.Assert.*;
-
 /**
  * TODO: Comment me!
  *
@@ -30,15 +33,18 @@ import static org.junit.Assert.*;
  */
 public class ProvDbServiceManagerTest
 {
-	@Test
-	public void testCreation () throws Exception
+	static final String editorPass = "test.password";
+	static final String editorSecret = "test.secret"; 
+	
+	static final User editorUser = new User ( 
+		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret 
+	);
+
+	@BeforeClass
+	public static void init ()
 	{
-		String editorPass = "test.password";
-		String editorSecret = User.generateSecret (); 
-		
-		User editorUser = new User ( 
-			"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret 
-		);
+		editorUser.setApiPassword ( editorSecret );
+		editorUser.setPassword ( editorPass );
 		
 		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
@@ -49,7 +55,35 @@ public class ProvDbServiceManagerTest
 		ts.begin ();
 		userDao.storeUnauthorized ( editorUser );
 		ts.commit ();
+	}
+	
+	@AfterClass
+	public static void cleanUp ()
+	{
+		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
+		
+		UserDao userDao = new UserDao ( em );
 
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		userDao.deleteUnauthorized ( editorUser.getEmail () );
+		ts.commit ();
+		
+		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
+		ts = em.getTransaction ();
+		ts.begin ();
+		em.createNativeQuery ( "DELETE FROM provenance_register_parameter" ).executeUpdate ();
+		em.createQuery ( "DELETE FROM " + ProvenanceRegisterEntry.class.getName () ).executeUpdate ();
+		ts.commit ();
+	}
+	
+	
+	@Test
+	public void testCreation () throws Exception
+	{
+		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		
 		Reader xmlIn = new InputStreamReader ( this.getClass ().getResourceAsStream ( "/data/foo_services.xml" ) );
 		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), editorSecret );
 		smgr.storeServicesFromXML ( xmlIn );
@@ -61,7 +95,10 @@ public class ProvDbServiceManagerTest
 		proves = provDao.find ( null, "%storeServices%", Arrays.asList ( "repository", "test.testmain.addedRepo1" ) );
 		assertEquals ( "Expected provenance records not saved (addedRepo1)!", 1, proves.size () );
 	
-		proves = provDao.find ( null, null, Arrays.asList ( "serviceCollection", null ) );
+		// This is how you can use JodaTime to set dates like '10 days ago' and pass them to search methods. 
+		proves = provDao.find ( null, null, new DateTime ().minusDays ( 10 ), new DateTime (),
+			Arrays.asList ( "serviceCollection", null ) 
+		);
 		assertEquals ( "Expected provenance records not saved (servCollections)!", 1, proves.size () );
 		
 		ProvenanceRegisterEntry prove = proves.get ( 0 );

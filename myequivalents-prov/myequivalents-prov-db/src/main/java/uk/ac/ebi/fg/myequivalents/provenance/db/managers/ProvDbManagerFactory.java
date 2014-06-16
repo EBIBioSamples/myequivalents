@@ -9,6 +9,7 @@ import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 
 /**
@@ -52,5 +53,16 @@ public class ProvDbManagerFactory extends DbManagerFactory
 		return new ProvDbServiceManager ( entityManagerFactory.createEntityManager (),  email, apiPassword );
 	}
 
+	@Override
+	public EntityMappingManager newEntityMappingManager ()
+	{
+		return new ProvDbEntityMappingManager ( entityManagerFactory.createEntityManager () );
+	}
+
+	@Override
+	public EntityMappingManager newEntityMappingManager ( String email, String apiPassword )
+	{
+		return new ProvDbEntityMappingManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
 	
 }

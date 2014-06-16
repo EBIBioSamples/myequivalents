@@ -1,7 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegistryParameter.buildFromObjects;
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegistryParameter.buildFromValues;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.buildFromObjects;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.buildFromValues;
 
 import java.io.Reader;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegistryParameter;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class ProvDbServiceManager extends DbServiceManager
 		ServiceSearchResult servRes = super.storeServicesFromXMLAndGetResult ( reader );
 		if ( servRes == null || servRes.size () == 0 ) return;
 		
-		List<ProvenanceRegistryParameter> parameters = buildFromObjects ( servRes.getServices () );
+		List<ProvenanceRegisterParameter> parameters = buildFromObjects ( servRes.getServices () );
 		buildFromObjects ( parameters, servRes.getRepositories () );
 		buildFromObjects ( parameters, servRes.getServiceCollections () );
 		

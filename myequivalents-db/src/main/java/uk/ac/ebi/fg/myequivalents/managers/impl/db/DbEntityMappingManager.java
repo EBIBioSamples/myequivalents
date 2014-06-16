@@ -48,7 +48,7 @@ public class DbEntityMappingManager extends DbMyEquivalentsManager implements En
 	/**
 	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
 	 */
-	DbEntityMappingManager ( EntityManager em, String email, String apiPassword )
+	protected DbEntityMappingManager ( EntityManager em, String email, String apiPassword )
 	{
 		super ( em, email, apiPassword );
 		this.entityMappingDAO = new EntityMappingDAO ( entityManager );

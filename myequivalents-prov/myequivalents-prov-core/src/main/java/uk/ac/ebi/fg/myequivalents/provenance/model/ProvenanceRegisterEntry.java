@@ -7,6 +7,7 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -57,13 +58,13 @@ public class ProvenanceRegisterEntry
 	private String userEmail;
 	private Date timestamp;
 	private String operation;
-	private List<ProvenanceRegistryParameter> parameters;
+	private List<ProvenanceRegisterParameter> parameters;
 	
 	protected ProvenanceRegisterEntry () {
 	}
 	
 	
-  public ProvenanceRegisterEntry ( String userEmail, Date timestamp, String operation, List<ProvenanceRegistryParameter> parameters )
+  public ProvenanceRegisterEntry ( String userEmail, Date timestamp, String operation, List<ProvenanceRegisterParameter> parameters )
 	{
 		this.userEmail = userEmail;
 		this.timestamp = timestamp;
@@ -71,7 +72,7 @@ public class ProvenanceRegisterEntry
 		this.parameters = parameters;
 	}
 
-  public ProvenanceRegisterEntry ( String userEmail, String operation, List<ProvenanceRegistryParameter> parameters )
+  public ProvenanceRegisterEntry ( String userEmail, String operation, List<ProvenanceRegisterParameter> parameters )
 	{
   	this ( userEmail, new Date (), operation, parameters );
 	}
@@ -136,14 +137,14 @@ public class ProvenanceRegisterEntry
 	
   @ElementCollection
   @CollectionTable( name = "provenance_register_parameter", joinColumns = @JoinColumn ( name="prov_entry_id" ) )
-  public List<ProvenanceRegistryParameter> getParameters ()
+  public List<ProvenanceRegisterParameter> getParameters ()
 	{
 		return parameters;
 	}
 
 
 
-	public void setParameters ( List<ProvenanceRegistryParameter> parameters )
+	public void setParameters ( List<ProvenanceRegisterParameter> parameters )
 	{
 		this.parameters = parameters;
 	}

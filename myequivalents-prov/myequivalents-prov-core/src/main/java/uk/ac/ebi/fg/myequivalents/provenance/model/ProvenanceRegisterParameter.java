@@ -22,22 +22,22 @@ import uk.ac.ebi.fg.myequivalents.model.Describeable;
  *
  */
 @Embeddable
-public class ProvenanceRegistryParameter
+public class ProvenanceRegisterParameter
 {
 	private String valueType;
 	private String value;
 	
-	protected ProvenanceRegistryParameter () {
+	protected ProvenanceRegisterParameter () {
 	}
 	
-	public ProvenanceRegistryParameter ( String valueType, String value )
+	public ProvenanceRegisterParameter ( String valueType, String value )
 	{
 		super ();
 		this.valueType = valueType;
 		this.value = value;
 	}
 
-	public ProvenanceRegistryParameter ( String value )
+	public ProvenanceRegisterParameter ( String value )
 	{
 		this ( null, value );
 	}
@@ -67,47 +67,47 @@ public class ProvenanceRegistryParameter
 		this.value = value;
 	}
 
-	public static List<ProvenanceRegistryParameter> buildFromPairs ( Collection<String> typeValuePairs )
+	public static List<ProvenanceRegisterParameter> buildFromPairs ( Collection<String> typeValuePairs )
 	{
 		if ( typeValuePairs == null || typeValuePairs.isEmpty () ) return null;
 		if ( typeValuePairs.size () % 2 != 0 ) throw new RuntimeException ( 
-			"Internal error: cannot build a list of ProvenanceRegistryParameter from an uneven number of string pairs" );
+			"Internal error: cannot build a list of ProvenanceRegisterParameter from an uneven number of string pairs" );
 		int sz = typeValuePairs.size () - 1;
-		List<ProvenanceRegistryParameter> result = new ArrayList<ProvenanceRegistryParameter> ( (int) Math.ceil ( sz / 2 ) );
+		List<ProvenanceRegisterParameter> result = new ArrayList<ProvenanceRegisterParameter> ( (int) Math.ceil ( sz / 2 ) );
 		
 		for ( Iterator<String> itr = typeValuePairs.iterator (); itr.hasNext ();  )
-			result.add ( new ProvenanceRegistryParameter ( itr.next (), itr.next () ) );
+			result.add ( new ProvenanceRegisterParameter ( itr.next (), itr.next () ) );
 		
 		return result;
 	}
 	
-	public static List<ProvenanceRegistryParameter> buildFromValues ( String valueType, Collection<String> values )
+	public static List<ProvenanceRegisterParameter> buildFromValues ( String valueType, Collection<String> values )
 	{
 		if ( values == null || values.isEmpty () ) return null;
-		List<ProvenanceRegistryParameter> result = new ArrayList<ProvenanceRegistryParameter> ( values.size () );
+		List<ProvenanceRegisterParameter> result = new ArrayList<ProvenanceRegisterParameter> ( values.size () );
 		for ( String value: values )
-			result.add ( new ProvenanceRegistryParameter ( value ) );
+			result.add ( new ProvenanceRegisterParameter ( valueType, value ) );
 		return result;
 	}
 	
 
-	public static <D extends Describeable> List<ProvenanceRegistryParameter> buildFromObjects 
-		( List<ProvenanceRegistryParameter> result, Collection<D> objects )
+	public static <D extends Describeable> List<ProvenanceRegisterParameter> buildFromObjects 
+		( List<ProvenanceRegisterParameter> result, Collection<D> objects )
 	{
 		if ( objects == null || objects.isEmpty () ) return result;
 		
-		if ( result == null ) result = new ArrayList<ProvenanceRegistryParameter> ( objects.size () );
+		if ( result == null ) result = new ArrayList<ProvenanceRegisterParameter> ( objects.size () );
 		for ( Describeable d: objects ) 
 		{
 			if ( d == null ) continue;
 			String type = d instanceof ExposedService ? "service" : StringUtils.uncapitalize ( d.getClass ().getSimpleName () );
 			String value = d.getName ();
-			result.add ( new ProvenanceRegistryParameter ( type, value ) );
+			result.add ( new ProvenanceRegisterParameter ( type, value ) );
 		}
 		return result;
 	}
 	
-	public static <D extends Describeable> List<ProvenanceRegistryParameter> buildFromObjects ( Collection<D> objects )
+	public static <D extends Describeable> List<ProvenanceRegisterParameter> buildFromObjects ( Collection<D> objects )
 	{
 		return buildFromObjects ( null, objects );
 	}
@@ -122,7 +122,7 @@ public class ProvenanceRegistryParameter
   	if ( this.getClass () != o.getClass () ) return false;
   	
     // The entity type
-  	ProvenanceRegistryParameter that = (ProvenanceRegistryParameter) o;
+  	ProvenanceRegisterParameter that = (ProvenanceRegisterParameter) o;
     if ( this.getValueType () == null || that.getValueType () == null || !this.valueType.equals ( that.valueType ) ) return false; 
     if ( this.getValue () == null || that.getValue () == null || !this.value.equals ( that.value ) ) return false; 
     return true;
