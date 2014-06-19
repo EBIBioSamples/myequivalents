@@ -65,7 +65,7 @@ public class ProvDbServiceManager extends DbServiceManager
 	  
 	}
 	
-	@Override
+
 	public void storeServicesFromXML ( Reader reader )
 	{
 		ServiceSearchResult servRes = super.storeServicesFromXMLAndGetResult ( reader );

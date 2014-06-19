@@ -2,8 +2,10 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
 import static java.lang.System.out;
 import static org.junit.Assert.assertEquals;
-import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testSecret;
+import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.adminUser;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.editorUser;
+import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testPass;
+import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testSecret;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -16,7 +18,10 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import uk.ac.ebi.fg.myequivalents.access_control.model.User;
+import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
@@ -30,7 +35,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  * @author Marco Brandizi
  *
  */
-public class ProvDbEntityMappingManagerTest
+public class ProvDbAccessControlManagerTest
 {
 	@BeforeClass
 	public static void init ()
@@ -45,7 +50,31 @@ public class ProvDbEntityMappingManagerTest
 	}
 	
 	@Test
-	public void testCreation ()
+	public void testUsers ()
+	{
+		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
+		
+		AccessControlManager accMgr = mgrFact.newAccessControlManagerFullAuth ( adminUser.getEmail (), testPass );
+		
+		User user = new User ( 
+			"test.new.user", "Test New", "User", "test.pwd", null, Role.VIEWER, "test.secret" 
+		);
+		accMgr.storeUser ( user );
+
+		// Has the above been tracked?
+		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
+		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
+		List<ProvenanceRegisterEntry> proves = provDao.find ( 
+			adminUser.getEmail (), "accessControl.storeUser", Arrays.asList ( "user", "test.new.user" )
+		);
+
+		out.println ( "------ MAPPING RECORDS: " + proves );
+		assertEquals ( "Expected provenance records not saved (test.new.user)!", 1, proves.size () );
+	}
+	
+	@Test
+	public void testVisibility ()
 	{
 		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
@@ -58,27 +87,20 @@ public class ProvDbEntityMappingManagerTest
 		// Test mappings
 		EntityMappingManager mapMgr = mgrFact.newEntityMappingManager ( editorUser.getEmail (), testSecret );
 		mapMgr.storeMappings ( "test.testmain.service6:acc1", "test.testmain.service8:acc1" );
-		mapMgr.storeMappingBundle ( "test.testmain.service6:acc2", "test.testmain.service8:acc1" );
 		
+		AccessControlManager accMgr = mgrFact.newAccessControlManager ( editorUser.getEmail (), testSecret );
+		accMgr.setEntitiesVisibility ( "true", "2014-12-31", "test.testmain.service6:acc1", "test.testmain.service8:acc1" );
+	
 		// Has the above been tracked?
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
-		List<ProvenanceRegisterEntry> proves = provDao.find ( editorUser.getEmail (), "mapping.storeMappings", 
-			Arrays.asList ( "entity", "%.service6:acc1" )
+		List<ProvenanceRegisterEntry> proves = provDao.find ( 
+			null, "%.setEntitiesVisibility", Arrays.asList ( "publicFlag", "true", "%Date", "2014%", "entity", "%acc1"  )
 		);
 
 		out.println ( "------ MAPPING RECORDS: " + proves );
-		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 1, proves.size () );
-		
-		proves = provDao.find ( editorUser.getEmail (), "mapping.storeMapping%", Arrays.asList ( "entity", "%.service8:acc1" ) );
-		out.println ( "------ MAPPING RECORDS: " + proves );
+		assertEquals ( "Expected provenance records not saved (test.new.user)!", 1, proves.size () );
 
-		// To check that lazy collections still works, which can only happen if they were fetched before closing (as it is
-		// triggered by toString() above)
-		em.close (); 
-		out.println ( "------ MAPPING RECORDS (after EM closing): " + proves );
-
-		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 2, proves.size () );
 	}
 	
 }

@@ -3,12 +3,11 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 import java.util.Properties;
 
 import org.hibernate.ejb.HibernatePersistence;
-import org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.LocalEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 
@@ -53,6 +52,7 @@ public class ProvDbManagerFactory extends DbManagerFactory
 		return new ProvDbServiceManager ( entityManagerFactory.createEntityManager (),  email, apiPassword );
 	}
 
+	
 	@Override
 	public EntityMappingManager newEntityMappingManager ()
 	{
@@ -63,6 +63,18 @@ public class ProvDbManagerFactory extends DbManagerFactory
 	public EntityMappingManager newEntityMappingManager ( String email, String apiPassword )
 	{
 		return new ProvDbEntityMappingManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
+
+	@Override
+	public AccessControlManager newAccessControlManager ( String email, String apiPassword )
+	{
+		return new ProvDbAccessControlManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
+
+	@Override
+	public AccessControlManager newAccessControlManagerFullAuth ( String email, String userPassword )
+	{
+		return new ProvDbAccessControlManager ( entityManagerFactory.createEntityManager (), email, userPassword, true );
 	}
 	
 }

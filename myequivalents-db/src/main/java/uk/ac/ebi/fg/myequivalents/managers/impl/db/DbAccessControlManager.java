@@ -64,8 +64,19 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		ts.commit ();
 	}
 
+
 	@Override
 	public void storeUserFromXml ( Reader reader )
+	{
+		storeUserFromXmlAndGetResult ( reader );
+	}
+
+	/**
+	 * returns the user that is created from unmarshalling the XML in the reader. This is useful to override 
+	 * the same method in subclasses.
+	 *  
+	 */
+	protected User storeUserFromXmlAndGetResult ( Reader reader )
 	{
 		try
 		{
@@ -73,10 +84,11 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 			Unmarshaller u = context.createUnmarshaller ();
 			User user = (User) u.unmarshal ( reader );
 			this.storeUser ( user );
+			return user;
 		} 
 		catch ( JAXBException ex ) {
 			throw new RuntimeException ( "Error while reading user description from XML: " + ex.getMessage (), ex );
-		}
+		} 
 	}
 	
 	/**

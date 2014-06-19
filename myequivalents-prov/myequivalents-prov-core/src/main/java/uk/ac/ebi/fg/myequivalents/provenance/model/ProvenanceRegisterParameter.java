@@ -13,6 +13,8 @@ import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ExposedService;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
+import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 
 /**
  * TODO: Comment me!
@@ -67,13 +69,23 @@ public class ProvenanceRegisterParameter
 		this.value = value;
 	}
 
-	public static List<ProvenanceRegisterParameter> buildFromPairs ( Collection<String> typeValuePairs )
+	
+	public static List<ProvenanceRegisterParameter> buildFromPairs ( Collection<String> typeValuePairs ) {
+		return buildFromPairs ( null, typeValuePairs ); 
+	}
+	
+	public static List<ProvenanceRegisterParameter> buildFromPairs ( 
+		List<ProvenanceRegisterParameter> result, Collection<String> typeValuePairs 
+	)
 	{
 		if ( typeValuePairs == null || typeValuePairs.isEmpty () ) return null;
 		if ( typeValuePairs.size () % 2 != 0 ) throw new RuntimeException ( 
 			"Internal error: cannot build a list of ProvenanceRegisterParameter from an uneven number of string pairs" );
-		int sz = typeValuePairs.size () - 1;
-		List<ProvenanceRegisterParameter> result = new ArrayList<ProvenanceRegisterParameter> ( (int) Math.ceil ( sz / 2 ) );
+
+		if ( result == null ) { 
+			int sz = typeValuePairs.size () - 1;
+			result = new ArrayList<ProvenanceRegisterParameter> ( (int) Math.ceil ( sz / 2 ) );
+		}
 		
 		for ( Iterator<String> itr = typeValuePairs.iterator (); itr.hasNext ();  )
 			result.add ( new ProvenanceRegisterParameter ( itr.next (), itr.next () ) );
@@ -81,33 +93,60 @@ public class ProvenanceRegisterParameter
 		return result;
 	}
 	
-	public static List<ProvenanceRegisterParameter> buildFromValues ( String valueType, Collection<String> values )
+
+	public static List<ProvenanceRegisterParameter> buildFromValues ( String valueType, Collection<String> values ) {
+		return buildFromValues ( null, valueType, values );
+	}
+		
+	
+	public static List<ProvenanceRegisterParameter> buildFromValues ( 
+		List<ProvenanceRegisterParameter> result, String valueType, Collection<String> values )
 	{
 		if ( values == null || values.isEmpty () ) return null;
-		List<ProvenanceRegisterParameter> result = new ArrayList<ProvenanceRegisterParameter> ( values.size () );
+		if ( result == null ) result = new ArrayList<ProvenanceRegisterParameter> ( values.size () );
+		
 		for ( String value: values )
 			result.add ( new ProvenanceRegisterParameter ( valueType, value ) );
 		return result;
 	}
 	
 
-	public static <D extends Describeable> List<ProvenanceRegisterParameter> buildFromObjects 
-		( List<ProvenanceRegisterParameter> result, Collection<D> objects )
+	public static <MM extends MyEquivalentsModelMember> List<ProvenanceRegisterParameter> buildFromObjects 
+		( List<ProvenanceRegisterParameter> result, Collection<MM> objects )
 	{
 		if ( objects == null || objects.isEmpty () ) return result;
 		
 		if ( result == null ) result = new ArrayList<ProvenanceRegisterParameter> ( objects.size () );
-		for ( Describeable d: objects ) 
+		for ( MM mye: objects ) 
 		{
-			if ( d == null ) continue;
-			String type = d instanceof ExposedService ? "service" : StringUtils.uncapitalize ( d.getClass ().getSimpleName () );
-			String value = d.getName ();
+			if ( mye == null ) continue;
+			
+			String type, value;
+			
+			if ( mye instanceof ExposedService ) {
+				type = "service"; value = ((Describeable) mye).getName ();
+			}
+			else 
+			{
+				type = StringUtils.uncapitalize ( mye.getClass ().getSimpleName () );
+				if ( mye instanceof Describeable )
+					value = ((Describeable) mye).getName ();
+				else if ( mye instanceof Entity ) 
+				{
+					Entity e = (Entity) mye;
+					value = e.getServiceName () + ":" + e.getAccession ();
+				}
+				else throw new RuntimeException ( 
+					"Internal error: cannot track provenance for unknown type " + mye.getClass ().getName ()
+				);
+			}
+
 			result.add ( new ProvenanceRegisterParameter ( type, value ) );
 		}
 		return result;
 	}
 	
-	public static <D extends Describeable> List<ProvenanceRegisterParameter> buildFromObjects ( Collection<D> objects )
+	public static <MM extends MyEquivalentsModelMember> List<ProvenanceRegisterParameter> buildFromObjects ( Collection<MM> objects )
 	{
 		return buildFromObjects ( null, objects );
 	}

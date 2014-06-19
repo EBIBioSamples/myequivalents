@@ -15,7 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 
-import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -275,7 +275,7 @@ public class AccessControlManagerTest
 		AccessControlManager accMgr = mgrFactory.newAccessControlManagerFullAuth ( adminUser.getEmail (), adminPass );
 		accMgr.setUserRole ( user.getEmail (), User.Role.EDITOR );
 		
-		Date testDate = new DateMidnight ( 2013, 4, 25 ).toDate ();
+		Date testDate = new DateTime ( 2013, 4, 25, 0, 0 ).toDate ();
 		accMgr.setAuthenticationCredentials ( editorUser.getEmail (), editorSecret );
 		accMgr.setServicesVisibility ( "false", DateJaxbXmlAdapter.STR2DATE.marshal ( testDate ), true, service.getName () );
 

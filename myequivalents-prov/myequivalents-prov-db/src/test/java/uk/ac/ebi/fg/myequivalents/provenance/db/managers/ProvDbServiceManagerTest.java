@@ -33,18 +33,25 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  */
 public class ProvDbServiceManagerTest
 {
-	static final String editorPass = "test.password";
-	static final String editorSecret = "test.secret"; 
+	static final String testPass = "test.password";
+	static final String testSecret = "test.secret"; 
 	
 	static final User editorUser = new User ( 
-		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret 
+		"test.editor", "Test Editor", "User", testPass, "test editor notes", Role.EDITOR, testSecret 
+	);
+
+	static final User adminUser = new User ( 
+		"test.admin", "Test Admin", "User", testPass, "test admin notes", Role.ADMIN, testSecret 
 	);
 
 	@BeforeClass
 	public static void init ()
 	{
-		editorUser.setApiPassword ( editorSecret );
-		editorUser.setPassword ( editorPass );
+		editorUser.setApiPassword ( testSecret );
+		editorUser.setPassword ( testPass );
+		
+		adminUser.setApiPassword ( testSecret );
+		adminUser.setPassword ( testPass );
 		
 		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
@@ -54,6 +61,7 @@ public class ProvDbServiceManagerTest
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		userDao.storeUnauthorized ( editorUser );
+		userDao.storeUnauthorized ( adminUser );
 		ts.commit ();
 	}
 	
@@ -68,6 +76,7 @@ public class ProvDbServiceManagerTest
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
 		userDao.deleteUnauthorized ( editorUser.getEmail () );
+		userDao.deleteUnauthorized ( adminUser.getEmail () );
 		ts.commit ();
 		
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
@@ -85,7 +94,7 @@ public class ProvDbServiceManagerTest
 		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		
 		Reader xmlIn = new InputStreamReader ( this.getClass ().getResourceAsStream ( "/data/foo_services.xml" ) );
-		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), editorSecret );
+		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), testSecret );
 		smgr.storeServicesFromXML ( xmlIn );
 		
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( mgrFact.getEntityManagerFactory ().createEntityManager () );
