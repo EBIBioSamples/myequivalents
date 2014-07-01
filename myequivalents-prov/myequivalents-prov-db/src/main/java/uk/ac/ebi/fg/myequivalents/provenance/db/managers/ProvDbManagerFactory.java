@@ -2,7 +2,7 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
 import java.util.Properties;
 
-import org.hibernate.ejb.HibernatePersistence;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 
@@ -10,6 +10,8 @@ import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
+import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 
 /**
  * TODO: Comment me!
@@ -18,7 +20,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
  * @author Marco Brandizi
  *
  */
-public class ProvDbManagerFactory extends DbManagerFactory
+public class ProvDbManagerFactory extends DbManagerFactory implements ProvManagerFactory
 {
 	private static LocalContainerEntityManagerFactoryBean springEmf = null;
 		
@@ -31,7 +33,7 @@ public class ProvDbManagerFactory extends DbManagerFactory
 			springEmf.setPersistenceUnitName ( "myEquivalentsProvPersistenceUnit" );
 			springEmf.setJpaDialect ( new HibernateJpaDialect () );
 			springEmf.setJpaProperties ( hibernateProperties );
-			springEmf.setPersistenceProviderClass ( HibernatePersistence.class );
+			springEmf.setPersistenceProviderClass ( HibernatePersistenceProvider.class );
 			springEmf.afterPropertiesSet ();
 		}
 		
@@ -76,5 +78,10 @@ public class ProvDbManagerFactory extends DbManagerFactory
 	{
 		return new ProvDbAccessControlManager ( entityManagerFactory.createEntityManager (), email, userPassword, true );
 	}
-	
+
+	@Override
+	public ProvRegistryManager newProvRegistryManager ( String email, String apiPassword )
+	{
+		return new DbProvenanceManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
 }

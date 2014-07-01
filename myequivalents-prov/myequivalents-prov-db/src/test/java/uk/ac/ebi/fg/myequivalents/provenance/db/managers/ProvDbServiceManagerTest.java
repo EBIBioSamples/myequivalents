@@ -53,7 +53,7 @@ public class ProvDbServiceManagerTest
 		adminUser.setApiPassword ( testSecret );
 		adminUser.setPassword ( testPass );
 		
-		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		DbManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ();
 		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		
 		UserDao userDao = new UserDao ( em );
@@ -82,8 +82,10 @@ public class ProvDbServiceManagerTest
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		ts = em.getTransaction ();
 		ts.begin ();
-		em.createNativeQuery ( "DELETE FROM provenance_register_parameter" ).executeUpdate ();
-		em.createQuery ( "DELETE FROM " + ProvenanceRegisterEntry.class.getName () ).executeUpdate ();
+		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
+		provDao.purge ( new DateTime ().minusMinutes ( 1 ).toDate (), null );
+		//em.createNativeQuery ( "DELETE FROM provenance_register_parameter" ).executeUpdate ();
+		//em.createQuery ( "DELETE FROM " + ProvenanceRegisterEntry.class.getName () ).executeUpdate ();
 		ts.commit ();
 	}
 	

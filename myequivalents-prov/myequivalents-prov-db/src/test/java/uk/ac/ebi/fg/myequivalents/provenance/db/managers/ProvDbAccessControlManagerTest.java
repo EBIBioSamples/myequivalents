@@ -100,7 +100,6 @@ public class ProvDbAccessControlManagerTest
 
 		out.println ( "------ MAPPING RECORDS: " + proves );
 		assertEquals ( "Expected provenance records not saved (test.new.user)!", 1, proves.size () );
-
 	}
 	
 }

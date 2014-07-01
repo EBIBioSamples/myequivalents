@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.Validate;
 import org.hibernate.Session;
@@ -79,7 +82,7 @@ public class ProvenanceRegisterEntryDAO
 			crit.createAlias ( "prove.parameters", "param" );
 			crit.add ( paramCrit );
 		}
-		
+				
 		return sess.createCriteria ( ProvenanceRegisterEntry.class )
 			.add ( Property.forName ( "id" ).in ( crit ) )
 			.list ();
@@ -95,6 +98,16 @@ public class ProvenanceRegisterEntryDAO
 	
 	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, List<String> parameterPairs ) {
 		return this.find ( userEmail, operation, (Date) null, (Date) null, parameterPairs );
+	}
+
+	public int purge ( Date from, Date to )
+	{
+		List<ProvenanceRegisterEntry> removedEntries = this.find ( null, null, from, to, null );
+		if ( removedEntries == null ) return 0;
+		
+		for ( ProvenanceRegisterEntry prove: removedEntries )
+			this.entityManager.remove ( prove );
+		return removedEntries.size ();
 	}
 
 }

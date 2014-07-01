@@ -15,7 +15,7 @@
   	<oracle.version>11.2.0.3.0</oracle.version>
   	<!--  jetty.version>9.1.3.v20140225</jetty.version -->
   	<jetty.version>9.2.0.RC0</jetty.version>
-  	<hibernate.version>4.1.3.Final</hibernate.version>
+  	<hibernate.version>4.3.5.Final</hibernate.version>
 		<p6spy.version>2.0.2</p6spy.version>
 		<spring.version>4.0.5.RELEASE</spring.version>
   </properties>
@@ -90,7 +90,7 @@
 			<dependency>
 			   <groupId>org.hibernate</groupId>
 			   <artifactId>hibernate-validator</artifactId>
-			   <version>4.3.0.Final</version>
+			   <version>5.1.1.Final</version>
 			</dependency>
 			
 			<dependency>
@@ -459,6 +459,7 @@
 
 		<profile>
 			<id>h2_file</id>
+			<activation><activeByDefault>true</activeByDefault></activation>
 			<properties>
 				<jdbc.username>sa</jdbc.username>
 				<jdbc.password />

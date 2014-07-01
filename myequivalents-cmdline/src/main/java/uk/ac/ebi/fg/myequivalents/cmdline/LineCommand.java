@@ -3,8 +3,11 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 import static java.lang.System.err;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.commons.cli.CommandLine;
@@ -26,41 +29,6 @@ import org.apache.commons.lang.StringUtils;
 abstract class LineCommand
 {
 	protected String email, apiPassword, userPassword, outputFormat;
-	
-	/**
-	 * All the accepted commands and how they're recognised (in the map keys). For example, 'service store' is recognised
-	 * because is one of the keys of this map, and, when such key is detected, the command line string is dispatched 
-	 * to {@link ServiceStoreLineCommand}, the map value for the key.
-	 */
-	@SuppressWarnings ( "serial" )
-	public final static Map<String, Class<? extends LineCommand>> LINE_COMMANDS = 
-		new LinkedHashMap<String, Class<? extends LineCommand>> ()
-	{{
-		put ( "service store", ServiceStoreLineCommand.class );
-		put ( "service delete", ServiceDeleteLineCommand.class );
-		put ( "service get", ServiceGetLineCommand.class );
-		put ( "service-collection delete", ServiceCollectionDeleteLineCommand.class );
-		put ( "service-collection get", ServiceCollectionGetLineCommand.class );
-		put ( "repository delete", RepositoryDeleteLineCommand.class );
-		put ( "repository get", RepositoryGetLineCommand.class );
-		put ( "mapping store", MappingStoreLineCommand.class );
-		put ( "mapping store-bundle", MappingStoreBundleLineCommand.class );
-		put ( "mapping delete", MappingDeleteLineCommand.class );
-		put ( "mapping delete-entity", MappingDeleteEntityLineCommand.class );
-		put ( "mapping get", MappingGetLineCommand.class );
-		put ( "service set visibility", ServiceVisibilitySetLineCommand.class );
-		put ( "repository set visibility", RepositoryVisibilitySetLineCommand.class );
-		put ( "service-collection set visibility", ServiceCollectionVisibilitySetLineCommand.class );
-		put ( "entity set visibility", EntityVisibilitySetLineCommand.class );
-		put ( "user get", UserGetLineCommand.class );
-		put ( "user store", UserStoreLineCommand.class );
-		put ( "user delete", UserDeleteLineCommand.class );
-		put ( "user set role", UserSetRoleLineCommand.class );
-	}};
-	
-	/**
-	 * Which command is managed by a particular sub-class of this class.
-	 */
 	protected final String commandString;
 	
 	/**
@@ -241,52 +209,22 @@ abstract class LineCommand
 		}
 		return opts;
 	}
-	
-	
-
-	
 
 	/**
-	 * Instantiates a line command class, providing common checks over reflection errors. This is used in both 
-	 * {@link #getCommand(String...)} and elsewhere.
-	 * 
+	 * Which command is managed by a particular sub-class of this class, eg 'service get'. This is used to parse 
+	 * a command line
 	 */
-	static LineCommand getCommand ( Class<? extends LineCommand> lineCmdClass )
+	public String getCommandString ()
 	{
-		LineCommand result = null;
-		Exception invEx = null;
-		try
-		{
-			result = (LineCommand) ConstructorUtils.invokeConstructor ( lineCmdClass, null );
-		} 
-		catch ( NoSuchMethodException ex ) {
-			invEx = ex;
-		} 
-		catch ( IllegalAccessException ex ) {
-			invEx = ex;
-		} 
-		catch ( InvocationTargetException ex ) {
-			invEx = ex;
-		}
-		catch ( InstantiationException ex ) {
-			invEx = ex;
-		}
-		if ( invEx != null ) throw new RuntimeException (
-			"Internal error while parsing the command line: " + invEx.getMessage (), invEx
-		);
-
-		return result;
+		return commandString;
 	}
-
-	
+			
 	/**
 	 * This gets the specific {@link LineCommand} that is associated to args[0] and args[1], e.g., 
 	 * returns {@link ServiceStoreLineCommand} for { "service", "store" }. This uses {@link #getCommand(Class)}.
 	 */
 	static LineCommand getCommand ( String... args )
 	{
-		Class<? extends LineCommand> cmdClass = HelpLineCommand.class;
-		
 		if ( args.length >= 2 )
 		{
 			String cmdStr = ( args [ 0 ].trim () + ' ' + args [ 1 ].trim () ).toLowerCase ();
@@ -294,16 +232,18 @@ abstract class LineCommand
 				// commands like 'user set role' or 'entity set visibility', they'll be further checked below
 				cmdStr += ' ' + args [ 2 ].trim ().toLowerCase (); 
 			
-			cmdClass = LINE_COMMANDS.get ( cmdStr );
-			if ( cmdClass == null ) {
-				err.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );
-				cmdClass = HelpLineCommand.class;
+			for ( LineCommand command: ServiceLoader.load ( LineCommand.class ) )
+				if ( cmdStr.equals ( command.getCommandString () ) ) {
+					return command;
 			}
+			
+			err.println ( "\n  Wrong command '" + cmdStr + "'\n\n" );
+			return new HelpLineCommand ();
 		}
 		else if ( args.length == 1 && !"--help".equalsIgnoreCase ( args [ 0 ].trim () ) )
 			err.println ( "\n  Wrong command '" + args [ 0 ] + "'\n\n" );
 		
-		return getCommand ( cmdClass );
+		return new HelpLineCommand ();
 	}
 
 	/**

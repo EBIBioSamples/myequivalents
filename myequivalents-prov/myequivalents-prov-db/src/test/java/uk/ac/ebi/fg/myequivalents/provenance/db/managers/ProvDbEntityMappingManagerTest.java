@@ -47,7 +47,7 @@ public class ProvDbEntityMappingManagerTest
 	@Test
 	public void testCreation ()
 	{
-		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		DbManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ();
 		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 
 		// The services we will play with

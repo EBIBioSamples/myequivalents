@@ -4,6 +4,7 @@ import static java.lang.System.err;
 
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.ServiceLoader;
 
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -12,8 +13,8 @@ import org.apache.commons.cli.Options;
 
 /**
  * This is a fall-back 'pseudo-command'. When the syntax is wrong, no sub-command is found in 
- * {@link LineCommand#LINE_COMMANDS}, or the --help option is specified, this command is invoked. It essentially 
- * calls {@link #printUsage()}, which reports instructions about all commands.
+ * {@link LineCommand#getCommand(String...)}, or the --help option is specified, this command is invoked.
+ * It essentially calls {@link #printUsage()}, which reports instructions about all commands.
  *
  * <dl><dt>date</dt><dd>Jul 18, 2012</dd></dl>
  * @author Marco Brandizi
@@ -43,8 +44,8 @@ class HelpLineCommand extends LineCommand
 
 
 	/**
-	 * Reports usage instructions about all the sub-commands available in {@link LineCommand#LINE_COMMANDS}, together with
-	 * {@link LineCommand#getCommonOptions()}. 
+	 * Reports usage instructions about all the sub-commands available in {@link LineCommand#getCommand(String...)}, 
+	 * together with {@link LineCommand#getCommonOptions()}. 
 	 *  
 	 */
 	@Override
@@ -62,9 +63,8 @@ class HelpLineCommand extends LineCommand
 		err.println ( "\nAvailable Commands (and specific options)" );
 		
 		Options allOpts = new Options ();
-		for ( Class<? extends LineCommand> cmdClass: LINE_COMMANDS.values () ) 
+		for ( LineCommand lcmd: ServiceLoader.load ( LineCommand.class ) )
 		{
-			LineCommand lcmd = LineCommand.getCommand ( cmdClass );
 			lcmd.printUsage ();
 			for ( Option opt: (Collection<Option>) lcmd.getOptions ().getOptions () )
 				if ( !allOpts.hasOption ( opt.getOpt () ))

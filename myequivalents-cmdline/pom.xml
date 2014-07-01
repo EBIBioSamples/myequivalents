@@ -127,6 +127,15 @@
 	    </plugin>
 		
     </plugins>
+
+		<!-- TODO: _________ REVIEW _________ - -
+		<resources>
+			<resource>
+				<directory>src/main/assembly/resources</directory>
+				<targetPath>assembly/resources</targetPath>
+				<filtering>false</filtering>
+			</resource>
+		</resources -->	
 	
 	</build>
 	

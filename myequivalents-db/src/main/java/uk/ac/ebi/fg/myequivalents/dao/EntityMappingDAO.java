@@ -18,7 +18,7 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.hibernate.SQLQuery;
-import org.hibernate.ejb.HibernateEntityManager;
+import org.hibernate.jpa.HibernateEntityManager;
 import org.hibernate.jdbc.Work;
 import org.hibernate.type.StringType;
 
