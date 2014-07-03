@@ -14,26 +14,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.annotations.Index;
 
-/*
- * TODO:
- * 
- * an operation is made of 
- * 
- * operation-name, including the main entity type, e.g., user.store, user.setRole, service.store
- * userEmail
- * timestamp
- * parameters
- * 
- * each parameter is made of
- * 
- * paramName, eg, cascade, service, entity
- * paramValue, eg, true, service1, service1:123
- * 
- */
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
  * 
@@ -52,6 +45,8 @@ import org.hibernate.annotations.Index;
  */
 @Entity
 @Table ( name = "provenance_register" )
+@XmlRootElement ( name = "provenance-entry" )
+@XmlAccessorType ( XmlAccessType.NONE )
 public class ProvenanceRegisterEntry
 {
   private Long id;
@@ -111,6 +106,7 @@ public class ProvenanceRegisterEntry
 	@NotNull
 	@Index ( name = "prov_email" )
 	@Column ( name = "user_email" )
+	@XmlAttribute ( name = "user-email" )
 	public String getUserEmail ()
 	{
 		return userEmail;
@@ -124,6 +120,8 @@ public class ProvenanceRegisterEntry
 
 	@NotNull
 	@Index ( name = "prov_ts" )
+	@XmlAttribute ( name = "timestamp" )
+	@XmlJavaTypeAdapter ( DateJaxbXmlAdapter.class )	
 	public Date getTimestamp () {
 		return timestamp;
 	}
@@ -131,18 +129,17 @@ public class ProvenanceRegisterEntry
 	protected void setTimestamp ( Date timestamp ) {
 		this.timestamp = timestamp;
 	}
-	
 
 
 	
   @ElementCollection
   @CollectionTable( name = "provenance_register_parameter", joinColumns = @JoinColumn ( name="prov_entry_id" ) )
+	@XmlElementWrapper( name = "parameters" )
+	@XmlElement ( name = "parameter" )
   public List<ProvenanceRegisterParameter> getParameters ()
 	{
 		return parameters;
 	}
-
-
 
 	public void setParameters ( List<ProvenanceRegisterParameter> parameters )
 	{
@@ -153,6 +150,7 @@ public class ProvenanceRegisterEntry
 	@NotNull
 	@Index ( name = "prov_op" )
 	@Column ( name = "operation" )
+	@XmlAttribute ( name = "operation" )
 	public String getOperation ()
 	{
 		return operation;

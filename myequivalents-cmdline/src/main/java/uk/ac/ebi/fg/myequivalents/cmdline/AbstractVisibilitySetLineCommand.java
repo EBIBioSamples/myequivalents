@@ -5,8 +5,11 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.ArrayUtils;
+
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
  * The 'service delete' command, a wrapper for {@link DbServiceManager#deleteServices(String...)}.
@@ -44,6 +47,39 @@ public abstract class AbstractVisibilitySetLineCommand extends LineCommand
 	}
 
 	protected abstract void doVisibilitySet ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... entityNames );
+
+	
+	
+	
+	@Override
+	@SuppressWarnings ( "static-access" )
+	protected Options getOptions ()
+	{
+		return super.getOptions ()
+				
+			.addOption ( OptionBuilder
+			 	.withDescription ( "Public flag (visibility commands, see documentation)"	)
+				.withLongOpt ( "public-flag" )
+				.hasArg ( true )
+				.withArgName ( "true|false|null" )
+				.create ( 'p' ) 
+			)
+
+			.addOption ( OptionBuilder
+			 	.withDescription ( "Release date (visibility commands, see documentation)"	)
+				.hasArg ( true )
+				.withLongOpt ( "release-date" )
+				.withArgName ( DateJaxbXmlAdapter.DATE_FMT_REPRESENTATION )
+				.create ( 'd' ) 
+			)
+
+			.addOption ( OptionBuilder
+			 	.withDescription ( "Cascades the visibility settings to referring elements (e.g., from services to entitities)"	)
+				.withLongOpt ( "cascade" )
+				.create ( 'x' ) 
+			);
+	}
+
 
 	@Override
 	public void printUsage ()

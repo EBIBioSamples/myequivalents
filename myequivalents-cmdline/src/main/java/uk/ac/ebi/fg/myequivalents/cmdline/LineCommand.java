@@ -2,14 +2,8 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.ServiceLoader;
 
-import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -26,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
  * @author Marco Brandizi
  *
  */
-abstract class LineCommand
+public abstract class LineCommand
 {
 	protected String email, apiPassword, userPassword, outputFormat;
 	protected final String commandString;
@@ -183,30 +177,6 @@ abstract class LineCommand
 			);
 		} // if ' get'
 		
-		if ( commandString.endsWith ( " visibility" ) )
-		{
-			opts.addOption ( OptionBuilder
-			 	.withDescription ( "Public flag (visibility commands, see documentation)"	)
-				.withLongOpt ( "public-flag" )
-				.hasArg ( true )
-				.withArgName ( "true|false|null" )
-				.create ( "p" ) 
-			);
-
-			opts.addOption ( OptionBuilder
-			 	.withDescription ( "Release date (visibility commands, see documentation)"	)
-				.hasArg ( true )
-				.withLongOpt ( "release-date" )
-				.withArgName ( "YYYMMDD[-HHMMSS]" )
-				.create ( "d" ) 
-			);
-
-			opts.addOption ( OptionBuilder
-			 	.withDescription ( "Cascades the visibility settings to referring elements (e.g., from services to entitities)"	)
-				.withLongOpt ( "cascade" )
-				.create ( "x" ) 
-			);
-		}
 		return opts;
 	}
 

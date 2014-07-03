@@ -1,5 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
+import static java.lang.System.out;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.buildFromValues;
@@ -68,10 +69,16 @@ public class ProvenanceManagerTest
 		);
 		
 		List<ProvenanceRegisterEntry> result = regMgr.find ( "foo.user%", null, new DateTime ().minusDays ( 3 ).toDate (), null, null );
-		
+
 		assertEquals ( "find() doesn't work!", 2, result.size () );
 		assertTrue ( "e is not in the find() result!", result.contains ( e ) );
 		assertTrue ( "e1 is not in the find() result!", result.contains ( e1 ) );
+		
+		
+		String resultStr = regMgr.findAs ( "xml", "foo.user%", "foo.op%", null, null, Arrays.asList ( "foo.entity", "acc%" ) );
+		out.println ( "---- XML Result -----\n" + resultStr );
+		
+		//assertTrue ( "Wrong XML result!", resultStr.contains ( s ) );
 		
 		regMgr.purge ( new DateTime ().minusMinutes ( 1 ).toDate (), null );
 		em.close (); // flushes data for certain DBs (eg, H2)

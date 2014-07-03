@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
+import static java.lang.System.out;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -33,13 +34,12 @@ public class MappingGetLineCommand extends LineCommand
 		if ( args != null && args.length > 2 ) 
 		{
 			boolean wantRawResult = cmdLine.hasOption ( "raw" );
-			System.out.print ( 
+			out.print ( 
 				emMgr.getMappingsAs ( this.outputFormat, wantRawResult, (String[]) ArrayUtils.subarray ( args, 2, args.length ) )
 			);
 		}
 		
 		err.println ( "\nMapping(s) Fetched" );
-		return;
 	}
 
 	@Override

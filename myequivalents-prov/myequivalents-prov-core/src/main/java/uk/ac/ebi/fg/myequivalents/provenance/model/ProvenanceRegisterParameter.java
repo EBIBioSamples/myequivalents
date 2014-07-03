@@ -7,6 +7,10 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Index;
@@ -24,6 +28,8 @@ import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
  *
  */
 @Embeddable
+@XmlRootElement ( name = "prov-operation-parameter" )
+@XmlAccessorType ( XmlAccessType.NONE )
 public class ProvenanceRegisterParameter
 {
 	private String valueType;
@@ -46,6 +52,7 @@ public class ProvenanceRegisterParameter
 
 	@Column ( length = 50 )
 	@Index ( name = "prov_param_vtype" )
+	@XmlAttribute ( name = "value-type" )
 	public String getValueType ()
 	{
 		return valueType;
@@ -59,6 +66,7 @@ public class ProvenanceRegisterParameter
 	
 	@Column ( length = 2000 )
 	@Index ( name = "prov_param_val" )
+	@XmlAttribute ( name = "value" )
 	public String getValue ()
 	{
 		return value;

@@ -29,6 +29,9 @@ public class DateJaxbXmlAdapter extends XmlAdapter<String, Date>
 		new SimpleDateFormat ( "yyyyMMdd" )
 	};
 
+	/** How possible data formats are presented to the end user */
+	public static final String DATE_FMT_REPRESENTATION = "YYYMMDD[-HHMMSS]";
+	
   @Override
   public String marshal ( Date d )
   {

@@ -38,7 +38,7 @@ MYDIR="$(pwd)"
 # This includes the core and the db module, plus the HSQL JDBC driver. If you want to use other databases or 
 # other myEquivalents managers, you need to download the .jar files you need and set up the classpath here
 # (see http://kevinboone.net/classpath.html and myEquivalents documentation for details)  
-export CLASSPATH="$CLASSPATH:$MYDIR:$MYDIR/myequivalents_deps.jar"
+export CLASSPATH="$CLASSPATH:$MYDIR:$MYDIR/lib/*"
 
 # See here for an explaination about ${1+"$@"} :
 # http://stackoverflow.com/questions/743454/space-in-java-command-line-arguments 

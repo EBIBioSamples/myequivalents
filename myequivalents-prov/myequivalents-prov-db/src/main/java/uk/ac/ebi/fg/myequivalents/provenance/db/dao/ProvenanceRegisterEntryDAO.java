@@ -46,7 +46,6 @@ public class ProvenanceRegisterEntryDAO
 	{
 		Session sess = (Session) this.entityManager.getDelegate ();
 		DetachedCriteria crit = DetachedCriteria.forClass ( ProvenanceRegisterEntry.class, "prove" );
-		//crit.setResultTransformer ( crit.DISTINCT_ROOT_ENTITY );
 		crit.setProjection ( Projections.distinct ( Projections.id () ) );
 		
 		if ( userEmail != null )  crit.add ( Restrictions.like ( "userEmail", userEmail ) );
