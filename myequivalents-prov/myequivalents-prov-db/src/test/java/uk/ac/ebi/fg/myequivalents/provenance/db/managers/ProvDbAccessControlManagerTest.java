@@ -95,7 +95,7 @@ public class ProvDbAccessControlManagerTest
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
 		List<ProvenanceRegisterEntry> proves = provDao.find ( 
-			null, "%.setEntitiesVisibility", Arrays.asList ( "publicFlag", "true", "%Date", "2014%", "entity", "%acc1"  )
+			null, "%.setEntitiesVisibility", Arrays.asList ( "publicFlag", "true", "%Date", "2014%", "entity.accession", "%acc1"  )
 		);
 
 		out.println ( "------ MAPPING RECORDS: " + proves );

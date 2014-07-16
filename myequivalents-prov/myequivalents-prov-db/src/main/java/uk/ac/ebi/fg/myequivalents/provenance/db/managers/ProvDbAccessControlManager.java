@@ -142,7 +142,11 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		if ( publicFlagStr != null ) result.add ( new ProvenanceRegisterParameter ( "publicFlag", publicFlagStr ) );
 		if ( releaseDateStr != null ) result.add ( new ProvenanceRegisterParameter ( "releaseDate", releaseDateStr ) );
 		if ( cascade != null ) result.add ( new ProvenanceRegisterParameter ( "cascade", Boolean.toString ( cascade ) ) );
-		buildFromValues ( result, type, Arrays.asList ( ids ) );
+		
+		if ( "entity".equals ( "type" ) )
+			buildFromEntityIds ( result, Arrays.asList ( ids ) );
+		else
+			buildFromValues ( result, type, Arrays.asList ( ids ) );
 		
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();

@@ -7,11 +7,11 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -20,7 +20,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -49,6 +48,37 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 @XmlAccessorType ( XmlAccessType.NONE )
 public class ProvenanceRegisterEntry
 {
+	/* TODO. And for the parameters too
+	public static enum Operation 
+	{
+		STORE_USER ( "accessControl.storeUser" ),
+		STORE_USER_FROM_XML ( "accessControl.storeUserFromXml" ),
+		SET_USER_ROLE ( "accessControl.setUserRole" ),
+		DELETE_USER ( "accessControl.deleteUser" ),
+		SET_SERVICE_VISIBILITY ( "accessControl.setServicesVisibility" ),
+		SET_REPOSITORIES_VISIBILITY ( "accessControl.setRepositoriesVisibility" ),
+		SET_SERVICE_COLLECTION_VISIBILITY ( "accessControl.setServiceCollectionsVisibility" ),
+		SET_ENTITIES_VISIBILITY ( "accessControl.setEntitiesVisibility" ),
+		STORE_SERVICES ( "service.storeServices" ),
+		// ...
+		
+
+		private final String internalRepresentation;
+
+		private Operation ( String internalRepresentation )
+		{
+			this.internalRepresentation = internalRepresentation;
+		}
+
+		@Override
+		public String toString ()
+		{
+			return internalRepresentation;
+		}
+	}
+	*/
+	
+	
   private Long id;
 	private String userEmail;
 	private Date timestamp;
@@ -134,6 +164,7 @@ public class ProvenanceRegisterEntry
 	
   @ElementCollection
   @CollectionTable( name = "provenance_register_parameter", joinColumns = @JoinColumn ( name="prov_entry_id" ) )
+  @OrderColumn ( name = "index" )
 	@XmlElementWrapper( name = "parameters" )
 	@XmlElement ( name = "parameter" )
   public List<ProvenanceRegisterParameter> getParameters ()

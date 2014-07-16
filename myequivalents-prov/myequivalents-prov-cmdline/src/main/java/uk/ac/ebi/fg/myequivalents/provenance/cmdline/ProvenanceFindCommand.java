@@ -44,7 +44,9 @@ public class ProvenanceFindCommand extends LineCommand
 		String op = this.cmdLine.getOptionValue ( "prov-operation" );
 		Date from = STR2DATE.unmarshal ( this.cmdLine.getOptionValue ( "prov-from" ) ), 
 				 to = STR2DATE.unmarshal ( this.cmdLine.getOptionValue ( "prov-to" ) );
-		List<String> paramPairs = Arrays.asList ( this.cmdLine.getOptionValues ( "prov-param" ) );
+		
+		String[] paramsOption = this.cmdLine.getOptionValues ( "prov-param" );
+		List<String> paramPairs = paramsOption == null ? null : Arrays.asList ( paramsOption );
 		
 		this.cmdLine.getOptionValues ( 'x' );
 		
@@ -65,7 +67,8 @@ public class ProvenanceFindCommand extends LineCommand
 			.addOption ( "e", "prov-user", true, "provenance find, searched user email/login" )
 			.addOption ( "o", "prov-operation", true, "provenance find, operation to search" )
 			.addOption ( OptionBuilder
-			 	.withDescription ( "provenance find, period to search"	)
+			 	.withDescription ( 
+			 		"provenance find, period to search, use something like $(date -v -1y +%Y%m%d) for calculating 1 year ago"	)
 				.hasArg ( true )
 				.withLongOpt ( "prov-from" )
 				.withArgName ( DATE_FMT_REPRESENTATION )

@@ -18,7 +18,9 @@ import org.hibernate.annotations.Index;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ExposedService;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
+import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
  * TODO: Comment me!
@@ -30,7 +32,7 @@ import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 @Embeddable
 @XmlRootElement ( name = "prov-operation-parameter" )
 @XmlAccessorType ( XmlAccessType.NONE )
-public class ProvenanceRegisterParameter
+public abstract class ProvenanceRegisterParameter
 {
 	private String valueType;
 	private String value;
@@ -76,8 +78,42 @@ public class ProvenanceRegisterParameter
 	{
 		this.value = value;
 	}
-
 	
+	
+	
+	@Override
+  public boolean equals ( Object o ) 
+  {
+  	if ( o == null ) return false;
+  	if ( this == o ) return true;
+  	if ( this.getClass () != o.getClass () ) return false;
+  	
+    // The entity type
+  	ProvenanceRegisterParameter that = (ProvenanceRegisterParameter) o;
+    if ( this.getValueType () == null || that.getValueType () == null || !this.valueType.equals ( that.valueType ) ) return false; 
+    if ( this.getValue () == null || that.getValue () == null || !this.value.equals ( that.value ) ) return false; 
+    return true;
+  }
+	
+	@Override
+	public int hashCode ()
+	{
+		int result = 1;
+		result = 31 * result + ( ( this.getValueType () == null ) ? 0 : valueType.hashCode () );
+		result = 31 * result + ( ( this.getValue () == null ) ? 0 : value.hashCode () );
+		return result;
+	}
+  
+  @Override
+  public String toString() {
+  	return String.format ( 
+  		"%s { valueType: '%s', value: '%s' }", this.getClass ().getSimpleName (), getValueType (), getValue ()
+  	);
+  }
+  
+  
+  
+  
 	public static List<ProvenanceRegisterParameter> buildFromPairs ( Collection<String> typeValuePairs ) {
 		return buildFromPairs ( null, typeValuePairs ); 
 	}
@@ -129,27 +165,30 @@ public class ProvenanceRegisterParameter
 		{
 			if ( mye == null ) continue;
 			
-			String type, value;
-			
-			if ( mye instanceof ExposedService ) {
-				type = "service"; value = ((Describeable) mye).getName ();
+			if ( mye instanceof ExposedService ) 
+			{
+				String value = ((Describeable) mye).getName ();
+				result.add ( new ProvenanceRegisterParameter ( "service", value ) );
 			}
 			else 
 			{
-				type = StringUtils.uncapitalize ( mye.getClass ().getSimpleName () );
-				if ( mye instanceof Describeable )
-					value = ((Describeable) mye).getName ();
+				if ( mye instanceof Describeable ) 
+				{
+					String type = StringUtils.uncapitalize ( mye.getClass ().getSimpleName () );
+					String value = ((Describeable) mye).getName ();
+					result.add ( new ProvenanceRegisterParameter ( type, value ) );
+				}
 				else if ( mye instanceof Entity ) 
 				{
 					Entity e = (Entity) mye;
-					value = e.getServiceName () + ":" + e.getAccession ();
+					result.add ( new ProvenanceRegisterParameter ( "entity.serviceName", e.getServiceName () ) );
+					result.add ( new ProvenanceRegisterParameter ( "entity.accession", e.getAccession () ) );
 				}
 				else throw new RuntimeException ( 
 					"Internal error: cannot track provenance for unknown type " + mye.getClass ().getName ()
 				);
 			}
 
-			result.add ( new ProvenanceRegisterParameter ( type, value ) );
 		}
 		return result;
 	}
@@ -159,36 +198,24 @@ public class ProvenanceRegisterParameter
 		return buildFromObjects ( null, objects );
 	}
 	
-	
-	
-	@Override
-  public boolean equals ( Object o ) 
-  {
-  	if ( o == null ) return false;
-  	if ( this == o ) return true;
-  	if ( this.getClass () != o.getClass () ) return false;
-  	
-    // The entity type
-  	ProvenanceRegisterParameter that = (ProvenanceRegisterParameter) o;
-    if ( this.getValueType () == null || that.getValueType () == null || !this.valueType.equals ( that.valueType ) ) return false; 
-    if ( this.getValue () == null || that.getValue () == null || !this.value.equals ( that.value ) ) return false; 
-    return true;
-  }
-	
-	@Override
-	public int hashCode ()
+	public static List<ProvenanceRegisterParameter> buildFromEntityIds (
+		List<ProvenanceRegisterParameter> result, Collection<String> entityIds 
+	)
 	{
-		int result = 1;
-		result = 31 * result + ( ( this.getValueType () == null ) ? 0 : valueType.hashCode () );
-		result = 31 * result + ( ( this.getValue () == null ) ? 0 : value.hashCode () );
+		if ( result == null ) result = new ArrayList<> ();
+		if ( entityIds == null || entityIds.isEmpty () ) return result;
+		
+		for ( String entityId: entityIds )
+		{
+			String[] entityIdChunks = EntityMappingUtils.parseEntityId ( entityId );
+			result.add ( new ProvenanceRegisterParameter ( "entity.serviceName", entityIdChunks [ 0 ] ) );
+			result.add ( new ProvenanceRegisterParameter ( "entity.accession", entityIdChunks [ 1 ] ) );
+		}
 		return result;
 	}
-  
-  @Override
-  public String toString() {
-  	return String.format ( 
-  		"%s { valueType: '%s', value: '%s' }", this.getClass ().getSimpleName (), getValueType (), getValue ()
-  	);
-  }
+	
+	public static List<ProvenanceRegisterParameter> buildFromEntityIds ( Collection<String> entityIds	) {
+		return buildFromEntityIds ( null, entityIds );
+	}
 
 }

@@ -64,20 +64,21 @@ public class ProvDbEntityMappingManagerTest
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
 		List<ProvenanceRegisterEntry> proves = provDao.find ( editorUser.getEmail (), "mapping.storeMappings", 
-			Arrays.asList ( "entity", "%.service6:acc1" )
+			Arrays.asList ( "entity.serviceName", "%.service6", "entity.accession", "acc1" )
 		);
 
 		out.println ( "------ MAPPING RECORDS: " + proves );
 		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 1, proves.size () );
 		
-		proves = provDao.find ( editorUser.getEmail (), "mapping.storeMapping%", Arrays.asList ( "entity", "%.service8:acc1" ) );
+		proves = provDao.find ( editorUser.getEmail (), "mapping.storeMapping%", 
+			Arrays.asList ( "entity.serviceName", "%.service8", "entity.accession", "acc1" ) 
+		);
 		out.println ( "------ MAPPING RECORDS: " + proves );
 
 		// To check that lazy collections still works, which can only happen if they were fetched before closing (as it is
 		// triggered by toString() above)
 		em.close (); 
 		out.println ( "------ MAPPING RECORDS (after EM closing): " + proves );
-
 		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 2, proves.size () );
 	}
 	
