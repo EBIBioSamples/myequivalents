@@ -1,9 +1,15 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 
+import static uk.ac.ebi.utils.sql.HqlUtils.*;
+
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.apache.commons.lang3.Validate;
 import org.hibernate.Session;
@@ -17,6 +23,8 @@ import org.joda.time.DateTime;
 
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
+import uk.ac.ebi.utils.sql.HqlUtils;
+import uk.ac.ebi.utils.sql.SqlUtils;
 
 /**
  * TODO: Comment me!
@@ -103,6 +111,47 @@ public class ProvenanceRegisterEntryDAO
 
 	public int purge ( Date from, Date to )
 	{
+		int result = 0;
+
+		Set<ProvenanceRegisterEntry> toDelete = new HashSet<> (), toKeep = new HashSet<> ();
+		
+		// Search entries, joined with params and order by param type/value, then date
+		String hqlSel = "SELECT DISTINCT e, p.valueType AS ptype, p.value AS pval, p.extraValue AS extra\n"
+				+ "FROM ProvenanceRegisterEntry e JOIN e.parameters AS p\n"
+				+ "WHERE " 
+				+ parameterizedRangeClause ( "e.timestamp", "from", "to", from, to ) + "\n"
+				+ "ORDER BY p.valueType, p.value, p.extraValue, e.timestamp DESC";
+		
+		Query qsel = this.entityManager.createQuery ( hqlSel );
+		parameterizedRangeBinding ( qsel, "from", "to", from, to );
+		
+		String firstParamStr = null;
+		for ( Object[] row: (List<Object[]>) qsel.getResultList () )
+		{
+			// System.out.println ( "--- analysing: " + Arrays.asList ( row ) );
+			String paramStr = (String) row [ 1 ] + row [ 2 ] + row [ 3 ];
+			if ( paramStr.equals ( firstParamStr ) )
+			{
+				// Keep removing entries of the same type that appears after the first
+				toDelete.add ( (ProvenanceRegisterEntry) row [ 0 ] ); 
+				result++;
+			}
+			else
+			{
+				// Move to another sequence about the current parameter
+				toKeep.add ( (ProvenanceRegisterEntry) row [ 0 ] );
+				firstParamStr = paramStr;
+			}
+		}
+		
+		for ( ProvenanceRegisterEntry prove: toDelete )
+			if ( !toKeep.contains ( prove ) ) this.entityManager.remove ( prove );
+		
+		return result;
+	}
+
+	public int purgeAll ( Date from, Date to )
+	{
 		List<ProvenanceRegisterEntry> removedEntries = this.find ( null, null, from, to, null );
 		if ( removedEntries == null ) return 0;
 		
@@ -110,5 +159,4 @@ public class ProvenanceRegisterEntryDAO
 			this.entityManager.remove ( prove );
 		return removedEntries.size ();
 	}
-
 }

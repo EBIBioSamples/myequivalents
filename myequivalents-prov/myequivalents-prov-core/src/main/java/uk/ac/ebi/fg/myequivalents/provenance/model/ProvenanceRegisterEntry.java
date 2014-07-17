@@ -48,36 +48,6 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 @XmlAccessorType ( XmlAccessType.NONE )
 public class ProvenanceRegisterEntry
 {
-	/* TODO. And for the parameters too
-	public static enum Operation 
-	{
-		STORE_USER ( "accessControl.storeUser" ),
-		STORE_USER_FROM_XML ( "accessControl.storeUserFromXml" ),
-		SET_USER_ROLE ( "accessControl.setUserRole" ),
-		DELETE_USER ( "accessControl.deleteUser" ),
-		SET_SERVICE_VISIBILITY ( "accessControl.setServicesVisibility" ),
-		SET_REPOSITORIES_VISIBILITY ( "accessControl.setRepositoriesVisibility" ),
-		SET_SERVICE_COLLECTION_VISIBILITY ( "accessControl.setServiceCollectionsVisibility" ),
-		SET_ENTITIES_VISIBILITY ( "accessControl.setEntitiesVisibility" ),
-		STORE_SERVICES ( "service.storeServices" ),
-		// ...
-		
-
-		private final String internalRepresentation;
-
-		private Operation ( String internalRepresentation )
-		{
-			this.internalRepresentation = internalRepresentation;
-		}
-
-		@Override
-		public String toString ()
-		{
-			return internalRepresentation;
-		}
-	}
-	*/
-	
 	
   private Long id;
 	private String userEmail;

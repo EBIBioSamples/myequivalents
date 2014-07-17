@@ -23,7 +23,6 @@ import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
@@ -85,7 +84,7 @@ public class ProvDbServiceManagerTest
 		ts = em.getTransaction ();
 		ts.begin ();
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
-		provDao.purge ( new DateTime ().minusMinutes ( 1 ).toDate (), null );
+		provDao.purgeAll ( new DateTime ().minusMinutes ( 1 ).toDate (), null );
 		//em.createNativeQuery ( "DELETE FROM provenance_register_parameter" ).executeUpdate ();
 		//em.createQuery ( "DELETE FROM " + ProvenanceRegisterEntry.class.getName () ).executeUpdate ();
 		ts.commit ();

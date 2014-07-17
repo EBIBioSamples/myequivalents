@@ -3,7 +3,7 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 import static java.lang.System.out;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.*;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.util.Arrays;
 import java.util.List;
@@ -84,6 +84,6 @@ public class ProvenanceManagerTest
 		em.close (); // flushes data for certain DBs (eg, H2)
 		
 		provDao = new ProvenanceRegisterEntryDAO ( em = mgrFact.getEntityManagerFactory ().createEntityManager () );
-		assertEquals ( "purge() didn't work!", 0, provDao.find ( "foo.user%", null, null ).size () );
+		assertEquals ( "purgeAll() didn't work!", 1, provDao.find ( "foo.user%", null, null ).size () );
 	}
 }
