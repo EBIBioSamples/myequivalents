@@ -1,13 +1,13 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
 import org.apache.commons.lang3.Validate;
 import org.hibernate.Session;
+import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Projections;
@@ -16,6 +16,7 @@ import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 
 /**
  * TODO: Comment me!
@@ -39,7 +40,9 @@ public class ProvenanceRegisterEntryDAO
 	}
 	
 	@SuppressWarnings ( "unchecked" )
-	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, Date from, Date to, List<String> parameterPairs )
+	public List<ProvenanceRegisterEntry> find ( 
+		String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params 
+	)
 	{
 		Session sess = (Session) this.entityManager.getDelegate ();
 		DetachedCriteria crit = DetachedCriteria.forClass ( ProvenanceRegisterEntry.class, "prove" );
@@ -55,24 +58,21 @@ public class ProvenanceRegisterEntryDAO
 			);
 		else if ( to != null ) crit.add ( Restrictions.le ( "timestamp", to ) ); 
 
-		if ( parameterPairs != null && !parameterPairs.isEmpty () )
+		if ( params != null && !params.isEmpty () )
 		{
-			if ( parameterPairs.size () % 2 != 0 ) throw new RuntimeException ( 
-				"Internal error: cannot search over provenance register with an uneven number of string pairs" 
-			);
 			
 			Disjunction paramCrit = Restrictions.disjunction ();
 			
-			for ( Iterator<String> itr = parameterPairs.iterator (); itr.hasNext ();  )
+			for ( ProvenanceRegisterParameter param: params  )
 			{
-				String ptype = itr.next (), pval = itr.next ();
-				if ( ptype == null ) { if ( pval == null ) continue; else ptype = "%"; }
-				else if ( pval == null ) pval = "%";
+				String ptype = param.getValueType (), pval = param.getValue (), extra = param.getExtraValue ();
+				if ( ptype == null && pval == null && extra == null ) continue;
 						
-				paramCrit.add ( Restrictions.and ( 
-					Restrictions.like ( "param.valueType", ptype ), 
-					Restrictions.like ( "param.value", pval ) 
-				));
+				Conjunction and = Restrictions.and ();
+				if ( ptype != null ) and.add ( Restrictions.like ( "param.valueType", ptype ) );
+				if ( pval != null ) and.add ( Restrictions.like ( "param.value", pval ) );
+				if ( extra != null ) and.add ( Restrictions.like ( "param.extraValue", extra ) );
+				paramCrit.add ( and );
 			}
 
 			crit.createAlias ( "prove.parameters", "param" );
@@ -87,14 +87,19 @@ public class ProvenanceRegisterEntryDAO
 	/**
 	 * Uses JodaTime, this ease queries like '10 days ago': new DateTime ().minusDays ( 10 ) 
 	 */
-	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, DateTime from, DateTime to, List<String> parameterPairs )
+	public List<ProvenanceRegisterEntry> find ( 
+		String userEmail, String operation, DateTime from, DateTime to, List<ProvenanceRegisterParameter> parameterPairs )
 	{
 		return find ( userEmail, operation, from == null ? null : from.toDate (), to == null ? null : to.toDate (), parameterPairs );
 	}
 	
-	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, List<String> parameterPairs ) {
+	public List<ProvenanceRegisterEntry> find ( 
+		String userEmail, String operation, List<ProvenanceRegisterParameter> parameterPairs ) 
+	{
 		return this.find ( userEmail, operation, (Date) null, (Date) null, parameterPairs );
 	}
+	
+	
 
 	public int purge ( Date from, Date to )
 	{

@@ -3,7 +3,7 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 import static java.lang.System.out;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.buildFromValues;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,10 +52,10 @@ public class ProvenanceManagerTest
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
 
 		ProvenanceRegisterEntry e = new ProvenanceRegisterEntry ( 
-			"foo.user", "foo.op", buildFromValues ( "foo.entity", Arrays.asList ( "acc1", "acc2", "acc3" ) )
+			"foo.user", "foo.op", p ( "foo.entity", Arrays.asList ( "acc1", "acc2", "acc3" ) )
 		);
 		ProvenanceRegisterEntry e1 = new ProvenanceRegisterEntry ( 
-			"foo.user1", "foo.op1", buildFromValues ( "foo.entity", Arrays.asList ( "acc1", "acc2", "acc3" ) )
+			"foo.user1", "foo.op1", p ( "foo.entity", Arrays.asList ( "acc1", "acc2", "acc3" ) )
 		);
 		
 		EntityTransaction ts = em.getTransaction ();
@@ -75,7 +75,7 @@ public class ProvenanceManagerTest
 		assertTrue ( "e1 is not in the find() result!", result.contains ( e1 ) );
 		
 		
-		String resultStr = regMgr.findAs ( "xml", "foo.user%", "foo.op%", null, null, Arrays.asList ( "foo.entity", "acc%" ) );
+		String resultStr = regMgr.findAs ( "xml", "foo.user%", "foo.op%", null, null, Arrays.asList ( p ( "foo.entity", "acc%" ) ) );
 		out.println ( "---- XML Result -----\n" + resultStr );
 		
 		//assertTrue ( "Wrong XML result!", resultStr.contains ( s ) );

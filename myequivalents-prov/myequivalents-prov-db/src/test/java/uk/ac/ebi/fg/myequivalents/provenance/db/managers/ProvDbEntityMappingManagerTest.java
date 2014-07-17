@@ -4,6 +4,7 @@ import static java.lang.System.out;
 import static org.junit.Assert.assertEquals;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testSecret;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.editorUser;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -21,6 +22,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
@@ -64,14 +66,14 @@ public class ProvDbEntityMappingManagerTest
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
 		List<ProvenanceRegisterEntry> proves = provDao.find ( editorUser.getEmail (), "mapping.storeMappings", 
-			Arrays.asList ( "entity.serviceName", "%.service6", "entity.accession", "acc1" )
+			Arrays.asList ( p ( "entity", "%.service6", "acc1" ) )
 		);
 
 		out.println ( "------ MAPPING RECORDS: " + proves );
 		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 1, proves.size () );
 		
 		proves = provDao.find ( editorUser.getEmail (), "mapping.storeMapping%", 
-			Arrays.asList ( "entity.serviceName", "%.service8", "entity.accession", "acc1" ) 
+			Arrays.asList ( p ( "entity", "%.service8", "acc1" ) ) 
 		);
 		out.println ( "------ MAPPING RECORDS: " + proves );
 

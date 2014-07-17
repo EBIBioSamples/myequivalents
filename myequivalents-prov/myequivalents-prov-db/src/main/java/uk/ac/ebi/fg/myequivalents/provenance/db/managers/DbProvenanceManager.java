@@ -10,11 +10,11 @@ import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbMyEquivalentsManager;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegisterEntryList;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 
 /**
@@ -38,9 +38,9 @@ public class DbProvenanceManager extends DbMyEquivalentsManager implements ProvR
 
 
 	@Override
-	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, Date from, Date to, List<String> parameterPairs )
+	public List<ProvenanceRegisterEntry> find ( String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params )
 	{
-		List<ProvenanceRegisterEntry> result = provDao.find ( userEmail, operation, from, to, parameterPairs );
+		List<ProvenanceRegisterEntry> result = provDao.find ( userEmail, operation, from, to, params );
 		return result;
 	}
 
@@ -57,20 +57,20 @@ public class DbProvenanceManager extends DbMyEquivalentsManager implements ProvR
 
 
 	@Override
-	public String findAs ( String outputFormat, String userEmail, String operation, Date from, Date to, List<String> parameterPairs )
+	public String findAs ( String outputFormat, String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params )
 	{
 		outputFormat = StringUtils.trimToNull ( outputFormat );
 		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
 			"Unsopported output format '" + outputFormat + "'" 
 		);
 		
-		return findAsXml ( userEmail, operation, from, to, parameterPairs );
+		return findAsXml ( userEmail, operation, from, to, params );
 	}
 
-	private String findAsXml ( String userEmail, String operation, Date from, Date to, List<String> parameterPairs )
+	private String findAsXml ( String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params )
 	{
 		return JAXBUtils.marshal ( 
-			new ProvRegisterEntryList ( this.find ( userEmail, operation, from, to, parameterPairs ) ), 
+			new ProvRegisterEntryList ( this.find ( userEmail, operation, from, to, params ) ), 
 			ProvRegisterEntryList.class
 		);		
 	}

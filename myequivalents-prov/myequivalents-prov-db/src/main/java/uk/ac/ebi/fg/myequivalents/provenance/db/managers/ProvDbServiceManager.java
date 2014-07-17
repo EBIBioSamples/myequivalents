@@ -1,7 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.buildFromObjects;
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.buildFromValues;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.*;
 
 import java.io.Reader;
 import java.util.Arrays;
@@ -59,7 +58,7 @@ public class ProvDbServiceManager extends DbServiceManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "service.storeServices", buildFromObjects ( Arrays.asList ( services ) ) 
+			getUserEmail (), "service.storeServices", p ( Arrays.asList ( services ) ) 
 	  ));
 	  ts.commit ();
 	  
@@ -71,13 +70,13 @@ public class ProvDbServiceManager extends DbServiceManager
 		ServiceSearchResult servRes = super.storeServicesFromXMLAndGetResult ( reader );
 		if ( servRes == null || servRes.size () == 0 ) return;
 		
-		List<ProvenanceRegisterParameter> parameters = buildFromObjects ( servRes.getServices () );
-		buildFromObjects ( parameters, servRes.getRepositories () );
-		buildFromObjects ( parameters, servRes.getServiceCollections () );
+		List<ProvenanceRegisterParameter> params = p ( servRes.getServices () );
+		p ( params, servRes.getRepositories () );
+		p ( params, servRes.getServiceCollections () );
 		
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
-	  provRegDao.create ( new ProvenanceRegisterEntry ( this.getUserEmail (), "service.storeServicesFromXML", parameters ) );
+	  provRegDao.create ( new ProvenanceRegisterEntry ( this.getUserEmail (), "service.storeServicesFromXML", params ) );
 	  ts.commit ();
 	}
 	
@@ -90,7 +89,7 @@ public class ProvDbServiceManager extends DbServiceManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			this.getUserEmail (), "service.deleteServices", buildFromValues ( "service", Arrays.asList ( names ) ) 
+			this.getUserEmail (), "service.deleteServices", p ( "service", Arrays.asList ( names ) ) 
 	  ));
 	  ts.commit ();
 		
@@ -107,7 +106,7 @@ public class ProvDbServiceManager extends DbServiceManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			this.getUserEmail (), "service.storeServiceCollections", buildFromObjects ( Arrays.asList ( servColls ) ) 
+			this.getUserEmail (), "service.storeServiceCollections", p ( Arrays.asList ( servColls ) ) 
 	  ));
 	  ts.commit ();
 	}
@@ -121,7 +120,7 @@ public class ProvDbServiceManager extends DbServiceManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			this.getUserEmail (), "service.deleteServiceCollections", buildFromValues ( "serviceCollection", Arrays.asList ( names ) ) 
+			this.getUserEmail (), "service.deleteServiceCollections", p ( "serviceCollection", Arrays.asList ( names ) ) 
 	  ));
 	  ts.commit ();
 
@@ -141,7 +140,7 @@ public class ProvDbServiceManager extends DbServiceManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			this.getUserEmail (), "service.storeRepositories", buildFromObjects ( Arrays.asList ( repos ) ) 
+			this.getUserEmail (), "service.storeRepositories", p ( Arrays.asList ( repos ) ) 
 	  ));
 	  ts.commit ();
 	}
@@ -155,7 +154,7 @@ public class ProvDbServiceManager extends DbServiceManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			this.getUserEmail (), "service.deleteRepositories", buildFromValues ( "repository", Arrays.asList ( names ) ) 
+			this.getUserEmail (), "service.deleteRepositories", p ( "repository", Arrays.asList ( names ) ) 
 	  ));
 	  ts.commit ();
 

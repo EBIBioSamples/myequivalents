@@ -6,6 +6,7 @@ import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceMan
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.editorUser;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testPass;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testSecret;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -66,7 +67,7 @@ public class ProvDbAccessControlManagerTest
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
 		List<ProvenanceRegisterEntry> proves = provDao.find ( 
-			adminUser.getEmail (), "accessControl.storeUser", Arrays.asList ( "user", "test.new.user" )
+			adminUser.getEmail (), "accessControl.storeUser", Arrays.asList ( p ( "user", "test.new.user" ) )
 		);
 
 		out.println ( "------ MAPPING RECORDS: " + proves );
@@ -95,7 +96,8 @@ public class ProvDbAccessControlManagerTest
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
 		List<ProvenanceRegisterEntry> proves = provDao.find ( 
-			null, "%.setEntitiesVisibility", Arrays.asList ( "publicFlag", "true", "%Date", "2014%", "entity.accession", "%acc1"  )
+			null, "%.setEntitiesVisibility", 
+			Arrays.asList ( p ( "publicFlag", "true" ), p ( "%Date", "2014%" ), p ( "entity", null, "%acc1" ) )
 		);
 
 		out.println ( "------ MAPPING RECORDS: " + proves );

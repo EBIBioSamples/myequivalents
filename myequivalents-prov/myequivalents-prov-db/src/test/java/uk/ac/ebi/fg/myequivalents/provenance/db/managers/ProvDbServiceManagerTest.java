@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
 import static org.junit.Assert.assertEquals;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -22,6 +23,7 @@ import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
@@ -100,15 +102,15 @@ public class ProvDbServiceManagerTest
 		smgr.storeServicesFromXML ( xmlIn );
 		
 		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( mgrFact.getEntityManagerFactory ().createEntityManager () );
-		List<ProvenanceRegisterEntry> proves = provDao.find ( null, "%storeServices%", Arrays.asList ( "service", "%.service7" ) );
+		List<ProvenanceRegisterEntry> proves = provDao.find ( null, "%storeServices%", Arrays.asList ( p ( "service", "%.service7" ) ) );
 		assertEquals ( "Expected provenance records not saved (service7)!", 1, proves.size () );
 
-		proves = provDao.find ( null, "%storeServices%", Arrays.asList ( "repository", "test.testmain.addedRepo1" ) );
+		proves = provDao.find ( null, "%storeServices%", Arrays.asList ( p ( "repository", "test.testmain.addedRepo1" ) ) );
 		assertEquals ( "Expected provenance records not saved (addedRepo1)!", 1, proves.size () );
 	
 		// This is how you can use JodaTime to set dates like '10 days ago' and pass them to search methods. 
 		proves = provDao.find ( null, null, new DateTime ().minusDays ( 10 ), new DateTime (),
-			Arrays.asList ( "serviceCollection", null ) 
+			Arrays.asList ( p ( "serviceCollection", (String) null ) ) 
 		);
 		assertEquals ( "Expected provenance records not saved (servCollections)!", 1, proves.size () );
 		

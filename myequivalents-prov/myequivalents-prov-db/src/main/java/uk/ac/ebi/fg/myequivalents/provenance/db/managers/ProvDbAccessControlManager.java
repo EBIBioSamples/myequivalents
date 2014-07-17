@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.buildFromValues;
 
 import java.io.Reader;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "accessControl.storeUser", buildFromValues ( "user", Arrays.asList ( user.getEmail () ) )  
+			getUserEmail (), "accessControl.storeUser", Arrays.asList ( p ( "user", user.getEmail () ) )  
 	  ));
 	  ts.commit ();
 	}
@@ -61,7 +60,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "accessControl.storeUserFromXml", buildFromValues ( "user", Arrays.asList ( user.getEmail () ) )  
+			getUserEmail (), "accessControl.storeUserFromXml", Arrays.asList ( p ( "user", user.getEmail () ) )  
 	  ));
 	  ts.commit ();
 	}
@@ -74,7 +73,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "accessControl.setUserRole", buildFromPairs ( Arrays.asList ( "user", email, "role", role.toString () ) )  
+			getUserEmail (), "accessControl.setUserRole", Arrays.asList ( p ( "user", email ), p ( "role", role.toString () ) )  
 	  ));
 	  ts.commit ();
 	}
@@ -87,7 +86,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "accessControl.deleteUser", buildFromValues ( "user", Arrays.asList ( email ) )  
+			getUserEmail (), "accessControl.deleteUser", Arrays.asList ( p ( "user", email ) )   
 	  ));
 	  ts.commit ();
 		
@@ -144,9 +143,9 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		if ( cascade != null ) result.add ( new ProvenanceRegisterParameter ( "cascade", Boolean.toString ( cascade ) ) );
 		
 		if ( "entity".equals ( "type" ) )
-			buildFromEntityIds ( result, Arrays.asList ( ids ) );
+			pent ( result, Arrays.asList ( ids ) );
 		else
-			buildFromValues ( result, type, Arrays.asList ( ids ) );
+			p ( result, type, Arrays.asList ( ids ) );
 		
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
