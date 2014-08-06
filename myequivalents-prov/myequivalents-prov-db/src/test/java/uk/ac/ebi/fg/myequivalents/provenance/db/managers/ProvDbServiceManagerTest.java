@@ -15,6 +15,8 @@ import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
@@ -45,6 +47,8 @@ public class ProvDbServiceManagerTest
 		"test.admin", "Test Admin", "User", testPass, "test admin notes", Role.ADMIN, testSecret 
 	);
 
+	private final Logger log = LoggerFactory.getLogger ( this.getClass () );
+	
 	@BeforeClass
 	public static void init ()
 	{
@@ -114,9 +118,11 @@ public class ProvDbServiceManagerTest
 		assertEquals ( "Expected provenance records not saved (servCollections)!", 1, proves.size () );
 		
 		ProvenanceRegisterEntry prove = proves.get ( 0 );
-		System.out.println ( "---- SERVCOLL: " + prove );
+		log.info ( "---- SERVCOLL:\n{}", prove );
 
 		assertEquals ( "Fetched provenance record wrong (parameters)", 7, prove.getParameters ().size () );
 		assertEquals ( "Fetched provenance record wrong (user)", editorUser.getEmail (), prove.getUserEmail () );
 	}
+	
+
 }

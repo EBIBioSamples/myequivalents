@@ -6,6 +6,7 @@ import static junit.framework.Assert.assertTrue;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -43,7 +44,7 @@ public class ProvenanceManagerTest
 	}
 	
 	@Test
-	public void testProvenanceManager ()
+	public void testProvenanceManager () throws InterruptedException
 	{
 		// Here we get the specific factory, since we want newProvRegistryManager() 
 		ProvDbManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ();
@@ -82,7 +83,7 @@ public class ProvenanceManagerTest
 		
 		regMgr.purge ( new DateTime ().minusMinutes ( 1 ).toDate (), null );
 		em.close (); // flushes data for certain DBs (eg, H2)
-		
+
 		provDao = new ProvenanceRegisterEntryDAO ( em = mgrFact.getEntityManagerFactory ().createEntityManager () );
 		assertEquals ( "purgeAll() didn't work!", 1, provDao.find ( "foo.user%", null, null ).size () );
 	}

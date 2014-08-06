@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 
+import uk.ac.ebi.fg.myequivalents.model.Service;
+
 /**
  * TODO: Comment me!
  *
@@ -9,5 +11,4 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
  */
 public class ProvenanceRegistryEntryDAOTest
 {
-
 }

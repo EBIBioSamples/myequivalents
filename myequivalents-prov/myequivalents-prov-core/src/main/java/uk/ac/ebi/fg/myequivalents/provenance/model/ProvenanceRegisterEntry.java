@@ -1,7 +1,10 @@
 package uk.ac.ebi.fg.myequivalents.provenance.model;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -198,4 +201,25 @@ public class ProvenanceRegisterEntry
   	);
   }
 
+  
+  public Set<ProvenanceRegisterParameter> containsParameters ( List<ProvenanceRegisterParameter> params )
+  {
+  	if ( params == null || params.isEmpty () ) return Collections.emptySet ();
+
+  	Set<ProvenanceRegisterParameter> result = new HashSet<> ();
+  	for ( ProvenanceRegisterParameter psearch: params )
+  	{
+  		if ( result.contains ( psearch ) ) continue;
+  		String ptype = psearch.getValueType (), val = psearch.getValue (), xval = psearch.getExtraValue ();
+  		for ( ProvenanceRegisterParameter param: this.getParameters () )
+  		{
+  			if ( ptype != null && !ptype.equals ( param.getValueType () ) ) continue;
+  			if ( val != null && !val.equals ( param.getValue () ) ) continue;
+  			if ( xval != null && !xval.equals ( param.getExtraValue () ) ) continue;
+  			result.add ( param );
+  		}
+  	}
+  	
+  	return result;
+  }
 }
