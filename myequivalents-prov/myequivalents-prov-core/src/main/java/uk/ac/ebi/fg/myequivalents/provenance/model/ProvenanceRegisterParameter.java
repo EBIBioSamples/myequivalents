@@ -2,7 +2,6 @@ package uk.ac.ebi.fg.myequivalents.provenance.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -15,10 +14,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Index;
 
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.ExposedService;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
-import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
@@ -106,9 +103,9 @@ public class ProvenanceRegisterParameter
   	
     // The entity type
   	ProvenanceRegisterParameter that = (ProvenanceRegisterParameter) o;
-    if ( this.getValueType () == null || that.getValueType () == null || !this.valueType.equals ( that.valueType ) ) return false; 
-    if ( this.getValue () == null || that.getValue () == null || !this.value.equals ( that.value ) ) return false; 
-    if ( this.getExtraValue () == null || that.getExtraValue () == null || !this.extraValue.equals ( that.extraValue ) ) return false; 
+    if ( this.getValueType () == null && that.getValueType () != null || !this.valueType.equals ( that.valueType ) ) return false; 
+    if ( this.getValue () == null && that.getValue () != null || !this.value.equals ( that.value ) ) return false; 
+    if ( this.getExtraValue () == null && that.getExtraValue () != null || !this.extraValue.equals ( that.extraValue ) ) return false; 
     return true;
   }
 	

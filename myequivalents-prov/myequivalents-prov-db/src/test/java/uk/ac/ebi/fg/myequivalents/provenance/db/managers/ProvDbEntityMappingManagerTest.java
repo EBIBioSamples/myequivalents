@@ -15,7 +15,9 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,14 +44,14 @@ public class ProvDbEntityMappingManagerTest
 {
 	private final Logger log = LoggerFactory.getLogger ( this.getClass () );
 
-	@BeforeClass
-	public static void init ()
+	@Before
+	public void init ()
 	{
 		ProvDbServiceManagerTest.init ();
 	}
 	
-	@AfterClass
-	public static void cleanUp ()
+	@After
+	public void cleanUp ()
 	{
 		ProvDbServiceManagerTest.cleanUp ();
 	}
@@ -67,8 +69,10 @@ public class ProvDbEntityMappingManagerTest
 		
 		// Test mappings
 		EntityMappingManager mapMgr = mgrFact.newEntityMappingManager ( editorUser.getEmail (), testSecret );
+		log.debug ( "Saving test mappings" );
 		mapMgr.storeMappings ( "test.testmain.service6:acc1", "test.testmain.service8:acc1" );
 		mapMgr.storeMappingBundle ( "test.testmain.service6:acc2", "test.testmain.service8:acc1" );
+		log.debug ( "Test mappings saved" );
 		
 		// Has the above been tracked?
 		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
@@ -90,7 +94,6 @@ public class ProvDbEntityMappingManagerTest
 		em.close (); 
 		log.info ( "------ MAPPING RECORDS (after EM closing):\n{}", proves );
 		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 2, proves.size () );
-		
 	}
 
 	@Test

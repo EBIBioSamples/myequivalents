@@ -144,28 +144,32 @@ public class ProvenanceRegisterEntryDAO
 	
 	public Set<List<ProvenanceRegisterEntry>> findMappingProv ( String xEntityId, String yEntityId, List<String> validUsers )
 	{
+		log.trace ( "doing public findMappingProv ( '{}', '{}', ...)", xEntityId, yEntityId );
 		Set<List<ProvenanceRegisterEntry>> result = new HashSet<> ();
-		List<List<ProvenanceRegisterEntry>> dupedResult =
+		List<List<ProvenanceRegisterEntry>> dupedResult = 
 			findMappingProv ( xEntityId, yEntityId, validUsers, new HashSet<ProvenanceRegisterEntry> () );
 		result.addAll ( dupedResult );
+		log.trace ( "returning from public findMappingProv():\n{}", result );
 		return result;
 	}
 
 	
 	private List<List<ProvenanceRegisterEntry>> findMappingProv ( 
-		String xEntityId, String yEntityId, List<String> validUsers, Set<ProvenanceRegisterEntry> visitedPaths )
+		String xEntityId, String yEntityId, List<String> validUsers, Set<ProvenanceRegisterEntry> visitedEntities )
 	{
 		log.trace ( "doing findMappingProv ( '{}', '{}', ...)", xEntityId, yEntityId );
 		
 		List<List<ProvenanceRegisterEntry>> result = new ArrayList<> ();
+		if ( xEntityId.equals ( yEntityId ) ) return result; // Just to prevent trivial cases coming from the clients 
 		
 		// What can you reach from x?
-		List<ProvenanceRegisterEntry> xlinks = findEntityMappingProv ( xEntityId, validUsers ), ylinks = null;
+		List<ProvenanceRegisterEntry> xlinks = findEntityMappingProv ( xEntityId, validUsers );
 		log.trace ( "xlinks are: {}", xlinks );
 		
 		for ( ProvenanceRegisterEntry opx1: xlinks )
 		{
-			if ( visitedPaths.contains ( opx1 ) ) continue;
+			if ( visitedEntities.contains ( opx1 ) ) continue; // do not loop on yourself
+			visitedEntities.add ( opx1 );
 			
 			for ( ProvenanceRegisterParameter px1: opx1.getParameters () )
 			{
@@ -175,50 +179,20 @@ public class ProvenanceRegisterEntryDAO
 				{
 					List<ProvenanceRegisterEntry> opx1l = new ArrayList<> (); opx1l.add ( opx1 );
 					result.add ( opx1l ); // add a direct link as a (modifiable) solution
-					log.trace ( "Solution added: {}", opx1 );
+					log.trace ( "Solution added: {}", opx1l );
 					continue;
 				}
-				
-				// Consider what it goes to y and try a shorter path
-				if ( ylinks == null ) {
-					ylinks = findEntityMappingProv ( yEntityId, validUsers );
-					log.trace ( "ylinks are: {}", ylinks );
-				}
-				
-				for ( ProvenanceRegisterEntry opy1: ylinks )
+
+				// Expand the graph from x1
+				List<List<ProvenanceRegisterEntry>> chains = findMappingProv ( x1, yEntityId, validUsers, visitedEntities );
+				for ( List<ProvenanceRegisterEntry> chain: chains )
 				{
-					if ( visitedPaths.contains ( opy1 ) ) continue;
-					
-					for ( ProvenanceRegisterParameter py1: opy1.getParameters () )
-					{
-						String y1 = py1.getValue () + ":" + py1.getExtraValue ();
-						if ( x1.equals ( y1 ) )
-						{
-							// Add (x, x1) (x1, y1) (y1, y)
-							List<ProvenanceRegisterEntry> opx1y1 = new ArrayList<> (); 
-							opx1y1.add ( opx1 );
-							opx1y1.add ( opy1 );
-							result.add ( opx1y1 );
-							log.trace ( "Solution added: {}", opx1y1 );
-							continue;
-						}
-						
-						// Let's check the shorter path
-						for ( List<ProvenanceRegisterEntry> chain: findMappingProv ( x1, y1, validUsers, visitedPaths ) )
-						{
-							chain.add ( 0, opx1 );
-							chain.add ( opy1 );
-							result.add ( chain );
-							log.trace ( "Solution added: {}", chain );
-						}
-					} // py1
-
-					visitedPaths.add ( opy1 );
-				} // opy1
-			} // px1
-
-			visitedPaths.add ( opx1 );
-		} // opx1
+					chain.add ( 0, opx1 );
+					result.add ( chain );
+					log.trace ( "Solution added: {}", chain );
+				}
+			} // for px1
+		} // for opx1
 		
 		return result;
 	}
