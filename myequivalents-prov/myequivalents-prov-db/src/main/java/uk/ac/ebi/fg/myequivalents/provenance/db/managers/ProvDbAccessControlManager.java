@@ -18,7 +18,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.*;
 
 /**
- * TODO: Comment me!
+ * A wrapper of {@link DbAccessControlManager} that uses the provenance register to keep track of access-control
+ * changes in myEquivalents.
  *
  * <dl><dt>date</dt><dd>19 Jun 2014</dd></dl>
  * @author Marco Brandizi
@@ -39,6 +40,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 	}
 
 	@Override
+	/** Stores 'accessControl.storeUser' operation and a 'user' parameters into the provenance register */ 
 	public void storeUser ( User user )
 	{
 		super.storeUser ( user );
@@ -52,6 +54,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 	}
 
 	@Override
+	/** Stores 'accessControl.storeUserFromXml' operation and a 'user' parameter into the provenance register */ 
 	public void storeUserFromXml ( Reader reader )
 	{
 		User user = super.storeUserFromXmlAndGetResult ( reader );
@@ -65,6 +68,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 	  ts.commit ();
 	}
 
+	/** Stores 'accessControl.setUserRole' operation, plus'user' and 'role' parameters into the provenance register */ 
 	@Override
 	public void setUserRole ( String email, Role role )
 	{
@@ -78,6 +82,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 	  ts.commit ();
 	}
 
+	/** Stores 'accessControl.deleteUser' operation and a 'user' parameter into the provenance register */ 
 	@Override
 	public boolean deleteUser ( String email )
 	{
@@ -93,6 +98,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 	  return true;
 	}
 
+	/** Stores 'accessControl.setServicesVisibility' operation and 'service' parameters into the provenance register */ 
 	@Override
 	public void setServicesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames )
 	{
@@ -102,6 +108,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		);
 	}
 
+	/** Stores 'accessControl.setRepositoriesVisibility' operation and a 'repository' parameters into the provenance register */ 
 	@Override
 	public void setRepositoriesVisibility ( 
 		String publicFlagStr, String releaseDateStr, boolean cascade, String ... repositoryNames )
@@ -113,6 +120,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		);
 	}
 
+	/** Stores 'accessControl.setRepositoriesVisibility' operation and a 'repository' parameters into the provenance register */ 
 	@Override
 	public void setServiceCollectionsVisibility ( 
 		String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceCollNames )
@@ -124,6 +132,7 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		);
 	}
 
+	/** Stores 'accessControl.setEntitiesVisibility' operation and a 'entity' parameters into the provenance register */ 
 	@Override
 	public void setEntitiesVisibility ( String publicFlagStr, String releaseDateStr, String ... entityIds )
 	{
@@ -134,6 +143,11 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 		);
 	}
 
+	/**
+	 * Used by operations related to visibility changes, to store corresponding records in the provenance register. 
+	 * type is like 'service', 'repository', 'entity' etc, for the other parameters have a look at 
+	 * {@link ProvenanceRegisterParameter}. 
+	 */
 	private void trackSetVisibility ( 
 		String command, String type, String publicFlagStr, String releaseDateStr, Boolean cascade, String ... ids )
 	{

@@ -2,8 +2,8 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testSecret;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.editorUser;
+import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testSecret;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.io.InputStreamReader;
@@ -14,12 +14,8 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 
-import org.joda.time.DateTime;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +30,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: Comment me!
+ * Tests  {@link ProvDbEntityMappingManager}
  *
  * <dl><dt>date</dt><dd>16 Jun 2014</dd></dl>
  * @author Marco Brandizi

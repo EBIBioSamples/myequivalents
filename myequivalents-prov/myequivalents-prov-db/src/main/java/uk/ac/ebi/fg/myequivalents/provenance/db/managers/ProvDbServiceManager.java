@@ -21,7 +21,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 
 /**
  * 
- * TODO: Comment me!
+ * A wrapper for {@link DbServiceManager}, which keeps track of service/repository/collection changing operations, using
+ * the {@link ProvenanceRegisterEntry provenance register}. 
  * 
  * <dl><dt>date</dt><dd>31 Mar 2014</dd></dl>
  * @author Marco Brandizi
@@ -49,6 +50,9 @@ public class ProvDbServiceManager extends DbServiceManager
 	}
 	
 	
+	/**
+	 * save a 'service.storeServices' and 'service' parameters into the provenance registry.
+	 */
 	@Override
 	public void storeServices ( Service... services )
 	{
@@ -65,6 +69,9 @@ public class ProvDbServiceManager extends DbServiceManager
 	}
 	
 
+	/**
+	 * save a 'service.storeServicesFromXML' and different parameters into the provenance registry.
+	 */
 	public void storeServicesFromXML ( Reader reader )
 	{
 		ServiceSearchResult servRes = super.storeServicesFromXMLAndGetResult ( reader );
@@ -80,6 +87,9 @@ public class ProvDbServiceManager extends DbServiceManager
 	  ts.commit ();
 	}
 	
+	/**
+	 * save a 'service.deleteServices' and 'service' parameters into the provenance registry.
+	 */
 	@Override
 	public int deleteServices ( String... names )
 	{
@@ -96,7 +106,9 @@ public class ProvDbServiceManager extends DbServiceManager
 		return result;
 	}
 	
-
+	/**
+	 * save a 'service.storeServiceCollections' and 'serviceCollection' parameters into the provenance registry.
+	 */
 	@Override
 	public void storeServiceCollections ( ServiceCollection... servColls ) 
 	{
@@ -111,6 +123,9 @@ public class ProvDbServiceManager extends DbServiceManager
 	  ts.commit ();
 	}
 	
+	/**
+	 * save a 'service.deleteServiceCollections' and 'serviceCollection' parameters into the provenance registry.
+	 */
 	@Override
 	public int deleteServiceCollections ( String... names )
 	{
@@ -130,7 +145,9 @@ public class ProvDbServiceManager extends DbServiceManager
 
 	
 	
-
+	/**
+	 * save a 'service.storeRepositories' and 'repository' parameters into the provenance registry.
+	 */
 	@Override
 	public void storeRepositories ( Repository... repos ) 
 	{
@@ -145,6 +162,9 @@ public class ProvDbServiceManager extends DbServiceManager
 	  ts.commit ();
 	}
 	
+	/**
+	 * save a 'service.deleteRepositories' and 'repository' parameters into the provenance registry.
+	 */
 	@Override
 	public int deleteRepositories ( String... names )
 	{

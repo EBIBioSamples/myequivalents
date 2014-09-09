@@ -13,7 +13,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 
 /**
- * TODO: Comment me!
+ * A wrapper of {@link DbEntityMappingManager} that uses the provenance register to keep track of mapping-related
+ * changes in myEquivalents.
  *
  * <dl><dt>date</dt><dd>16 Jun 2014</dd></dl>
  * @author Marco Brandizi
@@ -40,7 +41,9 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 		provRegDao = new ProvenanceRegisterEntryDAO ( this.entityManager );
 	}
 
-
+	/**
+	 * Stores "mapping.storeMappings"  and 'entity' parameters into into provenance register
+	 */
 	@Override
 	public void storeMappings ( String ... entityIds )
 	{
@@ -56,6 +59,9 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 	}
 
 
+	/**
+	 * Stores "mapping.storeMappingBundle"  and 'entity' parameters into into provenance register
+	 */
 	@Override
 	public void storeMappingBundle ( String ... entityIds )
 	{
@@ -71,6 +77,9 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 	}
 
 
+	/**
+	 * Stores "mapping.deleteMappings"  and 'entity' parameters into into provenance register
+	 */
 	@Override
 	public int deleteMappings ( String ... entityIds )
 	{
@@ -88,7 +97,9 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 	  return result;
 	}
 
-
+	/**
+	 * Stores "mapping.deleteEntities"  and 'entity' parameters into into provenance register
+	 */
 	@Override
 	public int deleteEntities ( String ... entityIds )
 	{

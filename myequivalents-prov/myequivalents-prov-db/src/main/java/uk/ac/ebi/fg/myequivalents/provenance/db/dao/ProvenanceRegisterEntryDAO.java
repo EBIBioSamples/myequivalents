@@ -3,8 +3,6 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 import static uk.ac.ebi.utils.sql.HqlUtils.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -13,8 +11,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
@@ -30,11 +26,9 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
-import uk.ac.ebi.utils.sql.HqlUtils;
-import uk.ac.ebi.utils.sql.SqlUtils;
 
 /**
- * TODO: Comment me!
+ * DB Storage management for {@link ProvenanceRegisterEntry} 
  *
  * <dl><dt>date</dt><dd>31 Mar 2014</dd></dl>
  * @author Marco Brandizi
@@ -55,7 +49,11 @@ public class ProvenanceRegisterEntryDAO
 		Validate.notNull ( provEntry, "Cannot save a null entry in the provenance register" );
 		this.entityManager.persist ( provEntry );
 	}
-	
+
+	/**
+	 * Finds {@link ProvenanceRegisterEntry provenance entries} matching the user and parameters, in a date range. 
+	 * You can use the '%' wildcard, as in SQL. 
+	 */
 	@SuppressWarnings ( "unchecked" )
 	public List<ProvenanceRegisterEntry> find ( 
 		String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params 
@@ -73,8 +71,10 @@ public class ProvenanceRegisterEntryDAO
 				? Restrictions.between ( "timestamp", from, to )
 				: Restrictions.ge ( "timestamp", from )
 			);
-		else if ( to != null ) crit.add ( Restrictions.le ( "timestamp", to ) ); 
+		else 
+			if ( to != null ) crit.add ( Restrictions.le ( "timestamp", to ) ); 
 
+		// All the params, in AND.
 		if ( params != null && !params.isEmpty () )
 		{
 			
@@ -110,6 +110,9 @@ public class ProvenanceRegisterEntryDAO
 		return find ( userEmail, operation, from == null ? null : from.toDate (), to == null ? null : to.toDate (), parameterPairs );
 	}
 	
+	/**
+	 * Searches over any date. 
+	 */
 	public List<ProvenanceRegisterEntry> find ( 
 		String userEmail, String operation, List<ProvenanceRegisterParameter> parameterPairs ) 
 	{
@@ -118,7 +121,11 @@ public class ProvenanceRegisterEntryDAO
 	
 	
 	
-	
+	/**
+	 * Returns {@link ProvenanceRegisterEntry provenance records} regarding entityId and performed by any user in validUsers.
+	 * Doesn't filter based on the user if none is specified. 
+	 * 
+	 */
 	public List<ProvenanceRegisterEntry> findEntityMappingProv ( String entityId, List<String> validUsers )
 	{
 		String[] echunks = EntityMappingUtils.parseEntityId ( entityId );
@@ -142,6 +149,17 @@ public class ProvenanceRegisterEntryDAO
 			.list ();
 	}
 	
+	/**
+	 * Finds all the {@link ProvenanceRegisterEntry provenance records}, performed by any of the validUsers 
+	 * (no filter applied if empty), which contributed to the creation of the link between xEntityId and yEntityId. 
+	 * 
+	 * This means that the method recursively call itself until it has reconstructed all the mapping operations that
+	 * built the mapping bundle the two entities belong to.
+	 * 
+	 * Each list item in the resulting set contains a path of operations from xEntityId to yEntityId, which 
+	 * are about the chain of entities transitively linking the two entities.
+	 *    
+	 */
 	public Set<List<ProvenanceRegisterEntry>> findMappingProv ( String xEntityId, String yEntityId, List<String> validUsers )
 	{
 		log.trace ( "doing public findMappingProv ( '{}', '{}', ...)", xEntityId, yEntityId );
@@ -169,24 +187,28 @@ public class ProvenanceRegisterEntryDAO
 		for ( ProvenanceRegisterEntry opx1: xlinks )
 		{
 			if ( visitedEntities.contains ( opx1 ) ) continue; // do not loop on yourself
-			visitedEntities.add ( opx1 );
+			visitedEntities.add ( opx1 ); // Do not dead-end on already-visited entries
 			
+			// Examine the direct links to x
 			for ( ProvenanceRegisterParameter px1: opx1.getParameters () )
 			{
 				String x1 = px1.getValue () + ":" + px1.getExtraValue ();
 				if ( xEntityId.equals ( x1 ) ) continue; // ignore yourself
-				if ( yEntityId.equals ( x1 ) ) 
+				
+				if ( yEntityId.equals ( x1 ) )
 				{
+					// x-y is a direct link, save the result.
 					List<ProvenanceRegisterEntry> opx1l = new ArrayList<> (); opx1l.add ( opx1 );
 					result.add ( opx1l ); // add a direct link as a (modifiable) solution
 					log.trace ( "Solution added: {}", opx1l );
 					continue;
 				}
 
-				// Expand the graph from x1
+				// Recursively expand the graph from x1, to try to reach y
 				List<List<ProvenanceRegisterEntry>> chains = findMappingProv ( x1, yEntityId, validUsers, visitedEntities );
 				for ( List<ProvenanceRegisterEntry> chain: chains )
 				{
+					// For each solution starting from x1, add x->x1 up front and then you have an x-y solution 
 					chain.add ( 0, opx1 );
 					result.add ( chain );
 					log.trace ( "Solution added: {}", chain );
@@ -199,7 +221,12 @@ public class ProvenanceRegisterEntryDAO
 	
 	
 	
-
+	/**
+	 * Remove old provenance entries in a given date range. For each parameter found in the range, all the entries about
+	 * such parameter are removed, except the most recent one. This allows one to keep the most updated provenance information
+	 * about the entry, while the older one is removed.
+	 * 
+	 */
 	public int purge ( Date from, Date to )
 	{
 		Set<ProvenanceRegisterEntry> toDelete = new HashSet<> (), toKeep = new HashSet<> ();
@@ -214,6 +241,7 @@ public class ProvenanceRegisterEntryDAO
 		Query qsel = this.entityManager.createQuery ( hqlSel );
 		parameterizedRangeBinding ( qsel, "from", "to", from, to );
 		
+		// The last param in a list of myEq objects
 		String firstParamStr = null;
 		for ( Object[] row: (List<Object[]>) qsel.getResultList () )
 		{
@@ -232,8 +260,10 @@ public class ProvenanceRegisterEntryDAO
 			}
 		}
 		
+		// So, we found which ones to delete, do it
+		// We need to track the entries to keep and to delete by means of the to corresponding sets, because they might
+		// be repeated in multiple provenance entries
 		int result = 0;
-
 		for ( ProvenanceRegisterEntry prove: toDelete )
 			if ( !toKeep.contains ( prove ) ) 
 			{
@@ -244,6 +274,12 @@ public class ProvenanceRegisterEntryDAO
 		return result;
 	}
 
+	/**
+	 * Delete all the provenance entries in a range, even if this will make any provenance information about a myEq object
+	 * to disappear. This should be used only for testing purposes and prefer {@link #purge(Date, Date)} for production
+	 * cleaning.
+	 * 
+	 */
 	public int purgeAll ( Date from, Date to )
 	{
 		List<ProvenanceRegisterEntry> removedEntries = this.find ( null, null, from, to, null );
@@ -251,6 +287,7 @@ public class ProvenanceRegisterEntryDAO
 		
 		for ( ProvenanceRegisterEntry prove: removedEntries )
 			this.entityManager.remove ( prove );
+		
 		return removedEntries.size ();
 	}
 }

@@ -28,7 +28,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: Comment me!
+ * Tests {@link ProvDbServiceManager}.
  *
  * <dl><dt>date</dt><dd>10 Jun 2014</dd></dl>
  * @author Marco Brandizi

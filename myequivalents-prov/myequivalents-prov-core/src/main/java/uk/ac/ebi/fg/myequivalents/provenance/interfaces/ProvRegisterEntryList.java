@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 
 /**
- * TODO: Comment me!
+ * Defines a JAXB wrapper for a collection of {@link ProvenanceRegisterEntry} elements.
  *
  * <dl><dt>date</dt><dd>3 Jul 2014</dd></dl>
  * @author Marco Brandizi

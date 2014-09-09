@@ -6,7 +6,6 @@ import static junit.framework.Assert.assertTrue;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -23,8 +22,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: Comment me!
- *
+ * TODO: comment me!
+ * 
  * <dl><dt>date</dt><dd>1 Jul 2014</dd></dl>
  * @author Marco Brandizi
  *

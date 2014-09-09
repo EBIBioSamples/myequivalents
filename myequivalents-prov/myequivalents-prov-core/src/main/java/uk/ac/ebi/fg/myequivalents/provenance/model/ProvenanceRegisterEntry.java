@@ -32,7 +32,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
  * 
- * TODO: Comment me!
+ * The provenance register keeps track of which user issued which change operation.
  *
  * <dl><dt>date</dt><dd>31 Mar 2014</dd></dl>
  * @author Marco Brandizi

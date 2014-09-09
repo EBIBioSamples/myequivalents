@@ -30,7 +30,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: Comment me!
+ * Tests the functionality of {@link AccessControlManager}
  *
  * <dl><dt>date</dt><dd>16 Jun 2014</dd></dl>
  * @author Marco Brandizi
@@ -74,6 +74,9 @@ public class ProvDbAccessControlManagerTest
 		assertEquals ( "Expected provenance records not saved (test.new.user)!", 1, proves.size () );
 	}
 	
+	/**
+	 * Test visibility commands. 
+	 */
 	@Test
 	public void testVisibility ()
 	{

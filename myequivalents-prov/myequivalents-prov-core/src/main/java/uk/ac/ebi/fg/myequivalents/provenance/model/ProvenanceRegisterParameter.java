@@ -21,7 +21,7 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
- * TODO: Comment me!
+ * The parameters passed to a given operation. Thse might be entity IDs, service names etc.
  *
  * <dl><dt>date</dt><dd>6 Jun 2014</dd></dl>
  * @author Marco Brandizi
@@ -52,7 +52,9 @@ public class ProvenanceRegisterParameter
 		this ( valueType, value, null );
 	}
 	
-
+	/**
+	 * Might be strings like 'service', 'entity' etc.
+	 */
 	@Column ( length = 50 )
 	@Index ( name = "prov_param_vtype" )
 	@XmlAttribute ( name = "value-type" )
@@ -66,7 +68,9 @@ public class ProvenanceRegisterParameter
 		this.valueType = valueType;
 	}
 
-	
+	/**
+	 * Might be things like 'service1', 'repository10', etc
+	 */
 	@Column ( length = 2000 )
 	@Index ( name = "prov_param_val" )
 	@XmlAttribute ( name = "value" )
@@ -80,6 +84,9 @@ public class ProvenanceRegisterParameter
 		this.value = value;
 	}
 	
+	/**
+	 * Might be things like 'acc1', for parameters like entityId = 'service1:acc1'
+	 */
 	@Column ( length = 2000 )
 	@Index ( name = "prov_param_extra1" )
 	@XmlAttribute ( name = "extra-value" )
@@ -129,26 +136,39 @@ public class ProvenanceRegisterParameter
   }
   
   
-  
+  /**
+   * Builds a parameter out of its string components
+   */
   public static ProvenanceRegisterParameter p ( String valueType, String value, String extraValue ) {
   	return new ProvenanceRegisterParameter ( valueType, value, extraValue );
   }
 
+  /**
+   * Builds a parameter from its string components (null extraValue) 
+   */
   public static ProvenanceRegisterParameter p ( String valueType, String value ) {
   	return new ProvenanceRegisterParameter ( valueType, value, null );
   }
 
+  /**
+   * Builds p ( "entity", "service1", "acc1" ) out of "service1:acc1".
+   */
   public static ProvenanceRegisterParameter pent ( String entityId ) 
   {
   	String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
   	return new ProvenanceRegisterParameter ( "entity", chunks [ 0 ], chunks [ 1 ] );
   }
 
-  
+  /**
+   * Builds p ( "service", service.getName () ).
+   */
   public static ProvenanceRegisterParameter p ( Service service ) {
   	return new ProvenanceRegisterParameter ( "service", service.getName () );
   }
 
+  /**
+   * Builds p ( uncapitalize ( d.class.simpleName ), service.name ).
+   */
   public static ProvenanceRegisterParameter p ( Describeable d ) 
   {
   	return new ProvenanceRegisterParameter ( 
@@ -157,10 +177,16 @@ public class ProvenanceRegisterParameter
   	);
   }
 
+  /**
+   * Builds p ( "entity", e.serviceName, e.accession ).
+   */
   public static ProvenanceRegisterParameter p ( Entity e ) {
   	return new ProvenanceRegisterParameter ( "entity",  e.getServiceName (), e.getAccession () );
   }
 
+  /**
+   * Calls previous methods based on the class object is instance of. 
+   */
   public static <MM extends MyEquivalentsModelMember> ProvenanceRegisterParameter p ( MM object )
   {
   	if ( object instanceof Service ) return p ( (Service) object );
@@ -172,7 +198,10 @@ public class ProvenanceRegisterParameter
 		);
   }
 
-  
+  /**
+   * Uses {@link #p(MyEquivalentsModelMember)} for each object in the collection, adds the parameters built to result. 
+   * result may be null, in which case it will be initialised with an empty list.
+   */
 	public static <MM extends MyEquivalentsModelMember> List<ProvenanceRegisterParameter> p 
 		( List<ProvenanceRegisterParameter> result, Collection<MM> objects )
 	{
@@ -183,12 +212,18 @@ public class ProvenanceRegisterParameter
 		return result;
 	}
 	
+	/**
+	 * Wraps {@link #p(List, Collection)} with null result.
+	 */
 	public static <MM extends MyEquivalentsModelMember> List<ProvenanceRegisterParameter> p ( Collection<MM> objects )
 	{
 		return p ( null, objects );
 	}
 
-	
+	/**
+	 * Generate parameters having all the same valueType. Adds them to result, initialises result with an empty list, if 
+	 * it's null. 
+	 */
 	public static List<ProvenanceRegisterParameter> p ( List<ProvenanceRegisterParameter> result, String valueType, List<String> values )
 	{
 		if ( values == null || values.isEmpty () ) return result;
@@ -198,12 +233,17 @@ public class ProvenanceRegisterParameter
 		return result;
 	}
 
+	/**
+	 * Wraps {@link #p(List, String, List)} with result = null. 
+	 */
 	public static List<ProvenanceRegisterParameter> p ( String valueType, List<String> values ) {
 		return p ( null, valueType, values );
 	}
 
 	
-	
+	/**
+	 * Builds parameters for entity IDs. Adds up to result, which is initialised with an empty list, if it's null.
+	 */
 	public static List<ProvenanceRegisterParameter> pent ( List<ProvenanceRegisterParameter> result, List<String> entityIds )
 	{
 		if ( entityIds == null || entityIds.isEmpty () ) return result;
@@ -213,6 +253,9 @@ public class ProvenanceRegisterParameter
 		return result;
 	}
 
+	/**
+	 * Wraps {@link #pent(List, List)} with result = null. 
+	 */
 	public static List<ProvenanceRegisterParameter> pent ( List<String> entityIds ) {
 		return pent ( null, entityIds );
 	}

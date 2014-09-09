@@ -2,6 +2,8 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
 import java.util.Properties;
 
+import javax.persistence.EntityManagerFactory;
+
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
@@ -14,7 +16,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 
 /**
- * TODO: Comment me!
+ * DB-based implementation of {@link ProvManagerFactory}. This gets an {@link EntityManagerFactory} initialised
+ * based on Spring facilities, which allow to put together JPA annotations from multiple packages.
  *
  * <dl><dt>date</dt><dd>10 Jun 2014</dd></dl>
  * @author Marco Brandizi
@@ -22,6 +25,10 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
  */
 public class ProvDbManagerFactory extends DbManagerFactory implements ProvManagerFactory
 {
+	/**
+	 * this.entityManagerFactory is initialised with an instance of this, which will automatically scan this extension 
+	 * and the core myEquivalents package (Hibernate isn't able to do that).
+	 */
 	private static LocalContainerEntityManagerFactoryBean springEmf = null;
 		
 	public ProvDbManagerFactory ( Properties hibernateProperties )
@@ -43,14 +50,12 @@ public class ProvDbManagerFactory extends DbManagerFactory implements ProvManage
 	@Override
 	public ServiceManager newServiceManager ()
 	{
-		// TODO Auto-generated method stub
 		return new ProvDbServiceManager ( entityManagerFactory.createEntityManager () );
 	}
 
 	@Override
 	public ServiceManager newServiceManager ( String email, String apiPassword )
 	{
-		// TODO Auto-generated method stub
 		return new ProvDbServiceManager ( entityManagerFactory.createEntityManager (),  email, apiPassword );
 	}
 
