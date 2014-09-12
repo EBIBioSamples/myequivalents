@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.annotations.Index;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
@@ -51,7 +52,6 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 @XmlAccessorType ( XmlAccessType.NONE )
 public class ProvenanceRegisterEntry
 {
-	
   private Long id;
 	private String userEmail;
 	private Date timestamp;
@@ -106,7 +106,7 @@ public class ProvenanceRegisterEntry
 	
 
 
-	@NotNull
+	@NotEmpty
 	@Index ( name = "prov_email" )
 	@Column ( name = "user_email" )
 	@XmlAttribute ( name = "user-email" )
@@ -151,7 +151,7 @@ public class ProvenanceRegisterEntry
 	}
 
 
-	@NotNull
+	@NotEmpty
 	@Index ( name = "prov_op" )
 	@Column ( name = "operation" )
 	@XmlAttribute ( name = "operation" )

@@ -16,6 +16,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
@@ -126,6 +127,7 @@ public class ProvenanceRegisterEntryDAO
 	 * Doesn't filter based on the user if none is specified. 
 	 * 
 	 */
+	@SuppressWarnings ( "unchecked" )
 	public List<ProvenanceRegisterEntry> findEntityMappingProv ( String entityId, List<String> validUsers )
 	{
 		String[] echunks = EntityMappingUtils.parseEntityId ( entityId );
@@ -144,8 +146,10 @@ public class ProvenanceRegisterEntryDAO
 		crit.add ( Restrictions.eq ( "x.extraValue", echunks [ 1 ] ) );
 		if ( validUsers != null && !validUsers.isEmpty () ) crit.add ( Restrictions.in ( "e.userEmail", validUsers ) );
 		
+		
 		return sess.createCriteria ( ProvenanceRegisterEntry.class )
 			.add ( Property.forName ( "id" ).in ( crit ) )
+			.addOrder ( Order.desc ( "timestamp" ) )
 			.list ();
 	}
 	

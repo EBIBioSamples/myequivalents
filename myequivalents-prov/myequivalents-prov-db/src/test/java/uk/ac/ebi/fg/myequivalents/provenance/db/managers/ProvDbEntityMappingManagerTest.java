@@ -12,19 +12,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
+import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
@@ -55,8 +52,7 @@ public class ProvDbEntityMappingManagerTest
 	@Test
 	public void testCreation ()
 	{
-		DbManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ();
-		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
+		ProvDbManagerFactory mgrFact = (ProvDbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 
 		// The services we will play with
 		Reader xmlIn = new InputStreamReader ( this.getClass ().getResourceAsStream ( "/data/foo_services.xml" ) );
@@ -71,31 +67,26 @@ public class ProvDbEntityMappingManagerTest
 		log.debug ( "Test mappings saved" );
 		
 		// Has the above been tracked?
-		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
-		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
-		List<ProvenanceRegisterEntry> proves = provDao.find ( editorUser.getEmail (), "mapping.storeMappings", 
+		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager ( editorUser.getEmail (), testSecret );
+		
+		List<ProvenanceRegisterEntry> proves = regMgr.find ( editorUser.getEmail (), "mapping.storeMappings", null, null, 
 			Arrays.asList ( p ( "entity", "%.service6", "acc1" ) )
 		);
 
 		log.info ( "------ MAPPING RECORDS:\n{}", proves );
 		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 1, proves.size () );
 		
-		proves = provDao.find ( editorUser.getEmail (), "mapping.storeMapping%", 
+		proves = regMgr.find ( editorUser.getEmail (), "mapping.storeMapping%", null, null,
 			Arrays.asList ( p ( "entity", "%.service8", "acc1" ) ) 
 		);
 		log.info ( "------ MAPPING RECORDS:\n{}", proves );
-
-		// To check that lazy collections still works, which can only happen if they were fetched before closing (as it is
-		// triggered by toString() above)
-		em.close (); 
-		log.info ( "------ MAPPING RECORDS (after EM closing):\n{}", proves );
 		assertEquals ( "Expected provenance records not saved (service6:acc1)!", 2, proves.size () );
 	}
 
 	@Test
 	public void testFindEntityProv ()
 	{
-		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		ProvDbManagerFactory mgrFact = (ProvDbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), testSecret );
 		
 		String sname = "prov.test.service1";
@@ -106,11 +97,12 @@ public class ProvDbEntityMappingManagerTest
 		mmgr.storeMappings ( sname + ":a", sname + ":b" );
 		mmgr.storeMappingBundle ( sname + ":b", sname + ":c", sname + ":d" );
 		
-		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager (); 
-		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em ); // TODO: use the manager
+		
+		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager ( editorUser.getEmail (), testSecret );
 
+		
 		// First, return all the entries, no matter the users
-		List<ProvenanceRegisterEntry> provs = provDao.findEntityMappingProv ( sname + ":b", null );
+		List<ProvenanceRegisterEntry> provs = regMgr.findEntityMappingProv ( sname + ":b", null );
 		
 		log.info ( "Provenance entries returned for :a:\n{}", provs );
 		
@@ -139,18 +131,25 @@ public class ProvDbEntityMappingManagerTest
 		assertTrue ( ":c not found!", foundc );
 		assertTrue ( ":d not found!", foundd );
 		
-		provs = provDao.findEntityMappingProv ( sname + ":b", Arrays.asList ( editorUser.getEmail () ) );
+		provs = regMgr.findEntityMappingProv ( sname + ":b", Arrays.asList ( editorUser.getEmail () ) );
 		assertEquals ( "user filter didn't work!", 2, provs.size () );
 
-		provs = provDao.findEntityMappingProv ( sname + ":b", Arrays.asList ( "foo.user" ) );
+		provs = regMgr.findEntityMappingProv ( sname + ":b", Arrays.asList ( "foo.user" ) );
 		assertEquals ( "user filter didn't work!", 0, provs.size () );
+		
+		String provsXml = regMgr.findEntityMappingProvAs ( "xml", sname + ":b", null );
+		log.info ( "Provenance-XML:\n{}", provsXml );
+
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<provenance>" ) ); 
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<entry operation=\"mapping.storeMappingBundle\"" ) ); 
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<parameter extra-value=\"c\"" ) ); 
 	}
 
 	
 	@Test
 	public void testFindMappingProv ()
 	{
-		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		ProvDbManagerFactory mgrFact = (ProvDbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), testSecret );
 		
 		String sname = "prov.test.service1";
@@ -164,11 +163,11 @@ public class ProvDbEntityMappingManagerTest
 		mmgr.storeMappingBundle ( sname + ":c", sname + ":e", sname + ":d" );
 		mmgr.storeMappings ( sname + ":d", sname + ":a" );
 		
-		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager (); 
-		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em ); // TODO: use the manager
 
+		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager ( editorUser.getEmail (), testSecret );
+		
 		// First, return all the entries, no matter the users
-		Set<List<ProvenanceRegisterEntry>> provs = provDao.findMappingProv ( sname + ":a", sname + ":d", null );
+		Set<List<ProvenanceRegisterEntry>> provs = regMgr.findMappingProv ( sname + ":a", sname + ":d", null );
 		
 		for ( List<ProvenanceRegisterEntry> provsl: provs )
 			log.info ( "Provenance chain returned for a-d:\n{}", provsl );
@@ -212,7 +211,18 @@ public class ProvDbEntityMappingManagerTest
 		assertTrue ( "c-d not found!", foundcd );
 		assertTrue ( "a-d not found!", foundad );
 		
-		provs = provDao.findMappingProv ( sname + ":a", sname + ":d", Arrays.asList ( editorUser.getEmail () ) );
+		provs = regMgr.findMappingProv ( sname + ":a", sname + ":d", Arrays.asList ( editorUser.getEmail () ) );
 		assertEquals ( "user filter didn't work!", 2, provs.size () );
+		
+		provs = regMgr.findMappingProv ( sname + ":a", sname + ":d", Arrays.asList ( "foo-user" ) );
+		assertEquals ( "user filter didn't work!", 0, provs.size () );
+
+		String provsXml = regMgr.findMappingProvAs ( "xml", sname + ":a", sname + ":d", null );
+		log.info ( "Provenance-XML:\n{}", provsXml );
+
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<provenance-entry-lists>" ) ); 
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<entries>" ) ); 
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<entry operation=\"mapping.storeMappingBundle\"" ) ); 
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<parameter extra-value=\"c\"" ) ); 
 	}
 }

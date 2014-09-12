@@ -25,6 +25,7 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
+import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.STR2DATE;
 import static uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter.STR2BOOL;
 
@@ -107,10 +108,7 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 	@Override
 	public String getUserAs ( String outputFormat, String email )
 	{
-		outputFormat = StringUtils.trimToNull ( outputFormat );
-		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
-			"Unsopported output format '" + outputFormat + "'" 
-		);
+		ManagerUtils.checkOutputFormat ( outputFormat );
 		return getUserAsXml ( email );
 	}
 

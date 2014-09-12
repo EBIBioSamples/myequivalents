@@ -24,6 +24,7 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
+import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 
 /**
  * <h2>The Service (and related things) Manager that access a relational database connection straight, based on the 
@@ -213,10 +214,7 @@ public class DbServiceManager extends DbMyEquivalentsManager implements ServiceM
 	@Override
 	public String getServicesAs ( String outputFormat, String... names ) 
 	{
-		outputFormat = StringUtils.trimToNull ( outputFormat );
-		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
-			"Unsopported output format '" + outputFormat + "'" 
-		);
+		ManagerUtils.checkOutputFormat ( outputFormat );
 		return getServicesAsXml ( names );
 	}
 	
@@ -287,10 +285,8 @@ public class DbServiceManager extends DbMyEquivalentsManager implements ServiceM
 	@Override
 	public String getServiceCollectionsAs ( String outputFormat, String... names ) 
 	{
-		if ( "xml".equals ( outputFormat ) )
-			return getServiceCollectionAsXml ( names );
-		else
-			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+		ManagerUtils.checkOutputFormat ( outputFormat );
+		return getServiceCollectionAsXml ( names );
 	}
 	
 	
@@ -358,10 +354,8 @@ public class DbServiceManager extends DbMyEquivalentsManager implements ServiceM
 	@Override
 	public String getRepositoriesAs ( String outputFormat, String... names ) 
 	{
-		if ( "xml".equals ( outputFormat ) )
-			return getRepositoriesAsXml ( names );
-		else
-			return "<error>Unsopported output format '" + outputFormat + "'</error>";		
+		ManagerUtils.checkOutputFormat ( outputFormat );
+		return getRepositoriesAsXml ( names );
 	}
 
 	/**

@@ -7,8 +7,6 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-import org.apache.commons.lang.StringUtils;
-
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbMyEquivalentsManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
@@ -17,6 +15,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
+import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 
 /**
  * A DB-based implementation of {@link ProvRegistryManager}. Operations here are committed upon invocation.
@@ -32,7 +31,7 @@ public class DbProvenanceManager extends DbMyEquivalentsManager implements ProvR
 	public DbProvenanceManager ( EntityManager entityManager, String email, String apiPassword )
 	{
 		super ( entityManager, email, apiPassword );
-		this.userDao.enforceRole ( User.Role.ADMIN );
+		this.userDao.enforceRole ( User.Role.EDITOR );
 		
 		provDao = new ProvenanceRegisterEntryDAO ( entityManager );
 	}
@@ -49,11 +48,7 @@ public class DbProvenanceManager extends DbMyEquivalentsManager implements ProvR
 	@Override
 	public String findAs ( String outputFormat, String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params )
 	{
-		outputFormat = StringUtils.trimToNull ( outputFormat );
-		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
-			"Unsopported output format '" + outputFormat + "'" 
-		);
-		
+		ManagerUtils.checkOutputFormat ( outputFormat );
 		return findAsXml ( userEmail, operation, from, to, params );
 	}
 
@@ -69,39 +64,54 @@ public class DbProvenanceManager extends DbMyEquivalentsManager implements ProvR
 	@Override
 	public List<ProvenanceRegisterEntry> findEntityMappingProv ( String entityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return provDao.findEntityMappingProv ( entityId, validUsers );
 	}
 
 
 	@Override
 	public String findEntityMappingProvAs ( String outputFormat, String entityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		ManagerUtils.checkOutputFormat ( outputFormat );
+		return findEntityMappingProvAsXml ( entityId, validUsers );
+	}
+	
+	private String findEntityMappingProvAsXml ( String entityId, List<String> validUsers )
+	{
+		return JAXBUtils.marshal ( 
+			new ProvRegisterEntryList ( this.findEntityMappingProv ( entityId, validUsers ) ), 
+			ProvRegisterEntryList.class
+		);		
 	}
 
 
 	@Override
 	public Set<List<ProvenanceRegisterEntry>> findMappingProv ( String xEntityId, String yEntityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return this.provDao.findMappingProv ( xEntityId, yEntityId, validUsers );
 	}
 
 
 	@Override
 	public String findMappingProvAs ( String outputFormat, String xEntityId, String yEntityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		ManagerUtils.checkOutputFormat ( outputFormat );
+		return findMappingProvAsXml ( xEntityId, yEntityId, validUsers );
+	}
+	
+	private String findMappingProvAsXml ( String xEntityId, String yEntityId, List<String> validUsers )
+	{
+		return JAXBUtils.marshal ( 
+			new ProvRegisterEntryList.ProvRegisterEntryNestedList ( this.findMappingProv ( xEntityId, yEntityId, validUsers ) ), 
+			ProvRegisterEntryList.ProvRegisterEntryNestedList.class
+		);		
 	}
 
+	
 	
 	@Override
 	public int purge ( Date from, Date to )
 	{
-		this.userDao.enforceRole ( User.Role.EDITOR );
+		this.userDao.enforceRole ( User.Role.ADMIN );
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
 		int result = provDao.purge ( from, to );

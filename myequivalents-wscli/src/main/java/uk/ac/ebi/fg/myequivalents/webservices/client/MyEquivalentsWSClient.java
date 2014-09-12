@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.MyEquivalentsManager;
+import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 import uk.ac.ebi.utils.io.IOUtils;
 
 import com.sun.jersey.api.client.Client;
@@ -158,12 +159,9 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 	{
 		outputFormat = StringUtils.trimToNull ( outputFormat );
 		if ( outputFormat == null ) outputFormat = "xml";
-		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
-			"Unsopported output format '" + outputFormat + "'" 
-		);
+		ManagerUtils.checkOutputFormat ( outputFormat );
 		String acceptValue = MediaType.APPLICATION_XML; // TODO: more options in future
 		
-		Throwable theEx = null;
 		String result = null;
 		
 		try
@@ -201,21 +199,16 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 //
 //			transformer.transform ( new StreamSource ( entity.getContent () ), new StreamResult ( sw ) );
 		} 
-		catch ( UnsupportedEncodingException ex ) { theEx = ex; }
-		catch ( ClientProtocolException ex ) { theEx = ex; }
-		//catch ( TransformerConfigurationException ex ) { theEx = ex; }
-		catch ( IllegalArgumentException ex ) { theEx = ex; }
-		catch ( IOException ex ) { theEx = ex; }
-		catch ( TransformerFactoryConfigurationError ex ) { theEx = ex; }
-		//catch ( TransformerException ex )  { theEx = ex; }
-		
-		if ( theEx != null ) throw new RuntimeException ( 
-			String.format ( 
-				"Error while executing the web request: '%s': %s",  
-				this.baseUrl + getServicePath () + reqPath, theEx.getMessage () 
-			), 
-			theEx 
-		);
+		catch ( IllegalArgumentException | IOException | TransformerFactoryConfigurationError ex )
+		{
+			throw new RuntimeException ( 
+				String.format ( 
+					"Error while executing the web request: '%s': %s",  
+					this.baseUrl + getServicePath () + reqPath, ex.getMessage () 
+				), 
+				ex 
+			);
+		}
 		
 		return result;
   }
@@ -228,11 +221,5 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 	{
 		email = apiPassword = null;
 	}
-
-//protected static void throwUnsupportedException () 
-//{
-//	throw new UnsupportedOperationException ( 
-//		"This operation from the WS client is not implemented yet. Please ask developers" );
-//}
 
 }

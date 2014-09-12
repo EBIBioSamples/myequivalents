@@ -11,6 +11,7 @@ import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
+import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 
 /**
  * 
@@ -163,12 +164,7 @@ public class DbEntityMappingManager extends DbMyEquivalentsManager implements En
 	public String getMappingsAs ( String outputFormat, Boolean wantRawResult, String... entityIds )
 	{
 		if ( wantRawResult == null ) wantRawResult = false;
-
-		outputFormat = StringUtils.trimToNull ( outputFormat );
-		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
-			"Unsopported output format '" + outputFormat + "'" 
-		);
-		
+		ManagerUtils.checkOutputFormat ( outputFormat );
 		return getMappingsAsXml ( wantRawResult, entityIds );
 	}
 
@@ -186,11 +182,7 @@ public class DbEntityMappingManager extends DbMyEquivalentsManager implements En
 	{
 		if ( wantRawResult == null ) wantRawResult = false;
 
-		outputFormat = StringUtils.trimToNull ( outputFormat );
-		if ( !"xml".equalsIgnoreCase ( outputFormat ) ) throw new IllegalArgumentException ( 
-			"Unsopported output format '" + outputFormat + "'" 
-		);
-		
+		ManagerUtils.checkOutputFormat ( outputFormat );
 		return getMappingsForTargetAsXml ( wantRawResult, targetServiceName, entityId );
 	}
 
