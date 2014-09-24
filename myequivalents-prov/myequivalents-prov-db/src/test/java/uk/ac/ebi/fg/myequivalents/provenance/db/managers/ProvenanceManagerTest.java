@@ -64,6 +64,10 @@ public class ProvenanceManagerTest
 		provDao.create ( e1 );
 		ts.commit ();
 		
+		
+		// Now invoke the command line
+		//
+		
 		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager (
 			ProvDbServiceManagerTest.adminUser.getEmail (), ProvDbServiceManagerTest.testSecret
 		);
@@ -78,12 +82,16 @@ public class ProvenanceManagerTest
 		String resultStr = regMgr.findAs ( "xml", "foo.user%", "foo.op%", null, null, Arrays.asList ( p ( "foo.entity", "acc%" ) ) );
 		out.println ( "---- XML Result -----\n" + resultStr );
 		
-		//assertTrue ( "Wrong XML result!", resultStr.contains ( s ) );
+		assertTrue ( "Wrong XML result!", resultStr.contains ( "<entry operation=\"foo.op\"" ) );
+		assertTrue ( "Wrong XML result!", resultStr.contains ( "<parameter" ) );
+		assertTrue ( "Wrong XML result!", resultStr.contains ( "value=\"acc2\"") );
+		assertTrue ( "Wrong XML result!", resultStr.contains ( "value-type=\"foo.entity\"/>" ) );
+		assertTrue ( "Wrong XML result!", resultStr.contains ( "timestamp" ) );
 		
 		regMgr.purge ( new DateTime ().minusMinutes ( 1 ).toDate (), null );
 		em.close (); // flushes data for certain DBs (eg, H2)
 
 		provDao = new ProvenanceRegisterEntryDAO ( em = mgrFact.getEntityManagerFactory ().createEntityManager () );
-		assertEquals ( "purgeAll() didn't work!", 1, provDao.find ( "foo.user%", null, null ).size () );
+		assertEquals ( "purge() didn't work!", 1, provDao.find ( "foo.user%", null, null ).size () );
 	}
 }

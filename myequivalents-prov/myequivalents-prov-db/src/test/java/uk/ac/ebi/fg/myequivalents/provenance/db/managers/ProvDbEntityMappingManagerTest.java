@@ -169,6 +169,7 @@ public class ProvDbEntityMappingManagerTest
 		// First, return all the entries, no matter the users
 		Set<List<ProvenanceRegisterEntry>> provs = regMgr.findMappingProv ( sname + ":a", sname + ":d", null );
 		
+		// Check
 		for ( List<ProvenanceRegisterEntry> provsl: provs )
 			log.info ( "Provenance chain returned for a-d:\n{}", provsl );
 		

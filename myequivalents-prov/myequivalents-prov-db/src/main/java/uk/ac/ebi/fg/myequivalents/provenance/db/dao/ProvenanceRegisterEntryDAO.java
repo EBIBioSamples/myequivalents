@@ -24,6 +24,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbAccessControlManager;
+import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
@@ -52,8 +54,8 @@ public class ProvenanceRegisterEntryDAO
 	}
 
 	/**
-	 * Finds {@link ProvenanceRegisterEntry provenance entries} matching the user and parameters, in a date range. 
-	 * You can use the '%' wildcard, as in SQL. 
+	 * Implements {@link ProvRegistryManager#find(String, String, Date, Date, List)} as a search into the myEquivalents
+	 * relational database.
 	 */
 	@SuppressWarnings ( "unchecked" )
 	public List<ProvenanceRegisterEntry> find ( 
@@ -123,8 +125,8 @@ public class ProvenanceRegisterEntryDAO
 	
 	
 	/**
-	 * Returns {@link ProvenanceRegisterEntry provenance records} regarding entityId and performed by any user in validUsers.
-	 * Doesn't filter based on the user if none is specified. 
+	 * Implements {@link ProvRegistryManager#findEntityMappingProv(String, List)} as a search into the myEquivalents
+	 * relational database.
 	 * 
 	 */
 	@SuppressWarnings ( "unchecked" )
@@ -154,15 +156,8 @@ public class ProvenanceRegisterEntryDAO
 	}
 	
 	/**
-	 * Finds all the {@link ProvenanceRegisterEntry provenance records}, performed by any of the validUsers 
-	 * (no filter applied if empty), which contributed to the creation of the link between xEntityId and yEntityId. 
-	 * 
-	 * This means that the method recursively call itself until it has reconstructed all the mapping operations that
-	 * built the mapping bundle the two entities belong to.
-	 * 
-	 * Each list item in the resulting set contains a path of operations from xEntityId to yEntityId, which 
-	 * are about the chain of entities transitively linking the two entities.
-	 *    
+	 * Implements {@link ProvRegistryManager#findMappingProv(String, String, List)} as a search into the myEquivalents
+	 * relational database.
 	 */
 	public Set<List<ProvenanceRegisterEntry>> findMappingProv ( String xEntityId, String yEntityId, List<String> validUsers )
 	{
@@ -175,7 +170,9 @@ public class ProvenanceRegisterEntryDAO
 		return result;
 	}
 
-	
+	/**
+	 * Does the recursion over closer pair of entities, considering what has already been visited. 
+	 */
 	private List<List<ProvenanceRegisterEntry>> findMappingProv ( 
 		String xEntityId, String yEntityId, List<String> validUsers, Set<ProvenanceRegisterEntry> visitedEntities )
 	{
@@ -226,10 +223,8 @@ public class ProvenanceRegisterEntryDAO
 	
 	
 	/**
-	 * Remove old provenance entries in a given date range. For each parameter found in the range, all the entries about
-	 * such parameter are removed, except the most recent one. This allows one to keep the most updated provenance information
-	 * about the entry, while the older one is removed.
-	 * 
+	 * Implements {@link ProvRegistryManager#purge(Date, Date)} as a search into the myEquivalents
+	 * relational database.
 	 */
 	public int purge ( Date from, Date to )
 	{

@@ -36,14 +36,14 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  */
 public class ProvDbServiceManagerTest
 {
-	static final String testPass = "test.password";
-	static final String testSecret = "test.secret"; 
+	public static final String testPass = "test.password";
+	public static final String testSecret = "test.secret"; 
 	
-	static final User editorUser = new User ( 
+	public static final User editorUser = new User ( 
 		"test.editor", "Test Editor", "User", testPass, "test editor notes", Role.EDITOR, testSecret 
 	);
 
-	static final User adminUser = new User ( 
+	public static final User adminUser = new User ( 
 		"test.admin", "Test Admin", "User", testPass, "test admin notes", Role.ADMIN, testSecret 
 	);
 

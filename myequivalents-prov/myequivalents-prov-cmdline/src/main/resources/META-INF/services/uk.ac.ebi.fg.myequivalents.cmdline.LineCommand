@@ -1,1 +1,4 @@
 uk.ac.ebi.fg.myequivalents.provenance.cmdline.ProvenanceFindCommand
+uk.ac.ebi.fg.myequivalents.provenance.cmdline.ProvenanceFindEntityCommand
+uk.ac.ebi.fg.myequivalents.provenance.cmdline.ProvenanceFindMappingCommand
+uk.ac.ebi.fg.myequivalents.provenance.cmdline.ProvenancePurgeCommand

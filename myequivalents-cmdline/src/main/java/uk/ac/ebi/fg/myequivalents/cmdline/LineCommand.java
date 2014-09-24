@@ -16,6 +16,12 @@ import org.apache.commons.lang.StringUtils;
  * Represents one of the sub-commands available in {@link Main}. E.g., 'service store' is managed by 
  * {@link ServiceStoreLineCommand}. As expected, this is based on the command pattern.
  *
+ * TODO: it's becoming messy, we have to re-arrange 1) the way {@link #getOptions()} works, common options should be 
+ * constants and each line command should explicitly choose what to return 2) {@link #printUsage()}, we should present
+ * a very general message, which includes a list of available commands and then show specific details when the user
+ * issue: {@code 'myeq.sh <command> --help'}
+ *  
+ *
  * <dl><dt>date</dt><dd>Jul 18, 2012</dd></dl>
  * @author Marco Brandizi
  *
@@ -146,7 +152,7 @@ public abstract class LineCommand
 		{
 			opts.addOption ( OptionBuilder
 			 	.withDescription ( 
-		 				"When issuing 'user store', creates a first user (typically and admin) in an empty database, bypassing "
+		 				"When issuing 'user store', creates a first user (typically an admin) in an empty database, bypassing "
 		 				+ "authentication and permission checking (requires the database backend, see documentation)"
 		 		)
 				.withLongOpt ( "first-user" )
@@ -155,7 +161,7 @@ public abstract class LineCommand
 		}
 
 		
-		if ( commandString.endsWith ( " get" ) )
+		if ( commandString.endsWith ( " get" ) || commandString.endsWith ( " find" ) )
 		{
 			opts.addOption ( OptionBuilder
 			 	.hasArg ( true )

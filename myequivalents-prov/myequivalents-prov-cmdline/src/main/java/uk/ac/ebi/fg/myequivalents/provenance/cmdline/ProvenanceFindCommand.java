@@ -2,23 +2,26 @@ package uk.ac.ebi.fg.myequivalents.provenance.cmdline;
 
 import static java.lang.System.err;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 
 import uk.ac.ebi.fg.myequivalents.cmdline.LineCommand;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.*;
 
-
-
 /**
- * TODO: Comment me!
+ * TODO: comment me! 
+ *  
+ * {@code provenance-find [--prov-user <user>] [--prov-operation <op>] 
+ *   [--prov-from <YYYYMMDD[-HHMMSS]]> [--prov-to <YYYYMMDD[-HHMMSS]]> [--prov-param <type:value[:extraValue]>} 
  *
  * <dl><dt>date</dt><dd>2 Jul 2014</dd></dl>
  * @author Marco Brandizi
@@ -27,11 +30,19 @@ import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.*;
 public class ProvenanceFindCommand extends LineCommand
 {
 	
+	@SuppressWarnings ( "static-access" )
+	public final static Option PROV_TO_OPT = OptionBuilder
+	 	.withDescription ( "provenance find/purge, period to search"	)
+		.hasArg ( true )
+		.withLongOpt ( "prov-to" )
+		.withArgName ( DATE_FMT_REPRESENTATION )
+		.create ( 'b' );
+	
+	
 	public ProvenanceFindCommand ()
 	{
 		super ( "provenance find" );
 	}
-
 	
 	
 	@Override
@@ -46,15 +57,29 @@ public class ProvenanceFindCommand extends LineCommand
 				 to = STR2DATE.unmarshal ( this.cmdLine.getOptionValue ( "prov-to" ) );
 		
 		String[] paramsOption = this.cmdLine.getOptionValues ( "prov-param" );
-		List<String> paramPairs = paramsOption == null ? null : Arrays.asList ( paramsOption );
+		List<ProvenanceRegisterParameter> params = null;
+		if ( paramsOption != null && paramsOption.length != 0 )
+		{
+			params = new ArrayList<> ();
+			for ( String paramOpt: paramsOption )
+			{
+				String[] ochunks = paramOpt.split ( ":", -2 );
+				if ( ochunks == null ) continue;
+				String ptype = ochunks.length > 0 ? ochunks [ 0 ] : null;
+				String pval = ochunks.length > 1 ? ochunks [ 1 ] : null;
+				String pxval = ochunks.length > 2 ? ochunks [ 2 ] : null;
+
+				ProvenanceRegisterParameter param = ProvenanceRegisterParameter.p ( ptype, pval, pxval );
+				params.add ( param );
+			}
+		}
 		
-		this.cmdLine.getOptionValues ( 'x' );
 		
 		ProvManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ();
 		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager ( this.email, this.apiPassword );
 
-		System.out.println ( regMgr.findAs ( "xml", email, op, from, to, paramPairs ) );
-		err.println ( "\nMapping(s) Fetched" );
+		System.out.println ( regMgr.findAs ( this.outputFormat, email, op, from, to, params ) );
+		err.println ( "\nProvenance info Fetched" );
 	}
 
 
@@ -66,28 +91,14 @@ public class ProvenanceFindCommand extends LineCommand
 		return super.getOptions ()
 			.addOption ( "e", "prov-user", true, "provenance find, searched user email/login" )
 			.addOption ( "o", "prov-operation", true, "provenance find, operation to search" )
-			.addOption ( OptionBuilder
-			 	.withDescription ( 
-			 		"provenance find, period to search, use something like $(date -v -1y +%Y%m%d) for calculating 1 year ago"	)
-				.hasArg ( true )
-				.withLongOpt ( "prov-from" )
-				.withArgName ( DATE_FMT_REPRESENTATION )
-				.create ( 'a' ) 
-			)
-			.addOption ( OptionBuilder
-			 	.withDescription ( "provenance find, period to search"	)
-				.hasArg ( true )
-				.withLongOpt ( "prov-to" )
-				.withArgName ( DATE_FMT_REPRESENTATION )
-				.create ( 'b' ) 
-			)
+			.addOption ( newProvFromOption () )
+			.addOption ( newProvToOption ()	)
 			.addOption ( 
 				OptionBuilder
 					.withDescription ( "provenance find, operation parameters to search (option can be repeated)" )
 					.withLongOpt ( "prov-param" )
-					.hasArgs ( 2 )
-					.withArgName ( "type:value" )
-					.withValueSeparator ( ':' )
+					.hasArg ()
+					.withArgName ( "type:value[:extraValue]" )
 					.create ( 'm' )
 			);
 	}
@@ -99,6 +110,30 @@ public class ProvenanceFindCommand extends LineCommand
 	{
 		err.println ( "\n provenance find ..." );
 		err.println (   "   Finds provenance records, '%' can be used as wildcard" );
+	}
+	
+	
+	@SuppressWarnings ( "static-access" )
+	public final static Option newProvFromOption ()
+	{
+		return OptionBuilder
+		 	.withDescription ( 
+		 		"provenance find/purge, period to search, use something like $(date -v -1y +%Y%m%d) for calculating 1 year ago"	)
+			.hasArg ( true )
+			.withLongOpt ( "prov-from" )
+			.withArgName ( DATE_FMT_REPRESENTATION )
+			.create ( 'a' );
+	}
+
+	@SuppressWarnings ( "static-access" )
+	public final static Option newProvToOption ()
+	{
+		return OptionBuilder
+		 	.withDescription ( "provenance find/purge, period to search"	)
+			.hasArg ( true )
+			.withLongOpt ( "prov-to" )
+			.withArgName ( DATE_FMT_REPRESENTATION )
+			.create ( 'b' );
 	}
 
 }
