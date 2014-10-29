@@ -16,7 +16,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
  */
 public class WSClientManagerFactory implements ManagerFactory
 {
-	private String baseUrl = null;
+	protected String baseUrl = null;
 	
 	/**
 	 * Default is http://localhost:8080/myequivalents/ws

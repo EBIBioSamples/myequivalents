@@ -30,25 +30,6 @@ public class ServiceWebService
 {
 	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
 
-//	@POST
-//	@Path( "/store" )
-//	@Produces ( MediaType.APPLICATION_XML )
-//	public void store ( ServiceSearchResult serviceItems )
-//	{
-//		ServiceManager smgr = getServiceManager ( serviceItems.getAuthEmail (), serviceItems.getAuthApiPassword () );
-//		
-//		Set<Service> servs = serviceItems.getServices ();
-//		if ( servs != null && !servs.isEmpty () ) smgr.storeServices ( servs.toArray ( new Service [ 0 ] ) );
-//	
-//		Set<ServiceCollection> scs = serviceItems.getServiceCollections ();
-//		if ( scs != null && !scs.isEmpty () ) smgr.storeServiceCollections ( scs.toArray ( new ServiceCollection [ 0 ] ) );
-//
-//		Set<Repository> repos = serviceItems.getRepositories ();
-//		if ( repos != null && !repos.isEmpty () ) smgr.storeRepositories ( repos.toArray ( new Repository [ 0 ] ) );
-//		
-//		smgr.close ();
-//	}
-
 	@POST
 	@Path( "/store" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -203,8 +184,7 @@ public class ServiceWebService
 	
 	private ServiceManager getServiceManager ( String authEmail, String authApiPassword ) 
 	{
-		log.trace ( String.format ( "Returning access manager for the user %s, %s", 
-			authEmail, authApiPassword == null ? null: "***" ));
+		log.trace ( "Returning access manager for the user {}, {}", authEmail, authApiPassword == null ? null: "***" );
 		return Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( authEmail, authApiPassword );
 	}
 }

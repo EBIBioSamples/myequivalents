@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+  
+	<servlet>
+		<servlet-name>Jersey REST Web Services</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+		   <param-name>com.sun.jersey.config.property.packages</param-name>
+		   <param-value>uk.ac.ebi.fg.myequivalents.webservices.server;uk.ac.ebi.fg.myequivalents.provenance.webservices.server</param-value>
+		</init-param>
+		<init-param>
+			<!-- TODO: this spawns a nice-to-read output but adds some overhead to it. To check it's still efficient enough -->
+			<param-name>com.sun.jersey.config.feature.Formatted</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>  
+	
+	<servlet-mapping>
+		<servlet-name>Jersey REST Web Services</servlet-name>
+		<url-pattern>/ws/*</url-pattern>
+	</servlet-mapping>	
+	
+	<listener>
+		<!-- Initializes the manager factory, used to provide the web service -->
+		<listener-class>uk.ac.ebi.fg.myequivalents.webservices.server.WebInitializer</listener-class>
+	</listener>
+
+	<listener>
+	<!-- Creates some test data to play with, if a corresponding flag is set -->
+  	<listener-class>uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer</listener-class>
+  </listener>  
+
+	<!-- listener>
+	<!- - More data for the provenance-related tests - -
+  	<listener-class>uk.ac.ebi.fg.myequivalents.provenance.webservices.server.test.WebTestProvDataInitializer</listener-class>
+  </listener -->  
+
+
+</web-app>

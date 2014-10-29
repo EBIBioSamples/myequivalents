@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>uk.ac.ebi.fg</groupId>
+    <artifactId>myequivalents-prov</artifactId>
+    <version>0.4-SNAPSHOT</version>
+  </parent>
+  <artifactId>myequivalents-prov-web</artifactId>
+  <packaging>war</packaging>
+  <name>My Equivalents Web Services, Provenance Extension</name>
+
+  <dependencies>
+  
+		<!-- Use Logback as concrete logger -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+
+		<!-- Intercepts log4j and sends it to SL4J -->		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- The next two do the same for commons -->
+		<dependency>
+		  <groupId>commons-logging</groupId>
+		  <artifactId>commons-logging</artifactId>
+		  <version>1.1.1</version>
+		  <scope>provided</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>jcl-over-slf4j</artifactId>
+		</dependency>		
+
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-servlet</artifactId>
+		</dependency> 
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
+
+
+		<!-- Project Modules -->
+		
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-prov-db</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-web</artifactId>
+			<version>${project.version}</version>
+			<classifier>classes</classifier>
+		</dependency>	      
+
+  </dependencies>
+  
+  <build>
+  
+  	<plugins>
+  	
+	    <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.2</version>
+        <configuration>
+        	<!-- Makes the project classes available to dependants -->
+        	<attachClasses>true</attachClasses>
+          <!-- These are already in Tomcat and clash with them -->
+          <!-- Certain files are just created in target/, they have to be put on the server, outside the .war -->
+          <packagingExcludes>WEB-INF/lib/jsp-api-*.jar,WEB-INF/lib/log4j-*.jar,WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/xmlParserAPIs-*.jar</packagingExcludes>
+	      </configuration>
+	    </plugin>      
+  	
+			<!-- This allows to test with mvn jetty:run -->
+	    <plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				
+	      <configuration>
+
+					<systemProperties>
+						<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer -->
+          	<systemProperty>
+            	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
+              <value>true</value>
+            </systemProperty>
+
+         	</systemProperties>	      	
+	      	
+	        <scanIntervalSeconds>10</scanIntervalSeconds>
+	        <useTestScope>true</useTestScope>
+				  
+				  <httpConnector>
+				    <port>8080</port>
+				  </httpConnector>
+				  
+					<stopPort>10974</stopPort>
+        	<stopKey>KILL</stopKey>
+				  
+	      </configuration>
+	    </plugin>  	
+  	
+  	</plugins>
+  
+  </build>
+</project>

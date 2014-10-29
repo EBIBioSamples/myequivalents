@@ -31,7 +31,10 @@ public class ProvRegisterEntryList
 	{		
 		private List<ProvRegisterEntryList> entries;
 		
-		protected ProvRegisterEntryNestedList () {}
+		protected ProvRegisterEntryNestedList ()
+		{
+			this ( new ArrayList<List<ProvenanceRegisterEntry>> () );
+		}
 
 		
 		public ProvRegisterEntryNestedList ( Collection<List<ProvenanceRegisterEntry>> entries )
@@ -52,10 +55,14 @@ public class ProvRegisterEntryList
 	}
 	
 	
+	
 	private List<ProvenanceRegisterEntry> entries;
 	
 	
-	protected ProvRegisterEntryList () {}
+	protected ProvRegisterEntryList ()
+	{
+		this ( new ArrayList<ProvenanceRegisterEntry> () );
+	}
 
 	
 	public ProvRegisterEntryList ( List<ProvenanceRegisterEntry> entries )

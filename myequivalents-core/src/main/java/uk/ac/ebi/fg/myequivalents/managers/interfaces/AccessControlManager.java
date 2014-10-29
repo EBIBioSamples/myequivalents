@@ -7,6 +7,7 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
  * Provides administrative functions to set visibility and user rights in a MyEquivalents store. 
@@ -70,6 +71,8 @@ public interface AccessControlManager extends MyEquivalentsManager
 	/**
 	 * Changes the visibility parameters for {@link Service}. This cascades to all {@link EntityMapping} if these don't
 	 * define more specific details.
+	 * 
+	 * You should use this format for the date: {@link DateJaxbXmlAdapter#DATE_FMT_REPRESENTATION}
 	 */
 	public void setServicesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames );
 	public void setRepositoriesVisibility ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... repositoryNames );

@@ -32,22 +32,24 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 public class WebTestDataInitializer implements ServletContextListener
 {
 
-	private static String editorPass = "test.password";
+	public static final String INIT_FLAG_PROP = "uk.ac.ebi.fg.myequivalents.test_flag";
+	
+	public static final String editorPass = "test.password";
 	// Alternatively you can use: User.generateSecret (); using something else here cause we need to test with the browser 
-	private static String editorSecret = "test.secret"; 
-	private static final User editorUser = new User ( 
+	public static final String editorSecret = "test.secret"; 
+	public static final User editorUser = new User ( 
 		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
-	private static String adminPass = "test.password";
-	private static String adminSecret = "test.secret";
-	private static User adminUser = new User ( 
+	public static final String adminPass = "test.password";
+	public static final String adminSecret = "test.secret";
+	public static final User adminUser = new User ( 
 		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
 	);
 
 	@Override
 	public void contextInitialized ( ServletContextEvent e )
 	{
-		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
+		if ( !"true".equals ( System.getProperty ( INIT_FLAG_PROP, null ) ) ) return;
 	
 		System.out.println ( "\n\n _________________________________ Creating Test Data ________________________________ \n\n\n" );
 		
@@ -129,7 +131,7 @@ public class WebTestDataInitializer implements ServletContextListener
 	@Override
 	public void contextDestroyed ( ServletContextEvent e )
 	{
-		if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", null ) ) ) return;
+		if ( !"true".equals ( System.getProperty ( INIT_FLAG_PROP, null ) ) ) return;
 
 		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
 		

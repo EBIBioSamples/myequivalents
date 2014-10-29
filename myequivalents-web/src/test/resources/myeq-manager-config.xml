@@ -9,6 +9,8 @@
 		 
 		The MyEquivalents applications get the managers (i.e. components needed to access the service and its back-end) via 
 		the factory configured by this bean. See documentation and test classes in the core package for details.
+		
+		This is not included in the final .WAR, it's put here cause it makes it easier to set-up Jetty for tests
 	-->
 	<bean id="myEquivalentsManagerFactory" class="uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory">
 		<constructor-arg><props>

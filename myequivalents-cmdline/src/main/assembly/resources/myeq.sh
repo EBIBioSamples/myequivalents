@@ -43,8 +43,7 @@ export CLASSPATH="$CLASSPATH:$MYDIR:$MYDIR/lib/*"
 # See here for an explaination about ${1+"$@"} :
 # http://stackoverflow.com/questions/743454/space-in-java-command-line-arguments 
 
-java \
-  $OPTS uk.ac.ebi.fg.myequivalents.cmdline.Main ${1+"$@"}
+java $OPTS uk.ac.ebi.fg.myequivalents.cmdline.Main ${1+"$@"}
 
 EXCODE=$?
 

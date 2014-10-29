@@ -8,6 +8,10 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
+
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
@@ -23,7 +27,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  */
 public class DbManagerFactory implements ManagerFactory
 {
-	protected EntityManagerFactory entityManagerFactory;
+	protected static EntityManagerFactory entityManagerFactory;
 	
 	protected DbManagerFactory () {
 	}
@@ -36,9 +40,19 @@ public class DbManagerFactory implements ManagerFactory
 	 */
 	public DbManagerFactory ( Properties hibernateProperties )
 	{
-		entityManagerFactory = Persistence.createEntityManagerFactory ( "myEquivalentsPersistenceUnit", hibernateProperties );
+		if ( entityManagerFactory == null )
+		{
+			// Spring scans JPA annotations across multiple .jars, very convenient, no persistence.xml needed
+			LocalContainerEntityManagerFactoryBean springEmf = new LocalContainerEntityManagerFactoryBean ();
+			springEmf.setPackagesToScan ( "uk.ac.ebi.fg.myequivalents.**.*" );
+			springEmf.setPersistenceUnitName ( "myEquivalentsPersistenceUnit" );
+			springEmf.setJpaDialect ( new HibernateJpaDialect () );
+			springEmf.setPersistenceProviderClass ( HibernatePersistenceProvider.class );
+			springEmf.setJpaProperties ( hibernateProperties );
+			springEmf.afterPropertiesSet ();
+			entityManagerFactory = springEmf.getObject ();
+		}
 	}
-	
 	
 	@Override
 	public EntityMappingManager newEntityMappingManager ()

@@ -10,7 +10,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents one of the sub-commands available in {@link Main}. E.g., 'service store' is managed by 
@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
  * TODO: it's becoming messy, we have to re-arrange 1) the way {@link #getOptions()} works, common options should be 
  * constants and each line command should explicitly choose what to return 2) {@link #printUsage()}, we should present
  * a very general message, which includes a list of available commands and then show specific details when the user
- * issue: {@code 'myeq.sh <command> --help'}
+ * issues: {@code 'myeq.sh <command> --help'}
  *  
  *
  * <dl><dt>date</dt><dd>Jul 18, 2012</dd></dl>

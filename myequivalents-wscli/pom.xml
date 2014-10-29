@@ -14,9 +14,9 @@
 		<!-- We need this located here at the top, cause there are conflicts with JPA 1 during the integration test -->
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.1.Final</version>
-			<scope>runtime</scope>
+			<artifactId>hibernate-jpa-2.1-api</artifactId>
+			<version>1.0.0.Final</version>
+			<scope>test</scope>
 		</dependency>
 	
 
@@ -76,7 +76,7 @@
 			<artifactId>myequivalents-web</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>
-			<scope>runtime</scope>
+			<scope>test</scope>
 		</dependency>	      
 			
 			
@@ -178,31 +178,23 @@
 	    </plugin>
 
 
-			<!-- This creates a zip with all the dependencies that a non-maven app might need -->
+			<!-- Builds a distro zip, for those who don't use Maven, which contains config files and lib/*.jar -->
 	    <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archiverConfig>
+					  <fileMode>0755</fileMode>
+					  <directoryMode>0755</directoryMode>
+					  <defaultDirectoryMode>0755</defaultDirectoryMode>
+					</archiverConfig>
+				</configuration>
         <executions>
-          <execution>
-            <id>deps</id>
-            <configuration>
-              <finalName>myequivalents_deps</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-              <attach>false</attach>
-              <descriptors>
-              	<descriptor>src/main/assembly/deps.xml</descriptor>
-              </descriptors>
-            </configuration>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
           <execution>
               <id>pkg</id>
               <configuration>
                   <finalName>myequivalents-wscli_${project.version}</finalName>
                   <appendAssemblyId>false</appendAssemblyId>
-                  <attach>false</attach>
+                  <attach>true</attach>
                   <descriptors>
                       <descriptor>src/main/assembly/pkg.xml</descriptor>
                   </descriptors>
@@ -217,6 +209,23 @@
 	    			
 		</plugins>  
 		
+		
+		<!-- We also put these files inside the .jar, cause at the moment it's the only known way to re-import it from 
+		     the assembly of an extension to this Maven module (ie, myequivalents-prov-cmdline) -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/assembly/resources</directory>
+				<targetPath>assembly/resources</targetPath>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>/myeq-manager-config.xml</exclude>
+				</excludes>
+			</resource>
+		</resources>	
 
   </build>
   

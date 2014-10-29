@@ -36,12 +36,6 @@
 		</dependency>		
 		
 		<!-- Dependencies from other modules in the same project -->
-
-		<!--  TODO: remove? dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>myequivalents-prov-core</artifactId>
-			<version>${project.version}</version>
-		</dependency -->
 		
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -93,6 +87,7 @@
         </executions>
 	    </plugin>
 	    
+	    <!-- This inherits some distro files that the parent -cmdline has made available into its jar for us -->
   		<plugin>
   			<artifactId>maven-dependency-plugin</artifactId>
   			<executions>

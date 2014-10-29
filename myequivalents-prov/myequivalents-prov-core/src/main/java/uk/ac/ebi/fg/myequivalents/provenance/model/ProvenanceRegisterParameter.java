@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.provenance.model;
 
+import static org.apache.commons.lang3.StringUtils.trimToNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -110,9 +112,9 @@ public class ProvenanceRegisterParameter
   	
     // The entity type
   	ProvenanceRegisterParameter that = (ProvenanceRegisterParameter) o;
-    if ( this.getValueType () == null && that.getValueType () != null || !this.valueType.equals ( that.valueType ) ) return false; 
-    if ( this.getValue () == null && that.getValue () != null || !this.value.equals ( that.value ) ) return false; 
-    if ( this.getExtraValue () == null && that.getExtraValue () != null || !this.extraValue.equals ( that.extraValue ) ) return false; 
+    if ( this.getValueType () == null ? that.getValueType () != null : !this.valueType.equals ( that.valueType ) ) return false; 
+    if ( this.getValue () == null ? that.getValue () != null : !this.value.equals ( that.value ) ) return false; 
+    if ( this.getExtraValue () == null ? that.getExtraValue () != null : !this.extraValue.equals ( that.extraValue ) ) return false; 
     return true;
   }
 	
@@ -150,6 +152,39 @@ public class ProvenanceRegisterParameter
   	return new ProvenanceRegisterParameter ( valueType, value, null );
   }
 
+  /**
+   * Builds a parameter using a string in the form {@code "type:value[:extraValue]"}
+   */
+  public static ProvenanceRegisterParameter p ( String paramStr )
+  {
+		String[] ochunks = paramStr.split ( ":", -2 );
+		if ( ochunks == null ) return null;
+		String ptype = ochunks.length > 0 ? trimToNull ( ochunks [ 0 ] ) : null;
+		String pval = ochunks.length > 1 ? trimToNull ( ochunks [ 1 ] ) : null;
+		String pxval = ochunks.length > 2 ? trimToNull ( ochunks [ 2 ] ) : null;
+
+		return p ( ptype, pval, pxval );
+  }
+
+  /**
+   * Builds a parameter using a string in the form {@code "type:value[:extraValue]"}
+   */
+  public static List<ProvenanceRegisterParameter> p ( List<ProvenanceRegisterParameter> result, List<String> paramsStr )
+  {
+  	if ( paramsStr == null || paramsStr.isEmpty () ) return result;
+		if ( result == null ) result = new ArrayList<ProvenanceRegisterParameter> ( paramsStr.size () );
+
+		for ( String pstr: paramsStr )
+			result.add ( p ( pstr ) );
+		
+		return result;
+  }
+
+  public static List<ProvenanceRegisterParameter> p ( List<String> paramsStr ) {
+  	return p ( (List<ProvenanceRegisterParameter>) null, paramsStr );
+  }
+
+  
   /**
    * Builds p ( "entity", "service1", "acc1" ) out of "service1:acc1".
    */

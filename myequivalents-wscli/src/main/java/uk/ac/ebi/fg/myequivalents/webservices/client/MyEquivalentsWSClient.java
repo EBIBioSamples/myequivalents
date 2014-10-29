@@ -2,7 +2,6 @@ package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -45,7 +43,7 @@ import com.sun.jersey.api.representation.Form;
  * @author Marco Brandizi
  *
  */
-abstract class MyEquivalentsWSClient implements MyEquivalentsManager
+public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 {
 	protected final String baseUrl;
 	protected String email = null, apiPassword = null;
@@ -129,7 +127,11 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 		{
 			ClientResponse.Status status = ex.getResponse ().getClientResponseStatus ();
 			String msg = status.getReasonPhrase () + " [" + status.getStatusCode () + "]";
-			throw new SecurityException ( "Security problem with the myEquivalents web service: " + msg, ex );
+			
+			if ( status.getStatusCode () == Response.Status.FORBIDDEN.getStatusCode () )
+				throw new SecurityException ( "Security problem with the myEquivalents web service: " + msg, ex );
+			else
+				throw new RuntimeException ( "Problem with myEquivalents web service: " + msg, ex );
 		} 
 	}
 
@@ -158,8 +160,12 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 	protected String getRawResult ( String reqPath, Form req, String outputFormat ) 
 	{
 		outputFormat = StringUtils.trimToNull ( outputFormat );
-		if ( outputFormat == null ) outputFormat = "xml";
-		ManagerUtils.checkOutputFormat ( outputFormat );
+		
+		if ( outputFormat == null ) 
+			outputFormat = "xml";
+		else 
+			ManagerUtils.checkOutputFormat ( outputFormat );
+		
 		String acceptValue = MediaType.APPLICATION_XML; // TODO: more options in future
 		
 		String result = null;
@@ -188,6 +194,7 @@ abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 			
 		  result = IOUtils.readInputFully ( new InputStreamReader ( entity.getContent () ) );
 		  
+// TODO: remove
 //			// It get back as ugly XML, reformat
 //			TransformerFactory tf = TransformerFactory.newInstance ();
 //			Transformer transformer = tf.newTransformer ();

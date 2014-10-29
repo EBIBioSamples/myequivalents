@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>uk.ac.ebi.fg</groupId>
+    <artifactId>myequivalents-prov</artifactId>
+    <version>0.4-SNAPSHOT</version>
+  </parent>
+  <artifactId>myequivalents-prov-wscli</artifactId>
+  <name>myequivalents-prov-wscli</name>
+  
+  <dependencies>
+		<!-- Dependencies by other modules in the same project -->
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-prov-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-wscli</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<!-- Used by Jetty during tests -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-prov-web</artifactId>
+			<version>${project.version}</version>
+			<type>war</type>
+			<scope>test</scope>
+		</dependency>	      
+
+		<!-- Defines a few constants used in our tests -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-prov-web</artifactId>
+			<version>${project.version}</version>
+			<classifier>classes</classifier>
+			<scope>test</scope>
+		</dependency>	      
+
+
+  </dependencies>
+  
+  <build>
+
+		<finalName>myequivalents-prov-wscli_${project.version}</finalName>
+  
+		<plugins>
+		
+			<!-- This is activated before tests and uses the overlay import mechanism -->
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				
+				<configuration>
+				
+					<systemProperties>
+						<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer -->
+				  	<systemProperty>
+				    	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
+				      <value>true</value>
+				    </systemProperty>
+				 	</systemProperties>	      	
+				
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<useTestScope>true</useTestScope>
+
+				  <httpConnector>
+				  	<!-- 8080 is often busy on EBI hosts -->
+				    <port>10973</port>
+				  </httpConnector>
+					
+					<stopPort>10974</stopPort>
+        	<stopKey>KILL</stopKey>
+          <stopWait>10</stopWait>
+				</configuration>
+				
+				<executions>
+					<!-- 
+						starts jetty before tests and stops it afterwards. Note that no stop goal is needed, it magically stops
+						after tests 
+					-->
+					<execution>
+						<id>start-jetty</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>start</goal>
+				  	</goals>
+						<configuration>
+						  <scanIntervalSeconds>0</scanIntervalSeconds>
+						  <daemon>true</daemon>
+						</configuration>
+					</execution>
+					<execution>
+				    <id>stop-jetty</id>
+				    <phase>post-integration-test</phase>
+				    <goals>
+			        <goal>stop</goal>
+				    </goals>
+					</execution>					
+				</executions>
+			</plugin>
+			
+	    <plugin>
+	      <artifactId>maven-failsafe-plugin</artifactId>
+	      <version>2.17</version>
+				<executions>
+          <execution>
+          	<phase>integration-test</phase>
+            <goals>
+            	<goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>	      
+	    </plugin>
+
+
+			<!-- Builds a distro zip, for those who don't use Maven, which contains config files and lib/*.jar -->
+	    <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archiverConfig>
+					  <fileMode>0755</fileMode>
+					  <directoryMode>0755</directoryMode>
+					  <defaultDirectoryMode>0755</defaultDirectoryMode>
+					</archiverConfig>
+				</configuration>
+        <executions>
+          <execution>
+              <id>pkg</id>
+              <configuration>
+                  <finalName>myequivalents_prov_shell_${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <attach>true</attach>
+                  <descriptors>
+                      <descriptor>src/main/assembly/pkg.xml</descriptor>
+                  </descriptors>
+              </configuration>
+              <phase>package</phase>
+              <goals>
+              	<goal>single</goal>
+              </goals>
+          </execution>
+        </executions>
+	    </plugin>
+
+
+	    <!-- This inherits some distro files that the parent -wscli has made available into its jar for us -->
+  		<plugin>
+  			<artifactId>maven-dependency-plugin</artifactId>
+  			<executions>
+  				<execution>
+  					<phase>prepare-package</phase>
+  					<goals>
+  						<goal>unpack</goal>
+  					</goals>
+  					<configuration>
+	          	<artifactItems>
+	            	<artifactItem>
+	              	<groupId>uk.ac.ebi.fg</groupId>
+	              	<artifactId>myequivalents-wscli</artifactId>
+	               	<version>0.4-SNAPSHOT</version>
+	               	<type>jar</type>
+	               	<includes>assembly/resources/**/*</includes>
+	             	</artifactItem>
+	          	</artifactItems>  						
+  					</configuration>
+  				</execution>
+  			</executions>
+  		</plugin>
+	      	
+  	</plugins>
+  
+  </build>
+  	
+</project>

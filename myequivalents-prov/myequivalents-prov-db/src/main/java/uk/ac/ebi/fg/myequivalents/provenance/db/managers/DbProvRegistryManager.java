@@ -24,11 +24,11 @@ import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
  * @author Marco Brandizi
  *
  */
-public class DbProvenanceManager extends DbMyEquivalentsManager implements ProvRegistryManager
+public class DbProvRegistryManager extends DbMyEquivalentsManager implements ProvRegistryManager
 {
 	ProvenanceRegisterEntryDAO provDao;
 	
-	public DbProvenanceManager ( EntityManager entityManager, String email, String apiPassword )
+	public DbProvRegistryManager ( EntityManager entityManager, String email, String apiPassword )
 	{
 		super ( entityManager, email, apiPassword );
 		this.userDao.enforceRole ( User.Role.EDITOR );

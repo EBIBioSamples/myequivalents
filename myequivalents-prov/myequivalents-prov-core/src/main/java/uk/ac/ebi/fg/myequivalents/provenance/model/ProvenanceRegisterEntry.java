@@ -137,7 +137,7 @@ public class ProvenanceRegisterEntry
 	
   @ElementCollection
   @CollectionTable( name = "provenance_register_parameter", joinColumns = @JoinColumn ( name="prov_entry_id" ) )
-  @OrderColumn ( name = "index" )
+  @OrderColumn ( name = "idx" )
 	@XmlElementWrapper( name = "parameters" )
 	@XmlElement ( name = "parameter" )
   public List<ProvenanceRegisterParameter> getParameters ()
@@ -175,10 +175,9 @@ public class ProvenanceRegisterEntry
   	
     // The entity type
   	ProvenanceRegisterEntry that = (ProvenanceRegisterEntry) o;
-    if ( this.getId () == null && that.getId () != null || !this.id.equals ( that.id ) ) return false; 
-    if ( this.getOperation () == null && that.getOperation () != null || !this.operation.equals ( that.operation ) ) return false; 
-    if ( this.getUserEmail () == null && that.getUserEmail () != null || !this.userEmail.equals ( that.userEmail ) ) return false; 
-    if ( this.getTimestamp () == null && that.getTimestamp () != null || !this.timestamp.equals ( that.timestamp ) ) return false;
+    if ( this.getOperation () == null ? that.getOperation () != null : !this.operation.equals ( that.operation ) ) return false; 
+    if ( this.getUserEmail () == null ? that.getUserEmail () != null : !this.userEmail.equals ( that.userEmail ) ) return false; 
+    if ( this.getTimestamp () == null ? that.getTimestamp () != null : !this.timestamp.equals ( that.timestamp ) ) return false;
     return true;
   }
 	
@@ -186,7 +185,6 @@ public class ProvenanceRegisterEntry
 	public int hashCode ()
 	{
 		int result = 1;
-		result = 31 * result + ( ( this.getId () == null ) ? 0 : id.hashCode () );
 		result = 31 * result + ( ( this.getOperation () == null ) ? 0 : operation.hashCode () );
 		result = 31 * result + ( ( this.getUserEmail () == null ) ? 0 : userEmail.hashCode () );
 		result = 31 * result + ( ( this.getTimestamp () == null ) ? 0 : timestamp.hashCode () );

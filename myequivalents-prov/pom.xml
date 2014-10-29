@@ -15,16 +15,8 @@
     <module>myequivalents-prov-core</module>
     <module>myequivalents-prov-db</module>
     <module>myequivalents-prov-cmdline</module>
+    <module>myequivalents-prov-web</module>
+    <module>myequivalents-prov-wscli</module>
   </modules>
   
-  <dependencyManagement>
-	  <dependencies>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
-			 <version>${spring.version}</version>
-			</dependency>	  	
-	  </dependencies>
-  </dependencyManagement>
-
 </project>

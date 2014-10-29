@@ -4,10 +4,6 @@ import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
-
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
@@ -25,26 +21,9 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
  */
 public class ProvDbManagerFactory extends DbManagerFactory implements ProvManagerFactory
 {
-	/**
-	 * this.entityManagerFactory is initialised with an instance of this, which will automatically scan this extension 
-	 * and the core myEquivalents package (Hibernate isn't able to do that).
-	 */
-	private static LocalContainerEntityManagerFactoryBean springEmf = null;
-		
 	public ProvDbManagerFactory ( Properties hibernateProperties )
 	{
-		if ( springEmf == null ) 
-		{
-			springEmf = new LocalContainerEntityManagerFactoryBean ();
-			springEmf.setPackagesToScan ( "uk.ac.ebi.fg.myequivalents.**.*" );
-			springEmf.setPersistenceUnitName ( "myEquivalentsProvPersistenceUnit" );
-			springEmf.setJpaDialect ( new HibernateJpaDialect () );
-			springEmf.setJpaProperties ( hibernateProperties );
-			springEmf.setPersistenceProviderClass ( HibernatePersistenceProvider.class );
-			springEmf.afterPropertiesSet ();
-		}
-		
-		this.entityManagerFactory = springEmf.getObject ();
+		super ( hibernateProperties );
 	}
 
 	@Override
@@ -87,6 +66,6 @@ public class ProvDbManagerFactory extends DbManagerFactory implements ProvManage
 	@Override
 	public ProvRegistryManager newProvRegistryManager ( String email, String apiPassword )
 	{
-		return new DbProvenanceManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+		return new DbProvRegistryManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
 	}
 }

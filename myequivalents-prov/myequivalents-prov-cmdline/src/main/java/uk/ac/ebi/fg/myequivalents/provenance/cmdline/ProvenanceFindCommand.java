@@ -62,16 +62,7 @@ public class ProvenanceFindCommand extends LineCommand
 		{
 			params = new ArrayList<> ();
 			for ( String paramOpt: paramsOption )
-			{
-				String[] ochunks = paramOpt.split ( ":", -2 );
-				if ( ochunks == null ) continue;
-				String ptype = ochunks.length > 0 ? ochunks [ 0 ] : null;
-				String pval = ochunks.length > 1 ? ochunks [ 1 ] : null;
-				String pxval = ochunks.length > 2 ? ochunks [ 2 ] : null;
-
-				ProvenanceRegisterParameter param = ProvenanceRegisterParameter.p ( ptype, pval, pxval );
-				params.add ( param );
-			}
+				params.add ( ProvenanceRegisterParameter.p ( paramOpt ) );
 		}
 		
 		

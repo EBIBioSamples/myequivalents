@@ -3,7 +3,7 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 import static java.lang.System.err;
 import static java.lang.System.out;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
