@@ -109,32 +109,62 @@ public class ProvRegistryWSClient extends MyEquivalentsWSClient implements ProvR
 	@Override
 	public List<ProvenanceRegisterEntry> findEntityMappingProv ( String entityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Form req = prepareReq ();
+		
+		req.add ( "entity", entityId );
+		if ( validUsers != null ) for ( String u: validUsers )
+			req.add ( "valid-user", u );
+		
+		ProvRegisterEntryList result = invokeWsReq ( "/find-entity-mapping-prov", req, ProvRegisterEntryList.class );
+
+		if ( result == null ) return Collections.emptyList ();
+		return result.getEntries ();
 	}
 
 
 	@Override
 	public String findEntityMappingProvAs ( String outputFormat, String entityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Form req = prepareReq ();
+
+		req.add ( "entity", entityId );
+		if ( validUsers != null ) for ( String u: validUsers )
+			req.add ( "valid-user", u );
+		
+		return getRawResult ( "/find-entity-mapping-prov", req, outputFormat );
 	}
 
 
 	@Override
 	public Set<List<ProvenanceRegisterEntry>> findMappingProv ( String xEntityId, String yEntityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Form req = prepareReq ();
+		req.add ( "xentity", xEntityId );
+		req.add ( "yentity", yEntityId );
+		if ( validUsers != null ) for ( String u: validUsers )
+			req.add ( "valid-user", u );
+		
+		ProvRegisterEntryList.ProvRegisterEntryNestedList result = invokeWsReq ( 
+			"/find-mapping-prov", req, ProvRegisterEntryList.ProvRegisterEntryNestedList.class 
+		);
+
+		if ( result == null ) return Collections.emptySet ();
+		return result.getEntryListsUnwrapped ();
 	}
 
 
 	@Override
 	public String findMappingProvAs ( String outputFormat, String xEntityId, String yEntityId, List<String> validUsers )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Form req = prepareReq ();
+		req.add ( "xentity", xEntityId );
+		req.add ( "yentity", yEntityId );
+		if ( validUsers != null ) for ( String u: validUsers )
+			req.add ( "valid-user", u );
+		
+		return getRawResult ( 
+			"/find-mapping-prov", req, outputFormat
+		);
 	}
 
 
@@ -155,10 +185,23 @@ public class ProvRegistryWSClient extends MyEquivalentsWSClient implements ProvR
 	/**
 	 * This is used by JUnit tests, in order to create test data needed at run time. Please don't use this in production
 	 */
-	void createTestProvenanceEntries ()
+	void _createTestProvenanceEntries ()
 	{
 		Form req = prepareReq ();
 		invokeVoidWsReq ( "/create-test-entries", req );
+	}
+
+	/**
+	 * This is used by JUnit tests, in order to create test data needed at run time. Please don't use this in production
+	 */
+	int _purgeAll ( Date from )
+	{
+		Form req = prepareReq ();
+
+		String fromStr = DateJaxbXmlAdapter.STR2DATE.marshal ( from ) ;
+		if ( fromStr != null ) req.add ( "from", fromStr );
+		
+		return invokeIntWsReq ( "/purge-all", req );
 	}
 
 }

@@ -253,8 +253,15 @@ public class ProvenanceRegisterEntryDAO
 			}
 			else
 			{
-				// Move to another sequence about the current parameter
-				toKeep.add ( (ProvenanceRegisterEntry) row [ 0 ] );
+				ProvenanceRegisterEntry e = (ProvenanceRegisterEntry) row [ 0 ];
+				if ( e.getOperation ().contains ( "delete" ) )
+					// We delete operations anyway
+					toDelete.add ( e );
+				else
+					// Keep the last operation about the current parameter
+					toKeep.add ( (ProvenanceRegisterEntry) row [ 0 ] );
+				
+				// Consider all subsequent operations about the same parameter
 				firstParamStr = paramStr;
 			}
 		}
@@ -274,9 +281,10 @@ public class ProvenanceRegisterEntryDAO
 	}
 
 	/**
-	 * Delete all the provenance entries in a range, even if this will make any provenance information about a myEq object
-	 * to disappear. This should be used only for testing purposes and prefer {@link #purge(Date, Date)} for production
-	 * cleaning.
+	 * Deletes all the provenance entries in a range, even if this will make any provenance information about a myEq object
+	 * to disappear. This should only be used for testing purposes and you should prefer {@link #purge(Date, Date)} for 
+	 * production cleaning. In fact, this facility is purposely not available in the
+	 * {@link ProvRegistryManager provenance registry manager}.
 	 * 
 	 */
 	public int purgeAll ( Date from, Date to )

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.joda.time.DateTime;
+import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,12 @@ public class ProvRegistryWSClientIT
   public static final String WS_BASE_URL = "http://localhost:10973/ws";
 	//public static final String WS_BASE_URL = "http://localhost:8080/ws";
 
-	public Logger log = LoggerFactory.getLogger ( this.getClass () );
+	// Here we get the specific factory, since we want newProvRegistryManager() 
+	private ProvManagerFactory mgrFact = Resources.getInstance ( ).getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME );
+
+  
+	private Logger log = LoggerFactory.getLogger ( this.getClass () );
+		
 	
 	/**
 	 * WARNING: this test might purge {@link ProvenanceRegisterEntry}s in production, which you might want to keep
@@ -46,16 +52,13 @@ public class ProvRegistryWSClientIT
 	 */
 	@Test
 	public void testProvenanceManager () throws InterruptedException
-	{
-		// Here we get the specific factory, since we want newProvRegistryManager() 
-		ProvManagerFactory mgrFact = Resources.getInstance ( ).getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME );
-				
+	{				
 		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager (
 			WebTestDataInitializer.adminUser.getEmail (), WebTestDataInitializer.adminSecret
 		);
 		
 		// Create the test data we need
-		((ProvRegistryWSClient) regMgr).createTestProvenanceEntries ();
+		((ProvRegistryWSClient) regMgr)._createTestProvenanceEntries ();
 		
 		List<ProvenanceRegisterEntry> result = regMgr.find ( 
 			"foo.user%", null, new DateTime ().minusDays ( 3 ).toDate (), null, null

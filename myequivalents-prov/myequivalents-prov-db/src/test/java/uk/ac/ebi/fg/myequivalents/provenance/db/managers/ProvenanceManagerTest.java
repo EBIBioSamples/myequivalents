@@ -65,7 +65,7 @@ public class ProvenanceManagerTest
 		ts.commit ();
 		
 		
-		// Now invoke the command line
+		// Now invoke the manager commands
 		//
 		
 		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager (

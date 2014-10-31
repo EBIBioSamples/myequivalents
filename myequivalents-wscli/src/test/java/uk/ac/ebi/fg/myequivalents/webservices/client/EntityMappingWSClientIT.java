@@ -10,7 +10,6 @@ import static junit.framework.Assert.assertEquals;
 
 import java.util.Collection;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;

@@ -158,7 +158,6 @@ public class ProvenanceRegisterParameter
   public static ProvenanceRegisterParameter p ( String paramStr )
   {
 		String[] ochunks = paramStr.split ( ":", -2 );
-		if ( ochunks == null ) return null;
 		String ptype = ochunks.length > 0 ? trimToNull ( ochunks [ 0 ] ) : null;
 		String pval = ochunks.length > 1 ? trimToNull ( ochunks [ 1 ] ) : null;
 		String pxval = ochunks.length > 2 ? trimToNull ( ochunks [ 2 ] ) : null;

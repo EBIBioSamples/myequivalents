@@ -74,4 +74,5 @@ public interface ProvRegistryManager extends MyEquivalentsManager
 	 * about the entry, while the older one is removed.
 	 */
 	public int purge ( Date from, Date to );
+	
 }

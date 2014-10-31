@@ -142,7 +142,8 @@
 	        <useTestScope>true</useTestScope>
 				  
 				  <httpConnector>
-				    <port>8080</port>
+				  	<!-- 8080 is often busy on EBI hosts -->
+				    <port>10973</port>
 				  </httpConnector>
 				  
 					<stopPort>10974</stopPort>

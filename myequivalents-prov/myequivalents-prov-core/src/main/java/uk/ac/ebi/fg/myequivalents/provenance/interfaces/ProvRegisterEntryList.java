@@ -2,7 +2,10 @@ package uk.ac.ebi.fg.myequivalents.provenance.interfaces;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -21,15 +24,15 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
  */
 @XmlRootElement ( name = "provenance" )
 @XmlAccessorType ( XmlAccessType.NONE )
-@XmlType ( name = "", propOrder = { "entries" } )
+@XmlType ( name = "" )
 public class ProvRegisterEntryList
 {
 	@XmlRootElement ( name = "provenance-entry-lists" )
 	@XmlAccessorType ( XmlAccessType.NONE )
-	@XmlType ( name = "", propOrder = { "entries" } )
+	@XmlType ( name = "" )
 	public static class ProvRegisterEntryNestedList
 	{		
-		private List<ProvRegisterEntryList> entries;
+		private List<ProvRegisterEntryList> entryLists;
 		
 		protected ProvRegisterEntryNestedList ()
 		{
@@ -37,21 +40,29 @@ public class ProvRegisterEntryList
 		}
 
 		
-		public ProvRegisterEntryNestedList ( Collection<List<ProvenanceRegisterEntry>> entries )
+		public ProvRegisterEntryNestedList ( Collection<List<ProvenanceRegisterEntry>> entryLists )
 		{
 			super ();
-			this.entries = new ArrayList<> ();
-			for ( List<ProvenanceRegisterEntry> list: entries )
-				this.entries.add ( new ProvRegisterEntryList ( list ) );
+			this.entryLists = new ArrayList<> ();
+			for ( List<ProvenanceRegisterEntry> list: entryLists )
+				this.entryLists.add ( new ProvRegisterEntryList ( list ) );
 		}
 		
 		
 		@XmlElement ( name = "entries" )
-		public List<ProvRegisterEntryList> getEntries ()
+		public List<ProvRegisterEntryList> getEntryLists ()
 		{
-			return entries;
+			return entryLists;
 		}
 		
+		public Set<List<ProvenanceRegisterEntry>> getEntryListsUnwrapped ()
+		{
+			if ( this.entryLists == null ) return Collections.emptySet ();
+			Set<List<ProvenanceRegisterEntry>> result = new HashSet<> ();
+			for ( ProvRegisterEntryList el: this.entryLists )
+				result.add ( el.getEntries () );
+			return result;
+		}
 	}
 	
 	
@@ -71,7 +82,6 @@ public class ProvRegisterEntryList
 		this.entries = entries;
 	}
 
-	//@XmlElementWrapper( name = "entries" )
 	@XmlElement ( name = "entry" )
 	public List<ProvenanceRegisterEntry> getEntries ()
 	{

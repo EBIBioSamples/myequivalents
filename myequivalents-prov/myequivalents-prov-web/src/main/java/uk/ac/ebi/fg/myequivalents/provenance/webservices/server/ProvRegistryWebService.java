@@ -3,15 +3,20 @@ package uk.ac.ebi.fg.myequivalents.provenance.webservices.server;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.slf4j.Logger;
@@ -40,6 +45,8 @@ import uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer
 @Path ( "/provenance" )
 public class ProvRegistryWebService
 {
+	@Context
+	private HttpServletRequest request; 
 	
 	public static final ProvenanceRegisterEntry e = new ProvenanceRegisterEntry ( 
 		"foo.user", "foo.op", p ( "foo.entity", Arrays.asList ( "acc1", "acc2", "acc3" ) )
@@ -70,19 +77,51 @@ public class ProvRegistryWebService
 		List<ProvenanceRegisterParameter> params = ProvenanceRegisterParameter.p ( paramsString );
 
 		List<ProvenanceRegisterEntry> result = mgr.find ( userEmail, operation, dfrom, dto, params );
-
-		// Fix lazy-loading issues, we keep lazy mode for the DB/programmatic interface, here we cannot avoid to 
-		// reproduce eager fetching.
-		// TODO: might be faster, using a Jersey filter and delegating it the mgr.close() job.
-		for ( ProvenanceRegisterEntry e: result ) {
-			List<ProvenanceRegisterParameter> ep = e.getParameters ();
-			if ( ep != null ) ep.size ();
-		}
-		
+		fetchLazyLinks ( result );
 		mgr.close ();
 		
 		return new ProvRegisterEntryList ( result );
 	}
+	
+	@POST
+	@Path( "/find-entity-mapping-prov" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public ProvRegisterEntryList findEntityMappingProv (
+		@FormParam ( "login" ) String authEmail, 
+		@FormParam ( "login-secret" ) String authApiPassword,
+		@FormParam ( "entity" ) String entityId,
+		@FormParam ( "valid-user" ) List<String> validUsers 
+	)
+	{
+		ProvRegistryManager mgr = getProvRegistryManager ( authEmail, authApiPassword );
+		List<ProvenanceRegisterEntry> result = mgr.findEntityMappingProv ( entityId, validUsers );
+		fetchLazyLinks ( result );
+		mgr.close ();
+		
+		return new ProvRegisterEntryList ( result );
+	}
+
+	
+	@POST
+	@Path( "/find-mapping-prov" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public ProvRegisterEntryList.ProvRegisterEntryNestedList findMappingProv (
+		@FormParam ( "login" ) String authEmail, 
+		@FormParam ( "login-secret" ) String authApiPassword,
+		@FormParam ( "xentity" ) String xEntityId,
+		@FormParam ( "yentity" ) String yEntityId,
+		@FormParam ( "valid-user" ) List<String> validUsers 
+	)
+	{
+		ProvRegistryManager mgr = getProvRegistryManager ( authEmail, authApiPassword );
+		Set<List<ProvenanceRegisterEntry>> result = mgr.findMappingProv ( xEntityId, yEntityId, validUsers );
+		for ( List<ProvenanceRegisterEntry> le: result ) fetchLazyLinks ( le );
+		mgr.close ();
+		
+		return new ProvRegisterEntryList.ProvRegisterEntryNestedList ( result );
+	}
+	
+	
 	
 	
 	@POST
@@ -107,14 +146,40 @@ public class ProvRegistryWebService
 	}
 
 	
+	private ProvRegistryManager getProvRegistryManager ( String authEmail, String authApiPassword ) 
+	{
+		log.trace ( "Returning access manager for the user {}, {}", authEmail, authApiPassword == null ? null: "***" );
+		ProvManagerFactory fact = Resources.getInstance ().getMyEqManagerFactory ();
+		return fact.newProvRegistryManager ( authEmail, authApiPassword );
+	}
+
+	/**
+	 * Fix lazy-loading issues, we keep lazy mode for the DB/programmatic interface, here we cannot avoid to
+	 * reproduce eager fetching.
+	 * 
+	 */
+	private void fetchLazyLinks ( List<ProvenanceRegisterEntry> entries )
+	{
+		// TODO: might be faster, using a Jersey filter and delegating it the mgr.close() job.
+		for ( ProvenanceRegisterEntry e: entries ) {
+			List<ProvenanceRegisterParameter> ep = e.getParameters ();
+			if ( ep != null ) ep.size ();
+		}
+	}
+	
+	
 	/**
 	 * This is used by JUnit tests in the client, creates test provenance entries, for which operation no interface exists
-	 * in myEquivalents (every provenance record is auto-created upon myEq operations). 
+	 * in myEquivalents (every provenance record is auto-created upon myEq operations).
+	 * 
+	 * This should not be used outside tests and its execution is restricted to the 
+	 * {@link WebTestDataInitializer#INIT_FLAG_PROP} property set to true, plus localhost-only invocation.
+	 *  
 	 */
 	@POST
 	@Path( "/create-test-entries" )
 	@Produces ( MediaType.APPLICATION_XML )
-	public void createTestProvenanceEntries 
+	public void _createTestProvenanceEntries 
 	(
 		@FormParam ( "login" ) String authEmail, 
 		@FormParam ( "login-secret" ) String authApiPassword
@@ -124,8 +189,13 @@ public class ProvRegistryWebService
 			"/provenance/create-test-entries can only be invoked when " + WebTestDataInitializer.INIT_FLAG_PROP + " is true"
 		);
 
+		// Only from localhost
+		if ( request == null || !"127.0.0.1".equals ( request.getRemoteAddr () ) ) throw new SecurityException (
+			"/provenance/create-test-entries is for testing purposes only and can only be invoked from localhost"
+		);
+		
 		// Only editors can do this
-		ProvRegistryManager mgr = getProvRegistryManager ( authEmail, authApiPassword );
+		getProvRegistryManager ( authEmail, authApiPassword );
 		
 		log.info ( "\n\n __________________ Creating Test Provenance Data ____________________ \n\n\n" );
 		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
@@ -141,11 +211,51 @@ public class ProvRegistryWebService
 		em.close ();
 	}
 	
-	private ProvRegistryManager getProvRegistryManager ( String authEmail, String authApiPassword ) 
+	
+	
+	/**
+	 * This is used by JUnit tests in the client, does a complete cleaning of provenance entries stored from the date 
+	 * parameter.
+	 * 
+	 * This should not be used outside tests and its execution is restricted to the 
+	 * {@link WebTestDataInitializer#INIT_FLAG_PROP} property set to true, plus localhost-only invocation.
+	 *  
+	 */
+	@POST
+	@Path( "/purge-all" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public String _purgeAll 
+	(
+		@FormParam ( "login" ) String authEmail, 
+		@FormParam ( "login-secret" ) String authApiPassword,
+		@FormParam ( "from" ) String from 
+	)
 	{
-		log.trace ( "Returning access manager for the user {}, {}", authEmail, authApiPassword == null ? null: "***" );
-		ProvManagerFactory fact = Resources.getInstance ().getMyEqManagerFactory ();
-		return fact.newProvRegistryManager ( authEmail, authApiPassword );
-	}
+		if ( !"true".equals ( System.getProperty ( WebTestDataInitializer.INIT_FLAG_PROP, null ) ) )  throw new SecurityException ( 
+			"/provenance/create-test-entries can only be invoked when " + WebTestDataInitializer.INIT_FLAG_PROP + " is true"
+		);
 
+		// Only from localhost
+		if ( request == null || !"127.0.0.1".equals ( request.getRemoteAddr () ) ) throw new SecurityException (
+			"/provenance/create-test-entries is for testing purposes only and can only be invoked from localhost"
+		);
+		
+		// Only editors can do this
+		getProvRegistryManager ( authEmail, authApiPassword );
+		
+		Date dfrom = DateJaxbXmlAdapter.STR2DATE.unmarshal ( from );
+
+		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
+		EntityManager em = ((DbManagerFactory) mgrf).getEntityManagerFactory ().createEntityManager ();
+		
+		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
+		
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		int result = provDao.purgeAll ( dfrom, null );
+		ts.commit ();
+		em.close ();
+		
+		return String.valueOf ( result );
+	}
 }
