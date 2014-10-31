@@ -157,6 +157,7 @@ public class AccessControlManagerTest
 		// But not stuff like role.
 		ts.begin ();
 		catchException ( userDao ).store ( userDB );
+		caught = caughtException ();
 		if ( !( caught instanceof SecurityException ) ) throw new IllegalStateException ( 
 			"Unauthorised user role modification should fail!"
 		);

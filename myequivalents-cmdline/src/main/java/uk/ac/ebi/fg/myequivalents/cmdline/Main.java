@@ -67,7 +67,7 @@ public class Main
 		try {
 			lcmd = LineCommand.getCommand ( args );
 			lcmd.run ( args );
-			exitCode = lcmd == null ? 1 : lcmd.getExitCode ();
+			exitCode = lcmd.getExitCode ();
 		}
 		catch ( Throwable t ) 
 		{

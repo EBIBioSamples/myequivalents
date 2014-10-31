@@ -120,8 +120,8 @@ public class UserDao
 			));
 		if ( needsFullAuthentication && isLoggedInViaAPI () )
 			throw new SecurityException ( String.format (
-				"Security violation: the operation requires to login via user password, not just the API password", 
-				role, loggedInUser.getEmail (), loggedInUser.getRole ()
+				"Security violation: the operation requires the user '%s' to login via user password, not just the API password", 
+				loggedInUser.getEmail ()
 			));
 	}
 

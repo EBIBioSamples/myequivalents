@@ -73,7 +73,7 @@ public abstract class DbMyEquivalentsManager implements MyEquivalentsManager
 	}
 
 	@Override
-	public void finalize () throws Throwable
+	protected void finalize () throws Throwable
 	{
 		super.finalize ();
 		this.close();

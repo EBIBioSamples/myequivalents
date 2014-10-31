@@ -46,8 +46,8 @@ public class ServiceManagerTest
 	private Repository repo1;
 	
 	// An editor is needed for writing operations.
-	public static String editorPass = "test.password";
-	public static String editorSecret = User.generateSecret ();
+	public static final String editorPass = "test.password";
+	public static final String editorSecret = User.generateSecret ();
 	public static User editorUser = new User ( 
 		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 

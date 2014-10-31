@@ -148,7 +148,7 @@ public class RandomMappingsTest
 		PrintStream out = new PrintStream ( new BufferedOutputStream ( new FileOutputStream ( new File ( 
 			"target/random_generated_entity_ids.lst" ) )) );
 		
-		int nbundles = Integer.valueOf ( System.getProperty ( "myequivalents.test.scaling.nbundles", "" + NBUNDLES ) );
+		int nbundles = Integer.parseInt ( System.getProperty ( "myequivalents.test.scaling.nbundles", "" + NBUNDLES ) );
 		
 		// bundle loop
 		XStopWatch stopw = new XStopWatch ();

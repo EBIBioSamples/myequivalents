@@ -310,7 +310,7 @@ public class ProvLineCommandsTest
 		Assert.assertNotNull ( "Wrong purge output!", resultChunks );
 		Assert.assertEquals ( "Wrong purge output!", 2, resultChunks.length );
 		
-		int result = Integer.valueOf ( resultChunks [ 1 ] );
+		int result = Integer.parseInt ( resultChunks [ 1 ] );
 		assertTrue ( "Wrong purge output!", result > 0 ); 
 	}
 }
