@@ -35,7 +35,7 @@ OPTS="$OPTS -Dfile.encoding=UTF-8"
 cd "$(dirname $0)"
 MYDIR="$(pwd)"
 
-# This includes the core and the db module, plus the HSQL JDBC driver. If you want to use other databases or 
+# This includes the core and the db module, plus the H2 JDBC driver. If you want to use other databases or 
 # other myEquivalents managers, you need to download the .jar files you need and set up the classpath here
 # (see http://kevinboone.net/classpath.html and myEquivalents documentation for details)  
 export CLASSPATH="$CLASSPATH:$MYDIR:$MYDIR/lib/*"
