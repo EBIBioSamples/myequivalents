@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>myequivalents-prov</artifactId>
-  <name>My Equivalents Provenance</name>
+  <name>My Equivalents, Provenance</name>
   <packaging>pom</packaging> 
   
   <modules>

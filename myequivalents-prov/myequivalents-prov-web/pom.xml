@@ -9,7 +9,7 @@
   </parent>
   <artifactId>myequivalents-prov-web</artifactId>
   <packaging>war</packaging>
-  <name>My Equivalents Web Services, Provenance Extension</name>
+  <name>My Equivalents Web Services, Provenance Ext</name>
 
   <dependencies>
   

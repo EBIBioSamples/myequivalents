@@ -4,7 +4,7 @@
   <artifactId>myequivalents</artifactId>
 	<version>0.4-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>My Equivalents Crossreference and Equivalence Management Components</name>
+  <name>My Equivalents Crossreference Mgmt</name>
 
   <description>TODO.</description>
   

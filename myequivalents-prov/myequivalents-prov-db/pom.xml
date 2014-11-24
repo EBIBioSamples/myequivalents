@@ -8,7 +8,7 @@
     <version>0.4-SNAPSHOT</version>
   </parent>
   <artifactId>myequivalents-prov-db</artifactId>
-  <name>My Equivalents Provenance DB Implementation</name>
+  <name>My Equivalents Provenance, DB Impl</name>
   
   <dependencies>
   

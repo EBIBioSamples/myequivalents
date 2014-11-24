@@ -6,7 +6,7 @@
 		<version>0.4-SNAPSHOT</version>
   </parent>
   <artifactId>myequivalents-wscli</artifactId>
-  <name>My Equivalents Web Service Client</name>
+  <name>My Equivalents Web Service Cli</name>
   <description>A Java client to access the MyEquivalents web services.</description>
   
 	<dependencies>

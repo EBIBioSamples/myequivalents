@@ -8,7 +8,7 @@
     <version>0.4-SNAPSHOT</version>
   </parent>
   <artifactId>myequivalents-prov-wscli</artifactId>
-  <name>myequivalents-prov-wscli</name>
+  <name>My Equivalents Web Service Cli, Provenance Ext</name>
   
   <dependencies>
 		<!-- Dependencies by other modules in the same project -->
