@@ -20,8 +20,7 @@ import uk.ac.ebi.utils.io.IOUtils;
 import com.sun.jersey.api.representation.Form;
 
 /**
- * 
- * TODO: Comment me!
+ * The web service client implementation of {@link ServiceManager}.
  *
  * <dl><dt>date</dt><dd>29 Oct 2013</dd></dl>
  * @author Marco Brandizi
@@ -41,7 +40,7 @@ public class ServiceWSClient extends MyEquivalentsWSClient implements ServiceMan
 		super ( baseUrl );
 	}
 
-
+	
 	@Override
 	protected String getServicePath () {
 		return "/service";
@@ -192,15 +191,22 @@ public class ServiceWSClient extends MyEquivalentsWSClient implements ServiceMan
 		}
 	}
 
-	/** TODO: This should be an interface method and we should use AOP or Java 8 to provide default implementations to the
-	 *  interface. */
+	/**
+	 * Used to implement {@link #storeServicesFromXML(Reader). It invokes a corresponding operation's on the server side.
+	 */
 	private void storeServicesFromXML ( String serviceSearchResultXml )
 	{
+		// TODO: This should be an interface method and we should use AOP or Java 8 to provide default implementations to 
+		// the interface.
+		//
 	  Form req = prepareReq ();
 	  req.add ( "service-items-xml", serviceSearchResultXml );
 		invokeVoidWsReq ( "/store", req );
 	}
 	
+	/**
+	 * An helper for storeXXX() methods.
+	 */
 	private void invokeStoreReq ( ServiceSearchResult serviceItems )
 	{
 		try

@@ -17,14 +17,22 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-
 import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 
 /**
- * TODO: Comment me!
+ * <p>The web service version of the {@link AccessControlManager} interface. This uses Jersey and set up a REST web service
+ * See {@link uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT} for usage examples.</p>
+ * 
+ * <p>The web services are backed by a {@link ManagerFactory}, which needs to be configured via Spring, see {@link Resources}.
+ * By default {@link DbManagerFactory} is used.</p>
+ * 
+ * <p>Usually these services are located at /ws/mapping, e.g., 
+ * "https://localhost:8080/ws/mapping/get?entityId=service1:acc1". You can build the path by appending the value in 
+ * &#064;Path (which annotates every service method) to /mapping.</p> 
  *
  * <dl><dt>date</dt><dd>16 Oct 2013</dd></dl>
  * @author Marco Brandizi
@@ -35,6 +43,9 @@ public class AccessControlWebService
 {
 	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
 
+	/**
+	 * @see AccessControlManager#getUser(String). 
+	 */
 	@POST
 	@Path( "/user/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -64,7 +75,9 @@ public class AccessControlWebService
 		return getUser ( authEmail, authPassword, authApiPassword, email );
 	}
 	
-	
+	/**
+	 * @see AccessControlManager#storeUser(User).
+	 */
 	@POST
 	@Path( "/user/store" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -88,6 +101,9 @@ public class AccessControlWebService
 		mgr.close ();
 	}
 	
+	/**
+	 * @see AccessControlManager#storeUserFromXml(java.io.Reader).
+	 */
 	@POST
 	@Path ( "/user/store/from-xml" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -102,7 +118,9 @@ public class AccessControlWebService
 	}
 	
 	
-
+	/**
+	 *	@see AccessControlManager#setUserRole(String, Role). 
+	 */
 	@POST
 	@Path( "/user/role/set" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -119,6 +137,10 @@ public class AccessControlWebService
 		mgr.close ();
 	}
 
+	/**
+	 * @see AccessControlManager#deleteUser(String).
+	 * @return a boolean in the form of a string, cause Jersey doesn't like other types very much.
+	 */
 	@POST
 	@Path( "/user/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -136,6 +158,9 @@ public class AccessControlWebService
 	}
 
 	
+	/**
+	 * @see AccessControlManager#setServicesVisibility(String, String, boolean, String...).
+	 */
 	@POST
 	@Path( "/visibility/service/set" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -153,7 +178,9 @@ public class AccessControlWebService
 		mgr.close ();
 	}
 
-	
+	/**
+	 * @see AccessControlManager#setRepositoriesVisibility(String, String, boolean, String...).
+	 */
 	@POST
 	@Path( "/visibility/repository/set" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -171,6 +198,9 @@ public class AccessControlWebService
 		mgr.close ();
 	}
 	
+	/**
+	 * @see AccessControlManager#setServiceCollectionsVisibility(String, String, boolean, String...).
+	 */
 	@POST
 	@Path( "/visibility/service-collection/set" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -188,7 +218,9 @@ public class AccessControlWebService
 		mgr.close ();
 	}
 
-	
+	/**
+	 * @see AccessControlManager#setEntitiesVisibility(String, String, String...).
+	 */
 	@POST
 	@Path( "/visibility/entity/set" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -206,7 +238,10 @@ public class AccessControlWebService
 	}
 
 	/**
-	 * TODO: comment me. 
+	 * Performs {@link AccessControlManager#setAuthenticationCredentials(String, String)} or 
+	 * {@link AccessControlManager#setFullAuthenticationCredentials(String, String)}, depending on whether
+	 * the  authPassword or authApiPassword parameter is specified.
+	 * 
 	 * TODO: auth requests should be factorised to an Access service (they're not used by other WS requests).
 	 * TODO: it's being done in inefficient way (authentication done twice).
 	 */
@@ -245,7 +280,14 @@ public class AccessControlWebService
 	}	
 	
 	
-	/** Gets the {@link AccessControlManager} that is used internally in this web service TODO: AOP */
+	/** 
+	 * Gets the {@link AccessControlManager} that is used internally in this web service.
+	 * 
+	 * This is obtained from
+	 * {@link Resources} and hence it depends on the Spring configuration, accessed through {@link WebInitializer}
+	 * 
+	 * TODO: AOP 
+	 */
 	private AccessControlManager getAccessControlManager ( String email, String userPassword, String apiPassword )
 	{
 		log.trace ( String.format ( "Returning access manager for the user %s, %s, %s", 

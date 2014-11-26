@@ -35,12 +35,12 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
  * <p>The web service version of the {@link EntityMappingManager} interface. This uses Jersey and set up a REST web service
  * See {@link uk.ac.ebi.fg.myequivalents.webservices.client.EntityMappingWSClientTest} for usage examples.</p>
  * 
- * <p>The web service is backed by a {@link ManagerFactory}, which needs to be configured via Spring, see {@link Resources}.
+ * <p>The web services are backed by a {@link ManagerFactory}, which needs to be configured via Spring, see {@link Resources}.
  * By default {@link DbManagerFactory} is used.</p>
  * 
  * <p>Usually these services are located at /ws/mapping, e.g., 
- * "http://localhost:8080/ws/mapping/get?entityId=service1:acc1". You can build the path by appending the value in 
- * &#064;Path to /mapping.</p> 
+ * "https://localhost:8080/ws/mapping/get?entityId=service1:acc1". You can build the path by appending the value in 
+ * &#064;Path (which annotates every service method) to /mapping.</p> 
  *
  * <p>TODO: We need proper exception handling, see <a href = "http://jersey.java.net/documentation/latest/user-guide.html#d0e3490">here</a>.</p>
  * 
@@ -57,7 +57,7 @@ public class EntityMappingWebService
 	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
 
 	/**
-	 * We need this version of {@link #getMappings(Boolean, String...)} because Jersey/JAX-WS doesn't like arrays.
+	 * We need this version of {@link EntityMappingManager#getMappings(Boolean, String...)} because Jersey/JAX-WS doesn't like arrays.
 	 */
 	@POST
 	@Path( "/get" )
@@ -92,6 +92,9 @@ public class EntityMappingWebService
 		return getMappings ( email, apiPassword, isRaw, entityIds );
 	}
 	
+	/**
+	 * This is the equivalent of {@link EntityMappingManager#storeMappings(String...)}.
+	 */
 	@POST
 	@Path( "/store" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -106,6 +109,9 @@ public class EntityMappingWebService
 		emgr.close();
 	}
 
+	/**
+	 * This is the equivalent of {@link EntityMappingManager#storeMappingBundle(String...)}.
+	 */
 	@POST
 	@Path( "/bundle/store" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -120,6 +126,10 @@ public class EntityMappingWebService
 		emgr.close();
 	}
 
+	/**
+	 * This is the equivalent of {@link EntityMappingManager#deleteMappings(String...)}.
+	 * @return an integer in the form of a string, cause Jersey doesn't like other types very much.
+	 */
 	@POST
 	@Path( "/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -135,6 +145,10 @@ public class EntityMappingWebService
 		return String.valueOf ( result );
 	}
 
+	/**
+	 * This is the equivalent of {@link EntityMappingManager#deleteEntities(String...)}.
+	 * @return an integer in the form of a string, cause Jersey doesn't like other types very much.
+	 */
 	@POST
 	@Path( "/entity/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -150,7 +164,9 @@ public class EntityMappingWebService
 		return String.valueOf ( result );
 	}
 	
-
+	/**
+	 * This is the equivalent of {@link EntityMappingManager#getMappingsForTarget(Boolean, String, String)}.
+	 */
 	@POST
 	@Path( "/target/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -190,7 +206,7 @@ public class EntityMappingWebService
 	 * the result is not unique, some XML is returned, that is similar to the XML returned by 
 	 * {@link #getMappingsAs(String, Boolean, String...) getMappingsAs ( "xml", ... )}. You can couple such XML
 	 * with the URL of an XSL, using the xsl/xslUri parameter. The default for such xsl is /go-to-target/multiple-results.xsl.
-	 * See the myEquivalents wiki for details. If the input has no mapping HTTP/404 (Not Found) is returned</p> 
+	 * See the myEquivalents wiki for details. If the input has no mapping, then HTTP/404 (Not Found) is returned</p> 
 	 * 
 	 * <p>You can test this with the examples (after 'mvn jetty:run'):
 	 *   <ul>  
@@ -232,16 +248,29 @@ public class EntityMappingWebService
 			xslUri = new URI ( xslUri ).toASCIIString ();
 		
 		String resultXml = JAXBUtils.marshal ( result, EntityMappingSearchResult.class );
+
+		// Inject the XSL pointer into the XML being returned, this will usually make the browser to automatically apply
+		// the XSL rendering.
 		resultXml = resultXml.replaceFirst ( 
 			"<\\?xml(.*)\\?>", "<?xml$1 ?>\n" + "<?xml-stylesheet type='text/xsl' href='" + xslUri + "' ?>\n" );
+		
+		// Turn the result XML into a single-result syntax
 		resultXml = resultXml.replaceFirst ( 
-				"<mappings>", String.format ( "<mappings entity-id = '%s' target-service-name = '%s'>\n", entityId, targetServiceName ) );
+			"<mappings>", 
+			String.format ( "<mappings entity-id = '%s' target-service-name = '%s'>\n", entityId, targetServiceName ) 
+		);
 		
 		return Response.ok ( resultXml, MediaType.TEXT_XML ).build ();		
 	}
 
 	
-	/** Gets the {@link EntityMappingManager} that is used internally in this web service TODO: AOP */
+	/** 
+	 * Gets the {@link EntityMappingManager} that is used internally in this web service. This is obtained from
+	 * {@link Resources} and hence it depends on the Spring configuration, accessed through {@link WebInitializer}. 
+	 * 
+	 * TODO: AOP 
+	 * 
+	 */
 	private EntityMappingManager getEntityMappingManager ( String email, String apiPassword )
 	{
 		log.trace ( "Returning mapping manager for the user {}, {}", email, apiPassword == null ? null : "***" );

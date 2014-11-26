@@ -6,7 +6,12 @@
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference Mgmt</name>
 
-  <description>TODO.</description>
+  <description>
+  	myEquivalents is a system to manage cross-references between entities that can be identified by pairs 
+  	composed of a service name (e.g., EBI's ArrayExpress, Wikipedia) and an accession (e.g., E-MEXP-2514, Barack_Obama).
+  </description>
+ 
+ <url>http://github.com/EBIBioSamples/myequivalents</url>
   
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

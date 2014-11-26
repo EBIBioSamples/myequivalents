@@ -12,7 +12,7 @@ import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
  * 
- * TODO: Comment me!
+ * Just a few test about Hibernate functionality.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi

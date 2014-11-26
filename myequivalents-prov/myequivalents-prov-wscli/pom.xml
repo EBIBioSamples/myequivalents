@@ -8,7 +8,13 @@
     <version>0.4-SNAPSHOT</version>
   </parent>
   <artifactId>myequivalents-prov-wscli</artifactId>
+  
   <name>My Equivalents Web Service Cli, Provenance Ext</name>
+  
+  <description>
+  	This is the web service client for the web services defined by myequivalents-web-prov. As you might expect, this 
+  	is an extension of myequivalents-wscli, which implements the additional functionality related to provenance tracking. 
+  </description>
   
   <dependencies>
 		<!-- Dependencies by other modules in the same project -->

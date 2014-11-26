@@ -6,12 +6,11 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 import static java.lang.System.err;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
-import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'user set role' command, a wrapper for 
+ * The line comman for 
  * {@link AccessControlManager#setUserRole(String, uk.ac.ebi.fg.myequivalents.access_control.model.User.Role)}.
  *
  * <dl><dt>date</dt><dd>Aug 22, 2013</dd></dl>

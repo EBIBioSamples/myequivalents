@@ -8,7 +8,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 
 /**
- * TODO: Comment me!
+ * The implementation of {@link ManagerFactory} used by the web service client.
  *
  * <dl><dt>date</dt><dd>21 Jan 2014</dd></dl>
  * @author Marco Brandizi

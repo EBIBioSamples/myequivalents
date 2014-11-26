@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.utils;
 
 import org.apache.commons.lang.StringUtils;

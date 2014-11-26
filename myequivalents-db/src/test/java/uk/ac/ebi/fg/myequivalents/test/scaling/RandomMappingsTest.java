@@ -197,7 +197,7 @@ public class RandomMappingsTest
 	
 	
 	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
-	//@Concurrent ( count = NREADING_THREADS )
+	//@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
 	public void readRandomMappings () throws Exception
 	{
 		DbManagerFactory dbMgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
@@ -253,7 +253,7 @@ public class RandomMappingsTest
 	 * Reads all the mappings in a id list, stored in target/random_generated_entity_ids.lst
 	 */
 	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
-	// @Concurrent ( count = NREADING_THREADS )
+	//@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
 	public void readAllRandomMappings () throws Exception
 	{
 		DbManagerFactory dbMgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();

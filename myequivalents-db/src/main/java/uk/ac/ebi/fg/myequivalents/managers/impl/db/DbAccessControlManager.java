@@ -38,15 +38,19 @@ import static uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter.ST
  */
 public class DbAccessControlManager extends DbMyEquivalentsManager implements AccessControlManager
 {
-	public DbAccessControlManager ( EntityManager entityManager, String email, String apiPassword ) {
+	public DbAccessControlManager ( EntityManager entityManager, String email, String apiPassword ) 
+	{
 		this ( entityManager, email, apiPassword, false);
 	}
 
 	public DbAccessControlManager ( EntityManager entityManager, String email, String password, boolean isUserPassword ) 
 	{
 		super ( entityManager );
-		if ( isUserPassword ) this.setFullAuthenticationCredentials ( email, password );
-		else this.setAuthenticationCredentials ( email, password );
+		
+		if ( isUserPassword ) 
+			this.setFullAuthenticationCredentials ( email, password );
+		else 
+			this.setAuthenticationCredentials ( email, password );
 	}
 	
 	@Override
@@ -92,11 +96,9 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 		} 
 	}
 	
-	/**
-	 * TODO: ExposedUser?
-	 */
 	@Override
 	public User getUser ( String email ) {
+		// TODO return ExposedUser?
 		return userDao.findByEmail ( email );
 	}
 
@@ -142,6 +144,12 @@ public class DbAccessControlManager extends DbMyEquivalentsManager implements Ac
 	}
 	
 	
+	/**
+	 * This is similar to {@link #setServicesVisibility(String, String, boolean, String...)} but doesn't deal with Hibernate
+	 * transactions. It is an internal method, which is invoked by other methods, which update services as part of a
+	 * wider transaction.
+	 *  
+	 */
 	private void setServicesVisibilityUnCommitted ( String publicFlagStr, String releaseDateStr, boolean cascade, String ... serviceNames ) 
 	{
 		setDescribVisibility ( Service.class, "Service", publicFlagStr, releaseDateStr, serviceNames );

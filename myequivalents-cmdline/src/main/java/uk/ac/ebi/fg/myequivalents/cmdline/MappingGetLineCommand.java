@@ -9,7 +9,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'mapping store' command. This will use {@link EntityMappingManager#getMappingsAs(String, Boolean, String...)}.
+ * The line command for {@link EntityMappingManager#getMappingsAs(String, Boolean, String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi

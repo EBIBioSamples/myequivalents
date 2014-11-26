@@ -155,12 +155,8 @@ public class ServiceSearchResult
 	@Override
 	public String toString ()
 	{
-		StringBuilder sb = new StringBuilder ( "ServiceSearchResult ( authEmail: '" );
-		sb.append ( this.getAuthEmail () );
-		sb.append ( "', authApiPassword: " );
-		sb.append ( this.getAuthApiPassword () == null ? "'null'" : "***" );
-		sb.append ( " {\n" );
-		
+		StringBuilder sb = new StringBuilder ( "ServiceSearchResult\n" );
+		sb.append ( "{\n" );
 		
 		sb.append ( "  services: {\n" );
 		for ( Service service: services )

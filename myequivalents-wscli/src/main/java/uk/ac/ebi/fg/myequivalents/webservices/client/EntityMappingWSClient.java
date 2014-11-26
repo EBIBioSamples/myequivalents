@@ -19,7 +19,7 @@ import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import com.sun.jersey.api.representation.Form;
 
 /**
- * TODO: Comment me again! 
+ * The web service client implementation of {@link EntityMappingManager}.
  * 
  * <dl><dt>date</dt><dd>Oct 1, 2012</dd></dl>
  * @author Marco Brandizi
@@ -131,7 +131,13 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 
 
 	/**
-	 * TODO: comment me!
+	 * This rebuilds links like the one between {@link Entity} and {@link Service}, by looking at objects in the 
+	 * flat XML that is returned by the web service. 
+	 * 
+	 * This will also reconstruct {@link Bundle bundles} in emsr, using fictitious identifiers, which replace the ones
+	 * actually stored on the server storage back end. This shouldn't be a problem, since the clients should consider
+	 * these IDs opaque and volatile.  
+	 * 
 	 */
 	private EntityMappingSearchResult rebuildEntityMappingLinks ( EntityMappingSearchResult emsr )
 	{

@@ -28,7 +28,7 @@ import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClien
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_SECRET;
 
 /**
- * TODO: Comment me!
+ * Tests for {@link ServiceWSClient}.
  *
  * <dl><dt>date</dt><dd>2 Nov 2013</dd></dl>
  * @author Marco Brandizi

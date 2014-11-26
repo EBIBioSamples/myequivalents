@@ -3,7 +3,6 @@ package uk.ac.ebi.fg.myequivalents.provenance.webservices.server;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +14,6 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -36,7 +34,8 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 import uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer;
 
 /**
- * TODO: Comment me!
+ * The web service that provides the functionalities available from {@link ProvRegistryManager}.
+ * See the myequivalents-web module for details.
  *
  * <dl><dt>date</dt><dd>25 Sep 2014</dd></dl>
  * @author Marco Brandizi

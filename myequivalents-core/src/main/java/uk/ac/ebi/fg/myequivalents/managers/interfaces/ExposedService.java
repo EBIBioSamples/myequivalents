@@ -7,10 +7,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 
 /**
- * serviceName is a read-only and shortcut getter in the superclass. If we want it to become a changeable property, 
- * we need to use this extension for XML-loading purposes only.
+ * This is used to return {@link Service} results via interfaces like the web service. 
  * 
- * You should not instantiate this class, it is automatically picked by the myequivalents managers.
+ * This is necessary becaue serviceName is a read-only and shortcut getter in the superclass. If we want it to become 
+ * a changeable property, we need to use this extension for XML-loading purposes only.
+ * 
+ * You should not use this class directly, it is automatically picked by the myequivalents managers.
  *  
  */
 @XmlRootElement ( name = "service" )

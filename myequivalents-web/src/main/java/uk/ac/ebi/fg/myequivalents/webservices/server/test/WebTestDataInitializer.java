@@ -31,7 +31,12 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  */
 public class WebTestDataInitializer implements ServletContextListener
 {
-
+	/**
+	 * When this is true, test data are loaded into the DB back end, during server initialisation, via 
+	 * {@link #contextInitialized(ServletContextEvent)}. These data are cleaned up upon server shutdown, 
+	 * by {@link #contextDestroyed(ServletContextEvent)}.
+	 * 
+	 */
 	public static final String INIT_FLAG_PROP = "uk.ac.ebi.fg.myequivalents.test_flag";
 	
 	public static final String editorPass = "test.password";
@@ -46,6 +51,9 @@ public class WebTestDataInitializer implements ServletContextListener
 		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
 	);
 
+	/**
+	 * @see #INIT_FLAG_PROP.
+	 */
 	@Override
 	public void contextInitialized ( ServletContextEvent e )
 	{
@@ -126,7 +134,6 @@ public class WebTestDataInitializer implements ServletContextListener
 		
 		emapMgr.close ();
 	}	
-	
 	
 	@Override
 	public void contextDestroyed ( ServletContextEvent e )

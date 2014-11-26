@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.webservices.server;
 
 import javax.servlet.ServletContextEvent;
@@ -10,7 +7,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * <p>Gets the path to the configuration from context.xml (set it as Parameter) and loads a configuration from
- * such custom path (e.g., loads hibernate.properties from it).</p>
+ * such custom path (e.g., loads myeq-manager-config.xml from it).</p>
  *  
  * <p>This is useful when sysops set restrictions on the application server. And no, we don't want
  * to use data sources, cause this would not allow you to set Hibernate parameters such as the dialect class.</p>
@@ -33,7 +30,11 @@ public class WebInitializer implements ServletContextListener
 	{
 	}
 
-	
+	/**
+	 * What it does in practice is to get 'myequivalents.config-location' from web.xml and pass such value to
+	 * {@link Resources#setConfigLocation(String)}, which will later use it as necessary.
+	 *  
+	 */
 	@Override
 	public void contextInitialized ( ServletContextEvent sce )
 	{

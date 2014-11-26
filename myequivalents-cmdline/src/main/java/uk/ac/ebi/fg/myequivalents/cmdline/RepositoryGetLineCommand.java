@@ -11,7 +11,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'repository get' command, a wrapper for {@link DbServiceManager#getRepositoriesAs(String, String...)}.
+ * The line command for {@link DbServiceManager#getRepositoriesAs(String, String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi

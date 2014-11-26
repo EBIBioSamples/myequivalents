@@ -9,15 +9,11 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 
 /**
+ * <h2>The {@link MyEquivalentsManager manager} to access {@link Service}s (and related things)</h2>
  * 
- * <h2>The Service (and related things) Manager</h2>
- * 
- * <p>This is used to manager the contexts the {@link Entity entities} refer to, 
+ * <p>This is used to manager the contexts the {@link Entity entities} refer to,  
  * i.e., the {@link Service}s and connected things, namely {@link ServiceCollection}s and {@link Repository}s. 
  * The persistence-related invocations does the transaction management automatically (i.e., they commit all implied changes).</p>
- * 
- * <p>In general, you should assume that implementations of this interface are not thread-safe. The idea is that you 
- * create a new instance per thread, do some operations, release, all within the same thread.</p> 
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
@@ -33,7 +29,8 @@ public interface ServiceManager extends MyEquivalentsManager
 	public void storeServices ( Service ... services );
 
 	/**
-	 * Stores services described by means of XML passed to the parameter reader. 
+	 * Stores services described by means of XML passed to the parameter reader.
+	 * 
 	 * TODO: document the format. This is auto-generated via JAXB from {@link ServiceSearchResult} and reflects that class, for
 	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 */
@@ -72,7 +69,6 @@ public interface ServiceManager extends MyEquivalentsManager
 
 	/**
 	 * Deletes service-collections by name and returns the number of collections that were actually deleted.
-	 * 
 	 */
 	public int deleteServiceCollections ( String ... names );
 

@@ -23,7 +23,7 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
- * The parameters passed to a given operation. Thse might be entity IDs, service names etc.
+ * The parameters passed to a given operation. These might be entity IDs, service names etc.
  *
  * <dl><dt>date</dt><dd>6 Jun 2014</dd></dl>
  * @author Marco Brandizi

@@ -9,6 +9,12 @@
 
   <artifactId>myequivalents-prov</artifactId>
   <name>My Equivalents, Provenance</name>
+  
+  <description>
+  	The provenance-related modules of myEquivalents track the modification operations that occur in the myEquivalents
+  	infrastructure, recording the users that generated them and allowing for provenance retrieval functionality.
+  </description>
+  
   <packaging>pom</packaging> 
   
   <modules>

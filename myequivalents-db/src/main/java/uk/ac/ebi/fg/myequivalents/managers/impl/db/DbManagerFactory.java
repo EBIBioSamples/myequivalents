@@ -34,7 +34,7 @@ public class DbManagerFactory implements ManagerFactory
 	
 	/**
 	 * Creates a factory based on the Hibernate properties (eg, connection to a DB) passes as parameter. These are normally
-	 * defined via spring, in the bean configuration file {@link Resources#MYEQ_MANAGER_FACTORY_FILE_NAME}. See the 
+	 * defined via Spring, in the bean configuration file {@link Resources#MYEQ_MANAGER_FACTORY_FILE_NAME}. See the 
 	 * documentation and the tests for further details.
 	 *  
 	 */

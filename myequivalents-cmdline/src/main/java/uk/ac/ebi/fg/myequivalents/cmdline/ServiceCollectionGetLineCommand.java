@@ -11,7 +11,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'service-collection get' command, a wrapper for {@link ServiceManager#getServiceCollectionsAs(String, String...)}.
+ * The line command for {@link ServiceManager#getServiceCollectionsAs(String, String...)}.
  *
  * <dl><dt>date</dt><dd>Aug 20, 2012</dd></dl>
  * @author Marco Brandizi

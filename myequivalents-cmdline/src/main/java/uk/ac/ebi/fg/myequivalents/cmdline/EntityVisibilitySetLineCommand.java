@@ -5,7 +5,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
- * TODO: Comment me!
+ * The line command for {@link AccessControlManager#setEntitiesVisibility(String, String, String...)}.
  *
  * <dl><dt>date</dt><dd>11 Jul 2013</dd></dl>
  * @author Marco Brandizi

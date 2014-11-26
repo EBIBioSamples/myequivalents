@@ -5,7 +5,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.webservices.client.WSClientManagerFactory;
 
 /**
- * TODO: Comment me!
+ * The implementation of {@link ProvManagerFactory} used for the web service client.
  *
  * <dl><dt>date</dt><dd>27 Oct 2014</dd></dl>
  * @author Marco Brandizi

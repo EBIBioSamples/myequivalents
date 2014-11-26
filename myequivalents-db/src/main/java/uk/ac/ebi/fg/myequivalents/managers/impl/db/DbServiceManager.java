@@ -10,8 +10,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.lang.StringUtils;
-
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceCollectionDAO;
@@ -27,10 +25,10 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 
 /**
- * <h2>The Service (and related things) Manager that access a relational database connection straight, based on the 
- * DAOs in the uk.ac.ebi.fg.myequivalents.dao package.</h2>
+ * <h2>The DB-based {@link ServiceManager} implementation relational database connection straight (without other 
+ * managers in between, but often using DAOs in the uk.ac.ebi.fg.myequivalents.dao package).</h2>
  * 
- * <p>This is used to manager the contexts the {@link Entity entities} refer to, 
+ * <p>This is used to manage the contexts the {@link Entity entities} refer to, 
  * i.e., the {@link Service}s and connected things, namely {@link ServiceCollection}s and {@link Repository}s. 
  * The persistence-related invocations does the transaction management automatically (i.e., they commit all implied changes).</p>
  * 

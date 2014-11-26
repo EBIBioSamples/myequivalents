@@ -18,7 +18,7 @@ import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 
 /**
- * A DB-based implementation of {@link ProvRegistryManager}. Operations here are committed upon invocation.
+ * A DB-based implementation of {@link ProvRegistryManager}. As usually, operations here are committed upon invocation.
  *
  * <dl><dt>date</dt><dd>1 Jul 2014</dd></dl>
  * @author Marco Brandizi

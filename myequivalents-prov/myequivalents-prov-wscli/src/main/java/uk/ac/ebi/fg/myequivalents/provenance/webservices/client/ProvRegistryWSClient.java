@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-
 import com.sun.jersey.api.representation.Form;
 
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegisterEntryList;
@@ -18,7 +17,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 import uk.ac.ebi.fg.myequivalents.webservices.client.MyEquivalentsWSClient;
 
 /**
- * TODO: Comment me!
+ * The web service client implementation of {@link ProvRegistryManager}.
  *
  * <dl><dt>date</dt><dd>26 Sep 2014</dd></dl>
  * @author Marco Brandizi
@@ -63,8 +62,7 @@ public class ProvRegistryWSClient extends MyEquivalentsWSClient implements ProvR
 		if ( params != null && params.size () != 0 )
 			for ( ProvenanceRegisterParameter param: params )
 			{
-				String paramStr = 
-					trimToEmpty ( param.getValueType () ) 
+				String paramStr = trimToEmpty ( param.getValueType () ) 
 					+ ":" + trimToEmpty ( param.getValue () )
 					+ ":" + trimToEmpty ( param.getExtraValue () );
 				req.add ( "param", paramStr );
@@ -95,8 +93,7 @@ public class ProvRegistryWSClient extends MyEquivalentsWSClient implements ProvR
 		if ( params != null && params.size () != 0 )
 			for ( ProvenanceRegisterParameter param: params )
 			{
-				String paramStr = 
-					trimToEmpty ( param.getValueType () ) 
+				String paramStr = trimToEmpty ( param.getValueType () ) 
 					+ ":" + trimToEmpty ( param.getValue () )
 					+ ":" + trimToEmpty ( param.getExtraValue () );
 				req.add ( "param", paramStr );
@@ -183,7 +180,7 @@ public class ProvRegistryWSClient extends MyEquivalentsWSClient implements ProvR
 	}
 	
 	/**
-	 * This is used by JUnit tests, in order to create test data needed at run time. Please don't use this in production
+	 * This is used by JUnit tests, in order to create test data needed at run time. Please don't use this in production.
 	 */
 	void _createTestProvenanceEntries ()
 	{
@@ -192,7 +189,7 @@ public class ProvRegistryWSClient extends MyEquivalentsWSClient implements ProvR
 	}
 
 	/**
-	 * This is used by JUnit tests, in order to create test data needed at run time. Please don't use this in production
+	 * This is used by JUnit tests, in order to create test data needed at run time. Please don't use this in production.
 	 */
 	int _purgeAll ( Date from )
 	{

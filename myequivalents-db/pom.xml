@@ -3,6 +3,9 @@
   <artifactId>myequivalents-db</artifactId>
   <name>My Equivalents, Db Impl</name>
   
+  <description>A programmatic, JDBC-based implementation of the myEquivalents functionality.</description>
+  
+  
 	<parent>
 		<groupId>uk.ac.ebi.fg</groupId>
 		<artifactId>myequivalents</artifactId>
@@ -30,22 +33,12 @@
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 		</dependency>
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>commons-lang</groupId> -->
-<!-- 			<artifactId>commons-lang</artifactId> -->
-<!-- 		</dependency> -->
-		
+				
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 		</dependency>
-		
-<!-- 		<dependency> -->
-<!-- 			<groupId>uk.ac.ebi</groupId> -->
-<!-- 			<artifactId>jutils</artifactId> -->
-<!-- 		</dependency> -->
-            		
+		            		
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>

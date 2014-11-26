@@ -3,6 +3,10 @@
   <artifactId>myequivalents-core</artifactId>
   <name>My Equivalents, Core</name>
   
+  <description>
+  	Basic definitions of interface and other elements for the whole myEquivalents infrastructure.
+  </description>
+  
 	<parent>
 		<groupId>uk.ac.ebi.fg</groupId>
 		<artifactId>myequivalents</artifactId>

@@ -9,10 +9,11 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.ArrayUtils;
 
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
- * The 'service delete' command, a wrapper for {@link DbServiceManager#deleteServices(String...)}.
+ * This is a base class used for 'set visibility ..." commands in {@link AccessControlManager}.
  *
  * <dl><dt>date</dt><dd>Jul 31, 2012</dd></dl>
  * @author Marco Brandizi

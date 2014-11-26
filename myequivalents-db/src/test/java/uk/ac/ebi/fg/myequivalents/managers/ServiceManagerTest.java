@@ -22,6 +22,7 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
@@ -31,7 +32,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
- * TODO: Comment me!
+ * Tests for {@link DbServiceManager}.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi

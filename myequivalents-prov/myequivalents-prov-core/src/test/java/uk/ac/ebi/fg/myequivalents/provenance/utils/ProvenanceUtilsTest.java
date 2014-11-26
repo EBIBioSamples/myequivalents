@@ -11,9 +11,10 @@ import java.util.List;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 
 /**
- * TODO: Comment me!
+ * Tests for functionality in {@link ProvenanceUtils} and other utilities in {@link ProvenanceRegisterParameter}.
  *
  * <dl><dt>date</dt><dd>12 Sep 2014</dd></dl>
  * @author Marco Brandizi

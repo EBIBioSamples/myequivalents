@@ -17,7 +17,7 @@ import org.junit.Test;
 
 /**
  * 
- * TODO: Comment me!
+ * Simple tests about JAXB translation from XML to Java objects.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi

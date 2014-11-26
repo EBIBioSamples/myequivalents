@@ -4,8 +4,6 @@ import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.EDITOR;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-import org.apache.commons.lang.StringUtils;
-
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
@@ -15,20 +13,10 @@ import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 
 /**
  * 
- * <h2>The Base Entity Manager</h2>
+ * <h2>The relational implementation of {@link EntityManager}</h2>
  * 
- * <p>This is the base implementation of the {@link EntityMappingManager} interface, which uses a relational 
+ * <p>This is the database implementation of the {@link EntityMappingManager} interface, which uses a relational 
  * database connection, via the object model and the {@link EntityMappingDAO DAO}.</p>
- *
- * <p>Note that this class instantiates a new {@link EntityManager Hibernate EntityManager} in its constructor. This makes it an 
- * entity-manager-per-request in many cases (e.g., when accessed by a web service). This should be the best transactional
- * model to use in such cases. You might decide a different approach, by keeping an instance of this class the time
- * you wish.</p>
- * 
- * <p>The persistence-related invocations in this manager does the transaction management automatically 
- * (i.e., they commit all implied changes).</p>
- * 
- * <p>This class is not thread-safe, the idea is that you create a new instance per thread, do some operations and then release it.</p> 
  *
  * <dl><dt>date</dt><dd>Jun 7, 2012</dd></dl>
  * @author Marco Brandizi
@@ -39,15 +27,17 @@ public class DbEntityMappingManager extends DbMyEquivalentsManager implements En
 	private EntityMappingDAO entityMappingDAO;
 	
 	/**
-	 * Logins as anonymous.
+	 * This logins as anonymous and it's used by the {@link DbManagerFactory} or subclasses.
 	 */
 	DbEntityMappingManager ( EntityManager em ) {
 		this ( em, null, null );
 	}
-
 	
 	/**
 	 * You don't instantiate this class directly, you must use the {@link DbManagerFactory}.
+	 * 
+	 * This works like the 
+	 * {@link DbMyEquivalentsManager#DbMyEquivalentsManager(EntityManager, String, String) super's implementation} 
 	 */
 	protected DbEntityMappingManager ( EntityManager em, String email, String apiPassword )
 	{

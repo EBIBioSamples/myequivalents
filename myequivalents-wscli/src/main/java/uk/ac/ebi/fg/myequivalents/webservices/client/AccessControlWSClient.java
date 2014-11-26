@@ -15,7 +15,7 @@ import uk.ac.ebi.utils.io.IOUtils;
 
 /**
  * 
- * TODO: Comment me!
+ * The web service client implementation of {@link AccessControlManager}.
  *
  * <dl><dt>date</dt><dd>17 Oct 2013</dd></dl>
  * @author Marco Brandizi
@@ -43,6 +43,9 @@ public class AccessControlWSClient extends MyEquivalentsWSClient implements Acce
 		return "/access-control";
 	}
 	
+	/**
+	 * This version adds up the {@link User#getPassword() user password} as well.
+	 */
 	@Override
 	protected Form prepareReq ()
 	{
@@ -78,8 +81,8 @@ public class AccessControlWSClient extends MyEquivalentsWSClient implements Acce
 	}
 	
 	/**
-	 * TODO: comment me
-	 * 
+	 * Remember you need to send clear passwords here, they will be hashed on the server side and upon storage.
+	 * We recommend to use HTTPS connections for all the web service interactions. 
 	 */
 	@Override
 	public void storeUser ( User user )

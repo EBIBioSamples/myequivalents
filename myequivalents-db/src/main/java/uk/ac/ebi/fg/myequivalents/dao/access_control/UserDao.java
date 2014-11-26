@@ -223,8 +223,14 @@ public class UserDao
 	}
 
 	/**
-	 * Store a new user or, depending on {@link User#getName()}, saves changes to an existing one. Allows you to do that
-	 * only if the current {@link #getLoggedInUser() logged user} is an ADMIN.
+	 * <p>Store a new user or, depending on {@link User#getName()}, saves changes to an existing one. Allows you to do that
+	 * only if mustBeAuthorized is false, or the current {@link #getLoggedInUser() logged user} is an ADMIN and was 
+	 * authenticated with the user password (not the API password). A {@link SecurityException} is thrown in other cases.</p>
+	 * 
+	 * <p>When a user is actually saved, the passwords in {@link User#getApiPassword()} and {@link User#getPassword()}
+	 * are changed via {@link User#hashPassword(String)}. That is, we assume to receive a clear password and we save
+	 * its hash on the DB, never the clear version.</p>
+	 * 
 	 */
 	private void store ( User user, boolean mustBeAutorized )
 	{

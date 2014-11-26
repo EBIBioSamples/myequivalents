@@ -29,7 +29,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'user store' command, a wrapper for {@link AccessControlManager#storeUserFromXml(Reader)}.
+ * The line command for {@link AccessControlManager#storeUserFromXml(Reader)}.
  *
  * <dl><dt>date</dt><dd>Aug 22, 2013</dd></dl>
  * @author Marco Brandizi

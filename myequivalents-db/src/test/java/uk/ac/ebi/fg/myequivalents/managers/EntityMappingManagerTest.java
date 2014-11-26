@@ -41,8 +41,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
- * 
- * TODO: Comment me!
+ * Tests for DbEntityMappingManager.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi

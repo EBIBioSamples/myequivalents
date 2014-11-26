@@ -15,7 +15,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 
 /**
  * 
- * The resources used by this application.
+ * Various resources (e.g., database handlers) used by this application.
  *
  * <dl><dt>date</dt><dd>Jun 15, 2012</dd></dl>
  * @author Marco Brandizi

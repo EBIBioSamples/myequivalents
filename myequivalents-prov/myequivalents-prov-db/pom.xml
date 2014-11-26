@@ -8,7 +8,13 @@
     <version>0.4-SNAPSHOT</version>
   </parent>
   <artifactId>myequivalents-prov-db</artifactId>
+  
   <name>My Equivalents Provenance, DB Impl</name>
+  <description>
+	  Extensions to the myequivalents-db library that implement a programmatic, relational version of functionality for 
+	  change provenance tracking, as defined in myequivalents-core-prov. The war associated to this module is generated 
+	  by re-importing files from the 'parent' myequivalents-web module, using Maven overlays.
+  </description>
   
   <dependencies>
   

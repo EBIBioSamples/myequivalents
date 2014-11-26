@@ -25,12 +25,15 @@ public interface AccessControlManager extends MyEquivalentsManager
 	public User setFullAuthenticationCredentials ( String email, String userPassword ) throws SecurityException;
 
 	/**
-	 * Changes user data. You need {@link #setFullAuthenticationCredentials(String, String)} for this and you need 
-	 * to be administrator to change a user different than the one is logged in or to change the role of any user.
+	 * <p>Changes user data. You need {@link #setFullAuthenticationCredentials(String, String)} for this and you need 
+	 * to be administrator to change a user different than the one is logged in or to change the role of any user.</p>
 	 * 
-	 * WARNING: When storing a user {@link User#getPassword() user.passwordHash} 
-	 * or {@link User#getApiPassword() user.apiPasswordHash}. The parameter will send to  
-
+	 * <p>WARNING: When storing a user {@link User#getPassword()} 
+	 * or {@link User#getApiPassword()}, if not null, must be a clear password. The underlining implementation will 
+	 * save an {@link User#hashPassword(String) hash}, rather than this clear version. Null passwords keep the previous 
+	 * values in the storage back end, if the user already exists, an error is triggered if the null password is 
+	 * sent for a new user.</p>   
+	 *
 	 */
 	public void storeUser ( User user );
 	

@@ -3,6 +3,8 @@
   <artifactId>myequivalents-cmdline</artifactId>
   <name>My Equivalents Cmd Line</name>
   
+  <description>A command line-based interface of the myEquivalents functionality</description>
+  
 	<parent>
 		<groupId>uk.ac.ebi.fg</groupId>
 		<artifactId>myequivalents</artifactId>

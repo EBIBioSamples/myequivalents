@@ -19,7 +19,14 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: Comment me!
+ * This implement the REST web service corresponding to {@link ServiceManager}, using the Jersey library and hence
+ * JAX-RS. See {@link uk.ac.ebi.fg.myequivalents.webservices.client.ServiceWSClientIT} for usage examples}.
+ *
+ * <p>Usually these services are located at /ws/mapping, e.g., 
+ * "https://localhost:8080/ws/service/get?service=service1". You can build the path by appending the value in 
+ * &#064;Path (which annotates every service method) to /service.</p> 
+ *
+ * @see EntityMappingWebService.
  *
  * <dl><dt>date</dt><dd>25 Oct 2013</dd></dl>
  * @author Marco Brandizi
@@ -30,6 +37,9 @@ public class ServiceWebService
 {
 	protected final Logger log = LoggerFactory.getLogger ( this.getClass () );
 
+	/**
+	 * This is the equivalent of {@link ServiceManager#storeServicesFromXML(java.io.Reader)}.
+	 */
 	@POST
 	@Path( "/store" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -45,6 +55,9 @@ public class ServiceWebService
 	}
 	
 	
+	/**
+	 * This is the equivalent of {@link ServiceManager#deleteServices(String...)}.
+	 */
 	@POST
 	@Path( "/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -60,6 +73,9 @@ public class ServiceWebService
 		return String.valueOf ( result );
 	}
 
+	/**
+	 * This is the equivalent of {@link ServiceManager#getServices(String...)}.
+	 */
 	@POST
 	@Path( "/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -76,6 +92,9 @@ public class ServiceWebService
 		return result;
 	}
 
+	/**
+	 * This is an HTTP/GET version of {@link #getServices(String, String, List)}.
+	 */
 	@GET
 	@Path( "/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -89,7 +108,9 @@ public class ServiceWebService
 	}
 
 	
-
+	/**
+	 * The equivalent of {@link ServiceManager#getServiceCollections(String...)}.
+	 */
 	@POST
 	@Path( "/service-collection/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -106,6 +127,9 @@ public class ServiceWebService
 		return result;
 	}
 
+	/**
+	 * A HTTP/GET version of {@link #getServiceCollections(String, String, List)}.
+	 */
 	@GET
 	@Path( "/service-collection/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -118,6 +142,10 @@ public class ServiceWebService
 		return getServices ( authEmail, authApiPassword, serviceCollNames );
 	}	
 	
+	/**
+	 * The equivalent of {@link ServiceManager#deleteServiceCollections(String...)}.
+	 * @return an integer in the form of a string, cause Jersey doesn't like other types very much.
+	 */
 	@POST
 	@Path( "/service-collection/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -135,7 +163,9 @@ public class ServiceWebService
 	
 	
 	
-	
+	/**
+	 * The equivalent of {@link ServiceManager#getRepositories(String...)}
+	 */
 	@POST
 	@Path( "/repository/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -152,6 +182,9 @@ public class ServiceWebService
 		return result;
 	}
 
+	/**
+	 * An HTTP/GET version of {@link #getRepositoriesViaGET(String, String, List)}.
+	 */
 	@GET
 	@Path( "/repository/get" )
 	@Produces ( MediaType.APPLICATION_XML )
@@ -164,10 +197,14 @@ public class ServiceWebService
 		return getServices ( authEmail, authApiPassword, repoNames );
 	}	
 	
+	/**
+	 * The equivalent of {@link ServiceManager#deleteRepositories(String...)}.
+	 * @return an integer in the form of a string, cause Jersey doesn't like other types very much.
+	 */
 	@POST
 	@Path( "/repository/delete" )
 	@Produces ( MediaType.APPLICATION_XML )
-	public String deleteServiceRepositories (
+	public String deleteRepositories (
 		@FormParam ( "login" ) String authEmail, 
 		@FormParam ( "login-secret" ) String authApiPassword,
 		@FormParam ( "repository" ) List<String> repoNames 
@@ -181,7 +218,12 @@ public class ServiceWebService
 	}
 	
 	
-	
+	/** 
+	 * Gets the {@link ServiceManager} that is used internally in this web service. This is obtained from
+	 * {@link Resources} and hence it depends on the Spring configuration, accessed through {@link WebInitializer}. 
+	 * 
+	 * TODO: AOP 
+	 */
 	private ServiceManager getServiceManager ( String authEmail, String authApiPassword ) 
 	{
 		log.trace ( "Returning access manager for the user {}, {}", authEmail, authApiPassword == null ? null: "***" );

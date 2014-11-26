@@ -10,6 +10,8 @@
 
   <name>My Equivalents Web App and Web Services</name>
 
+	<description>A set of web services that map the myEquivalents functionality.</description>
+
 	<dependencies>
 
 		<!-- Use Logback as concrete logger -->

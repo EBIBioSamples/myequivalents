@@ -9,7 +9,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * The 'user get' command, a wrapper for {@link AccessControlManager#getUserAs(String, String)}.
+ * The line command for {@link AccessControlManager#getUserAs(String, String)}.
  *
  * <dl><dt>date</dt><dd>Jul 31, 2012</dd></dl>
  * @author Marco Brandizi

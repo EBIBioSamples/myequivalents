@@ -15,7 +15,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
- * TODO: Comment me!
+ * Various tests for {@link ServiceDAO}.
  *
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
