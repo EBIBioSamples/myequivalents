@@ -201,7 +201,8 @@ public class DbServiceManager extends DbMyEquivalentsManager implements ServiceM
 	 * Invokes {@link #getServices(String...)} and wraps the result into XML.
 	 *   
 	 * TODO: document the format. This is auto-generated via JAXB from {@link ServiceSearchResult} and reflects that class, for
-	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
+	 * the moment examples are available in JUnit tests: {@link uk.ac.ebi.fg.myequivalents.managers.ServiceManagerTest}, 
+	 * {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 * 
 	 */
 	private String getServicesAsXml ( String... names )
@@ -342,7 +343,8 @@ public class DbServiceManager extends DbMyEquivalentsManager implements ServiceM
 	 * Invokes {@link #getRepositories(String...)} and wraps the result into XML.
 	 *   
 	 * TODO: document the format. This is auto-generated via JAXB from {@link ServiceSearchResult} and reflects that class, for
-	 * the moment examples are available in JUnit tests: {@link ServiceManagerTest}, {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
+	 * the moment examples are available in JUnit tests: {@link uk.ac.ebi.fg.myequivalents.managers.ServiceManagerTest},
+	 * {@link uk.ac.ebi.fg.myequivalents.cmdline.MainTest}.
 	 */
 	private String getRepositoriesAsXml ( String... names )
 	{

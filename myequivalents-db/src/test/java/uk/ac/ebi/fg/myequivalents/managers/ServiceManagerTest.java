@@ -56,7 +56,7 @@ public class ServiceManagerTest
 	@Before
 	public void init ()
 	{
-		// Someone around is changing this
+		// Something around is changing this
 		editorUser = new User ( 
 			"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret 
 		);
