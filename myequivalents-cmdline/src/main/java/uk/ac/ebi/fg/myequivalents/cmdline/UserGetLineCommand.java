@@ -4,7 +4,6 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
-
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 

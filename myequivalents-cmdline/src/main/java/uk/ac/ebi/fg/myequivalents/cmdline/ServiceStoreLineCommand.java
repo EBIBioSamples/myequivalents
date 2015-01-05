@@ -11,6 +11,7 @@ import java.io.Reader;
 
 import org.apache.commons.cli.CommandLine;
 
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 

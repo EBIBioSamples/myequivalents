@@ -7,6 +7,7 @@ import static java.lang.System.err;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
