@@ -71,7 +71,7 @@ public class Resources
    * 
 	 */
 	@SuppressWarnings ( "unchecked" )
-	public <MF extends ManagerFactory> MF getMyEqManagerFactory ( String springConfigFileName )
+	public synchronized <MF extends ManagerFactory> MF getMyEqManagerFactory ( String springConfigFileName )
 	{
 		if ( myEqManagerFactory != null ) return (MF) myEqManagerFactory;
 		return (MF) (myEqManagerFactory = (ManagerFactory) getSpringApplicationContext( springConfigFileName )
@@ -91,7 +91,7 @@ public class Resources
 	 * Get the spring application context from the configFileName spring file. The locations
 	 * this file is looked for are described in {@link #getMyEqManagerFactory()}. 
 	 */
-	public ApplicationContext getSpringApplicationContext ( String configFileName )
+	public synchronized ApplicationContext getSpringApplicationContext ( String configFileName )
 	{
 		if ( springApplicationContext != null ) return springApplicationContext;
 		 

@@ -27,7 +27,10 @@ import org.hibernate.annotations.NamedQuery;
 @Table( name = "entity_mapping" )
 @org.hibernate.annotations.Table ( 
 	appliesTo = "entity_mapping", 
-	indexes = { @Index ( name = "entity_mapping_s", columnNames = "service_name" ) } 
+	indexes = { 
+		@Index ( name = "entity_mapping_s", columnNames = "service_name" ),
+		@Index ( name = "entity_mapping_a", columnNames = "accession" )
+	} 
 )
 
 /* Used in the DAO, improve speed dramatically, cause it saves a lot of parsing time */

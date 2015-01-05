@@ -126,6 +126,7 @@ public class Service extends Describeable
 	}
 
 	@XmlAttribute ( name = "uri-prefix" )
+	@Column ( name = "uri_prefix" )
 	public String getUriPrefix ()
 	{
 		return uriPrefix;
@@ -137,6 +138,7 @@ public class Service extends Describeable
 	}
 
 	@XmlAttribute ( name = "uri-pattern" )
+	@Column ( name = "uri_pattern" )
 	public String getUriPattern ()
 	{
 		return uriPattern;

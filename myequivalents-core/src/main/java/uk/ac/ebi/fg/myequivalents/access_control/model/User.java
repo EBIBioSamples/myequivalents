@@ -17,10 +17,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import uk.ac.ebi.fg.myequivalents.utils.jaxb.PasswordJaxbXmlAdapter;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Index;
+
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.PasswordJaxbXmlAdapter;
 
 /**
  * A system user. This is used to manage a minimum form of access control and provenance.
