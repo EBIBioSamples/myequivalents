@@ -1,8 +1,11 @@
 package uk.ac.ebi.fg.myequivalents.provenance.utils;
 
 import static org.junit.Assert.assertEquals;
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.*;
-import static uk.ac.ebi.fg.myequivalents.provenance.utils.ProvenanceUtils.*;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.pent;
+import static uk.ac.ebi.fg.myequivalents.provenance.utils.ProvenanceUtils.getAllEntityIds;
+import static uk.ac.ebi.fg.myequivalents.provenance.utils.ProvenanceUtils.getOperations;
+import static uk.ac.ebi.fg.myequivalents.provenance.utils.ProvenanceUtils.getUserEmails;
 
 import java.util.ArrayList;
 import java.util.Arrays;
