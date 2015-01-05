@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>uk.ac.ebi.fg</groupId>
+    <artifactId>myequivalents</artifactId>
+    <version>0.4-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>myequivalents-perftest</artifactId>
+  <name>myequivalents-perftest</name>
+
+  <dependencies>
+
+		<!-- Project Modules -->
+
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>myequivalents-prov-core</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+
+		<!-- TEST -->
+
+		<!-- Intercepts log4j and sends it to SL4J -->		
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- Do the same for commons -->
+		<dependency>
+		  <groupId>commons-logging</groupId>
+		  <artifactId>commons-logging</artifactId>
+		  <version>1.1.1</version>
+		  <scope>provided</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>jcl-over-slf4j</artifactId>
+		  <scope>test</scope>
+		</dependency>		
+
+		<!-- Use Logback as concrete test logger -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.tempus-fugit</groupId>
+			<artifactId>tempus-fugit</artifactId>
+			<scope>test</scope>
+		</dependency>	  
+
+  </dependencies>
+  
+  <build>
+		<finalName>myequivalents-perftest_${project.version}</finalName>
+	</build>
+  
+  <profiles>
+  	<profile>
+  		<id>perftest.db</id>
+  		<activation><activeByDefault>true</activeByDefault></activation>
+  		<properties>
+  			<test.myequivalents.managerFactoryClass>uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory</test.myequivalents.managerFactoryClass>
+  		</properties>
+  		<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-db</artifactId>
+					<version>${project.version}</version>
+					<scope>test</scope>
+				</dependency>
+  		</dependencies>
+  	</profile>
+  	
+  	<profile>
+  		<id>perftest.prov_db</id>
+  		<properties>
+  			<test.myequivalents.managerFactoryClass>uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbManagerFactory</test.myequivalents.managerFactoryClass>
+  		</properties>
+  		<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-prov-db</artifactId>
+					<version>${project.version}</version>
+					<scope>test</scope>
+				</dependency>
+  		</dependencies>
+  	</profile>
+  	
+  </profiles>
+</project>
