@@ -18,8 +18,8 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.hibernate.SQLQuery;
-import org.hibernate.jpa.HibernateEntityManager;
 import org.hibernate.jdbc.Work;
+import org.hibernate.jpa.HibernateEntityManager;
 import org.hibernate.type.StringType;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
@@ -562,7 +562,7 @@ public class EntityMappingDAO
 		bundle1 = StringUtils.trimToNull ( bundle1 );
 		bundle2 = StringUtils.trimToNull ( bundle2 );
 
-		// Bundles have roughly the same size, let's choose the one to update randomly, just to make the the no. of times
+		// Bundles have roughly the same size, let's choose which one to update randomly, just to make the no. of times
 		// that the smaller bundle is chosen uniform.
 		//
 		if ( random.nextBoolean () )

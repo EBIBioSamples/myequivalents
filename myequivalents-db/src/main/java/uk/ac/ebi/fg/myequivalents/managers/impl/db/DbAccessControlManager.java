@@ -1,5 +1,8 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
+import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.STR2DATE;
+import static uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter.STR2BOOL;
+
 import java.io.Reader;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +29,6 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
-import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.STR2DATE;
-import static uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter.STR2BOOL;
 
 /**
  * The relational version of {@link AccessControlManager}. 
