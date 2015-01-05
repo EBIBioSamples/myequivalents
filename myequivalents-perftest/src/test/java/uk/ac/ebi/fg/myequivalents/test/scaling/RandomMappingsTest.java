@@ -5,9 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -17,7 +15,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,7 +39,6 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 import uk.ac.ebi.utils.time.XStopWatch;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
-import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 
 /**
  * Perform some scaling tests. 
@@ -365,7 +361,7 @@ public class RandomMappingsTest
 	 * WARNING: this won't work unless you test with a Maven profile that it's using provenance extenstions. 
 	 * 
 	 */
-	@Test //@Ignore ( "Not a proper JUnit test, very time-consuming" )
+	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
 	//@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
 	public void readRandomMappingProvs () throws Exception
 	{
