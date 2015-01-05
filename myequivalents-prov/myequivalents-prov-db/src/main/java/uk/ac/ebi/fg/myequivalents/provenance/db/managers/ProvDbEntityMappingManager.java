@@ -1,6 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.*;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.pent;
 
 import java.util.Arrays;
 

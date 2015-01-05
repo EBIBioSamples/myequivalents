@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 
-import static uk.ac.ebi.utils.sql.HqlUtils.*;
+import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeBinding;
+import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeClause;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -133,7 +134,7 @@ public class ProvenanceRegisterEntryDAO
 	{
 		String[] echunks = EntityMappingUtils.parseEntityId ( entityId );
 		// SELECT DISTINCT e FROM ProvenanceRegisterEntry AS e JOIN e.parameters AS x
-		// WHERE e.operation LIKE 'mapping.storeMapping%' AND x.valueType = 'entity'
+		// WHERE e.operation IN ( 'mapping.storeMappings', 'mapping.storeMappingBundle' ) AND x.valueType = 'entity'
 		// AND x.value = 'service' AND x.extraValue = 'acc'
 		// AND e.userEmail IN ( ... )
 
@@ -141,7 +142,7 @@ public class ProvenanceRegisterEntryDAO
 		DetachedCriteria crit = DetachedCriteria.forClass ( ProvenanceRegisterEntry.class, "e" );
 		crit.setProjection ( Projections.distinct ( Projections.id () ) );
 		crit.createAlias ( "e.parameters", "x" );
-		crit.add ( Restrictions.like ( "e.operation", "mapping.storeMapping%" ) );
+		crit.add ( Restrictions.in ( "e.operation", new String[] { "mapping.storeMappings", "mapping.storeMappingBundle" } ) );
 		crit.add ( Restrictions.eq ( "x.valueType", "entity" ) );
 		crit.add ( Restrictions.eq ( "x.value", echunks [ 0 ] ) );
 		crit.add ( Restrictions.eq ( "x.extraValue", echunks [ 1 ] ) );
@@ -225,6 +226,7 @@ public class ProvenanceRegisterEntryDAO
 	 * Implements {@link ProvRegistryManager#purge(Date, Date)} as a search into the myEquivalents
 	 * relational database.
 	 */
+	@SuppressWarnings ( "unchecked" )
 	public int purge ( Date from, Date to )
 	{
 		Set<ProvenanceRegisterEntry> toDelete = new HashSet<> (), toKeep = new HashSet<> ();

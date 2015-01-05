@@ -1,6 +1,9 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
 
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.pent;
+
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -15,7 +18,6 @@ import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbAccessControlManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.*;
 
 /**
  * A wrapper of {@link DbAccessControlManager} that uses the provenance register to keep track of access-control
