@@ -224,9 +224,12 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 			HttpPost post = new HttpPost ( this.baseUrl + getServicePath () + reqPath );
 			// Params need to be converted this way
 			List<NameValuePair> params = new ArrayList<NameValuePair> ();
-			for ( String pname: req.keySet () ) 
-				for ( String val: req.get ( pname ) ) 
+			for ( Map.Entry<String, List<String>> entry: req.entrySet () )
+			{
+				String pname = entry.getKey ();
+				for ( String val: entry.getValue () ) 
 					params.add ( new BasicNameValuePair ( pname, val ) );
+			}
 			post.setEntity ( new UrlEncodedFormEntity ( params, "UTF-8" ) );
 			post.setHeader ( "Accept", acceptValue );
 			

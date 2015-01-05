@@ -3,10 +3,11 @@ package uk.ac.ebi.fg.myequivalents.webservices.client;
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static java.lang.System.out;
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.assertEquals;
+import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
 
 import java.util.Collection;
 
@@ -17,7 +18,6 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
 
 /**
  * Tests the Web service client for the mappings. This relies on some data that are initialised by the myequivalents-web

@@ -5,13 +5,13 @@ import java.io.Reader;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.sun.jersey.api.representation.Form;
-
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.utils.io.IOUtils;
+
+import com.sun.jersey.api.representation.Form;
 
 /**
  * 

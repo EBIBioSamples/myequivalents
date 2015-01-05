@@ -5,6 +5,9 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
+import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_SECRET;
+import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_USER;
 
 import java.io.StringReader;
 import java.util.GregorianCalendar;
@@ -13,7 +16,6 @@ import javax.xml.bind.JAXBException;
 
 import org.joda.time.DateMidnight;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,9 +25,6 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
-import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_USER;
-import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.EDITOR_SECRET;
 
 /**
  * Tests for {@link ServiceWSClient}.
