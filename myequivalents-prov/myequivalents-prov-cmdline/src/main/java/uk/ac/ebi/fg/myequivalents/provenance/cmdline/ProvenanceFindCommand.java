@@ -1,6 +1,8 @@
 package uk.ac.ebi.fg.myequivalents.provenance.cmdline;
 
 import static java.lang.System.err;
+import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.DATE_FMT_REPRESENTATION;
+import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.STR2DATE;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,7 +17,6 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.*;
 
 /**
  * TODO: comment me! 

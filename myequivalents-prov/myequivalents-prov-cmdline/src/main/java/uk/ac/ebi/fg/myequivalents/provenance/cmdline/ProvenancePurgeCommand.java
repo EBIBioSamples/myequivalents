@@ -2,20 +2,16 @@ package uk.ac.ebi.fg.myequivalents.provenance.cmdline;
 
 import static java.lang.System.err;
 import static java.lang.System.out;
+import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.STR2DATE;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 
 import uk.ac.ebi.fg.myequivalents.cmdline.LineCommand;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
-import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import static uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter.*;
 
 /**
  * TODO: comment me! 
