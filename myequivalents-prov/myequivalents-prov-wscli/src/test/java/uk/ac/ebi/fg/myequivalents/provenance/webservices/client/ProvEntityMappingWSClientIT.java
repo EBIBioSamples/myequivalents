@@ -3,8 +3,8 @@ package uk.ac.ebi.fg.myequivalents.provenance.webservices.client;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
-import static uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer.editorUser;
 import static uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer.editorSecret;
+import static uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer.editorUser;
 
 import java.io.InputStreamReader;
 import java.io.Reader;

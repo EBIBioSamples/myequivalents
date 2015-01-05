@@ -2,6 +2,7 @@ package uk.ac.ebi.fg.myequivalents.provenance.webservices.client;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 import static uk.ac.ebi.fg.myequivalents.provenance.webservices.server.ProvRegistryWebService.e;
 import static uk.ac.ebi.fg.myequivalents.provenance.webservices.server.ProvRegistryWebService.e1;
 
@@ -9,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,6 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer;
-import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 
 /**
  * TODO: Comment me!
