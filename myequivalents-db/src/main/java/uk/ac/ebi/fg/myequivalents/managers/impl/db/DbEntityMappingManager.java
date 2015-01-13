@@ -54,6 +54,7 @@ public class DbEntityMappingManager extends DbMyEquivalentsManager implements En
 		);
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
+			userDao.enforceRole ( EDITOR );
 			if ( entityIds.length == 2 )
 				entityMappingDAO.storeMapping ( entityIds [ 0 ], entityIds [ 1 ] );
 			else
@@ -66,7 +67,7 @@ public class DbEntityMappingManager extends DbMyEquivalentsManager implements En
 	{
 		EntityTransaction ts = entityManager.getTransaction ();
 		ts.begin ();
-				userDao.enforceRole ( EDITOR );
+			userDao.enforceRole ( EDITOR );
 		  entityMappingDAO.storeMappingBundle ( entityIds );
 		ts.commit ();
 	}

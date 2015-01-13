@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -39,6 +40,7 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 import uk.ac.ebi.utils.time.XStopWatch;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
+import com.google.code.tempusfugit.concurrency.annotations.Concurrent;
 
 /**
  * Perform some scaling tests. 
@@ -56,56 +58,64 @@ public class RandomMappingsTest
 		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
 	/** No of services that are generated for the test */
-	public final static int NSERVICES = 20;
+	public static final int NSERVICES = 20;
 	  
 	/** No of types generated for the test */
-	public final int NTYPES = 5; 
+	public static final int NTYPES = 5; 
 	  
 	/** No of random bundles generated for the test 
 	 *  This is overridden by the system property "myequivalents.test.scaling.nbundles"
 	 */
-	public final static int NBUNDLES = 100; 
+	public static final int NBUNDLES = (int) 300000/15; 
 	  
 	/** Bundles have a random size between 2 and this value */
-	public final static int MAX_BUNDLE_SIZE = 5;
+	public static final int MAX_BUNDLE_SIZE = 5;
 	  
   /** Sometimes pair of entities mappings are stored as mappings, in addition to storing a whole bundle. this is 
    * done to cover the performance of all operations. This is the ratio (range is 0-100) with which this operation 
    * is done. 
    */
-	public final static int SINGLE_MAPPING_RATIO = 30;
+	public static final int SINGLE_MAPPING_RATIO = 0;
 	
 	/**
 	 * How many random readings per thread are done by {@link #readRandomMappings()}.
 	 * 
 	 */
-	public final static int NREADINGS = 1000;
+	public static final int NREADINGS = 1000;
 	
 	/**
 	 * A number of readings in methods like {@link #readRandomMappings()} are about non-existing mappings
 	 */
-	public final static int VOID_READING_RATIO = 25;
+	public static final int VOID_READING_RATIO = 50;
 
 	/**
 	 * How many parallel threads are instantiated that run methods like {@link #readRandomMappings()}.
+	 * Beware that {@link #generateRandomMappings()} will called before each reading thread 
+	 * (hence {@link #NBUNDLES} * {@link #NREADING_THREADS} bundles will be generated).
 	 */
-	public final static int NREADING_THREADS = 100;
+	public static final int NREADING_THREADS = 15;
+
 	
 	/**
 	 * Random entities are generated and the IDs put here.
 	 */
-	public final static String TEST_ENTITIES_FILE_PATH = "target/random_generated_entity_ids.lst";
+	public static final String TEST_ENTITIES_FILE_PATH = "target/random_generated_entity_ids.lst";
 	
 	@Rule
 	public ConcurrentRule concurrentRule = new ConcurrentRule ();
 	
+	private static AtomicInteger executionIdx = new AtomicInteger ( 0 );
 	
+
 	private Logger log = LoggerFactory.getLogger ( Resources.class );
+	
+	
 
 	/**
-	 * Creates a bunch of services, numbered from 1 to {@link #NSERVICES}.  
+	 * Creates a bunch of services, numbered from 1 to {@link #NSERVICES}.
+	 * This is only called when {@link #NREADING_THREADS} is 1. Cannot work in multi-thread mode. TODO: fix.
 	 */
-	private void initRandomGeneration ()
+	private void initRandomGeneration () throws Exception
 	{
 		ManagerFactory mgrFact = (ManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		
@@ -123,6 +133,7 @@ public class RandomMappingsTest
 			em.createNativeQuery ( "delete from service where NAME LIKE '%scaling%'" ).executeUpdate ();
 			em.createNativeQuery ( "delete from repository where NAME LIKE '%scaling%'" ).executeUpdate ();
 			em.createNativeQuery ( "delete from service_collection where NAME LIKE '%scaling%'" ).executeUpdate ();
+			
 			ts.commit ();
 	
 			// Store an editor user
@@ -131,6 +142,8 @@ public class RandomMappingsTest
 			ts.begin ();
 			userDao.storeUnauthorized ( editorUser );
 			ts.commit ();
+			
+			em.close ();
 		
 		} // if  mgrFact
 		
@@ -160,7 +173,13 @@ public class RandomMappingsTest
 	 */
 	private void generateRandomMappings () throws Exception
 	{
-		initRandomGeneration ();
+		// if ( true ) return;
+		
+		// TODO: bad stuff, we should call it once
+		if ( NREADING_THREADS == 1 ) initRandomGeneration ();
+			
+		int execId = executionIdx.getAndIncrement ();
+		
 		Random rnd = new Random ( System.currentTimeMillis () );
 		int entIdx = 0;
 		
@@ -172,7 +191,8 @@ public class RandomMappingsTest
 		);
 		
 		PrintStream out = new PrintStream ( new BufferedOutputStream ( new FileOutputStream ( new File ( 
-			TEST_ENTITIES_FILE_PATH ) )) );
+			TEST_ENTITIES_FILE_PATH + ( execId == 0 ? "" : "." + execId )
+		) )) );
 		
 		int nbundles = Integer.parseInt ( System.getProperty ( "myequivalents.test.scaling.nbundles", "" + NBUNDLES ) );
 		
@@ -187,7 +207,7 @@ public class RandomMappingsTest
 			for ( int ient = 0; ient < bundleSize; ient++ )
 			{
 				int iserv = rnd.nextInt ( NSERVICES ) + 1;
-				String entityId = "test.scaling.service" + iserv + ":test.scaling.entity" + entIdx;
+				String entityId = "test.scaling.service" + iserv + ":test.scaling.entity_" + execId + "_" + entIdx;
 				entityIds [ ient ] = entityId;
 				out.println ( entityId );
 				
@@ -196,7 +216,7 @@ public class RandomMappingsTest
 				if ( mappingStored )
 				{
 					int prevEntId = entIdx - ( rnd.nextInt ( ient ) + 1 );
-					String entityPrevId = "test.scaling.service" + iserv + ":test.scaling.entity" + prevEntId;
+					String entityPrevId = "test.scaling.service" + iserv + ":test.scaling.entity_" + execId + "_" + prevEntId;
 					stopw.resumeOrStart ();
 					mapMgr.storeMappings ( entityPrevId, entityId );
 					stopw.suspend ();
@@ -211,10 +231,13 @@ public class RandomMappingsTest
 			mapMgr.storeMappingBundle ( entityIds );
 			stopw.suspend ();
 			nExecutedOperations++;
-			log.debug ( "" + ibundle + " done" );
+			
+			String lmsg = ibundle + " bundles stored";
+			if ( ibundle % 100 == 0 ) log.info ( lmsg ); else log.debug ( lmsg );
 		
 		} // for ibundle
 		
+		mapMgr.close ();
 		
 		if ( mgrFact instanceof DbManagerFactory )
 		{
@@ -222,6 +245,7 @@ public class RandomMappingsTest
 			EntityManager em = ((DbManagerFactory) mgrFact).getEntityManagerFactory ().createEntityManager ();
 			long nents = ((Number) em.createNativeQuery ( 
 				"select count(*) from ENTITY_MAPPING where SERVICE_NAME LIKE '%scaling%'" ).getSingleResult ()).longValue ();
+			em.close ();
 			
 			log.info ( "-------- Initialisation done, I've stored {} entities in {} secs -------", nents, stopw.getTime () / 1000.0 );
 		}
@@ -234,11 +258,12 @@ public class RandomMappingsTest
 		
 	} // generateRandomMappings()
 	
+	
 	/**
 	 * Queries for mappings generated by {@link #generateRandomMappings()} and reports about performance.
 	 */
 	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
-	//@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
+	@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
 	public void readRandomMappings () throws Exception
 	{
 		generateRandomMappings ();
@@ -282,6 +307,8 @@ public class RandomMappingsTest
 		
 		} // for nreading
 		
+		mapMgr.close ();
+		
 		
 		if ( mgrFact instanceof DbManagerFactory )
 		{
@@ -289,6 +316,7 @@ public class RandomMappingsTest
 			EntityManager em = ((DbManagerFactory) mgrFact).getEntityManagerFactory ().createEntityManager ();
 			long nents = ((Number) em.createNativeQuery ( 
 					"select count(*) from ENTITY_MAPPING where SERVICE_NAME LIKE '%scaling%'" ).getSingleResult ()).longValue ();
+			em.close ();
 			
 			log.info ( String.format ( "-------- Test finished, I've read %d mappings (from %d entities) in %f secs -------", 
 				NREADINGS, nents, stopw.getTime () / 1000.0 ));
@@ -335,6 +363,7 @@ public class RandomMappingsTest
 		
 		} // for ireading
 		
+		mapMgr.close ();
 		
 		if ( mgrFact instanceof DbManagerFactory )
 		{
@@ -342,6 +371,7 @@ public class RandomMappingsTest
 			EntityManager em = ((DbManagerFactory) mgrFact).getEntityManagerFactory ().createEntityManager ();
 			long nents = ((Number) em.createNativeQuery ( 
 				"select count(*) from ENTITY_MAPPING" ).getSingleResult ()).longValue ();
+			em.close ();
 			
 			log.info ( String.format ( "-------- Test finished, I've read %d mappings (from %d entities) in %f secs -------", 
 				nreads, nents, stopw.getTime () / 1000.0 ));
@@ -361,8 +391,8 @@ public class RandomMappingsTest
 	 * WARNING: this won't work unless you test with a Maven profile that it's using provenance extenstions. 
 	 * 
 	 */
-	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
-	//@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
+	@Test //@Ignore ( "Not a proper JUnit test, very time-consuming" )
+	@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
 	public void readRandomMappingProvs () throws Exception
 	{
 		generateRandomMappings ();
@@ -410,9 +440,13 @@ public class RandomMappingsTest
 			stopw.suspend ();
 			
 			//log.info ( MessageFormat.format ( "---- Provs for ({0}, {1}):\n{2}", entityId1, entityId2, payLoad ) );
-			if ( nreading % 100 == 0 ) log.info ( "--- Done {} reads", nreading );
+			if ( nreading % 100 == 0 ) log.info ( "--- Done {} reads, elapsed time: {}s", nreading, stopw.getTime () / 1000d );
 		
 		} // for nreading
+		
+
+		mapMgr.close ();
+		provMgr.close ();
 		
 		
 		if ( mgrFact instanceof DbManagerFactory )
@@ -420,7 +454,8 @@ public class RandomMappingsTest
 			// How many mapping entities you worked with?
 			EntityManager em = ((DbManagerFactory) mgrFact).getEntityManagerFactory ().createEntityManager ();
 			long nents = ((Number) em.createNativeQuery ( 
-					"select count(*) from ENTITY_MAPPING where SERVICE_NAME LIKE '%scaling%'" ).getSingleResult ()).longValue ();
+				"select count(*) from ENTITY_MAPPING where SERVICE_NAME LIKE '%scaling%'" ).getSingleResult ()).longValue ();
+			em.close ();
 			
 			log.info ( String.format ( "-------- Test finished, I've read provenance records from %d mappings (from %d entities) in %f secs -------", 
 				NREADINGS, nents, stopw.getTime () / 1000.0 ));

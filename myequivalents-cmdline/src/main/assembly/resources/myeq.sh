@@ -14,7 +14,7 @@ OPTS="$OPTS -Xms2G -Xmx4G -XX:PermSize=128m -XX:MaxPermSize=256m"
 # We always work with universal text encoding.
 OPTS="$OPTS -Dfile.encoding=UTF-8"
 
-# Monitoring with jconsole (end-user doesn't usually need this)
+# Monitoring with jvisualvm/jconsole (end-user doesn't usually need this)
 #OPTS="$OPTS 
 # -Dcom.sun.management.jmxremote.port=5010
 # -Dcom.sun.management.jmxremote.authenticate=false
@@ -23,10 +23,6 @@ OPTS="$OPTS -Dfile.encoding=UTF-8"
 # Used for invoking a command in debug mode (end user doesn't usually need this)
 #OPTS="$OPTS -Xdebug -Xnoagent"
 #OPTS="$OPTS -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
-
-# The Database driver. You need to set this to your driver, in case you don't use one of the provided ones
-# 
-#JDBCPATH=/path/to/jdbc_driver.jar
 
 # You shouldn't need to change the rest
 #

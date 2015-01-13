@@ -40,7 +40,19 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 public class EntityMappingDAO
 {
 	private EntityManager entityManager;
-	private static MessageDigest messageDigest = null;
+	private static ThreadLocal<MessageDigest> localMessageDigest = new ThreadLocal<MessageDigest> () 
+	{
+		@Override
+		protected MessageDigest initialValue ()
+		{
+			try {
+				return MessageDigest.getInstance ( "SHA1" );
+			} 
+			catch ( NoSuchAlgorithmException ex ) {
+				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
+			}
+		}		
+	};
 	private final Random random = new Random ( System.currentTimeMillis () );
 	
 	
@@ -604,7 +616,8 @@ public class EntityMappingDAO
 		);
 		
 		// We've seen this problem (http://stackoverflow.com/questions/4873201/hibernate-native-query-char3-column)
-		q.unwrap ( SQLQuery.class ).addScalar ( "bundle", StringType.INSTANCE );
+		q.unwrap ( SQLQuery.class ).addScalar ( "bundle", StringType.INSTANCE )
+		 .setMaxResults ( 1 );
 		
 		@SuppressWarnings ( "unchecked" )
 		List<String> results = q.getResultList ();
@@ -612,13 +625,6 @@ public class EntityMappingDAO
 		return results.isEmpty () ? null : results.iterator ().next ();
 	}
 	
-	/*private boolean bundleExists ( String bundle )
-	{
-		Query q = entityManager.createNativeQuery ( "SELECT bundle FROM entity_mapping WHERE bundle = '" + bundle + "'" );
-		q.setMaxResults ( 1 );
-		return q.getResultList ().size () > 0;
-	}*/
-
 	/**
 	 * Deletes a bundle by ID, i.e., removes all the {@link EntityMapping} that have the parameter as bundle ID.  
 	 * 
@@ -642,20 +648,11 @@ public class EntityMappingDAO
 	 */
 	private String createNewBundleId ( String serviceName, String accession )
 	{
-		if ( messageDigest == null )
-		{
-			try {
-				messageDigest = MessageDigest.getInstance ( "SHA1" );
-			} 
-			catch ( NoSuchAlgorithmException ex ) {
-				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
-			}
-		}
-		
 		// With 20 bytes as input, the BASE64 encoding is always a 27 character string, with the last character always equals
 		// a padding '=', so we don't need the latter in this context  
 		// TODO: the encoder is already available in javax.xml.bind.DatatypeConverter.printBase64Binary() 
 		return DatatypeConverter.printBase64Binary ( 
-			messageDigest.digest ( ( serviceName + accession ).getBytes () ) ).substring (0, 26);
+			localMessageDigest.get ().digest ( ( serviceName + accession ).getBytes () ) 
+		).substring (0, 26);
 	}
 }

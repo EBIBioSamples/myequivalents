@@ -4,6 +4,7 @@ import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeBinding;
 import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeClause;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -133,6 +134,7 @@ public class ProvenanceRegisterEntryDAO
 	public List<ProvenanceRegisterEntry> findEntityMappingProv ( String entityId, List<String> validUsers )
 	{
 		String[] echunks = EntityMappingUtils.parseEntityId ( entityId );
+		
 		// SELECT DISTINCT e FROM ProvenanceRegisterEntry AS e JOIN e.parameters AS x
 		// WHERE e.operation IN ( 'mapping.storeMappings', 'mapping.storeMappingBundle' ) AND x.valueType = 'entity'
 		// AND x.value = 'service' AND x.extraValue = 'acc'
@@ -245,7 +247,7 @@ public class ProvenanceRegisterEntryDAO
 		String firstParamStr = null;
 		for ( Object[] row: (List<Object[]>) qsel.getResultList () )
 		{
-			// System.out.println ( "--- analysing: " + Arrays.asList ( row ) );
+			if ( log.isTraceEnabled () ) log.trace ( "--- analysing entry/param: " + Arrays.asList ( row ) );
 			String paramStr = (String) row [ 1 ] + row [ 2 ] + row [ 3 ];
 			if ( paramStr.equals ( firstParamStr ) )
 			{

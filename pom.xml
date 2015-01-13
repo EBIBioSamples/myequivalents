@@ -35,13 +35,14 @@
   </properties>
 
 	<modules>
-	  <module>myequivalents-core</module>
-	  <module>myequivalents-db</module>
+		<module>myequivalents-core</module>
+		<module>myequivalents-db</module>
 		<module>myequivalents-cmdline</module>
 		<module>myequivalents-web</module>
 		<module>myequivalents-wscli</module>
 		<module>myequivalents-prov</module>
-    <module>myequivalents-perftest</module>
+		<!-- This is only enabled when we do the respective performance tests. -->
+		<!-- module>myequivalents-perftest</module -->
   </modules>
 
 	<dependencies>
@@ -372,7 +373,8 @@
 				<test.jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</test.jdbc.url>
 				<test.jdbc.driverClassName>${oracle.jdbc.driverClassName}</test.jdbc.driverClassName>
 				<test.hibernate.dialect>${oracle.hibernate.dialect}</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>validate</test.hibernate.hbm2ddl.auto>
+				<!-- test.hibernate.hbm2ddl.auto>validate</test.hibernate.hbm2ddl.auto -->
+				<test.hibernate.hbm2ddl.auto/>
 			</properties>
 			<dependencies>
 				<dependency>
