@@ -133,6 +133,9 @@ public class EntityMapping
 	@Id
 	private String accession;
 	
+	/* TODO: Because we moved to UUIDs, this should be changed from 26 to 22, 
+	 * but first we need a script to convert old hash-based IDs to UUIDs. 
+	 */
 	@Column ( columnDefinition = "char(26)", nullable = false, unique = false )
 	@Index ( name = "entity_mapping_b" )
 	private String bundle;
@@ -146,7 +149,7 @@ public class EntityMapping
 	private Date releaseDate = null;
 	
 	
-	public EntityMapping () {
+	protected EntityMapping () {
 		super ();
 	}
 

@@ -33,4 +33,10 @@ public interface ManagerFactory
 	 * modifcation of user details.
 	 */
 	public AccessControlManager newAccessControlManagerFullAuth (  String email, String userPassword );
+	
+	/**
+	 * Provides with a {@link BackupManager}. 
+	 */
+	public BackupManager newBackupManager ( String email, String apiPassword );
+
 }

@@ -3,6 +3,8 @@
  */
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
+import java.io.Reader;
+
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
@@ -41,6 +43,22 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 * You'll get an exception if any of the referred services doesn't exist.
 	 */
 	public void storeMappingBundle ( String ... entityIds );
+	
+	/**
+	 * <p>Store a set of mapping bundles, saved inside an {@link EntityMappingSearchResult} object.
+	 * This is intended to speed up things, when you have many bundles to store, including details
+	 * like entity's release dates or public visibility. For instance, this is used to support 
+	 * data dump/restore functions.</p> 
+	 * 
+	 * <p>You can store {@link Service services} and other non-entity items in the 'mappings' parameter. However, 
+	 * the best performance is usually achieved when you store these objects once and then you call this method
+	 * with the entities only.</p>
+	 *  
+	 * <p>WARNING: still to be tested (TODO).</p>
+	 */
+	public void storeMappingBundles ( EntityMappingSearchResult mappings );
+	
+	public void storeMappingBundlesFromXML ( Reader reader );
 
 	/**
 	 * Deletes mappings between entities. The parameter consists of a list of  
@@ -112,4 +130,5 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 * You may want to invoke this call in {@link Object#finalize()} in the implementation of this interface.
 	 */
 	public void close ();
+
 }

@@ -47,7 +47,7 @@ public class EntityMappingSearchResult
 	@XmlAccessorType ( XmlAccessType.NONE )
 	public static class Bundle
 	{
-		protected Bundle () {
+		private Bundle () {
 		}
 		
 		private Set<Entity> entities = new HashSet<Entity> ();
@@ -161,7 +161,7 @@ public class EntityMappingSearchResult
 	 * {@link ServiceCollection}s and {@link Repository repositories} to this result.
 	 * 
 	 */
-	private void addEntityMapping ( EntityMapping em ) 
+	public void addEntityMapping ( EntityMapping em ) 
 	{
 		String bundleId = em.getBundle ();
 		Bundle bundle = bundles.get ( em.getBundle () );
@@ -182,8 +182,6 @@ public class EntityMappingSearchResult
 	
 	/**
 	 * This is just a wrapper of {@link #addEntityMapping(EntityMapping)}.
-	 * Usually you don't want to use this method, it is intended to be used by the {@link EntityMappingManager} that serves
-	 * this result.
 	 * 
 	 */
 	public void addAllEntityMappings ( Collection<EntityMapping> mappings ) {
