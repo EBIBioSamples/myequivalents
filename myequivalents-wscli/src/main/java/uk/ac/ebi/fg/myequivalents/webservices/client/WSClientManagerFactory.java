@@ -3,6 +3,7 @@ package uk.ac.ebi.fg.myequivalents.webservices.client;
 import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
@@ -102,6 +103,14 @@ public class WSClientManagerFactory implements ManagerFactory
 	{
 		AccessControlWSClient result = new AccessControlWSClient ( this.baseUrl );
 		result.setFullAuthenticationCredentials ( email, userPassword, connectServer );
+		return result;
+	}
+
+	@Override
+	public BackupManager newBackupManager ( String email, String apiPassword )
+	{
+		BackupWSClient result = new BackupWSClient ( this.baseUrl );
+		result.setAuthenticationCredentials ( email, apiPassword );
 		return result;
 	}
 

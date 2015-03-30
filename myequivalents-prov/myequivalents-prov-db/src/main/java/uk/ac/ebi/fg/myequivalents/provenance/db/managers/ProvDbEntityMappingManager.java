@@ -1,16 +1,35 @@
 package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 
+import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.EDITOR;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.pent;
 
+import java.io.Reader;
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import uk.ac.ebi.fg.myequivalents.dao.RepositoryDAO;
+import uk.ac.ebi.fg.myequivalents.dao.ServiceCollectionDAO;
+import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
+import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.Repository;
+import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 
 /**
  * A wrapper of {@link DbEntityMappingManager} that uses the provenance register to keep track of mapping-related
@@ -76,6 +95,44 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 	  ts.commit ();
 	}
 
+	
+	@Override
+	public void storeMappingBundles ( EntityMappingSearchResult mappings )
+	{
+		if ( mappings == null ) return;
+
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+		this.userDao.enforceRole ( EDITOR );
+	  this.entityMappingDAO.storeMappingBundles ( mappings );
+	  
+		// TODO: document that we create multiple provenance entries, to reporta about this single operations,
+	  // as a compromise.
+
+	  List<ProvenanceRegisterParameter> params = new ArrayList<> ();
+		Set<Service> services = mappings.getServices ();
+		if ( services != null )
+		{
+			params.addAll ( p ( mappings.getRepositories () ) );
+			params.addAll ( p ( mappings.getServiceCollections () ) );
+			params.addAll ( p ( mappings.getServices () ) );
+		}
+		
+	  provRegDao.create ( new ProvenanceRegisterEntry ( getUserEmail (), "mapping.storeMappingBundles", params ));
+		
+		for ( Bundle bundle: mappings.getBundles () )
+		{
+		  provRegDao.create ( new ProvenanceRegisterEntry ( 
+		  	getUserEmail (), 
+		  	"mapping.storeMappingBundles", 
+		  	p ( bundle.getEntities () ) 
+		  ));
+		}
+	  
+		ts.commit ();
+	}
+	
+	
 
 	/**
 	 * Stores "mapping.deleteMappings"  and 'entity' parameters into into provenance register

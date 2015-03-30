@@ -21,8 +21,8 @@ import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
-import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
  * <h2>The DB-based {@link ServiceManager} implementation relational database connection straight (without other 

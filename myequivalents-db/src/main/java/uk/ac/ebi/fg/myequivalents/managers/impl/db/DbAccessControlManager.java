@@ -27,8 +27,8 @@ import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
-import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
  * The relational version of {@link AccessControlManager}. 

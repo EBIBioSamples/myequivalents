@@ -1,6 +1,9 @@
 package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +18,8 @@ import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
+import uk.ac.ebi.utils.io.IOUtils;
 
 import com.sun.jersey.api.representation.Form;
 
@@ -62,6 +67,36 @@ public class EntityMappingWSClient extends MyEquivalentsWSClient implements Enti
 
 	  invokeVoidWsReq ( "/bundle/store", req );
 	}
+	
+	
+
+	@Override
+	public void storeMappingBundles ( EntityMappingSearchResult mappings )
+	{
+		storeMappingBundlesFromXML ( 
+			new StringReader ( JAXBUtils.marshal ( mappings, EntityMappingSearchResult.class ) )
+		);
+	}
+
+
+	@Override
+	public void storeMappingBundlesFromXML ( Reader reader )
+	{
+		try
+		{
+			String mappingsXml = IOUtils.readInputFully ( reader ); 
+			Form req = prepareReq ();
+			req.add ( "mappings-xml", mappingsXml );
+			invokeVoidWsReq ( "/bundles/store", req );
+		}
+		catch ( IOException ex )
+		{
+			throw new RuntimeException ( 
+				"Error while invoking the myEq web service for 'bundles/store': " + ex.getMessage (), ex 
+			);
+		}
+	}
+
 
 	@Override
 	public int deleteMappings ( String ... entityIds )

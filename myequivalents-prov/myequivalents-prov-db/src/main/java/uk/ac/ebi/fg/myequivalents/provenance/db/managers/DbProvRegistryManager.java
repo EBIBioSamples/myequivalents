@@ -14,8 +14,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegisterEntryList;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
-import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
  * A DB-based implementation of {@link ProvRegistryManager}. As usually, operations here are committed upon invocation.

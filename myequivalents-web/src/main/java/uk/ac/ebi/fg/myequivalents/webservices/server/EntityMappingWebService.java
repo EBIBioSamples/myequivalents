@@ -1,5 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.webservices.server;
 
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -29,7 +30,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
  * <p>The web service version of the {@link EntityMappingManager} interface. This uses Jersey and set up a REST web service
@@ -126,6 +127,26 @@ public class EntityMappingWebService
 		emgr.close();
 	}
 
+	/**
+	 * This is the equivalent of {@link EntityMappingManager#storeMappingBundles(EntityMappingSearchResult)}.
+	 */
+	@POST
+	@Path( "/bundles/store" )
+	@Produces ( MediaType.APPLICATION_XML )
+	public void storeMappingBundles (
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword,
+		@FormParam ( "mappings-xml" ) String mappingsXml
+	)
+	{
+		EntityMappingManager emgr = getEntityMappingManager ( email, apiPassword );
+		emgr.storeMappingBundlesFromXML ( new StringReader ( mappingsXml ) );
+		emgr.close();
+	}
+
+	
+	
+	
 	/**
 	 * This is the equivalent of {@link EntityMappingManager#deleteMappings(String...)}.
 	 * @return an integer in the form of a string, cause Jersey doesn't like other types very much.

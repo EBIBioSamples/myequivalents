@@ -6,6 +6,7 @@ import javax.persistence.EntityManagerFactory;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
@@ -68,4 +69,12 @@ public class ProvDbManagerFactory extends DbManagerFactory implements ProvManage
 	{
 		return new DbProvRegistryManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
 	}
+
+	@Override
+	public BackupManager newBackupManager ( String email, String apiPassword )
+	{
+		return new ProvDbBackupManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
+	
+	
 }

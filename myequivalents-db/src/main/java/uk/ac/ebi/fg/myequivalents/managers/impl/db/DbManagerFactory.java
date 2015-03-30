@@ -12,6 +12,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
@@ -94,10 +95,16 @@ public class DbManagerFactory implements ManagerFactory
 		return new DbAccessControlManager ( entityManagerFactory.createEntityManager (), email, userPassword, true );
 	}
 
+	@Override
+	public BackupManager newBackupManager ( String email, String apiPassword )
+	{
+		return new DbBackupManager ( entityManagerFactory.createEntityManager (), email, apiPassword );
+	}
 	
 	public EntityManagerFactory getEntityManagerFactory ()
 	{
 		return entityManagerFactory;
 	}
+
 
 }

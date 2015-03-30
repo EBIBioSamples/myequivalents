@@ -10,6 +10,9 @@ import javax.persistence.EntityTransaction;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.dao.access_control.UserDao;
@@ -20,6 +23,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.test.MappingsGenerator;
 
 /**
  * This defines some test data if the system property uk.ac.ebi.fg.myequivalents.test_flag is true. It is attached to 
@@ -51,6 +55,8 @@ public class WebTestDataInitializer implements ServletContextListener
 		"test.admin", "Test", "Admin", adminPass, "test notes", Role.ADMIN, adminSecret 
 	);
 
+	private Logger log = LoggerFactory.getLogger ( this.getClass () );
+	
 	/**
 	 * @see #INIT_FLAG_PROP.
 	 */
@@ -133,6 +139,13 @@ public class WebTestDataInitializer implements ServletContextListener
 		);
 		
 		emapMgr.close ();
+		
+
+		// More data, used to test the backup manager
+		log.info ( "Generating data for testing the backup manager" );
+		MappingsGenerator mgen = new MappingsGenerator ();
+		mgen.generateMappings ();
+		
 	}	
 	
 	@Override
@@ -154,6 +167,11 @@ public class WebTestDataInitializer implements ServletContextListener
 		userDao.deleteUnauthorized ( editorUser.getEmail () );
 		userDao.deleteUnauthorized ( adminUser.getEmail () );
 		ts.commit ();
+		
+		// More data, used to test the backup manager
+		log.info ( "Removing data used by the backup manager" );
+		MappingsGenerator mgen = new MappingsGenerator ();
+		mgen.cleanUp ();
 	}
 
 

@@ -1,30 +1,54 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.hibernate.CacheMode;
 import org.hibernate.SQLQuery;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.RowSelection;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.jdbc.Work;
 import org.hibernate.jpa.HibernateEntityManager;
 import org.hibernate.type.StringType;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
+import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
+import uk.ac.ebi.fg.myequivalents.model.Repository;
+import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
  * 
@@ -37,20 +61,14 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
  * @author Marco Brandizi
  *
  */
-public class EntityMappingDAO
+public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 {
-	private EntityManager entityManager;
-	private static ThreadLocal<MessageDigest> localMessageDigest = new ThreadLocal<MessageDigest> () 
+	private static ThreadLocal<ByteBuffer> uuidBuffer = new ThreadLocal<ByteBuffer> () 
 	{
 		@Override
-		protected MessageDigest initialValue ()
+		protected ByteBuffer initialValue ()
 		{
-			try {
-				return MessageDigest.getInstance ( "SHA1" );
-			} 
-			catch ( NoSuchAlgorithmException ex ) {
-				throw new RuntimeException ( "Internal error, cannot get the SHA1 digester from the JVM", ex );
-			}
+			return ByteBuffer.allocate ( 2 * Long.SIZE / 8);
 		}		
 	};
 	private final Random random = new Random ( System.currentTimeMillis () );
@@ -58,7 +76,7 @@ public class EntityMappingDAO
 	
 	public EntityMappingDAO ( EntityManager entityManager )
 	{
-		this.entityManager = entityManager;
+		super ( entityManager, EntityMapping.class );
 	}	
 	
 	/**
@@ -145,6 +163,61 @@ public class EntityMappingDAO
 			storeMapping ( entityIds [ i ], entityIds [ ++ i ] );
 	}
 
+
+	public void storeMappingBundle ( List<Entity> entities )
+	{
+		if ( entities == null ) return;
+		
+		int nents = entities.size ();
+		
+		// Check if there is some entry already in
+		//
+		for ( int i = 0; i < nents; i++ )
+		{
+			Entity ei = entities.get ( i );
+			String bundle = this.findBundle ( ei.getServiceName (), ei.getAccession () );
+			if ( bundle != null )
+			{
+				// There is already a bundle with one of the input entities, so let's attach all of them to this
+				for ( int j = 0; j < nents; j++ )
+				{
+					if ( i == j ) continue;
+					Entity ej = entities.get ( j );
+					String bundle1 = this.findBundle ( ej.getServiceName (), ej.getAccession () );
+					if ( bundle.equals ( bundle1 ) ) continue;
+					if ( bundle1 == null ) 
+						this.join ( ej, bundle );
+					else
+						this.moveBundle ( bundle1, bundle );
+				}
+				return;
+			}
+		} // for i
+		
+		
+		// It has not found any of the entries, so we need to create a new bundle that contains all of them.
+		//
+		String bundle = null;
+		for ( int i = 0; i < nents; i++ )
+		{
+			Entity e = entities.get ( i );
+			if ( bundle == null )
+				bundle = this.create ( e );
+			else
+				this.join ( e, bundle );
+		}
+
+	}
+
+	public void storeMappingBundles ( EntityMappingSearchResult mappings )
+	{
+		if ( mappings == null ) return;
+		for ( Bundle bundle: mappings.getBundles () )
+			storeMappingBundle ( new ArrayList<> ( bundle.getEntities () ) );
+	}
+
+	
+	
 	/**
 	 * Works like specified by {@link EntityMappingManager#storeMappingBundle(String...)}. 
 	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure.
@@ -167,11 +240,11 @@ public class EntityMappingDAO
 				{
 					if ( i == j ) continue; 
 					String jchunks[] = EntityMappingUtils.parseEntityId ( entityIds [ j ] );
-					String serviceName = jchunks [ 0 ], accession = jchunks [ 1 ];
-					String bundle1 = this.findBundle ( serviceName, accession );
+					String serviceNameJ = jchunks [ 0 ], accessionJ = jchunks [ 1 ];
+					String bundle1 = this.findBundle ( serviceNameJ, accessionJ );
 					if ( bundle.equals ( bundle1 ) ) continue;
 					if ( bundle1 == null ) 
-						this.join ( serviceName, accession, bundle );
+						this.join ( serviceNameJ, accessionJ, bundle );
 					else
 						this.moveBundle ( bundle1, bundle );
 				}
@@ -366,7 +439,7 @@ public class EntityMappingDAO
 				stmt.setString ( 1, serviceNameTrim );
 			  stmt.setString ( 2, accessionTrim );
 			  if ( mustBePublic ) {
-			  	Date now = new Date ( System.currentTimeMillis () );
+			  	java.sql.Date now = new java.sql.Date ( System.currentTimeMillis () );
 			  	for ( int i = 3; i <= 8; i++ ) stmt.setDate ( i, now );
 			  }
 				for ( ResultSet rs = stmt.executeQuery (); rs.next (); )
@@ -523,7 +596,7 @@ public class EntityMappingDAO
 
 	/**
 	 * Joins an entity to an existing bundle, i.e., creates a new {@link EntityMapping} with the parameters. This is 
-	 * a wrapper to {@link #create(String, String, String)} with an exception in the case that bundle != null. 
+	 * a wrapper to {@link #create(String, String, String)} with an exception in the case that bundle == null. 
 	 *  
 	 */
 	private String join ( String serviceName, String accession, String bundle )
@@ -533,9 +606,18 @@ public class EntityMappingDAO
 		);
 		return create ( serviceName, accession, bundle );
 	}
+
+	private String join ( Entity e, String bundle )
+	{
+		if ( bundle == null ) throw new RuntimeException (
+			"Cannot work with an empty bundle ID"
+		);
+		return create ( e, bundle );
+	}
+
 	
 	/**
-	 * Creates a new {@link EntityMapping}, by first creating a new bundle (via {@link #createNewBundleId(String, String)}) 
+	 * Creates a new {@link EntityMapping}, by first creating a new bundle (via {@link #createNewBundleId()}) 
 	 * if the corresponding parameter is null.
 	 * 
 	 * @return the newly created bundle or the bundle parameter if this is not null. 
@@ -543,7 +625,7 @@ public class EntityMappingDAO
 	private String create ( String serviceName, String accession, String bundle )
 	{
 		if ( bundle == null )
-			bundle = createNewBundleId ( serviceName, accession );
+			bundle = createNewBundleId ();
 		
 		Query q = entityManager.createNativeQuery (   
 			"INSERT INTO entity_mapping (service_name, accession, bundle) VALUES ( :serviceName, :acc, :bundle )" 
@@ -557,6 +639,40 @@ public class EntityMappingDAO
 		return bundle;
 	}
 		
+	
+	private String create ( Entity e, String bundle )
+	{
+		if ( bundle == null )
+			bundle = createNewBundleId ();
+		
+		Date relDate = e.getReleaseDate ();
+		Boolean pubFlag = e.getPublicFlag ();
+		
+		Query q = entityManager.createNativeQuery ( String.format (   
+			"INSERT INTO entity_mapping (service_name, accession, bundle, %s %s) "
+			+ "VALUES ( :serviceName, :acc, :bundle, %s %s)", 
+			(relDate == null ? "" : "release_date," ),
+			(pubFlag == null ? "" : "public_flag" ),
+			(relDate == null ? "" : ":release_date," ),
+			(pubFlag == null ? "" : ":public_flag" )
+		));
+		q.setParameter ( "serviceName", e.getServiceName () );
+		q.setParameter ( "acc", e.getAccession () );
+		q.setParameter ( "bundle", bundle );
+		if ( relDate != null ) q.setParameter ( "release_date", e.getReleaseDate () );
+		if ( pubFlag != null ) q.setParameter ( "public_flag", pubFlag ? 1 : 0 );
+		
+		// TODO: check the return value
+		q.executeUpdate ();
+		return bundle;
+	}
+
+	private String create ( Entity e )
+	{
+		return create ( e, null );
+	}
+
+	
 	/**
 	 * Merges two bundles, i.e., takes all the {@link EntityMapping} having one of the two bundle IDs and replace their
 	 * bundle ID with the value of the other parameter. Due to optimisation needs, the method selects which bundle to
@@ -625,6 +741,7 @@ public class EntityMappingDAO
 		return results.isEmpty () ? null : results.iterator ().next ();
 	}
 	
+	
 	/**
 	 * Deletes a bundle by ID, i.e., removes all the {@link EntityMapping} that have the parameter as bundle ID.  
 	 * 
@@ -635,24 +752,137 @@ public class EntityMappingDAO
 			"DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
 	}
 	
+	
+	
+	public int dump ( OutputStream out, Integer offset, Integer limit, double randomQuota )
+	{
+		int result = 0;
+		
+		Random rnd = new Random ();
+		
+		Session session = (Session) this.entityManager.getDelegate ();
+		
+		String sql = "SELECT * FROM entity_mapping ORDER BY bundle";
+		
+		if ( offset != null || limit != null )
+		{
+			RowSelection rowSelection = new RowSelection ();
+			if ( offset == null || offset < 0 ) offset = 0;
+			if ( limit == null ) limit = Integer.MAX_VALUE;
+			rowSelection.setFirstRow ( offset );
+			rowSelection.setMaxRows ( limit );
+			
+			Dialect dialect = ( (SessionFactoryImplementor) session.getSessionFactory () ).getDialect ();
+			sql = dialect.buildLimitHandler ( sql, rowSelection ).getProcessedSql ();
+		}
+	
+		SQLQuery qry = session.createSQLQuery ( 
+			"SELECT bundle, service_name, accession, release_date, public_flag FROM entity_mapping ORDER BY bundle" 
+		);
+		
+		// TODO: needs hibernate.jdbc.batch_size
+		qry
+			.setReadOnly ( true )
+			.setFetchSize ( 1000 )
+			.setCacheMode ( CacheMode.IGNORE );
+		
+		
+		List<String> entityIds = new ArrayList<> ();
+		List<Date> relDates = new ArrayList<> ();
+		List<Boolean> pubFlags = new ArrayList<> ();
+		String prevBundle = null;
+		
+							
+		for ( ScrollableResults rs = qry.scroll ( ScrollMode.FORWARD_ONLY ); rs.next (); )
+		{
+			result++;
+			
+			String bundle = (String) rs.get ( 0 );
+			
+			if ( prevBundle == null ) prevBundle = bundle;
+	
+			String serviceName = (String) rs.get ( 1 ),
+						 acc = (String) rs.get ( 2 );
+			String entityId = serviceName + ":" + acc;
+			
+			if ( !bundle.equals ( prevBundle ) )
+			{
+				// Jump a random amount of data
+				if ( rnd.nextDouble () >= randomQuota ) continue;
+				
+				EntityMappingSearchResult maps = new EntityMappingSearchResult ( true );
+				List<EntityMapping> ents = new LinkedList<EntityMapping> ();
+	
+				int i = 0;
+				for ( String thisEntityId: entityIds )
+				{
+					String echunks[] = EntityMappingUtils.parseEntityId ( thisEntityId );
+					
+					Service service = new Service ( echunks [ 0 ] );
+					EntityMapping ent = new EntityMapping ( service, echunks [ 1 ], prevBundle );
+					
+					ent.setReleaseDate ( relDates.get ( i ) );
+					ent.setPublicFlag ( pubFlags.get ( i ) );
+					
+					ents.add ( ent );
+				}
+											
+				maps.addAllEntityMappings ( ents );
+				
+				JAXBUtils.marshal ( 
+					maps.getBundles ().iterator ().next (), Bundle.class, out, Marshaller.JAXB_FRAGMENT, true  
+				);
+				
+				// reset all the accumulators
+				entityIds = new ArrayList<> ();
+				relDates = new ArrayList<> ();
+				pubFlags = new ArrayList<> ();
+	
+				// Start with a new bundle
+				prevBundle = bundle; 
+			} // if bundle
+			
+			
+			entityIds.add ( entityId );
+			relDates.add ( (Date) rs.get ( 3 ) );
+			BigDecimal pubFlag = ((BigDecimal) rs.get ( 4 ));
+			pubFlags.add ( pubFlag == null ? null : pubFlag.intValue () == 1 );
+			
+		} // for rs
+			
+		return result;
+		
+	} // dump ()
+	
+
 	/**
 	 * Creates a new bundle ID to create a new bundle with the parameter. This is supposed to be used when a new bundle 
 	 * is being inserted in the DB, i.e., because the parameter entity is not in any other stored bundle yet. 
 	 * 
 	 * You should assume the method returns an opaque string which of value depends 1-1 from the parameter. 
 	 * 
-	 * At the moment it generates a SHA1 digest from serviceName + accession and then encodes it in BASE64. This generates
-	 * some overhead (20 bytes for SHA1, instead 8 bytes for a traditional auto-incremented long key, actually 26 bytes
-	 * for BASE64 without any padding, instead of the 20  for SHA1), but it's very fast.
+	 * At the moment it uses UUIDs, encoded in BASE64. This generates some overhead in both space and time, but we 
+	 * prefer to deal with string IDs, rather than not so portable byte arrays.
 	 *  
 	 */
-	private String createNewBundleId ( String serviceName, String accession )
+	private static String createNewBundleId ()
 	{
-		// With 20 bytes as input, the BASE64 encoding is always a 27 character string, with the last character always equals
-		// a padding '=', so we don't need the latter in this context  
-		// TODO: the encoder is already available in javax.xml.bind.DatatypeConverter.printBase64Binary() 
-		return DatatypeConverter.printBase64Binary ( 
-			localMessageDigest.get ().digest ( ( serviceName + accession ).getBytes () ) 
-		).substring (0, 26);
+		UUID uuid = UUID.randomUUID ();
+		ByteBuffer buf = uuidBuffer.get ();
+		
+		buf.clear ();
+		buf.putLong ( uuid.getMostSignificantBits () );
+		buf.putLong ( uuid.getLeastSignificantBits () );
+		byte[] hash = buf.array ();
+
+		// With 16 bytes as input, the BASE64 encoding is always a 24 character string, with the last 2 characters always 
+		// equals to padding '==', so we strip away these unnecessary tail.
+		return DatatypeConverter.printBase64Binary ( hash ).substring ( 0, 22 );
 	}
+
+	public void setEntityManager ( EntityManager entityManager )
+	{
+		this.entityManager = entityManager;
+	}
+
 }

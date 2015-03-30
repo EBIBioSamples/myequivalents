@@ -1,15 +1,23 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.EDITOR;
 
+import java.io.Reader;
+import java.sql.Date;
+import java.util.Collection;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.input.ReaderInputStream;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
-import uk.ac.ebi.fg.myequivalents.utils.JAXBUtils;
+import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
  * 
@@ -24,7 +32,7 @@ import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
  */
 public class DbEntityMappingManager extends DbMyEquivalentsManager implements EntityMappingManager
 {
-	private EntityMappingDAO entityMappingDAO;
+	protected EntityMappingDAO entityMappingDAO;
 	
 	/**
 	 * This logins as anonymous and it's used by the {@link DbManagerFactory} or subclasses.
@@ -72,6 +80,27 @@ public class DbEntityMappingManager extends DbMyEquivalentsManager implements En
 		ts.commit ();
 	}
 
+	
+	@Override
+	public void storeMappingBundles ( EntityMappingSearchResult mappings )
+	{
+		EntityTransaction ts = entityManager.getTransaction ();
+		ts.begin ();
+			userDao.enforceRole ( EDITOR );
+		  entityMappingDAO.storeMappingBundles ( mappings );
+		ts.commit ();
+	}
+
+	@Override
+	public void storeMappingBundlesFromXML ( Reader reader )
+	{
+		EntityMappingSearchResult mappings = JAXBUtils.unmarshal ( 
+			new ReaderInputStream ( reader, Charsets.UTF_8 ), EntityMappingSearchResult.class 
+		);
+		this.storeMappingBundles ( mappings );
+	}
+	
+	
 	@Override
 	public int deleteMappings ( String... entityIds )
 	{

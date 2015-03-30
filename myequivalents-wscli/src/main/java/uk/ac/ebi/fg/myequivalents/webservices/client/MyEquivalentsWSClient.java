@@ -1,6 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.webservices.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -205,19 +206,38 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 	 */
 	protected String getRawResult ( String reqPath, Form req, String outputFormat ) 
 	{
-		outputFormat = StringUtils.trimToNull ( outputFormat );
-		
-		if ( outputFormat == null ) 
-			outputFormat = "xml";
-		else 
-			ManagerUtils.checkOutputFormat ( outputFormat );
-		
-		String acceptValue = MediaType.APPLICATION_XML; // TODO: more options in future
-		
-		String result = null;
-		
 		try
 		{
+			return IOUtils.readInputFully ( new InputStreamReader ( 
+				this.getRawResultAsStream ( reqPath, req, outputFormat ) 
+			));
+		}
+		catch ( IOException ex )
+		{
+			// TODO Auto-generated catch block
+			throw new RuntimeException ( String.format ( 
+				"Error while executing the web request: '%s': %s",  
+				this.baseUrl + getServicePath () + reqPath, ex.getMessage () 
+			), 
+			ex );
+		}		
+	}
+	
+	
+	
+	protected InputStream getRawResultAsStream ( String reqPath, Form req, String outputFormat ) 
+	{
+		try
+		{
+			outputFormat = StringUtils.trimToNull ( outputFormat );
+			
+			if ( outputFormat == null ) 
+				outputFormat = "xml";
+			else 
+				ManagerUtils.checkOutputFormat ( outputFormat );
+			
+			String acceptValue = MediaType.APPLICATION_XML; // TODO: more options in future
+			
 			// Request via straight POST request
 			// 
 			HttpClient client = new DefaultHttpClient ();
@@ -248,7 +268,7 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 				"No answer from the HTTP request while executing '" + post.getURI () + "'" );
 			
 			// Read the result in XML format.
-		  result = IOUtils.readInputFully ( new InputStreamReader ( entity.getContent () ) );
+		  return entity.getContent ();
 		  
 		} 
 		catch ( IllegalArgumentException | IOException | TransformerFactoryConfigurationError ex )
@@ -261,8 +281,6 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 				ex 
 			);
 		}
-		
-		return result;
   }
 	
 	/**

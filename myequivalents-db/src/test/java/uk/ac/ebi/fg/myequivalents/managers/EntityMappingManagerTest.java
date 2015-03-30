@@ -8,6 +8,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
@@ -318,4 +320,89 @@ public class EntityMappingManagerTest
 		assertTrue ( "Private parameter is accessible through fast call!", entStrings.isEmpty () );
 	}
 
+	
+	@Test
+	public void testStoreBundles ()
+	{
+		// b1 ( (s1, b1.1) (s2, b1.2) (s1, b1.3) (s1, b1.4)
+	  // b2 ( (s2, b2.1) (s3, b2.2) )		
+		EntityMappingSearchResult sr = new EntityMappingSearchResult ( true );
+		sr.addAllEntityMappings ( Arrays.asList ( new EntityMapping[] { 
+			new EntityMapping ( service1, "b1.1", "1" ),
+			new EntityMapping ( service2, "b1.2", "1" ),
+			new EntityMapping ( service1, "b1.3", "1" ),
+			new EntityMapping ( service1, "b1.4", "1" ),
+			
+			new EntityMapping ( service2, "b2.1", "2" ),
+			new EntityMapping ( service3, "b2.2", "2" ),
+		}));
+		
+		emMgr.storeMappingBundles ( sr );
+		
+		EntityMappingSearchResult result = emMgr.getMappings ( 
+			false, service1.getName () + ":b1.3", service3.getName () + ":b2.2" 
+		);
+		
+		out.println ( "\nResult:" );
+		out.println ( result );
+		
+		assertEquals ( "Wrong no. of services returned!", 3, result.getServices ().size () );
+		
+		{
+			boolean found1 = false, found2 = false, found3 = false;
+			for ( Service service: result.getServices () )
+				if ( service1.equals ( service ) ) found1 = true;
+				else if ( service2.equals ( service ) ) found2 = true;
+				else if ( service3.equals ( service ) ) found3 = true;
+			
+			assertTrue ( "Service 1 not found in search results!", found1 );
+			assertTrue ( "Service 2 not found in search results!", found2 );
+			assertTrue ( "Service 3 not found in search results!", found3 );
+		}
+
+		Collection<Bundle> bsets = result.getBundles ();
+		assertEquals ( "Wrong no of bundles in search result!", 2, bsets.size () );
+		
+		{
+			// b1 ( (s1, b1.1) (s2, b1.2) (s1, b1.3) (s1, b1.4)
+		  // b2 ( (s2, b2.1) (s3, b2.2) )
+			Bundle bundle1 = null, bundle2 = null;
+			Entity b13 = null;
+			for ( Bundle bset: bsets )
+				for ( Entity entity: bset.getEntities () )
+					if ( service1.equals ( entity.getService () ) && "b1.1".equals ( entity.getAccession () ) )
+						bundle1 = bset;
+					else if ( service3.equals ( entity.getService () ) && "b2.2".equals ( entity.getAccession () ) )
+						bundle2 = bset;
+					else if ( service1.getName().equals ( entity.getServiceName () ) && "b1.3".equals ( entity.getAccession () ))
+						b13 = entity;
+			
+			assertNotNull ( "b1.3 not found in search results!", b13 );
+			assertEquals ( "Bad URI returned for b13!", 
+				"http://somewhere.in.the.net/testemsrv/service1/someType1/b1.3", b13.getURI () 
+			);
+			
+			assertNotNull ( "Bundle 1 not found in search result!", bundle1 );
+			assertNotNull ( "Bundle 2 not found in search result!", bundle2 );
+
+			assertEquals ( "Wrong size for set 1", 4, bundle1.getEntities ().size () );
+			assertEquals ( "Wrong size for set 2", 2, bundle2.getEntities ().size () );
+			
+			assertTrue ( "b1.1 is not in set1!", bundle1.getEntities ().contains ( new Entity ( service1, "b1.1" ) ) );
+			assertTrue ( "b1.2 is not in set1!", bundle1.getEntities ().contains ( new Entity ( service2, "b1.2" ) ) );
+			assertTrue ( "b1.3 is not in set1!", bundle1.getEntities ().contains ( new Entity ( service1, "b1.3" ) ) );
+			assertTrue ( "b1.4 is not in set1!", bundle1.getEntities ().contains ( new Entity ( service1, "b1.4" ) ) );
+			
+			assertTrue ( "b2.1 is not in set2!", bundle2.getEntities ().contains ( new Entity ( service2, "b2.1" ) ) );
+			assertTrue ( "b2.2 is not in set2!", bundle2.getEntities ().contains ( new Entity ( service3, "b2.2" ) ) );
+		}
+		
+		Set<ServiceCollection> scs = result.getServiceCollections ();
+		assertEquals ( "Wrong no of repo returned by the search!", 1, scs.size () );
+		assertTrue ( "Repo1 not found in the search result!", scs.contains ( sc1 ) );
+
+		Set<Repository> repos = result.getRepositories ();
+		assertEquals ( "Wrong no of repo returned by the search!", 1, repos.size () );
+		assertTrue ( "Repo1 not found in the search result!", repos.contains ( repo1 ) );
+	}
 }

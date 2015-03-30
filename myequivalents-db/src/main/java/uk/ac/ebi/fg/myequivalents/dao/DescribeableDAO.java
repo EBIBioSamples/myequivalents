@@ -1,15 +1,21 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 import uk.ac.ebi.utils.reflection.ReflectionUtils;
 
 /**
@@ -19,17 +25,11 @@ import uk.ac.ebi.utils.reflection.ReflectionUtils;
  * @author Marco Brandizi
  *
  */
-public class DescribeableDAO<D extends Describeable>
+public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO<D>
 {
-	private EntityManager entityManager;
-	protected final Class<? super D> targetClass;
-	
-	
 	public DescribeableDAO ( EntityManager entityManager, Class<? super D> targetClass )
 	{
-		super ();
-		this.entityManager = entityManager;
-		this.targetClass = targetClass;
+		super ( entityManager, targetClass );
 	}
 
 	/** 
@@ -42,7 +42,7 @@ public class DescribeableDAO<D extends Describeable>
 	 */
 	protected DescribeableDAO ( EntityManager entityManager )
 	{
-		this.entityManager = entityManager;
+		this ( entityManager, null );
 		this.targetClass = ReflectionUtils.getTypeArgument ( DescribeableDAO.class, this.getClass(), 0 );
 		if ( targetClass == null ) 
 			throw new PersistenceException ( "Internal error: getTypeArgument() returns null for " + this.getClass ().getName () );
@@ -137,9 +137,26 @@ public class DescribeableDAO<D extends Describeable>
 		return delete ( describeable.getName () );
 	}
 
-	public void setEntityManager ( EntityManager entityManager )
+	@SuppressWarnings ( "unchecked" )
+	public int dump ( OutputStream out, Integer offset, Integer limit )
 	{
-		this.entityManager = entityManager;
+		Session session = (Session) this.entityManager.getDelegate ();
+
+		org.hibernate.Query q = session.createQuery ( "FROM " + this.targetClass.getName () );
+		q.setReadOnly ( true );
+		
+		if ( offset != null && offset >= 0 ) q.setFirstResult ( offset );
+		if ( limit != null && offset < Integer.MAX_VALUE ) q.setFetchSize ( limit );
+
+		int ct = 0;
+		for ( ScrollableResults rs = q.scroll ( ScrollMode.FORWARD_ONLY ); rs.next (); )
+		{
+			D descr = (D) rs.get ( 0 );
+			JAXBUtils.marshal ( descr, targetClass, out, Marshaller.JAXB_FRAGMENT, true );
+			ct++;
+		}
+		
+		return ct;
 	}
 
 }
