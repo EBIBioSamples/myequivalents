@@ -42,7 +42,7 @@ public class BackupUploadLineCommand extends LineCommand
 				Resources.getInstance ().getMyEqManagerFactory ().newBackupManager ( this.email, this.apiPassword );
 			
 			int result = bkpMgr.upload ( in );
-			err.printf ( "\nUpload finished, %d item(s) uloaded\n", result );
+			err.printf ( "\nUpload finished, %d item(s) uploaded\n", result );
 		}
 		catch ( FileNotFoundException ex )
 		{

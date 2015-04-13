@@ -95,13 +95,13 @@ public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO
 	}
 	
 	/** TODO: requires isRestrictedToPublic */ 
-	public boolean exists ( String mustBePublic )
+	public boolean exists ( String name )
 	{
-		mustBePublic = StringUtils.trimToNull ( mustBePublic );
-		if ( mustBePublic == null ) return false;
+		name = StringUtils.trimToNull ( name );
+		if ( name == null ) return false;
 
 		Query q = entityManager.createQuery ( 
-			"SELECT name FROM " + targetClass.getName () + " WHERE name = '" + mustBePublic + "'" );
+			"SELECT name FROM " + targetClass.getName () + " WHERE name = '" + name + "'" );
 		
 		@SuppressWarnings ( "unchecked" )
 		List<String> names = q.getResultList ();
