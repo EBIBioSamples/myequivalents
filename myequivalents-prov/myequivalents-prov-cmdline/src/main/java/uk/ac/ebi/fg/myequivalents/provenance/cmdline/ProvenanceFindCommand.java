@@ -19,7 +19,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: comment me! 
+ * Implementation of {@link ProvRegistryManager#findAs(String, String, String, Date, Date, List)}.  
  *  
  * {@code provenance-find [--prov-user <user>] [--prov-operation <op>] 
  *   [--prov-from <YYYYMMDD[-HHMMSS]]> [--prov-to <YYYYMMDD[-HHMMSS]]> [--prov-param <type:value[:extraValue]>} 

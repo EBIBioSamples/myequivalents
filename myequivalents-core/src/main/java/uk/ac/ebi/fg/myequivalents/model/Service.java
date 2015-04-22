@@ -176,7 +176,7 @@ public class Service extends Describeable
 	}
 
   /**
-   * TODO: comment me (special method for JAXB)!
+   * This is used for extensions that have to pass through the JAXB stack, default returns an exception.
    */
 	protected void setRepositoryName ( String repositoryName ) 
 	{
@@ -192,7 +192,7 @@ public class Service extends Describeable
 	}
 
   /**
-   * TODO: comment me (special method for JAXB)!
+   * This is used for extensions that have to pass through the JAXB stack, default returns an exception.
    */
 	protected void setServiceCollectionName ( String serviceCollectionName ) 
 	{

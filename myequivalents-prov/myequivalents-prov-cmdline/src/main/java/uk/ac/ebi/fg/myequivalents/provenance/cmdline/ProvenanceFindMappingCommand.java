@@ -16,7 +16,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 
 /**
- * TODO: Comment me!
+ * Implementation of {@link ProvRegistryManager#findMappingProvAs(String, String, String, List)}.
  *
  * {@code provenance find-mapping <entityId> <entityId> [<user-email>...]}
  *

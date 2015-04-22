@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,7 +18,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.test.MappingsGenerator;
 
 /**
- * TODO: comment me!
+ * Tests for the {@link BackupManager}-related service.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>12 Mar 2015</dd>

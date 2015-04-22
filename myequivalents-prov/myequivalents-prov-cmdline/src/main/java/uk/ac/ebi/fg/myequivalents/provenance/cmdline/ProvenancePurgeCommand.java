@@ -14,7 +14,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: comment me! 
+ * Implementation of {@link ProvRegistryManager#purge(Date, Date)}.
  *   
  * {@code provenance purge  
  *   [--prov-from <YYYYMMDD[-HHMMSS]]> [--prov-to <YYYYMMDD[-HHMMSS]]>} 

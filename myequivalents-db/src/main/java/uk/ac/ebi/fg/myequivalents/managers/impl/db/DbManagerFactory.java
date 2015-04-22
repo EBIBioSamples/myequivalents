@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
 import java.util.Properties;
@@ -105,6 +102,5 @@ public class DbManagerFactory implements ManagerFactory
 	{
 		return entityManagerFactory;
 	}
-
 
 }

@@ -14,9 +14,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 
-
 /**
- * TODO: Comment me!
+ * Implementation of {@link ProvRegistryManager#findEntityMappingProvAs(String, String, List)}.
  *
  * {@code provenance find-entity <entityId> [<user-email>...]}
  *

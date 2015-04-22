@@ -5,13 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.spi.CharsetProvider;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -31,7 +24,6 @@ import org.apache.commons.io.output.WriterOutputStream;
  * <dl><dt>date</dt><dd>Jul 16, 2012</dd></dl>
  * @author Marco Brandizi
  *
- * TODO: move it to the core module.
  */
 public class JAXBUtils
 {

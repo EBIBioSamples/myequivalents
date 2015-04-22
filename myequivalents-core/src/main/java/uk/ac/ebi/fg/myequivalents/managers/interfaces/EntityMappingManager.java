@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
@@ -58,6 +55,10 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 */
 	public void storeMappingBundles ( EntityMappingSearchResult mappings );
 	
+	/**
+	 * A version of {@link #storeMappingBundles(EntityMappingSearchResult)}, which reads bundle definitions from 
+	 * an XML document.
+	 */
 	public void storeMappingBundlesFromXML ( Reader reader );
 
 	/**
@@ -130,5 +131,4 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 * You may want to invoke this call in {@link Object#finalize()} in the implementation of this interface.
 	 */
 	public void close ();
-
 }

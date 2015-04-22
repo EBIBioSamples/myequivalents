@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,9 +35,6 @@ public class ServiceSearchResult
 	private Set<ServiceCollection> serviceCollections = new HashSet<ServiceCollection> ();
 	private Set<Repository> repositories = new HashSet<Repository> ();
 	
-	// TODO: remove
-	private String authEmail, authApiPassword;
-
 	
 	public ServiceSearchResult () {
 	}
@@ -112,35 +108,6 @@ public class ServiceSearchResult
 		return this.repositories.add ( repository );
 	}
 
-	/**
-	 * When this class is used for web service requests (e.g., to store a set of {@link Service}), this contains the 
-	 * credential of the user that is performing the request.
-	 */
-	@XmlAttribute ( name = "login" )
-	public String getAuthEmail ()
-	{
-		return authEmail;
-	}
-
-	public void setAuthEmail ( String authEmail )
-	{
-		this.authEmail = authEmail;
-	}
-
-	/**
-	 * When this class is used for web service requests (e.g., to store a set of {@link Service}), this contains the 
-	 * credential of the user that is performing the request.
-	 */
-	@XmlAttribute ( name = "login-secret" )
-	public String getAuthApiPassword ()
-	{
-		return authApiPassword;
-	}
-
-	public void setAuthApiPassword ( String authApiPassword )
-	{
-		this.authApiPassword = authApiPassword;
-	}
 	
 	/** The sum of the no of services/repositories/service-collections in this object */
 	public int size () 

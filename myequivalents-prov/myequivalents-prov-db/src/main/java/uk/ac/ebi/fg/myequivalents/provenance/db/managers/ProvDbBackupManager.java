@@ -13,7 +13,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 
 /**
- * TODO: comment me!
+ * The provenance-based implementation of {@link DbBackupManager}.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>9 Mar 2015</dd>
@@ -36,7 +36,7 @@ public class ProvDbBackupManager extends DbBackupManager
 		protected void postUpload ( Describeable d, int itemCounter )
 		{
 		  provRegDao.create ( new ProvenanceRegisterEntry ( 
-				userEmail, "backup.restore", Arrays.asList ( ProvenanceRegisterParameter.p ( d ) )
+				userEmail, "backup.upload", Arrays.asList ( ProvenanceRegisterParameter.p ( d ) )
 			));
 			commitCheckPoint ( itemCounter );
 		}
@@ -45,7 +45,7 @@ public class ProvDbBackupManager extends DbBackupManager
 		protected void postUpload ( Bundle b, int itemCounter )
 		{
 		  provRegDao.create ( new ProvenanceRegisterEntry ( 
-		  	userEmail, "backup.restore", ProvenanceRegisterParameter.p ( b.getEntities () ) 
+		  	userEmail, "backup.upload", ProvenanceRegisterParameter.p ( b.getEntities () ) 
 		  ));
 
 		  commitCheckPoint ( itemCounter );

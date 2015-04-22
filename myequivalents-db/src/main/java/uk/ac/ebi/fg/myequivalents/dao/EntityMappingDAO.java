@@ -7,22 +7,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.TemporalType;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,9 +38,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
-import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
@@ -63,6 +55,9 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
  */
 public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 {
+	/**
+	 * This is needed by {@link #createNewBundleId()}, to convert binary UUIDs into BASE64 strings.
+	 */
 	private static ThreadLocal<ByteBuffer> uuidBuffer = new ThreadLocal<ByteBuffer> () 
 	{
 		@Override
@@ -528,7 +523,9 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	}
 
 	
-	/** TODO: comment me! */
+	/** 
+	 * Works like {@link #findEntityMappings(String, String, boolean)}, splits the ID into its chunks. 
+	 */
 	public EntityMapping findEntityMapping ( String entityId, boolean mustBePublic ) 
 	{
 		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
@@ -762,37 +759,37 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		
 		Session session = (Session) this.entityManager.getDelegate ();
 		
-		String sql = "SELECT * FROM entity_mapping ORDER BY bundle";
-		
-		if ( offset != null || limit != null )
-		{
-			RowSelection rowSelection = new RowSelection ();
-			if ( offset == null || offset < 0 ) offset = 0;
-			if ( limit == null ) limit = Integer.MAX_VALUE;
-			rowSelection.setFirstRow ( offset );
-			rowSelection.setMaxRows ( limit );
-			
-			Dialect dialect = ( (SessionFactoryImplementor) session.getSessionFactory () ).getDialect ();
-			sql = dialect.buildLimitHandler ( sql, rowSelection ).getProcessedSql ();
-		}
+		String sql = "SELECT bundle, service_name, accession, release_date, public_flag FROM entity_mapping ORDER BY bundle";
+
+// TODO: remove		
+//		if ( offset != null || limit != null )
+//		{
+//			RowSelection rowSelection = new RowSelection ();
+//			if ( offset == null || offset < 0 ) offset = 0;
+//			if ( limit == null ) limit = Integer.MAX_VALUE;
+//			rowSelection.setFirstRow ( offset );
+//			rowSelection.setMaxRows ( limit );
+//			
+//			Dialect dialect = ( (SessionFactoryImplementor) session.getSessionFactory () ).getDialect ();
+//			sql = dialect.buildLimitHandler ( sql, rowSelection ).getProcessedSql ();
+//		}
 	
-		SQLQuery qry = session.createSQLQuery ( 
-			"SELECT bundle, service_name, accession, release_date, public_flag FROM entity_mapping ORDER BY bundle" 
-		);
+		SQLQuery qry = session.createSQLQuery ( sql );
 		
-		// TODO: needs hibernate.jdbc.batch_size
+		// TODO: needs hibernate.jdbc.batch_size?
 		qry
 			.setReadOnly ( true )
 			.setFetchSize ( 1000 )
 			.setCacheMode ( CacheMode.IGNORE );
-		
+
+		if ( offset != null ) qry.setFirstResult ( offset );
+		if ( limit != null ) qry.setFirstResult ( limit );
 		
 		List<String> entityIds = new ArrayList<> ();
 		List<Date> relDates = new ArrayList<> ();
 		List<Boolean> pubFlags = new ArrayList<> ();
 		String prevBundle = null;
 		
-							
 		for ( ScrollableResults rs = qry.scroll ( ScrollMode.FORWARD_ONLY ); rs.next (); )
 		{
 			result++;

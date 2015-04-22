@@ -17,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  * {@link ServiceStoreLineCommand}. As expected, this is based on the command pattern.
  *
  * TODO: it's becoming messy, we have to re-arrange 1) the way {@link #getOptions()} works, common options should be 
- * constants and each line command should explicitly choose what to return 2) {@link #printUsage()}, we should present
+ * constant variable and each line command should explicitly choose what to return 2) {@link #printUsage()}, we should present
  * a very general message, which includes a list of available commands and then show specific details when the user
  * issues: {@code 'myeq.sh <command> --help'}
  *  

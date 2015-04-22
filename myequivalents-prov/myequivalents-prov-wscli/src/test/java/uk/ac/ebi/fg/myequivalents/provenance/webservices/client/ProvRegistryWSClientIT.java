@@ -21,7 +21,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer;
 
 /**
- * TODO: Comment me!
+ * Tests {@link ProvRegistryWSClient}.
  *
  * <dl><dt>date</dt><dd>27 Oct 2014</dd></dl>
  * @author Marco Brandizi

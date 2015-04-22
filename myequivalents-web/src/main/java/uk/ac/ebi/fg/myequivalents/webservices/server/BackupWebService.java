@@ -23,7 +23,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import com.sun.jersey.multipart.FormDataParam;
 
 /**
- * TODO: comment me!
+ * Server side for the web sevice that implements {@link BackupManager}.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>10 Mar 2015</dd>

@@ -39,7 +39,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.utils.regex.RegEx;
 
 /**
- * TODO: Comment me!
+ * Tests about command line implementations of {@link ProvRegistryManager}.
  *
  * <dl><dt>date</dt><dd>22 Sep 2014</dd></dl>
  * @author Marco Brandizi

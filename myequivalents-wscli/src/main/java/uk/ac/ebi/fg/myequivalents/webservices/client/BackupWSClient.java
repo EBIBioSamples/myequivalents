@@ -21,7 +21,7 @@ import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
 /**
- * TODO: comment me!
+ * Client implementation of the web service for {@link BackupManager}.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>11 Mar 2015</dd>
@@ -96,7 +96,7 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 							{
 								if ( ctStr.length () > 0 ) 
 									// second space after '=', the end
-									result [ 0 ] = Integer.valueOf ( ctStr.toString () );
+									result [ 0 ] = Integer.parseInt ( ctStr.toString () );
 							}
 							else 
 								// keep collecting result digits
@@ -128,9 +128,7 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 			);
 			return result [ 0 ];
 		}
-		catch ( IOException ex )
-		{
-			// TODO Auto-generated catch block
+		catch ( IOException ex ) {
 			throw new RuntimeException ( "Internal error while dumping myEquivalents: " + ex.getMessage (), ex );
 		}
 	}
@@ -149,7 +147,7 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 			new FormDataBodyPart ( "dump-xml", in, MediaType.APPLICATION_OCTET_STREAM_TYPE )
 		);
 		
-		return Integer.valueOf ( wres.type ( MediaType.MULTIPART_FORM_DATA ).post ( String.class, req ));
+		return Integer.parseInt ( wres.type ( MediaType.MULTIPART_FORM_DATA ).post ( String.class, req ));
 	}
 
 	@Override

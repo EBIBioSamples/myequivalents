@@ -15,7 +15,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
  * 
- * TODO: comment me!
+ * The implementation of {@link BackupManager#dump(OutputStream, Integer, Integer)} as command line.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>12 Mar 2015</dd>

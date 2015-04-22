@@ -13,7 +13,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: comment me!
+ * Implements {@link EntityMappingManager#storeMappingBundlesFromXML(Reader)} as a command line.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>12 Mar 2015</dd>

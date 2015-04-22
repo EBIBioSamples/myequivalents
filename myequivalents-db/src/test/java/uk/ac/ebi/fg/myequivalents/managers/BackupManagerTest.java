@@ -6,18 +6,18 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbBackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.test.MappingsGenerator;
 
 /**
- * TODO: comment me!
+ * Tests for {@link DbBackupManager}.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>12 Mar 2015</dd>

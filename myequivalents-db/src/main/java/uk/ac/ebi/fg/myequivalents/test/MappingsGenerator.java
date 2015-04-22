@@ -19,7 +19,7 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
- * TODO: comment me!
+ * An helper to generate random mappings, to be used by tests.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>12 Mar 2015</dd>
@@ -40,9 +40,23 @@ public class MappingsGenerator
 	
 	public static final String SERVICE_NAME_PREFIX = "test.generated.service";
 
-	public int nservices = 10, nmappings = 50, bundMaxleSize = 5, maxMappingId = 100;
+	/**
+	 * Change these values to fix the size of random elements that are generated.
+	 */
+	public int nservices = 10, nmappingBundles = 50, bundleMaxleSize = 5, maxMappingId = 100;
 
 	
+	/**
+	 * <p>Generates {@link #nmappingBundles} random mappings, linked to {@link #nservices} randomly-generated services.
+	 * Each mapping has a random size ranging from 2 to {@link #bundleMaxleSize}, generates up to 
+	 * {@link #maxMappingId} + 1 entities.</p>
+	 * 
+	 * <p>Services are created using {@link #SERVICE_NAME_PREFIX}, mapping IDs are just numbers.</p>
+	 * 
+	 * <p>Everything is created using {@link #EDITOR_USER}, which is created in advance. 
+	 * {@link #ADMIN_USER} is also generated, for your convenience.</p> 
+	 *  
+	 */
 	public void generateMappings ()
 	{
 		DbManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ();
@@ -57,6 +71,7 @@ public class MappingsGenerator
 		ts.commit ();
 		em.close ();
 
+		// Services
 		ServiceManager servMgr = mgrFact.newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET );
 		for ( int i = 0; i < nservices; i++ )
 		{
@@ -66,10 +81,12 @@ public class MappingsGenerator
 			servMgr.storeServices ( s );
 		}
 		
+		// Mapping bundles
 		EntityMappingManager mapMgr = mgrFact.newEntityMappingManager ( EDITOR_USER.getEmail (), EDITOR_SECRET );
-		for ( int i = 0; i < nmappings; i++ )
+		for ( int i = 0; i < nmappingBundles; i++ )
 		{
-			int bundleSize = RandomUtils.nextInt ( 2, bundMaxleSize + 1 );
+			// The bundle
+			int bundleSize = RandomUtils.nextInt ( 2, bundleMaxleSize + 1 );
 			Set<String> edids = new HashSet<> ();
 			for ( int j = 0; j < bundleSize; j++ )
 			{
@@ -81,6 +98,9 @@ public class MappingsGenerator
 		}
 	}
 	
+	/**
+	 * Removes data that were created via {@link #generateMappings()}.
+	 */
 	public int cleanUp ()
 	{
 		DbManagerFactory mgrFact = Resources.getInstance ().getMyEqManagerFactory ();

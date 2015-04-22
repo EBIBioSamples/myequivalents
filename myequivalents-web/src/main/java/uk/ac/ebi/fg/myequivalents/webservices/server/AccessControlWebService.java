@@ -243,7 +243,7 @@ public class AccessControlWebService
 	 * the  authPassword or authApiPassword parameter is specified.
 	 * 
 	 * TODO: auth requests should be factorised to an Access service (they're not used by other WS requests).
-	 * TODO: it's being done in inefficient way (authentication done twice).
+	 * TODO: it's being done in an inefficient way (authentication done twice).
 	 */
 	@POST
 	@Path( "/login" )

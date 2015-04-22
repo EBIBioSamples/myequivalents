@@ -6,8 +6,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * 
- * TODO: Comment me!
+ * A {@link XmlAdapter JAXB adapter}, which converts back/forth the string values true/false/null 
  *
  * <dl><dt>date</dt><dd>10 Jul 2013</dd></dl>
  * @author Marco Brandizi

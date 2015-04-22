@@ -32,7 +32,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
- * 
  * The provenance register keeps track of which user issued which change operation.
  *
  * <dl><dt>date</dt><dd>31 Mar 2014</dd></dl>
@@ -192,8 +191,8 @@ public class ProvenanceRegisterEntry
 	}
   
   @Override
-  public String toString() {
-  	// TODO
+  public String toString() 
+  {
   	return String.format ( 
   		"%s { id: %d, userEmail: '%s', timestamp: %s, operation: %s, parameters: '%s'",
   		this.getClass ().getSimpleName (), this.getId (), this.getUserEmail (), this.getTimestamp (), this.getOperation (),

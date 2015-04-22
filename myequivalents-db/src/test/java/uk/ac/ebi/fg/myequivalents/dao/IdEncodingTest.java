@@ -12,7 +12,6 @@ import java.util.UUID;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
 
 /**
  * A few foo tests about ID enconding options. 

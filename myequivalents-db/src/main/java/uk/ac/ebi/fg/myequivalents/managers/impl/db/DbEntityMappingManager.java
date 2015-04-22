@@ -2,8 +2,6 @@ package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 import static uk.ac.ebi.fg.myequivalents.access_control.model.User.Role.EDITOR;
 
 import java.io.Reader;
-import java.sql.Date;
-import java.util.Collection;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -15,7 +13,6 @@ import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
-import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 

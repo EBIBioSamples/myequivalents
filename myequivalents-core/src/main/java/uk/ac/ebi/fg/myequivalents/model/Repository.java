@@ -11,7 +11,8 @@ import org.hibernate.annotations.Index;
 
 /**
  * 
- * TODO: Comment me! For the moment see {@link Service}.
+ * A repository is a collection of {@link Service services}. For instance, ArrayExpress is a repository, able to
+ * provide an experiment service (i.e., accessions and URIs about experiments) and an array design service. 
  *
  * <dl><dt>date</dt><dd>Jun 20, 2012</dd></dl>
  * @author Marco Brandizi

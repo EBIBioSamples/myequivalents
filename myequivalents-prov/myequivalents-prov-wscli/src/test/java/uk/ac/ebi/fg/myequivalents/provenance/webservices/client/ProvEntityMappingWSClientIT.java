@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbEntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
@@ -30,7 +31,8 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer;
 
 /**
- * TODO: Comment me!
+ * Tests {@link ProvDbEntityMappingManager}, invoked via web services, ie, checks that provenance entry records are
+ * returned to the {@link ProvRegistryWSClient client}.
  *
  * <dl><dt>date</dt><dd>31 Oct 2014</dd></dl>
  * @author Marco Brandizi

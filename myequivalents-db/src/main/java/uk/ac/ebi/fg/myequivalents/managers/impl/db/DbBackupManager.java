@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.dao.BackupDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
@@ -15,7 +14,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 
 /**
- * TODO: comment me!
+ * The implementation of {@link BackupManager} for the relational DB backend.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>20 Feb 2015</dd>

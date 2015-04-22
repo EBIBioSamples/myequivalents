@@ -214,7 +214,6 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 		}
 		catch ( IOException ex )
 		{
-			// TODO Auto-generated catch block
 			throw new RuntimeException ( String.format ( 
 				"Error while executing the web request: '%s': %s",  
 				this.baseUrl + getServicePath () + reqPath, ex.getMessage () 
