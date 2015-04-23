@@ -54,7 +54,7 @@ context_path_hashed=$(echo "$context_path" | sed s/'\/'/'#'/g)
 tomcat_localhost_conf="$tomcat_home/conf/Catalina/localhost"
 
 set -x xtrace
-cp -i target/myequivalents.war "$tomcat_home/${app_deploy_dir}/${context_path_hashed}.war"
+cp -i target/myequivalents*.war "$tomcat_home/${app_deploy_dir}/${context_path_hashed}.war"
 cp -i target/_reconfigured_context.xml "${tomcat_localhost_conf}/${context_path_hashed}.xml"
 if [ ! -e "${tomcat_localhost_conf}/${app_config_dir}"  ]; then mkdir -p "${tomcat_localhost_conf}/${app_config_dir}"; fi
 cp -i target/distro-resources/myeq-manager-config.xml "${tomcat_localhost_conf}/${app_config_dir}/myeq-manager-config.xml"

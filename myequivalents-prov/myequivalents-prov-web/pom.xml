@@ -94,6 +94,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.2</version>
         <configuration>
+        	<warName>myequivalents-prov_${project.version}</warName>
         	<!-- Makes the project classes available to dependants -->
         	<attachClasses>true</attachClasses>
           <!-- These are already in Tomcat and clash with them -->
