@@ -87,8 +87,7 @@ public class EntityMappingManagerTest
 		emMgr = managerFactory.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
 		
 		service1 = new Service ( "test.testemsrv.service1", "testemsrv.someType1", "A Test Service 1", "The Description of a Test Service 1" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testemsrv/service1/" );
-		service1.setUriPattern ( "http://somewhere.in.the.net/testemsrv/service1/someType1/${accession}" );
+		service1.setUriPattern ( "http://somewhere.in.the.net/testemsrv/service1/someType1/$id" );
 				
 		sc1 = new ServiceCollection ( 
 			"test.testemsrv.serviceColl1", service1.getEntityType (), "Test Service Collection 1", "The Description of the SC 1" 
@@ -99,16 +98,9 @@ public class EntityMappingManagerTest
 		service1.setRepository ( repo1 );
 
 		service2 = new Service ( "test.testemsrv.service2", "testemsrv.someType1", "A Test Service 2", "The Description of a Test Service 2" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testemsrv/service2/" );
-
 		service3 = new Service ( "test.testemsrv.service3", "testemsrv.someType2", "A Test Service 3", "The Description of a Test Service 3" );
-		service3.setUriPrefix ( "http://somewhere-else.in.the.net/testemsrv/service3/" );
-
 		service4 = new Service ( "test.testemsrv.service4", "testemsrv.someType2", "A Test Service 4", "The Description of a Test Service 4" );
-		service4.setUriPrefix ( "http://somewhere-else.in.the.net/testemsrv/service4/" );
-
 		service5 = new Service ( "test.testemsrv.service5", "testemsrv.someType2", "A Test Service 5", "The Description of a Test Service 5" );
-		service5.setUriPrefix ( "http://somewhere-else.in.the.net/testemsrv/service5/" );
 
 		ts = em.getTransaction ();
 

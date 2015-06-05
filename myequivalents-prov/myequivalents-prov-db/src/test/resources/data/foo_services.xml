@@ -4,8 +4,7 @@
 <service-items>
 	<services>
 		<service
-			uri-pattern='http://somewhere.in.the.net/testmain/service6/someType1/${accession}'
-			uri-prefix='http://somewhere.in.the.net/testmain/service6/'
+			uri-pattern='http://somewhere.in.the.net/testmain/service6/someType1/$id'
 			entity-type='testmain.someType1' title='A Test Service 6' name='test.testmain.service6'>
 			<description>The Description of a Test Service 6</description>
 		</service>
@@ -14,7 +13,7 @@
 			service-collection-name='test.testmain.serviceColl1'>
 			<description>The Description of a Test Service 7</description>
 		</service>
-		<service uri-prefix='http://somewhere-else.in.the.net/testmain/service8/'
+		<service
 			entity-type='testmain.someType2' title='A Test Service 8' name='test.testmain.service8'
 			repository-name='test.testmain.addedRepo1'>
 			<description>The Description of a Test Service 8</description>

@@ -68,7 +68,6 @@ public class ExposedService extends Service
 		result.setServiceCollection ( this.getServiceCollection () );
 		result.setRepository ( this.getRepository () );
 		result.setUriPattern ( this.getUriPattern () );
-		result.setUriPrefix ( this.getUriPrefix () );
 		result.setPublicFlag ( this.getPublicFlag () );
 		result.setReleaseDate ( this.getReleaseDate () );
 		return result;

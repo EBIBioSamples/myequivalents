@@ -45,8 +45,7 @@ public class MainTest
 	private String testServiceXml =
 		"<service-items>\n" +
 		"  <services>\n" +
-    "    <service uri-pattern='http://somewhere.in.the.net/testmain/service6/someType1/${accession}'\n" + 
-		"           uri-prefix='http://somewhere.in.the.net/testmain/service6/'\n" + 
+    "    <service uri-pattern='http://somewhere.in.the.net/testmain/service6/someType1/$id'\n" + 
     "           entity-type='testmain.someType1' title='A Test Service 6' name='test.testmain.service6'>\n" +
     "      <description>The Description of a Test Service 6</description>\n" + 
     "    </service>\n" + 
@@ -55,7 +54,7 @@ public class MainTest
     "           service-collection-name = 'test.testmain.serviceColl1'>\n" +
     "      <description>The Description of a Test Service 7</description>\n" +
     "    </service>\n" +
-    "    <service uri-prefix='http://somewhere-else.in.the.net/testmain/service8/'\n" +
+    "    <service\n" +
     "             entity-type='testmain.someType2' title='A Test Service 8' name='test.testmain.service8'" +
     "             repository-name = 'test.testmain.addedRepo1'>\n" + 
     "      <description>The Description of a Test Service 8</description>\n" + 

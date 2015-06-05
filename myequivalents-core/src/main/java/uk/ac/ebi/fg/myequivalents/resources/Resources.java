@@ -95,15 +95,14 @@ public class Resources
 	{
 		if ( springApplicationContext != null ) return springApplicationContext;
 		 
-		String configLocation = Resources.getInstance ().getConfigLocation ();
 		try 
 		{
 			String springFilePath = null;
 			File springFile = null;
 	
-			if ( configLocation != null )
+			if ( this.configLocation != null )
 			{
-				springFile = new File ( springFilePath = configLocation + "/" + configFileName );
+				springFile = new File ( springFilePath = this.configLocation + "/" + configFileName );
 				if ( !springFile.exists () ) springFile = null;
 			}
 			
@@ -118,11 +117,11 @@ public class Resources
 		} 
 		catch ( FileNotFoundException ex ) {
 			throw new RuntimeException ( 
-				"MyEquivalents's Manager Configuration (" + configFileName + ") not found at: '" + configLocation + "'", ex );
+				"MyEquivalents's Manager Configuration ( '" + configFileName + "' ) not found at: '" + this.configLocation + "'", ex );
 		} 
 		catch ( IOException ex ) {
 			throw new RuntimeException ( 
-				"Error while initialising MyEquivalents's Manager Configuration (" + configFileName + ") from '" 
+				"Error while initialising MyEquivalents's Manager Configuration ( '" + configFileName + "' ) from '" 
 				+ configLocation + "': " + ex.getMessage (), ex );
 		}
 	}

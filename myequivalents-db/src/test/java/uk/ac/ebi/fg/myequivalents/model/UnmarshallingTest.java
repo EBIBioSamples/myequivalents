@@ -77,8 +77,7 @@ public class UnmarshallingTest
 	{
 		String xml =
 		"<services>\n" +
-    "  <service uri-pattern='http://somewhere.in.the.net/testemdao/service1/someType1/${accession}'\n" + 
-		"           uri-prefix='http://somewhere.in.the.net/testemdao/service2/'\n" + 
+    "  <service uri-pattern='http://somewhere.in.the.net/testemdao/service1/someType1/$id'\n" + 
     "           entity-type='testemdao.someType1' title='A Test Service 1' name='test.testemdao.service1'>\n" +
     "    <description>The Description of a Test Service 1</description>\n" + 
     "  </service>\n" + 
@@ -86,15 +85,14 @@ public class UnmarshallingTest
     "           repository-name = 'repo1'>\n" +
     "    <description>The Description of a Test Service 2</description>\n" +
     "  </service>\n" +
-    "  <service uri-prefix='http://somewhere-else.in.the.net/testemdao/service3/'\n" +
+    "  <service\n" +
     "           entity-type='testemdao.someType2' title='A Test Service 3' name='test.testemdao.service3'>\n" + 
     "    <description>The Description of a Test Service 3</description>\n" + 
     "  </service>\n" + 
     "</services>";
 
 		/*xml =
-    "<service uri-pattern='http://somewhere.in.the.net/testemdao/service1/someType1/${accession}'\n" + 
-		"         uri-prefix='http://somewhere.in.the.net/testemdao/service2/'\n" + 
+    "<service uri-pattern='http://somewhere.in.the.net/testemdao/service1/someType1/$id'\n" + 
     "         entity-type='testemdao.someType1' title='A Test Service 1' name='test.testemdao.service1'>\n" +
     "  <description>The Description of a Test Service 1</description>\n" + 
     "</service>\n";*/

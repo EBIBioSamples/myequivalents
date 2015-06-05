@@ -33,23 +33,9 @@ public class ServiceDAO extends DescribeableDAO<Service>
 		serviceName = StringUtils.trimToNull ( serviceName );
 		if ( serviceName == null ) return null;
 		
-		
-		String hql = mustBePublic
-		  ? 
-		  	"SELECT s FROM " + Service.class.getName () + " s LEFT JOIN s.repository r WHERE s.name = :serviceName\n" +
-				"AND (\n" +
-		    // The service has some specific visibility attribute
-				"	  ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
-		    // if the service has nothing, check its repo has something
-				"	  OR (\n" +
-				"	    r IS NOT NULL AND s.publicFlag IS NULL AND s.releaseDate IS NULL\n" +
-				"	    AND ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ))\n" +
-				"	  )\n" +
-				"	)"		  	
-			: 
-      	"FROM " + Service.class.getName () + " WHERE name = :serviceName";
-
-		Query q = getEntityManager ().createQuery ( hql ).setParameter ( "serviceName", serviceName );
+		String hqlName = "service.findByName"; if ( mustBePublic ) hqlName += ".publicOnly";
+		Query q = getEntityManager ().createNamedQuery ( hqlName, Service.class )
+			.setParameter ( "serviceName", serviceName );
 
 		@SuppressWarnings ( "unchecked" )
 		List<Service> results = q.getResultList ();
@@ -76,4 +62,42 @@ public class ServiceDAO extends DescribeableDAO<Service>
 		return super.delete ( serviceName );
 	}
 	
+	public Service findByUriPattern ( String uriPattern, boolean mustBePublic )
+	{
+		uriPattern = StringUtils.trimToNull ( uriPattern );
+		if ( uriPattern == null ) return null;
+		
+		String hqlName = "service.findByUriPattern"; if ( mustBePublic ) hqlName += ".publicOnly";
+		Query q = getEntityManager ().createNamedQuery ( hqlName ).setParameter ( "uriPattern", uriPattern );
+
+		@SuppressWarnings ( "unchecked" )
+		List<Service> results = q.getResultList ();
+		
+		return results.isEmpty () ? null : results.iterator ().next ();
+	}
+	
+	public Service findByUriPattern ( String uriPattern ) 
+	{
+		return findByUriPattern ( uriPattern, true );
+	}
+
+	
+	@SuppressWarnings ( "unchecked" )
+	public List<Service> findByUriPatternLike ( String uriPattern, boolean mustBePublic )
+	{
+		uriPattern = StringUtils.trimToNull ( uriPattern );
+		if ( uriPattern == null ) return null;
+		
+		String hqlName = "service.findByUriPattern.like"; if ( mustBePublic ) hqlName += ".publicOnly";
+		Query q = getEntityManager ().createNamedQuery ( hqlName, Service.class )
+			.setParameter ( "uriPattern", uriPattern );
+
+		return q.getResultList ();
+	}
+	
+	public List<Service> findByUriPatternLike ( String uriPattern )
+	{
+		return findByUriPatternLike ( uriPattern, true );
+	}
+
 }

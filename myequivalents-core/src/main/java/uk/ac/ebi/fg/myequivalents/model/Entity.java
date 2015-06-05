@@ -16,6 +16,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
+
 /**
  * 
  * Entities are single units of information that can cross-reference to other entities. Examples of entities are: 
@@ -113,9 +115,7 @@ public class Entity implements Serializable, MyEquivalentsModelMember
 	@XmlAttribute ( name = "uri" )
 	public String getURI()
 	{
-		String uriPattern = this.getService ().getUriPattern ();
-		if ( uriPattern == null ) return null;
-		return uriPattern.replaceAll ( "\\$\\{accession\\}", this.getAccession () );
+		return EntityIdResolver.buildUriFromAcc ( this.getAccession (), this.getService ().getUriPattern () );
 	}
 
   /**

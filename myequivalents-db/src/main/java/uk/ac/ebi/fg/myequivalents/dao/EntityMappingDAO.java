@@ -26,9 +26,6 @@ import org.hibernate.SQLQuery;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.RowSelection;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.jdbc.Work;
 import org.hibernate.jpa.HibernateEntityManager;
 import org.hibernate.type.StringType;
@@ -37,6 +34,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
@@ -760,19 +758,6 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		Session session = (Session) this.entityManager.getDelegate ();
 		
 		String sql = "SELECT bundle, service_name, accession, release_date, public_flag FROM entity_mapping ORDER BY bundle";
-
-// TODO: remove		
-//		if ( offset != null || limit != null )
-//		{
-//			RowSelection rowSelection = new RowSelection ();
-//			if ( offset == null || offset < 0 ) offset = 0;
-//			if ( limit == null ) limit = Integer.MAX_VALUE;
-//			rowSelection.setFirstRow ( offset );
-//			rowSelection.setMaxRows ( limit );
-//			
-//			Dialect dialect = ( (SessionFactoryImplementor) session.getSessionFactory () ).getDialect ();
-//			sql = dialect.buildLimitHandler ( sql, rowSelection ).getProcessedSql ();
-//		}
 	
 		SQLQuery qry = session.createSQLQuery ( sql );
 		
@@ -850,8 +835,8 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		return result;
 		
 	} // dump ()
-	
 
+	
 	/**
 	 * Creates a new bundle ID to create a new bundle with the parameter. This is supposed to be used when a new bundle 
 	 * is being inserted in the DB, i.e., because the parameter entity is not in any other stored bundle yet. 

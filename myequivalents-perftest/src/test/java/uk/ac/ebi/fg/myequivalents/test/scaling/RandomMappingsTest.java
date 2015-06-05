@@ -158,8 +158,7 @@ public class RandomMappingsTest
 			int typeIdx = ( i % NTYPES + 1 );
 			Service service = new Service ( 
 				"test.scaling.service" + i, "test.scaling.someType" + typeIdx, "A Test Service " + i, "The Description of a Test Service " + i );
-			service.setUriPrefix ( "http://somewhere.in.the.net/test/scaling/service/" + i );
-			service.setUriPattern ( "http://somewhere.in.the.net/test/scaling/service" + i + "/someType" + typeIdx + "/${accession}" );
+			service.setUriPattern ( "http://somewhere.in.the.net/test/scaling/service" + i + "/someType" + typeIdx + "/$id" );
 			services [ i - 1 ] = service;
 		}
 		

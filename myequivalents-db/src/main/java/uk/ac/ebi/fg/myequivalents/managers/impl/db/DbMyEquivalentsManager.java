@@ -96,7 +96,7 @@ public abstract class DbMyEquivalentsManager implements MyEquivalentsManager
 	public void close () 
 	{
 		userDao.logOff ();
-		entityManager.close ();
+		if ( entityManager.isOpen () ) entityManager.close ();
 	}
 
 	/**

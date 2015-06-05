@@ -75,8 +75,7 @@ public class ServiceManagerTest
 		serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( editorUser.getEmail (), editorSecret );
 		
 		service1 = new Service ( "test.testservmgr.service1", "testservmgr.someType1", "A Test Service 1", "The Description of a Test Service 1" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testservmgr/service1/" );
-		service1.setUriPattern ( "http://somewhere.in.the.net/testservmgr/service1/someType1/${accession}" );
+		service1.setUriPattern ( "http://somewhere.in.the.net/testservmgr/service1/someType1/$id" );
 				
 		sc1 = new ServiceCollection ( 
 			"test.testservmgr.serviceColl1", service1.getEntityType (), "Test Service Collection 1", "The Description of the SC 1" 
@@ -87,20 +86,13 @@ public class ServiceManagerTest
 		service1.setRepository ( repo1 );
 
 		service2 = new Service ( "test.testservmgr.service2", "testservmgr.someType1", "A Test Service 2", "The Description of a Test Service 2" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testservmgr/service2/" );
 		// Should pop-up on the XML
 		service2.setReleaseDate ( new GregorianCalendar ( 2010, GregorianCalendar.APRIL, 25, 18, 13 ).getTime () );
 
 
 		service3 = new Service ( "test.testservmgr.service3", "testservmgr.someType2", "A Test Service 3", "The Description of a Test Service 3" );
-		service3.setUriPrefix ( "http://somewhere-else.in.the.net/testservmgr/service3/" );
-
 		service4 = new Service ( "test.testservmgr.service4", "testservmgr.someType2", "A Test Service 4", "The Description of a Test Service 4" );
-		service4.setUriPrefix ( "http://somewhere-else.in.the.net/testservmgr/service4/" );
-
 		service5 = new Service ( "test.testservmgr.service5", "testservmgr.someType2", "A Test Service 5", "The Description of a Test Service 5" );
-		service5.setUriPrefix ( "http://somewhere-else.in.the.net/testservmgr/service5/" );
-
 
 		String servNames[] = new String[] { 
 			service1.getName (), service2.getName (), service3.getName (), service4.getName (), service5.getName (),
@@ -167,8 +159,7 @@ public class ServiceManagerTest
 		String xml =
 		"<service-items>\n" +
 		"  <services>\n" +
-    "    <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/${accession}'\n" + 
-		"           uri-prefix='http://somewhere.in.the.net/testservmgr/service6/'\n" + 
+    "    <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/$id'\n" + 
     "           entity-type='testservmgr.someType1' title='A Test Service 6' name='test.testservmgr.service6'>\n" +
     "      <description>The Description of a Test Service 6</description>\n" + 
     "    </service>\n" + 
@@ -177,7 +168,7 @@ public class ServiceManagerTest
     "           service-collection-name = 'test.testservmgr.serviceColl1'>\n" +
     "      <description>The Description of a Test Service 7</description>\n" +
     "    </service>\n" +
-    "    <service uri-prefix='http://somewhere-else.in.the.net/testservmgr/service8/'\n" +
+    "    <service\n" +
     "             entity-type='testservmgr.someType2' title='A Test Service 8' name='test.testservmgr.service8'>\n" + 
     "      <description>The Description of a Test Service 8</description>\n" + 
     "    </service>\n" +
@@ -207,8 +198,7 @@ public class ServiceManagerTest
 		String xml =
 		"<service-items>\n" +
 		"  <services>\n" +
-    "    <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/${accession}'\n" + 
-		"           uri-prefix='http://somewhere.in.the.net/testservmgr/service6/'\n" + 
+    "    <service uri-pattern='http://somewhere.in.the.net/testservmgr/service6/someType1/$id'\n" + 
     "           entity-type='testservmgr.someType1' title='A Test Service 6' name='test.testservmgr.service6'\n" +
     "						release-date = '20130110' public-flag = 'null'>\n" +
     "      <description>The Description of a Test Service 6</description>\n" + 
@@ -218,7 +208,7 @@ public class ServiceManagerTest
     "           service-collection-name = 'test.testservmgr.serviceColl1'>\n" +
     "      <description>The Description of a Test Service 7</description>\n" +
     "    </service>\n" +
-    "    <service uri-prefix='http://somewhere-else.in.the.net/testservmgr/service8/'\n" +
+    "    <service\n" +
     "             entity-type='testservmgr.someType2' title='A Test Service 8' name='test.testservmgr.service8'" +
     "             repository-name = 'test.testservmgr.addedRepo1'>\n" + 
     "      <description>The Description of a Test Service 8</description>\n" + 

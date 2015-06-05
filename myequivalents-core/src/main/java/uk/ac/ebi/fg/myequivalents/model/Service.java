@@ -5,6 +5,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -69,15 +71,43 @@ import org.hibernate.annotations.LazyToOneOption;
 )
 @XmlRootElement ( name = "service" )
 @XmlAccessorType ( XmlAccessType.NONE )
+@NamedQueries 
+({
+	@NamedQuery ( name = "service.findByName.publicOnly", query = 
+		"SELECT s FROM uk.ac.ebi.fg.myequivalents.model.Service s LEFT JOIN s.repository r WHERE s.name = :serviceName\n" +
+		"AND " + Service.HQL_IS_PUBLIC_CLAUSE
+	),
+		
+	@NamedQuery ( name = "service.findByName", query = 
+		"FROM uk.ac.ebi.fg.myequivalents.model.Service WHERE name = :serviceName"
+	),
+	
+	@NamedQuery ( name = "service.findByUriPattern.publicOnly", query = 
+		"SELECT s FROM uk.ac.ebi.fg.myequivalents.model.Service s LEFT JOIN s.repository r WHERE s.uriPattern = :uriPattern\n" +
+		"AND " + Service.HQL_IS_PUBLIC_CLAUSE
+	),
+ 
+	@NamedQuery ( name = "service.findByUriPattern", query = 
+ 		"FROM uk.ac.ebi.fg.myequivalents.model.Service WHERE uriPattern = :uriPattern" 
+	),
+
+	@NamedQuery ( name = "service.findByUriPattern.like.publicOnly", query = 
+		"SELECT s FROM uk.ac.ebi.fg.myequivalents.model.Service s LEFT JOIN s.repository r WHERE s.uriPattern LIKE :uriPattern\n" +
+		"AND " + Service.HQL_IS_PUBLIC_CLAUSE
+	),
+	
+	@NamedQuery ( name = "service.findByUriPattern.like", query = 
+		"FROM uk.ac.ebi.fg.myequivalents.model.Service WHERE uriPattern LIKE :uriPattern" 
+	)
+})
 public class Service extends Describeable
 {
 	@Column ( name = "entity_type" )
 	@Index( name = "service_et" )
 	private String entityType;
 
-	@Index( name = "service_up" )
-	private String uriPrefix;
-	
+	@Column ( name = "uri_pattern" )
+	@Index( name = "service_uri_pat" )
 	private String uriPattern;
 	
 	@ManyToOne( cascade = { CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE } )
@@ -91,7 +121,33 @@ public class Service extends Describeable
 	@JoinColumn( name = "service_collection_name" )
 	@Index( name = "service_c" )
 	private ServiceCollection serviceCollection;
+
+	public static final String UNSPECIFIED_SERVICE_NAME = "_";
+	public static final Service UNSPECIFIED_SERVICE;
+	
+	static final String HQL_IS_PUBLIC_CLAUSE = 
+		"(\n" +
+    // The service has some specific visibility attribute
+		"	  ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
+    // if the service has nothing, check its repo has something
+		"	  OR (\n" +
+		"	    r IS NOT NULL AND s.publicFlag IS NULL AND s.releaseDate IS NULL\n" +
+		"	    AND ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ))\n" +
+		"	  )\n" +
+		"	)"; 
+	
+	static 
+	{
+		UNSPECIFIED_SERVICE = new Service ( 
+			UNSPECIFIED_SERVICE_NAME, null, "[Unspecified Service]", 
+			"This is a fictitious service, used to represent those entities that are identified by means of URIs " +
+			"(or other forms of universal identifiers)."
+		);
 		
+		UNSPECIFIED_SERVICE.setUriPattern ( "$id" );
+		UNSPECIFIED_SERVICE.setPublicFlag ( true );
+	}
+	
 	protected Service () {
 		super();
 	}
@@ -125,20 +181,7 @@ public class Service extends Describeable
 		this.entityType = entityType;
 	}
 
-	@XmlAttribute ( name = "uri-prefix" )
-	@Column ( name = "uri_prefix" )
-	public String getUriPrefix ()
-	{
-		return uriPrefix;
-	}
-
-	public void setUriPrefix ( String uriPrefix )
-	{
-		this.uriPrefix = uriPrefix;
-	}
-
 	@XmlAttribute ( name = "uri-pattern" )
-	@Column ( name = "uri_pattern" )
 	public String getUriPattern ()
 	{
 		return uriPattern;
@@ -205,10 +248,10 @@ public class Service extends Describeable
 	public String toString ()
 	{
 		return String.format ( 
-			"Service { name: '%s', title: '%s', entity-type: '%s', uri-pattern: '%s', uri-prefix: '%s', " +
+			"Service { name: '%s', title: '%s', entity-type: '%s', uri-pattern: '%s', " +
 			"description: '%.15s', service-collection: '%s', repository: '%s', public-flag: %s, release-date: %s }", 
 			this.getName (), this.getTitle (), this.getEntityType (), this.getUriPattern (),
-			this.getUriPrefix (), this.getDescription (), this.getServiceCollectionName (), this.getRepositoryName (),
+			this.getDescription (), this.getServiceCollectionName (), this.getRepositoryName (),
 			this.getPublicFlag (), this.getReleaseDate ()
 		);
 	}

@@ -50,19 +50,10 @@ public class EntityMappingDAOTest
 		emDao = new EntityMappingDAO ( em );
 		
 		service1 = new Service ( "test.testemdao.service1", "testemdao.someType1", "A Test Service 1", "The Description of a Test Service 1" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testemdao/service1/" );
-
 		service2 = new Service ( "test.testemdao.service2", "testemdao.someType1", "A Test Service 2", "The Description of a Test Service 2" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testemdao/service2/" );
-
 		service3 = new Service ( "test.testemdao.service3", "testemdao.someType2", "A Test Service 3", "The Description of a Test Service 3" );
-		service3.setUriPrefix ( "http://somewhere-else.in.the.net/testemdao/service3/" );
-
 		service4 = new Service ( "test.testemdao.service4", "testemdao.someType2", "A Test Service 4", "The Description of a Test Service 4" );
-		service4.setUriPrefix ( "http://somewhere-else.in.the.net/testemdao/service4/" );
-
 		service5 = new Service ( "test.testemdao.service5", "testemdao.someType2", "A Test Service 5", "The Description of a Test Service 5" );
-		service5.setUriPrefix ( "http://somewhere-else.in.the.net/testemdao/service5/" );
 
 		EntityTransaction ts = em.getTransaction ();
 		ts.begin ();
@@ -223,7 +214,6 @@ public class EntityMappingDAOTest
 		boolean isFound = false;
 		for ( EntityMapping emap: mappings ) {
 			if ( emap.getService ().equals ( service4 ) && emap.getAccession ().equals ( "acc1") ) {
-				assertEquals ( "Wrong recovered service (1+2+3+4+5+30)", service4.getUriPrefix (), emap.getService ().getUriPrefix () );
 				isFound = true;
 				break;
 			}

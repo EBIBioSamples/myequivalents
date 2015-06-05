@@ -2,6 +2,7 @@ package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
 
+import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
@@ -125,7 +126,14 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 * indentation and alike. Use proper tools for achieving that (e.g., <a href = 'http://tinyurl.com/nuue8ql'>xmllint</a>).
 	 */
 	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId );
-
+		
+	/**
+	 * TODO comment me!
+	 * @return
+	 */
+	//public EntityId resolveEntityId ( String entityId );
+	
+	
 	/**
 	 * Does close/clean-up operations. There is no guarantee that a manager can be used after the invocation to this method.
 	 * You may want to invoke this call in {@link Object#finalize()} in the implementation of this interface.

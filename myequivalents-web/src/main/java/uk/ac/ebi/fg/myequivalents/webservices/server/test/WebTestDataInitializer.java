@@ -93,21 +93,20 @@ public class WebTestDataInitializer implements ServletContextListener
 		String testServiceXml =
 			"<service-items>\n" +
 			"  <services>\n" +
-	    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/${accession}'\n" + 
-			"           uri-prefix='http://somewhere.in.the.net/testweb/service6/'\n" + 
+	    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/$id'\n" + 
 	    "           entity-type='testweb.someType1' title='A Test Service 6' name='test.testweb.service6'>\n" +
 	    "      <description>The Description of a Test Service 6</description>\n" + 
 	    "    </service>\n" + 
 	    "    <service entity-type='testweb.someType7' title='A Test Service 7' name='test.testweb.service7'" +
 	    "           repository-name = 'test.testweb.repo1'" +
 	    "           service-collection-name = 'test.testweb.serviceColl1'" +
-	    "           uri-pattern = 'http://somewhere.in.the.net/testweb/service7/someType1/${accession}'>\n" +
+	    "           uri-pattern = 'http://somewhere.in.the.net/testweb/service7/someType1/$id'>\n" +
 	    "      <description>The Description of a Test Service 7</description>\n" +
 	    "    </service>\n" +
-	    "    <service uri-prefix='http://somewhere-else.in.the.net/testweb/service8/'\n" +
+	    "    <service\n" +
 	    "             entity-type='testweb.someType2' title='A Test Service 8' name='test.testweb.service8'" +
 	    "             repository-name = 'test.testweb.addedRepo1'" +
-	    "             uri-pattern = 'http://somewhere.else.in.the.net/testweb/service8/someType1/${accession}'>\n" + 
+	    "             uri-pattern = 'http://somewhere.else.in.the.net/testweb/service8/someType1/$id'>\n" + 
 	    "      <description>The Description of a Test Service 8</description>\n" + 
 	    "    </service>\n" +
 	    "  </services>\n" +

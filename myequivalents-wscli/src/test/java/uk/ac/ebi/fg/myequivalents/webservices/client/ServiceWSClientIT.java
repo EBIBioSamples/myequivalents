@@ -52,8 +52,7 @@ public class ServiceWSClientIT
 				.getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME ).newServiceManager ( EDITOR_USER.getEmail (), EDITOR_SECRET  );
 		
 		service1 = new Service ( "test.testweb.service1", "testweb.someType1", "A Test Service 1", "The Description of a Test Service 1" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testweb/service1/" );
-		service1.setUriPattern ( "http://somewhere.in.the.net/testweb/service1/someType1/${accession}" );
+		service1.setUriPattern ( "http://somewhere.in.the.net/testweb/service1/someType1/$id" );
 				
 		sc1 = new ServiceCollection ( 
 			"test.testweb.serviceColl1", service1.getEntityType (), "Test Service Collection 1", "The Description of the SC 1" 
@@ -64,19 +63,13 @@ public class ServiceWSClientIT
 		service1.setRepository ( repo1 );
 
 		service2 = new Service ( "test.testweb.service2", "testweb.someType1", "A Test Service 2", "The Description of a Test Service 2" );
-		service1.setUriPrefix ( "http://somewhere.in.the.net/testweb/service2/" );
 		// Should pop-up on the XML
 		service2.setReleaseDate ( new GregorianCalendar ( 2010, GregorianCalendar.APRIL, 25, 18, 13 ).getTime () );
 
 
 		service3 = new Service ( "test.testweb.service3", "testweb.someType2", "A Test Service 3", "The Description of a Test Service 3" );
-		service3.setUriPrefix ( "http://somewhere-else.in.the.net/testweb/service3/" );
-
 		service4 = new Service ( "test.testweb.service4", "testweb.someType2", "A Test Service 4", "The Description of a Test Service 4" );
-		service4.setUriPrefix ( "http://somewhere-else.in.the.net/testweb/service4/" );
-
 		service5 = new Service ( "test.testweb.service5", "testweb.someType2", "A Test Service 5", "The Description of a Test Service 5" );
-		service5.setUriPrefix ( "http://somewhere-else.in.the.net/testweb/service5/" );
 				
 		serviceMgr.storeServices ( service1, service2, service3, service4, service5 );
 	
@@ -147,8 +140,7 @@ public class ServiceWSClientIT
 		String xml =
 		"<service-items>\n" +
 		"  <services>\n" +
-    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/${accession}'\n" + 
-		"           uri-prefix='http://somewhere.in.the.net/testweb/service6/'\n" + 
+    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/$id'\n" + 
     "           entity-type='testweb.someType1' title='A Test Service 6' name='test.testweb.service6'>\n" +
     "      <description>The Description of a Test Service 6</description>\n" + 
     "    </service>\n" + 
@@ -157,7 +149,7 @@ public class ServiceWSClientIT
     "           service-collection-name = 'test.testweb.serviceColl1'>\n" +
     "      <description>The Description of a Test Service 7</description>\n" +
     "    </service>\n" +
-    "    <service uri-prefix='http://somewhere-else.in.the.net/testweb/service8/'\n" +
+    "    <service\n" +
     "             entity-type='testweb.someType2' title='A Test Service 8' name='test.testweb.service8'>\n" + 
     "      <description>The Description of a Test Service 8</description>\n" + 
     "    </service>\n" +
@@ -191,8 +183,7 @@ public class ServiceWSClientIT
 		String xml =
 		"<service-items>\n" +
 		"  <services>\n" +
-    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/${accession}'\n" + 
-		"           uri-prefix='http://somewhere.in.the.net/testweb/service6/'\n" + 
+    "    <service uri-pattern='http://somewhere.in.the.net/testweb/service6/someType1/$id'\n" + 
     "           entity-type='testweb.someType1' title='A Test Service 6' name='test.testweb.service6'\n" +
     "						release-date = '20130110' public-flag = 'null'>\n" +
     "      <description>The Description of a Test Service 6</description>\n" + 
@@ -202,7 +193,7 @@ public class ServiceWSClientIT
     "           service-collection-name = 'test.testweb.serviceColl1'>\n" +
     "      <description>The Description of a Test Service 7</description>\n" +
     "    </service>\n" +
-    "    <service uri-prefix='http://somewhere-else.in.the.net/testweb/service8/'\n" +
+    "    <service\n" +
     "             entity-type='testweb.someType2' title='A Test Service 8' name='test.testweb.service8'" +
     "             repository-name = 'test.testweb.addedRepo1'>\n" + 
     "      <description>The Description of a Test Service 8</description>\n" + 

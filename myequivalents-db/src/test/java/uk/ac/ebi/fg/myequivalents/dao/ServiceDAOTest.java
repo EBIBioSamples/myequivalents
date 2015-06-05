@@ -38,7 +38,6 @@ public class ServiceDAOTest
 	public void testCreate ()
 	{
 		Service service = new Service ( "test.testCreate.service1", "someType", "A Test Service", "The Description of a Test Service" );
-		service.setUriPrefix ( "http://somewhere.in.the.net/service1/" );
 		EntityManager em = dao.getEntityManager ();
 		EntityTransaction tns = em.getTransaction ();
 		tns.begin ();
