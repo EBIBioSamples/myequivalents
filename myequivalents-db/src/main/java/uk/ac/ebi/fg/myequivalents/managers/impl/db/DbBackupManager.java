@@ -22,12 +22,18 @@ import uk.ac.ebi.fg.myequivalents.model.Describeable;
  */
 public class DbBackupManager extends DbMyEquivalentsManager implements BackupManager
 {
+	/**
+	 * Wraps basic operations with transactional demarcation.
+	 */
 	protected static class TransactionalBackupDAO extends BackupDAO
 	{
 		public TransactionalBackupDAO ( EntityManager entityManager ) {
 			super ( entityManager );
 		}
 
+		/**
+		 * This initialises a JPA transaction, before invoking the superclass implementation.
+		 */
 		@Override
 		public int upload ( InputStream input )
 		{
@@ -38,18 +44,27 @@ public class DbBackupManager extends DbMyEquivalentsManager implements BackupMan
 			return result;
 		}
 
+		/**
+		 * Calls {@link #commitCheckPoint(int)}.
+		 */
 		@Override
 		protected void postUpload ( Describeable d, int itemCounter )
 		{
 			commitCheckPoint ( itemCounter );
 		}
 
+		/**
+		 * Calls {@link #commitCheckPoint(int)}.
+		 */
 		@Override
 		protected void postUpload ( Bundle b, int itemCounter )
 		{
 			commitCheckPoint ( itemCounter );
 		}
 
+		/**
+		 * This commits the current transaction from time to time, and starts a new one afterwards. 
+		 */
 		protected void commitCheckPoint ( int itemCounter )
 		{
 			if ( itemCounter % 10000 == 0 ) 
@@ -76,6 +91,9 @@ public class DbBackupManager extends DbMyEquivalentsManager implements BackupMan
 		this ( new TransactionalBackupDAO ( entityManager ),  email, apiPassword );
 	}
 	
+	/**
+	 * Adds up root element tags for the output ( {@code <myequivalents-backup>} ).
+	 */
 	@Override
 	public int dump ( OutputStream out, Integer offset, Integer limit )
 	{
@@ -93,6 +111,9 @@ public class DbBackupManager extends DbMyEquivalentsManager implements BackupMan
 		}
 	}
 
+	/**
+	 * Checks that the current user is an {@link Role#ADMIN admin} and then invokes {@link TransactionalBackupDAO}.
+	 */
 	@Override
 	public int upload ( InputStream in )
 	{
