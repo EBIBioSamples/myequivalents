@@ -3,7 +3,6 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.managers;
 import java.util.Arrays;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbBackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
@@ -21,6 +20,9 @@ import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
  */
 public class ProvDbBackupManager extends DbBackupManager
 {
+	/** 
+	 * Adds provenance information to the database backend.
+	 */
 	protected static class ProvBackupDAO extends TransactionalBackupDAO
 	{
 		private ProvenanceRegisterEntryDAO provRegDao;
@@ -32,15 +34,24 @@ public class ProvDbBackupManager extends DbBackupManager
 			this.userEmail = userEmail;
 		}
 
+		/**
+		 * Creates an entry of type 'backup.upload' in the {@link ProvenanceRegisterEntry} table.
+		 * Then invokes its {@link TransactionalBackupDAO#postUpload(Describeable, int) parent's implementation}, in order 
+		 * to have {@link #commitCheckPoint(int)} called. 
+		 */
 		@Override
 		protected void postUpload ( Describeable d, int itemCounter )
 		{
 		  provRegDao.create ( new ProvenanceRegisterEntry ( 
 				userEmail, "backup.upload", Arrays.asList ( ProvenanceRegisterParameter.p ( d ) )
 			));
-			commitCheckPoint ( itemCounter );
+		  
+			super.postUpload ( d, itemCounter );
 		}
 
+		/**
+		 * Works like {@link #postUpload(Describeable, int)}.
+		 */
 		@Override
 		protected void postUpload ( Bundle b, int itemCounter )
 		{
@@ -48,17 +59,7 @@ public class ProvDbBackupManager extends DbBackupManager
 		  	userEmail, "backup.upload", ProvenanceRegisterParameter.p ( b.getEntities () ) 
 		  ));
 
-		  commitCheckPoint ( itemCounter );
-		}
-
-		protected void commitCheckPoint ( int itemCounter )
-		{
-			if ( itemCounter % 10000 == 0 ) 
-			{
-				EntityTransaction ts = this.entityManager.getTransaction ();
-				ts.commit ();
-				ts.begin ();
-			}
+		  super.postUpload ( b, itemCounter );
 		}
 	}
 	

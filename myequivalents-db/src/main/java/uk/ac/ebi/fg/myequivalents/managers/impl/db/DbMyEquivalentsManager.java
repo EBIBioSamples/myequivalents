@@ -21,10 +21,8 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.MyEquivalentsManager;
  * <p>Note that the DB-based managers instantiate a new {@link EntityManager Hibernate EntityManager} in their constructors. 
  * This makes them one-entity-manager-per-request in many cases (e.g., when accessed by a web service). 
  * This should be the best transactional model to use in such cases. You might decide a different approach, by keeping 
- * an instance of this class the time you wish.</p>
- * 
- * <p>However, DB-based thread managers are not thread-safe, the idea is that you instantiate a manager within one thread,
- * do some operations from the same thread and then release the manager.</p>
+ * an instance of this class for the time you wish. However, DB-based managers are not thread-safe, the idea is that 
+ * you instantiate a manager within one thread, do some operations from the same thread and then release the manager.</p>
  * 
  * <p>The persistence-related invocations in this manager does the transaction management automatically 
  * (i.e., they commit all implied changes upon operation invocation).</p>

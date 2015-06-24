@@ -16,7 +16,6 @@ public class ManagerUtils
 	/**
 	 * Simply checks that outputFormat is one of the currently supported myEquivalents formats. Which currently
 	 * means 'xml'. Throws an exception in case not.
-	 * 
 	 */
 	public static String checkOutputFormat ( String outputFormat )
 	{
