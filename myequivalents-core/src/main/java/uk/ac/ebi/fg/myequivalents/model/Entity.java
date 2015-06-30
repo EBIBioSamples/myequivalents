@@ -110,7 +110,9 @@ public class Entity implements Serializable, MyEquivalentsModelMember
 			"You need to override this setter, if you have a reasonable semantics for it" );
 	}
 	
-	
+	/**
+	 * TODO: comment me!
+	 */
 	@Transient
 	@XmlAttribute ( name = "uri" )
 	public String getURI()

@@ -80,7 +80,7 @@ public class DbEntityIdResolverTest
 			Assert.assertEquals ( "Wrong URI returned!", uri, eid.getUri () );
 			Assert.assertEquals ( "Wrong acc returned!", acc, eid.getAcc () );
 			
-			// Now try with domain instead
+			// Now try with domain search instead
 			String uri2 = EntityIdResolver.buildUriFromAcc ( acc, uriPat2 );
 			eid = resolver.resolveUri ( null, null, uri2 );
 			Assert.assertNotNull ( "null result from ID resolver!", eid );

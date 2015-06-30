@@ -188,6 +188,13 @@ public class EntityMapping
 		this.accession = accession;
 	}
 
+	/**
+	 * @see {@link Entity#getURI()}. 
+	 */
+	@Transient
+	public String getURI () {
+		return this.getEntity ().getURI ();
+	}
 	
 	public String getBundle ()
 	{
@@ -232,6 +239,10 @@ public class EntityMapping
 	}
 
 	
+	/**
+	 * @return the entity mapping as an {@link Entity}, which is useful on occasions (mainly for implementing features, not
+	 * much for myEquivalent clients). 
+	 */
 	@Transient
 	public Entity getEntity ()
 	{

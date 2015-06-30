@@ -37,7 +37,8 @@ import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
+import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
@@ -53,6 +54,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
  */
 public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 {
+	
 	/**
 	 * This is needed by {@link #createNewBundleId()}, to convert binary UUIDs into BASE64 strings.
 	 */
@@ -64,24 +66,28 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 			return ByteBuffer.allocate ( 2 * Long.SIZE / 8);
 		}		
 	};
+	
 	private final Random random = new Random ( System.currentTimeMillis () );
+
+	protected EntityIdResolver entityIdResolver;
 	
 	
 	public EntityMappingDAO ( EntityManager entityManager )
 	{
 		super ( entityManager, EntityMapping.class );
+		this.setEntityIdResolver ( new DbEntityIdResolver ( entityManager ) );
 	}	
 	
 	/**
 	 * This calls {@link #storeMapping(String, String, String, String)} after having achieved the entity ID structure
-	 * via {@link EntityMappingUtils#parseEntityId(String)}. 
+	 * via {@link #entityIdResolver}. 
 	 */
 	public void storeMapping ( String entityId1, String entityId2 )
 	{
-		String[] entityIdChunks1 = EntityMappingUtils.parseEntityId ( entityId1 );
-		String[] entityIdChunks2 = EntityMappingUtils.parseEntityId ( entityId2 );
+		EntityId eid1 = entityIdResolver.doall ( entityId1 );
+		EntityId eid2 = entityIdResolver.doall ( entityId2 );
 		
-		storeMapping ( entityIdChunks1 [ 0 ], entityIdChunks1 [ 1 ], entityIdChunks2 [ 0 ], entityIdChunks2 [ 1 ] );
+		storeMapping ( eid1.getServiceName (), eid1.getAcc (), eid2.getServiceName (), eid2.getAcc () );
 	}
 
 
@@ -139,7 +145,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	}
 
 	/**
-	 * Assumes the array parameter contains pairs of entity IDs (see {@link EntityMappingUtils#parseEntityId(String)} and creates
+	 * Assumes the array parameter contains pairs of entity IDs (see {@link #entityIdResolver}} and creates
 	 * a mapping for each pair (i.e., calls {@link #storeMapping(String, String)}). 
 	 * 
 	 * Throws an exception if the input is not a multiple of 2.
@@ -149,7 +155,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	{
 		if ( entityIds == null || entityIds.length == 0 ) return;
 		Validate.isTrue ( entityIds.length % 2 == 0, "Wrong no. of arguments for storeMappings, I expect a list of " +
-			"(serviceName1/accession1, serviceName2/accession2) quadruples" 
+			"(entity-id-1, entity-id-2) pairs" 
 		);
 		
 		for ( int i = 0; i < entityIds.length; i++ )
@@ -213,7 +219,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	
 	/**
 	 * Works like specified by {@link EntityMappingManager#storeMappingBundle(String...)}. 
-	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure.
+	 * Uses {@link #entityIdResolver} to get the entity ID structure.
 	 *  
 	 */
 	public void storeMappingBundle ( String... entityIds )
@@ -224,16 +230,17 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		//
 		for ( int i = 0; i < entityIds.length; i++ )
 		{
-			String ichunks[] = EntityMappingUtils.parseEntityId ( entityIds [ i ] );
-			String bundle = this.findBundle ( ichunks [ 0 ], ichunks [ 1 ] );
+			EntityId eid = entityIdResolver.doall ( entityIds [ i ] );
+			
+			String bundle = this.findBundle ( eid.getServiceName (), eid.getAcc () );
 			if ( bundle != null )
 			{
 				// There is already a bundle with one of the input entities, so let's attach all of them to this
 				for ( int j = 0; j < entityIds.length; j++ )
 				{
 					if ( i == j ) continue; 
-					String jchunks[] = EntityMappingUtils.parseEntityId ( entityIds [ j ] );
-					String serviceNameJ = jchunks [ 0 ], accessionJ = jchunks [ 1 ];
+					EntityId jeid = entityIdResolver.doall ( entityIds [ j ] );
+					String serviceNameJ = jeid.getServiceName (), accessionJ = jeid.getAcc ();
 					String bundle1 = this.findBundle ( serviceNameJ, accessionJ );
 					if ( bundle.equals ( bundle1 ) ) continue;
 					if ( bundle1 == null ) 
@@ -241,6 +248,8 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 					else
 						this.moveBundle ( bundle1, bundle );
 				}
+				
+				// And then we're done
 				return;
 			}
 		} // for i
@@ -251,23 +260,24 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		String bundle = null;
 		for ( int i = 0; i < entityIds.length; i++ )
 		{
-			String chunks[] = EntityMappingUtils.parseEntityId ( entityIds [ i ] );
+			EntityId eid = entityIdResolver.doall ( entityIds [ i ] );
+			
 			if ( bundle == null )
-				bundle = this.create ( chunks [ 0 ], chunks [ 1 ] );
+				bundle = this.create ( eid.getServiceName (), eid.getAcc () );
 			else
-				this.join ( chunks [ 0 ], chunks [ 1 ] , bundle );
+				this.join ( eid.getServiceName (), eid.getAcc (), bundle );
 		}
 	}
 	
 	
 	/**
-	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained by the parameter 
+	 * Uses {@link #entityIdResolver} to get the entity ID structure contained by the parameter 
 	 * and then invokes {@link #deleteEntity(String, String)}.
 	 */
 	public boolean deleteEntity ( String entityId ) 
 	{
-		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return deleteEntity ( chunks [ 0 ], chunks [ 1 ] );
+		EntityId eid = entityIdResolver.doall ( entityId );
+		return deleteEntity ( eid.getServiceName (), eid.getAcc () );
 	}
 	
 	
@@ -317,14 +327,14 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	}
 	
 	/**
-	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes 
+	 * Uses {@link #entityIdResolver} to get the entity ID structure contained in the parameter, then invokes 
 	 * {@link #deleteMappings(String, String)} with it. 
 	 * 
 	 */
 	public int deleteMappings ( String entityId ) 
 	{
-		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return deleteMappings ( chunks [ 0 ], chunks [ 1 ] );
+		EntityId eid = entityIdResolver.doall ( entityId );
+		return deleteMappings ( eid.getServiceName (), eid.getAcc () );
 	}
 	
 	
@@ -366,13 +376,13 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	}
 	
 	/**
-	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes 
+	 * Uses {@link #entityIdResolver} to get the entity ID structure contained in the parameter, then invokes 
 	 * {@link #findMappings(String, String)}.
 	 */
 	public List<String> findMappings ( String entityId, boolean mustBePublic )
 	{
-		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return findMappings ( chunks [ 0 ], chunks [ 1 ], mustBePublic );
+		EntityId eid = entityIdResolver.doall ( entityId );
+		return findMappings ( eid.getServiceName (), eid.getAcc (), mustBePublic );
 	}
 
 	/** Defaults to mustBePublic = true */
@@ -454,13 +464,14 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 
 	
 	/**
-	 * Uses {@link EntityMappingUtils#parseEntityId(String)} to get the entity ID structure contained in the parameter, then invokes
+	 * Uses {@link #entityIdResolver} to get the entity ID structure contained in the parameter, then invokes
 	 * {@link #findEntityMappings(String, String)}.
 	 * 
 	 */
-	public List<EntityMapping> findEntityMappings ( String entityId, boolean mustBePublic ) {
-		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return findEntityMappings ( chunks [ 0 ], chunks [ 1 ], mustBePublic );
+	public List<EntityMapping> findEntityMappings ( String entityId, boolean mustBePublic ) 
+	{
+		EntityId eid = entityIdResolver.doall ( entityId );
+		return findEntityMappings ( eid.getServiceName (), eid.getAcc (), mustBePublic );
 	}
 	
 	/** Defaults to mustBePublic = true */
@@ -526,8 +537,8 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	 */
 	public EntityMapping findEntityMapping ( String entityId, boolean mustBePublic ) 
 	{
-		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return findEntityMapping ( chunks [ 0 ], chunks [ 1 ], mustBePublic );
+		EntityId eid = entityIdResolver.doall ( entityId );
+		return findEntityMapping ( eid.getServiceName (), eid.getAcc (), mustBePublic );
 	}
 
 	/** Defaults to mustBePublic = true */
@@ -538,8 +549,8 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	
 	public List<EntityMapping> findMappingsForTarget ( String targetServiceName, String entityId, boolean mustBePublic)
 	{
-		String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-		return findMappingsForTarget ( targetServiceName, chunks [ 0 ], chunks [ 1 ], mustBePublic );
+		EntityId eid = entityIdResolver.doall ( entityId );
+		return findMappingsForTarget ( targetServiceName, eid.getServiceName (), eid.getAcc (), mustBePublic );
 	}
 
 	/** Defaults to mustBePublic = true */
@@ -798,10 +809,10 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				int i = 0;
 				for ( String thisEntityId: entityIds )
 				{
-					String echunks[] = EntityMappingUtils.parseEntityId ( thisEntityId );
+					EntityId eid = entityIdResolver.doall ( thisEntityId );
+					Service service = new Service ( eid.getServiceName () );
 					
-					Service service = new Service ( echunks [ 0 ] );
-					EntityMapping ent = new EntityMapping ( service, echunks [ 1 ], prevBundle );
+					EntityMapping ent = new EntityMapping ( service, eid.getAcc (), prevBundle );
 					
 					ent.setReleaseDate ( relDates.get ( i ) );
 					ent.setPublicFlag ( pubFlags.get ( i ) );
@@ -867,4 +878,12 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		this.entityManager = entityManager;
 	}
 
+	/**
+	 * This is {@link DbEntityIdResolver} by default, you can define a custom resolver here.
+	 */
+	public void setEntityIdResolver ( EntityIdResolver entityIdResolver )
+	{
+		this.entityIdResolver = entityIdResolver;
+	}
+	
 }

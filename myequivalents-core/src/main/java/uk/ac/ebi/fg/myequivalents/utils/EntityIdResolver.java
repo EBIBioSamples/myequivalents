@@ -67,7 +67,7 @@ public class EntityIdResolver
 					uri = acc.substring ( 1, acc.length () - 1 );
 					acc = null;
 					
-					// if the service name was empty in this ***:*** pattern, then you mean unspecified
+					// if the service name was empty in this *:* pattern, then you mean unspecified
 					if ( serviceName == null ) serviceName = UNSPECIFIED_SERVICE_NAME;
 				}
 					
@@ -78,6 +78,13 @@ public class EntityIdResolver
 				"Syntax error (null entity accession) for entity ID '" + entityId + "'"
 			);
 		}	
+	}
+	
+	
+	public EntityId doall ( String entityId )
+	{
+		EntityId eid = parse ( entityId );
+		return eid == null ? null : resolve ( eid );
 	}
 	
 	
@@ -151,8 +158,7 @@ public class EntityIdResolver
 	}
 	
 	/**
-	 * This default implementation just uses {@code 'new Service (serviceName)'} and calls 
-	 * {@link #breakUri(String, String)}.
+	 * This default implementation just uses {@code 'new Service (serviceName)'}.
 	 * 
 	 * A real implementation should fetch the service (including {@link Service#UNSPECIFIED_SERVICE_NAME}) and, 
 	 * if the acc != null, verify the URI. 
@@ -163,7 +169,7 @@ public class EntityIdResolver
 	 */
 	public EntityId resolveUri ( String serviceName, String acc, String uri )
 	{
-		return new EntityId ( new Service ( serviceName ), acc, breakUri ( acc, uri ) );
+		return new EntityId ( new Service ( serviceName ), acc, uri );
 	}
 	
 	

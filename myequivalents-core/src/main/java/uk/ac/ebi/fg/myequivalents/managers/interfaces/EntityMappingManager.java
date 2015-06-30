@@ -2,7 +2,6 @@ package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.Reader;
 
-import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;

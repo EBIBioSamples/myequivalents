@@ -79,9 +79,10 @@ public class DbEntityIdResolver extends EntityIdResolver
 					if ( service != null ) break;
 				}
 				
-				if ( service == null ) throw new RuntimeException ( String.format ( 
-					"Error: cannot find any service for the URI <%s>", uri
-				));
+				if ( service == null ) 
+					// If you don't find any service, then fall back to unspecified service.
+					service = Service.UNSPECIFIED_SERVICE;
+				
 			} // if ( service == null )
 		} // if serviceName
 			
@@ -90,24 +91,29 @@ public class DbEntityIdResolver extends EntityIdResolver
 		
 		String uriPattern = service.getUriPattern ();
 		
-		if ( acc != null ) 
-		{
-			String builtUri = EntityIdResolver.buildUriFromAcc ( acc, uriPattern );
-			if ( !builtUri.equals ( uri ) ) throw new RuntimeException ( String.format (
-				"Entity ID error the URI <%s> is incompatible with the service '%s' having URI pattern '%s'",
-				uri, serviceName, uriPattern
-			));
-		}
+		if ( "$id".equals ( uriPattern ) )
+			acc = uri;
 		else
 		{
-			String rebuiltUriPattern = EntityIdResolver.breakUri ( uri );
-			if ( !uriPattern.equals ( rebuiltUriPattern ) ) throw new RuntimeException ( String.format (
-				"Entity ID error the URI <%s> seems incompatible with the service '%s' having URI pattern '%s'",
-				uri, serviceName, uriPattern
-			));
-
-			acc = EntityIdResolver.extractAccession ( uri, uriPattern );
-		}
+			if ( acc != null ) 
+			{
+				String builtUri = EntityIdResolver.buildUriFromAcc ( acc, uriPattern );
+				if ( !builtUri.equals ( uri ) ) throw new RuntimeException ( String.format (
+					"Entity ID error the URI <%s> is incompatible with the service '%s' having URI pattern '%s'",
+					uri, serviceName, uriPattern
+				));
+			}
+			else
+			{
+				String rebuiltUriPattern = EntityIdResolver.breakUri ( uri );
+				if ( !uriPattern.equals ( rebuiltUriPattern ) ) throw new RuntimeException ( String.format (
+					"Entity ID error the URI <%s> seems incompatible with the service '%s' having URI pattern '%s'",
+					uri, serviceName, uriPattern
+				));
+	
+				acc = EntityIdResolver.extractAccession ( uri, uriPattern );
+			}
+		} // if uriPattern != $id
 		
 		return new EntityId ( service, acc, uri );
 	}

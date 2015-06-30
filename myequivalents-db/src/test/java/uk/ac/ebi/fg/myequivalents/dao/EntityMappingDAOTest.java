@@ -14,12 +14,15 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
@@ -42,6 +45,8 @@ public class EntityMappingDAOTest
 	
 	private Service service1, service2, service3, service4, service5;
 	
+	private Logger log = LoggerFactory.getLogger ( this.getClass () );
+	
 	@Before
 	public void init ()
 	{
@@ -50,7 +55,9 @@ public class EntityMappingDAOTest
 		emDao = new EntityMappingDAO ( em );
 		
 		service1 = new Service ( "test.testemdao.service1", "testemdao.someType1", "A Test Service 1", "The Description of a Test Service 1" );
+		service1.setUriPattern ( "http://test.testemdao.com/service1/$id" );
 		service2 = new Service ( "test.testemdao.service2", "testemdao.someType1", "A Test Service 2", "The Description of a Test Service 2" );
+		service2.setUriPattern ( "http://test.testemdao.com/service2/$id" );
 		service3 = new Service ( "test.testemdao.service3", "testemdao.someType2", "A Test Service 3", "The Description of a Test Service 3" );
 		service4 = new Service ( "test.testemdao.service4", "testemdao.someType2", "A Test Service 4", "The Description of a Test Service 4" );
 		service5 = new Service ( "test.testemdao.service5", "testemdao.someType2", "A Test Service 5", "The Description of a Test Service 5" );
@@ -243,4 +250,92 @@ public class EntityMappingDAOTest
 		mappings = emDao.findEntityMappings ( service1.getName (), "acc30" );
 		assertEquals ( "Result size is wrong (final delete-all)", 0, mappings.size () );
 	}
+	
+	@Test
+	public void testUris ()
+	{
+		EntityManager em = emProvider.getEntityManager ();
+		EntityTransaction ts = em.getTransaction ();
+
+		ts.begin ();
+		  emDao.storeMapping ( 
+		  	"<" + EntityIdResolver.buildUriFromAcc ( "acc1", service1.getUriPattern () ) + ">",
+		  	"<" + EntityIdResolver.buildUriFromAcc ( "acc2", service2.getUriPattern () ) + ">"
+		  );
+		ts.commit ();
+		
+		// Find by acc
+		List<String> mappings = emDao.findMappings ( service1.getName (), "acc1" );
+		assertNotNull ( "findMappings() returns null!", mappings );
+		assertEquals ( "findMappings() returns a wrong-size result!", 4, mappings.size () );
+
+		// And by URI
+		mappings = emDao.findMappings ( "<" + EntityIdResolver.buildUriFromAcc ( "acc2", service2.getUriPattern () ) + ">" );
+		assertNotNull ( "findMappings() returns null!", mappings );
+		log.info ( "findMappings() result: {}", mappings.toString () );
+		assertEquals ( "findMappings() returns a wrong-size result!", 4, mappings.size () );
+		
+		
+		// Clean up
+		ts.begin ();
+		emDao.deleteMappings ( "<" + EntityIdResolver.buildUriFromAcc ( "acc1", service1.getUriPattern () ) + ">" );
+		ts.commit ();
+		
+		mappings = emDao.findMappings ( "<" + EntityIdResolver.buildUriFromAcc ( "acc2", service2.getUriPattern () ) + ">" );
+		assertEquals ( "Clean-up diddn't work!", 0, mappings.size () );
+	}
+	
+	@Test
+	public void testUriWithUnspecifiedService ()
+	{
+		String acc1 = "acc1", testUri1 = "http://test1.unknown.uri.pattern/foo-service/" + acc1;
+		String acc2 = "acc2", testUri2 = "http://test2.unknown.uri.pattern/foo-service#" + acc2;
+		String acc3 = "acc3", testUri3 = "http://test2.unknown.uri.pattern/foo-service#" + acc3;
+		
+		EntityManager em = emProvider.getEntityManager ();
+		EntityTransaction ts = em.getTransaction ();
+		ts.begin ();
+		this.serviceDao.store ( Service.UNSPECIFIED_SERVICE );
+		ts.commit ();
+
+		ts.begin ();
+		emDao.storeMappingBundle ( 
+			":<" + testUri1 + ">", // Universal service selected explicitly
+			"<" + EntityIdResolver.buildUriFromAcc ( "acc1", service1.getUriPattern () ) + ">",
+			"<" + testUri2 + ">" // Universal service expected to be a fall-back case
+		);
+		ts.commit ();
+		
+		List<EntityMapping> maps = emDao.findEntityMappings ( ":<" + testUri1 + ">" );
+		assertNotNull ( "findEntityMappings() returns null!", maps );
+		log.info ( "findMappings() result: {}", maps.toString () );
+		assertEquals ( "findEntityMappings() returns a wrong-size result!", 3, maps.size () );
+		
+		boolean found = false;
+		for ( EntityMapping map: maps )
+			if ( map.getService ().equals ( Service.UNSPECIFIED_SERVICE ) && map.getAccession ().equals ( map.getURI () ) ) { 
+				found = true; break; 
+		}
+		
+		assertTrue ( "Unspecified service-based mapping not found!", found );
+		
+		// Add up another URI
+		ts.begin ();
+		emDao.storeMapping ( ":<" + testUri3 + ">", "<" + testUri2 + ">" );
+		ts.commit ();
+		
+		maps = emDao.findEntityMappings ( service1.getName () + ":" + acc1 );
+		assertNotNull ( "findEntityMappings() returns null, after addition!", maps );
+		log.info ( "findMappings() result: {}", maps.toString () );
+		assertEquals ( "findEntityMappings() returns a wrong-size result, after addition!", 4, maps.size () );
+		
+		// Clean up
+		ts.begin ();
+		emDao.deleteMappings ( ":<" + testUri1 + ">" );
+		ts.commit ();
+		
+		maps = emDao.findEntityMappings ( service1.getName () + ":" + acc1 );
+		assertEquals ( "Clean-up diddn't work!", 0, maps.size () );
+	}
+
 }
