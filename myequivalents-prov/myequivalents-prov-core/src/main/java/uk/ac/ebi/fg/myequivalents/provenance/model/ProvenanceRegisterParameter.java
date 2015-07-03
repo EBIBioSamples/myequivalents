@@ -18,9 +18,10 @@ import org.hibernate.annotations.Index;
 
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * The parameters passed to a given operation. These might be entity IDs, service names etc.
@@ -185,14 +186,23 @@ public class ProvenanceRegisterParameter
 
   
   /**
-   * Builds p ( "entity", "service1", "acc1" ) out of "service1:acc1".
+   * Builds p ( "entity", "service1", "acc1" )
    */
-  public static ProvenanceRegisterParameter pent ( String entityId ) 
-  {
-  	String chunks[] = EntityMappingUtils.parseEntityId ( entityId );
-  	return new ProvenanceRegisterParameter ( "entity", chunks [ 0 ], chunks [ 1 ] );
+  public static ProvenanceRegisterParameter pent ( String serviceName, String acc ) {
+  	return new ProvenanceRegisterParameter ( "entity", serviceName, acc );
   }
 
+  /**
+   * Builds p ( "entity", entityId )
+   */
+  public static ProvenanceRegisterParameter pent ( EntityIdResolver entityIdResolver, String entityId ) 
+  {
+  	EntityId eid = entityIdResolver.doall ( entityId );
+  	return pent ( eid.getServiceName (), eid.getAcc () );
+  }
+  
+  
+  
   /**
    * Builds p ( "service", service.getName () ).
    */
@@ -278,20 +288,23 @@ public class ProvenanceRegisterParameter
 	/**
 	 * Builds parameters for entity IDs. Adds up to result, which is initialised with an empty list, if it's null.
 	 */
-	public static List<ProvenanceRegisterParameter> pent ( List<ProvenanceRegisterParameter> result, List<String> entityIds )
+	public static List<ProvenanceRegisterParameter> pent ( 
+		EntityIdResolver entityIdResolver, List<ProvenanceRegisterParameter> result, List<String> entityIds 
+	)
 	{
 		if ( entityIds == null || entityIds.isEmpty () ) return result;
 		if ( result == null ) result = new ArrayList<ProvenanceRegisterParameter> ( entityIds.size () );
 		
-		for ( String entityId: entityIds ) result.add ( pent ( entityId ) );
+		for ( String entityId: entityIds ) result.add ( pent ( entityIdResolver, entityId ) );
 		return result;
 	}
 
 	/**
 	 * Wraps {@link #pent(List, List)} with result = null. 
 	 */
-	public static List<ProvenanceRegisterParameter> pent ( List<String> entityIds ) {
-		return pent ( null, entityIds );
+	public static List<ProvenanceRegisterParameter> pent ( EntityIdResolver entityIdResolver, List<String> entityIds ) 
+	{
+		return pent ( entityIdResolver, null, entityIds );
 	}
 
 }

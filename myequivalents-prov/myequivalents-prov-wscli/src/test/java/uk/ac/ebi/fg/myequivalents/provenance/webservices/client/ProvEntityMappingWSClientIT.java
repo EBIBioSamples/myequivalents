@@ -28,6 +28,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer;
 
 /**
@@ -166,6 +167,7 @@ public class ProvEntityMappingWSClientIT
 	public void testFindMappingProv ()
 	{
 		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), editorSecret );
+		EntityIdResolver entityIdResolver = new EntityIdResolver ();
 		
 		String sname = "prov.test.service2";
 		Service serv = new Service ( sname );
@@ -199,19 +201,19 @@ public class ProvEntityMappingWSClientIT
 			{
 				foundOps++;
 				foundab = foundab || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":a", sname + ":b" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":a", sname + ":b" ) ) 
 				).size () == 2;
 
 				foundbc = foundbc || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":b", sname + ":c" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":b", sname + ":c" ) ) 
 				).size () == 2;
 
 				foundcd = foundcd || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":c", sname + ":d" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":c", sname + ":d" ) ) 
 				).size () == 2;
 
 				foundad = foundad || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":a", sname + ":d" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":a", sname + ":d" ) ) 
 				).size () == 2;
 
 				for ( ProvenanceRegisterParameter param: prove.getParameters () ) 

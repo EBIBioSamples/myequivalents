@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * Tests for functionality in {@link ProvenanceUtils} and other utilities in {@link ProvenanceRegisterParameter}.
@@ -28,6 +29,8 @@ public class ProvenanceUtilsTest
 	@Test
 	public void testBasics ()
 	{
+		EntityIdResolver idresolver = new EntityIdResolver ();
+		
 		List<ProvenanceRegisterEntry> provs = new ArrayList<> ();
 		
 		ProvenanceRegisterEntry e = new ProvenanceRegisterEntry ( 
@@ -36,12 +39,12 @@ public class ProvenanceUtilsTest
 		provs.add ( e );
 		
 		ProvenanceRegisterEntry e1 = new ProvenanceRegisterEntry ( 
-			"foo.user", "foo.op", pent ( Arrays.asList ( "s1:acc4", "s2:acc5", "s3:acc6" ) )
+			"foo.user", "foo.op", pent ( idresolver, Arrays.asList ( "s1:acc4", "s2:acc5", "s3:acc6" ) )
 		);
 		provs.add ( e1 );
 		
 		ProvenanceRegisterEntry e2 = new ProvenanceRegisterEntry ( 
-			"test.user", "test.op", pent ( Arrays.asList ( "s4:acc7", "s2:acc5" ) )
+			"test.user", "test.op", pent ( idresolver, Arrays.asList ( "s4:acc7", "s2:acc5" ) )
 		);
 		provs.add ( e2 );
 

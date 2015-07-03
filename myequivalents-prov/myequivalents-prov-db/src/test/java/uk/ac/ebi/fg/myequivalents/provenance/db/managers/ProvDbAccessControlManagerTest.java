@@ -15,8 +15,8 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
@@ -25,9 +25,12 @@ import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * Tests the functionality of {@link AccessControlManager}
@@ -38,14 +41,14 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
  */
 public class ProvDbAccessControlManagerTest
 {
-	@BeforeClass
-	public static void init ()
+	@Before
+	public void init ()
 	{
 		ProvDbServiceManagerTest.init ();
 	}
 	
-	@AfterClass
-	public static void cleanUp ()
+	@After
+	public void cleanUp ()
 	{
 		ProvDbServiceManagerTest.cleanUp ();
 	}
@@ -107,4 +110,73 @@ public class ProvDbAccessControlManagerTest
 		assertEquals ( "Expected provenance records not saved (test.new.user)!", 1, proves.size () );
 	}
 	
+	@Test
+	public void testVisibilityAndUris ()
+	{
+		DbManagerFactory mgrFact = (DbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		EntityManager em = mgrFact.getEntityManagerFactory ().createEntityManager ();
+
+		// The services we will play with
+		Reader xmlIn = new InputStreamReader ( this.getClass ().getResourceAsStream ( "/data/foo_services.xml" ) );
+		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), testSecret );
+		smgr.storeServicesFromXML ( xmlIn );
+		smgr.storeServices ( Service.UNSPECIFIED_SERVICE );
+		
+		Service service6 = smgr.getServices ( "test.testmain.service6" ).getServices ().iterator ().next ();
+		
+		String universalUri = "http://totally.faked.uri/bygyx67cc6/ACC:123";
+		
+		// Test mappings
+		EntityMappingManager mapMgr = mgrFact.newEntityMappingManager ( editorUser.getEmail (), testSecret );
+		mapMgr.storeMappingBundle ( 
+			"<" + EntityIdResolver.buildUriFromAcc ( "acc1", service6.getUriPattern () ) + ">",
+			"test.testmain.service8:acc1",
+			":<" + universalUri + ">"
+		);
+		
+		AccessControlManager accMgr = mgrFact.newAccessControlManager ( editorUser.getEmail (), testSecret );
+		accMgr.setEntitiesVisibility ( 
+			"true", "2014-12-31", 
+			"<" + EntityIdResolver.buildUriFromAcc ( "acc1", service6.getUriPattern () ) + ">",
+			"test.testmain.service8:acc1",
+			":<" + universalUri + ">"
+		);
+	
+		// Has the above been tracked?
+		em = mgrFact.getEntityManagerFactory ().createEntityManager ();
+		ProvenanceRegisterEntryDAO provDao = new ProvenanceRegisterEntryDAO ( em );
+		List<ProvenanceRegisterEntry> proves = provDao.find ( 
+			null, "%.setEntitiesVisibility", 
+			Arrays.asList ( p ( "publicFlag", "true" ), p ( "%Date", "2014%" ), p ( "entity", service6.getName (), "acc1" ) )
+		);
+
+		out.println ( "------ MAPPING RECORDS: " + proves );
+		assertEquals ( "Expected provenance records not saved!", 1, proves.size () );
+
+		// Turn URI into service:accession, provenance entry param are always normalised this way
+		proves = provDao.find ( 
+			null, "%.setEntitiesVisibility", 
+			Arrays.asList (
+				p ( "publicFlag", "true" ), p ( "%Date", "2014%" ),
+				ProvenanceRegisterParameter.pent ( 
+					provDao.getEntityIdResolver (),
+					"<" + EntityIdResolver.buildUriFromAcc ( "acc1", service6.getUriPattern () ) + ">" 
+				) 
+			)
+		);
+		out.println ( "------ MAPPING RECORDS FROM SPLIT URI: " + proves );
+		assertEquals ( "Expected provenance records not saved!", 1, proves.size () );
+
+		
+		// Universal URI
+		proves = provDao.find ( 
+			null, "%.setEntitiesVisibility", 
+			Arrays.asList (
+				p ( "publicFlag", "true" ), p ( "%Date", "2014%" ),
+				p ( "entity", Service.UNSPECIFIED_SERVICE_NAME, universalUri ) 
+			)
+		);
+		out.println ( "------ MAPPING RECORDS GOT FROM UNIVERSAL URI: " + proves );
+		assertEquals ( "Expected provenance records not saved!", 1, proves.size () );
+	}
 }

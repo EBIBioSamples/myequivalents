@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.editorUser;
 import static uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbServiceManagerTest.testSecret;
 import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.p;
+import static uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter.pent;
+import static uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver.buildUriFromAcc;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -25,6 +27,8 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * Tests  {@link ProvDbEntityMappingManager}
@@ -151,6 +155,7 @@ public class ProvDbEntityMappingManagerTest
 	{
 		ProvDbManagerFactory mgrFact = (ProvDbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), testSecret );
+		EntityIdResolver entityIdResolver = new DbEntityIdResolver ( mgrFact.getEntityManagerFactory ().createEntityManager () );
 		
 		String sname = "prov.test.service1";
 		Service serv = new Service ( sname );
@@ -184,19 +189,19 @@ public class ProvDbEntityMappingManagerTest
 			{
 				foundOps++;
 				foundab = foundab || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":a", sname + ":b" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":a", sname + ":b" ) ) 
 				).size () == 2;
 
 				foundbc = foundbc || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":b", sname + ":c" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":b", sname + ":c" ) ) 
 				).size () == 2;
 
 				foundcd = foundcd || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":c", sname + ":d" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":c", sname + ":d" ) ) 
 				).size () == 2;
 
 				foundad = foundad || prove.containsParameters ( 
-					ProvenanceRegisterParameter.pent ( Arrays.asList ( sname + ":a", sname + ":d" ) ) 
+					ProvenanceRegisterParameter.pent ( entityIdResolver, Arrays.asList ( sname + ":a", sname + ":d" ) ) 
 				).size () == 2;
 
 				for ( ProvenanceRegisterParameter param: prove.getParameters () ) 
@@ -225,5 +230,48 @@ public class ProvDbEntityMappingManagerTest
 		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<entries>" ) ); 
 		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<entry operation=\"mapping.storeMappingBundle\"" ) ); 
 		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<parameter extra-value=\"c\"" ) ); 
+	}
+	
+	
+	@Test
+	public void testUris ()
+	{
+		ProvDbManagerFactory mgrFact = (ProvDbManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
+		ServiceManager smgr = mgrFact.newServiceManager ( editorUser.getEmail (), testSecret );
+		EntityIdResolver entityIdResolver = new DbEntityIdResolver ( mgrFact.getEntityManagerFactory ().createEntityManager () );
+
+		Service serv = new Service ( "foo.uri.test" );
+		serv.setUriPattern ( "foo://test.uri/$id" );
+		smgr.storeServices ( serv );
+
+		
+		smgr.storeServices ( Service.UNSPECIFIED_SERVICE );
+		EntityMappingManager mmgr = mgrFact.newEntityMappingManager ( editorUser.getEmail (), testSecret );
+		
+		String uri1 = "http://foo.web.uri/test/acc1", uri2 = "lsid://another.foo.uri/acc2";
+		mmgr.storeMappings ( 
+			"<" + uri1 + ">", ":<" + uri2 + ">",
+			serv.getName () + ":acc3", "<" + buildUriFromAcc ( serv.getName (), "acc4" + ">" )
+		);
+		
+		// Verify provenance
+		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager ( editorUser.getEmail (), testSecret );
+		List<ProvenanceRegisterEntry> proves = regMgr.find ( editorUser.getEmail (), "mapping.storeMappings", null, null, 
+			Arrays.asList ( pent ( Service.UNSPECIFIED_SERVICE_NAME, uri2 ) )
+		);
+		log.info ( "------ MAPPING RECORDS (_:URI2):\n{}", proves );
+		assertEquals ( "Expected provenance records not saved (_:URI2)!", 1, proves.size () );
+		
+		proves = regMgr.find ( editorUser.getEmail (), "mapping.storeMappings", null, null, 
+			Arrays.asList ( pent ( serv.getName (), "acc3" ) )
+		);
+		log.info ( "------ MAPPING RECORDS (serv:acc) :\n{}", proves );
+		assertEquals ( "Expected provenance records not saved (serv:acc)!", 1, proves.size () );
+		
+		proves = regMgr.find ( editorUser.getEmail (), "mapping.storeMappings", null, null, 
+			Arrays.asList ( pent ( entityIdResolver, "<" + buildUriFromAcc ( serv.getName (), "acc4" + ">" ) ) )
+		);
+		log.info ( "------ MAPPING RECORDS (uriri(serv:acc)):\n{}", proves );
+		assertEquals ( "Expected provenance records not saved uri(serv:acc)!", 1, proves.size () );
 	}
 }

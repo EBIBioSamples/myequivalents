@@ -62,7 +62,7 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "mapping.storeMappings", pent ( Arrays.asList ( entityIds ) ) 
+			getUserEmail (), "mapping.storeMappings", pent ( provRegDao.getEntityIdResolver (), Arrays.asList ( entityIds ) ) 
 	  ));
 	  ts.commit ();
 	}
@@ -80,7 +80,7 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "mapping.storeMappingBundle", pent ( Arrays.asList ( entityIds ) ) 
+			getUserEmail (), "mapping.storeMappingBundle", pent ( provRegDao.getEntityIdResolver (), Arrays.asList ( entityIds ) ) 
 	  ));
 	  ts.commit ();
 	}
@@ -137,7 +137,7 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "mapping.deleteMappings", pent ( Arrays.asList ( entityIds ) ) 
+			getUserEmail (), "mapping.deleteMappings", pent ( provRegDao.getEntityIdResolver (), Arrays.asList ( entityIds ) ) 
 	  ));
 	  ts.commit ();
 	  
@@ -157,7 +157,7 @@ public class ProvDbEntityMappingManager extends DbEntityMappingManager
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
 	  provRegDao.create ( new ProvenanceRegisterEntry ( 
-			getUserEmail (), "mapping.deleteEntities", pent ( Arrays.asList ( entityIds ) ) 
+			getUserEmail (), "mapping.deleteEntities", pent ( provRegDao.getEntityIdResolver (), Arrays.asList ( entityIds ) ) 
 	  ));
 	  ts.commit ();
 	  

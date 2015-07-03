@@ -3,6 +3,7 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeBinding;
 import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeClause;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -14,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.apache.commons.lang3.Validate;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.DetachedCriteria;
@@ -22,13 +24,19 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
+import org.hibernate.type.DateType;
+import org.hibernate.type.DbTimestampType;
+import org.hibernate.type.TimestampType;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ebi.fg.myequivalents.dao.AbstractTargetedDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
+import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
@@ -38,14 +46,15 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
  * @author Marco Brandizi
  *
  */
-public class ProvenanceRegisterEntryDAO
+public class ProvenanceRegisterEntryDAO extends AbstractTargetedDAO<ProvenanceRegisterEntry>
 {
-	private EntityManager entityManager;
 	private final Logger log = LoggerFactory.getLogger ( this.getClass () );
 
 	
-	public ProvenanceRegisterEntryDAO ( EntityManager em ) {
-		this.entityManager = em;
+	public ProvenanceRegisterEntryDAO ( EntityManager em )
+	{
+		super ( em, ProvenanceRegisterEntry.class );
+		this.setEntityIdResolver ( new DbEntityIdResolver ( em ) );
 	}
 
 	public void create ( ProvenanceRegisterEntry provEntry ) 
@@ -63,46 +72,62 @@ public class ProvenanceRegisterEntryDAO
 		String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params 
 	)
 	{
-		Session sess = (Session) this.entityManager.getDelegate ();
-		DetachedCriteria crit = DetachedCriteria.forClass ( ProvenanceRegisterEntry.class, "prove" );
-		crit.setProjection ( Projections.distinct ( Projections.id () ) );
+		String sql = "SELECT DISTINCT * FROM provenance_register prove WHERE true\n";
 		
-		if ( userEmail != null )  crit.add ( Restrictions.like ( "userEmail", userEmail ) );
-		if ( operation != null )  crit.add ( Restrictions.like ( "operation", operation ) );
-				
-		if ( from != null ) 
-			crit.add ( to != null 
-				? Restrictions.between ( "timestamp", from, to )
-				: Restrictions.ge ( "timestamp", from )
-			);
-		else 
-			if ( to != null ) crit.add ( Restrictions.le ( "timestamp", to ) ); 
+		if ( userEmail != null ) sql += "AND user_email LIKE :email\n";
+		if ( operation != null ) sql += "AND operation LIKE :operation\n";
+		
+		if ( from != null ) sql += "AND timestamp >= :from\n";
+		if ( to != null ) sql += "AND timestamp <= :to\n";
 
 		// All the params, in AND.
 		if ( params != null && !params.isEmpty () )
 		{
-			
-			Disjunction paramCrit = Restrictions.disjunction ();
-			
+			int i = 0;
 			for ( ProvenanceRegisterParameter param: params  )
 			{
 				String ptype = param.getValueType (), pval = param.getValue (), extra = param.getExtraValue ();
-				if ( ptype == null && pval == null && extra == null ) continue;
-						
-				Conjunction and = Restrictions.and ();
-				if ( ptype != null ) and.add ( Restrictions.like ( "param.valueType", ptype ) );
-				if ( pval != null ) and.add ( Restrictions.like ( "param.value", pval ) );
-				if ( extra != null ) and.add ( Restrictions.like ( "param.extraValue", extra ) );
-				paramCrit.add ( and );
-			}
-
-			crit.createAlias ( "prove.parameters", "param" );
-			crit.add ( paramCrit );
-		}
+				String sqlParam = "";
 				
-		return sess.createCriteria ( ProvenanceRegisterEntry.class )
-			.add ( Property.forName ( "id" ).in ( crit ) )
-			.list ();
+				if ( ptype != null ) sqlParam += " AND valuetype LIKE :ptype" + i;
+				if ( pval != null ) sqlParam += " AND value LIKE :pval" + i;
+				if ( extra != null ) sqlParam += " AND extravalue LIKE :pextra" + i;
+
+				i++;
+				
+				if ( sqlParam.length () == 0 ) continue;
+				
+				sqlParam = "true" + sqlParam;
+				sql += "AND id IN ( SELECT prov_entry_id FROM provenance_register_parameter WHERE " + sqlParam + " )\n";
+			}
+		}
+
+		// And now redo the same, to fill the parameters
+		Session sess = (Session) this.entityManager.getDelegate ();
+		SQLQuery query = sess.createSQLQuery ( sql );
+		
+		if ( userEmail != null ) query.setParameter ( "email", userEmail );
+		if ( operation != null ) query.setParameter ( "operation", operation );
+		if ( from != null ) query.setParameter ( "from", from );
+		if ( to != null ) query.setParameter ( "to", to );
+
+		if ( params != null && !params.isEmpty () )
+		{
+			int i = 0;
+			for ( ProvenanceRegisterParameter param: params  )
+			{
+				String ptype = param.getValueType (), pval = param.getValue (), pextra = param.getExtraValue ();
+				
+				if ( ptype != null ) query.setParameter ( "ptype" + i, ptype ); 
+				if ( pval != null ) query.setParameter ( "pval" + i, pval ); 
+				if ( pextra != null ) query.setParameter ( "pextra" + i, pextra ); 
+
+				i++;
+			}
+		}
+		
+		// Whee! Now materialise it!
+		return query.addEntity ( ProvenanceRegisterEntry.class ).list ();
 	}
 	
 	/**

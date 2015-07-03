@@ -18,6 +18,8 @@ import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbAccessControlManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
+import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * A wrapper of {@link DbAccessControlManager} that uses the provenance register to keep track of access-control
@@ -153,19 +155,19 @@ public class ProvDbAccessControlManager extends DbAccessControlManager
 	private void trackSetVisibility ( 
 		String command, String type, String publicFlagStr, String releaseDateStr, Boolean cascade, String ... ids )
 	{
-		List<ProvenanceRegisterParameter> result = new LinkedList<> ();
-		if ( publicFlagStr != null ) result.add ( new ProvenanceRegisterParameter ( "publicFlag", publicFlagStr ) );
-		if ( releaseDateStr != null ) result.add ( new ProvenanceRegisterParameter ( "releaseDate", releaseDateStr ) );
-		if ( cascade != null ) result.add ( new ProvenanceRegisterParameter ( "cascade", Boolean.toString ( cascade ) ) );
+		List<ProvenanceRegisterParameter> params = new LinkedList<> ();
+		if ( publicFlagStr != null ) params.add ( new ProvenanceRegisterParameter ( "publicFlag", publicFlagStr ) );
+		if ( releaseDateStr != null ) params.add ( new ProvenanceRegisterParameter ( "releaseDate", releaseDateStr ) );
+		if ( cascade != null ) params.add ( new ProvenanceRegisterParameter ( "cascade", Boolean.toString ( cascade ) ) );
 		
-		if ( "entity".equals ( "type" ) )
-			pent ( result, Arrays.asList ( ids ) );
+		if ( "entity".equals ( type ) )
+			pent ( provRegDao.getEntityIdResolver (), params, Arrays.asList ( ids ) );
 		else
-			p ( result, type, Arrays.asList ( ids ) );
+			p ( params, type, Arrays.asList ( ids ) );
 		
 		EntityTransaction ts = this.entityManager.getTransaction ();
 	  ts.begin ();
-	  provRegDao.create ( new ProvenanceRegisterEntry ( getUserEmail (), command, result ));  
+	  provRegDao.create ( new ProvenanceRegisterEntry ( getUserEmail (), command, params ));  
 	  ts.commit ();
 	}
 
