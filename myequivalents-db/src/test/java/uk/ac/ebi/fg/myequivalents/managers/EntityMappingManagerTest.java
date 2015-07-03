@@ -7,6 +7,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver.buildUriFromAcc;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +41,7 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
@@ -87,7 +89,7 @@ public class EntityMappingManagerTest
 		emMgr = managerFactory.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
 		
 		service1 = new Service ( "test.testemsrv.service1", "testemsrv.someType1", "A Test Service 1", "The Description of a Test Service 1" );
-		service1.setUriPattern ( "http://somewhere.in.the.net/testemsrv/service1/someType1/$id" );
+		service1.setUriPattern ( "http://test.testemsrv.net/service1#$id" );
 				
 		sc1 = new ServiceCollection ( 
 			"test.testemsrv.serviceColl1", service1.getEntityType (), "Test Service Collection 1", "The Description of the SC 1" 
@@ -98,6 +100,8 @@ public class EntityMappingManagerTest
 		service1.setRepository ( repo1 );
 
 		service2 = new Service ( "test.testemsrv.service2", "testemsrv.someType1", "A Test Service 2", "The Description of a Test Service 2" );
+		service2.setUriPattern ( "http://test.testemsrv.net/service2#$id" );
+		
 		service3 = new Service ( "test.testemsrv.service3", "testemsrv.someType2", "A Test Service 3", "The Description of a Test Service 3" );
 		service4 = new Service ( "test.testemsrv.service4", "testemsrv.someType2", "A Test Service 4", "The Description of a Test Service 4" );
 		service5 = new Service ( "test.testemsrv.service5", "testemsrv.someType2", "A Test Service 5", "The Description of a Test Service 5" );
@@ -210,7 +214,7 @@ public class EntityMappingManagerTest
 			
 			assertNotNull ( "b1.3 not found in search results!", b13 );
 			assertEquals ( "Bad URI returned for b13!", 
-				"http://somewhere.in.the.net/testemsrv/service1/someType1/b1.3", b13.getURI () 
+				"http://test.testemsrv.net/service1#b1.3", b13.getURI () 
 			);
 			
 			assertNotNull ( "Bundle 1 not found in search result!", bundle1 );
@@ -371,7 +375,7 @@ public class EntityMappingManagerTest
 			
 			assertNotNull ( "b1.3 not found in search results!", b13 );
 			assertEquals ( "Bad URI returned for b13!", 
-				"http://somewhere.in.the.net/testemsrv/service1/someType1/b1.3", b13.getURI () 
+				"http://test.testemsrv.net/service1#b1.3", b13.getURI () 
 			);
 			
 			assertNotNull ( "Bundle 1 not found in search result!", bundle1 );
@@ -397,4 +401,43 @@ public class EntityMappingManagerTest
 		assertEquals ( "Wrong no of repo returned by the search!", 1, repos.size () );
 		assertTrue ( "Repo1 not found in the search result!", repos.contains ( repo1 ) );
 	}
+	
+	
+	@Test
+	public void testUrisAndAccessControl ()
+	{
+		AccessControlManager acMgr = managerFactory.newAccessControlManager ( editorUser.getEmail (), editorSecret );
+		
+	  emMgr.storeMappingBundle ( 
+	  	service1.getName () + ":b1.1", "<" + EntityIdResolver.buildUriFromAcc ( "b2.1", service2.getUriPattern () ) + ">" 
+	  );
+
+	  EntityMappingSearchResult emsr = emMgr.getMappings ( true, service2.getName () + ":b2.1" );
+	  out.println ( "\n\nStored mappings:\n" + emsr + "\n\n" );
+	  
+	  assertTrue ( "Private entity is not created!", emsr.getBundles ().iterator().next ().getEntities ()
+			.contains ( new Entity ( service1, "b1.1" ) )
+	  );
+
+	  acMgr.setServicesVisibility ( "false", "null", false, service1.getName () );
+	  acMgr.setEntitiesVisibility ( "null", "null", 
+	  	"<" + EntityIdResolver.buildUriFromAcc ( "b1.1", service1.getUriPattern () ) + ">" 
+	  );
+	  
+		emMgr = managerFactory.newEntityMappingManager ();
+	  emsr = emMgr.getMappings ( true, service2.getName () + ":b2.1" );
+	  out.println ( "\n\nProtected mappings:\n" + emsr + "\n\n" );
+		assertFalse ( "Private entity is accessible!", emsr.getBundles ().iterator().next ().getEntities ()
+			.contains ( new Entity ( service1, "b1.1" ) )
+	  );
+		
+		// Clean up
+		emMgr = managerFactory.newEntityMappingManager ( editorUser.getEmail (), editorSecret );
+		emMgr.deleteMappings ( 
+			service2.getName () + ":<" + buildUriFromAcc ( "b2.1", service2.getUriPattern () ) + ">"
+		);
+		emsr = emMgr.getMappings ( true, service1.getName () + ":b1.1" );
+		assertTrue ( "Test data not deleted!", emsr.getBundles ().isEmpty () );		
+	}
+	
 }

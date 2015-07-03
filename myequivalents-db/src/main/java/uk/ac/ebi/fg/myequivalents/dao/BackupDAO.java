@@ -41,7 +41,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
  * <dl><dt>Date:</dt><dd>20 Feb 2015</dd>
  *
  */
-public class BackupDAO
+public class BackupDAO extends AbstractDAO 
 {
 	/**
 	 * This is used in {@link BackupDAO#upload(InputStream)}, to create {@link ExposedService}, instead of the  
@@ -55,7 +55,6 @@ public class BackupDAO
 		}
 	}
 
-	protected EntityManager entityManager;
 	private RepositoryDAO repoDao;
 	private ServiceCollectionDAO servCollDao;
 	private ServiceDAO serviceDao;
@@ -65,13 +64,13 @@ public class BackupDAO
 
 	public BackupDAO ( EntityManager entityManager )
 	{
-		this.entityManager = entityManager;
+		super ( entityManager );
 		repoDao = new RepositoryDAO ( entityManager );
 		servCollDao = new ServiceCollectionDAO ( entityManager );
 		serviceDao = new ServiceDAO ( entityManager );
 		mapDao = new EntityMappingDAO ( entityManager );
 	}
-
+	
 	public int dump ( OutputStream out, Integer offset, Integer limit )
 	{
 		if ( offset == null ) offset = 0;
@@ -238,7 +237,9 @@ public class BackupDAO
 	
 	public void setEntityManager ( EntityManager entityManager )
 	{
-		this.entityManager = entityManager;
+		super.setEntityManager ( entityManager );
+		if ( repoDao == null ) return;
+		
 		repoDao.setEntityManager ( entityManager );
 		servCollDao.setEntityManager ( entityManager );
 		serviceDao.setEntityManager ( entityManager );

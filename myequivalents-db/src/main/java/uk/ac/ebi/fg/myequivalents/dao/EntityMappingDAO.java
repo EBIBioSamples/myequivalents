@@ -68,9 +68,6 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	};
 	
 	private final Random random = new Random ( System.currentTimeMillis () );
-
-	protected EntityIdResolver entityIdResolver;
-	
 	
 	public EntityMappingDAO ( EntityManager entityManager )
 	{
@@ -878,12 +875,4 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		this.entityManager = entityManager;
 	}
 
-	/**
-	 * This is {@link DbEntityIdResolver} by default, you can define a custom resolver here.
-	 */
-	public void setEntityIdResolver ( EntityIdResolver entityIdResolver )
-	{
-		this.entityIdResolver = entityIdResolver;
-	}
-	
 }

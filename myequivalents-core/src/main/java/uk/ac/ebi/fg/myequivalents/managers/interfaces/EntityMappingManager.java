@@ -5,6 +5,7 @@ import java.io.Reader;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
@@ -24,7 +25,7 @@ public interface EntityMappingManager extends MyEquivalentsManager
 
 	/**
 	 * Stores mappings between entities. The parameter consists of a list of pairs, where every pair contains two entity IDs.
-	 * (see {@link EntityMappingUtils#parseEntityId(String)}). This call manages automatically the transitivity and symmetry 
+	 * (see {@link EntityIdResolver}). This call manages automatically the transitivity and symmetry 
 	 * of the mapping (i.e., equivalence) relationship, which means if any of the two entities are already linked to other 
 	 * entities, the latter are automatically linked to the other entity given to this call. It leaves the database unchanged 
 	 * if the mapping already exists.  You'll get an exception if any of the named services doesn't exist.
@@ -32,7 +33,7 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	public void storeMappings ( String ... entityIds );
 
 	/**
-	 * Stores a mapping bundle. The parameter consists of a list of entity IDs (see {@link EntityMappingUtils#parseEntityId(String)}). 
+	 * Stores a mapping bundle. The parameter consists of a list of entity IDs (see {@link EntityIdResolver}). 
 	 * It also manages the symmetry and transitivity of the equivalence/mapping relationship, which means if any of the 
 	 * entities passed as parameter are already linked to some other entities, the latter becomes part of the same 
 	 * equivalence set too. It leaves the back-end storage unchanged if this exact mapping set already exists. 
@@ -63,7 +64,7 @@ public interface EntityMappingManager extends MyEquivalentsManager
 
 	/**
 	 * Deletes mappings between entities. The parameter consists of a list of  
-	 * {@link EntityMappingUtils#parseEntityId(String) entityIds}. This deletes all the mappings that involve an entity, 
+	 * {@link EntityIdResolver entityIds}. This deletes all the mappings that involve an entity, 
 	 * i.e., the whole equivalence class it belongs to.
    *
 	 * @return the number of entities (including the parameter) that were in the same equivalence relationship and are
@@ -81,7 +82,7 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	/**
 	 * Gets all the mappings to which the parameter entities are associated. 
 	 * The parameter consists of a list of entity references, where every entity is given by a pair of service/accession, 
-	 * as specified in {@link EntityMappingUtils#parseEntityId(String)}. 
+	 * as specified in {@link EntityIdResolver}. 
 	 *  
 	 * @param wantRawResult if true, omits service-related objects from the result ({@link Service}, {@link ServiceCollection}, 
 	 * {@link Repository}), it only reports bundles of entity mappings. This will be faster if you just needs links.

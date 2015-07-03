@@ -7,6 +7,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver.buildUriFromAcc;
 import static uk.ac.ebi.fg.myequivalents.webservices.client.AccessControlWSClientIT.CLI_SPRING_CONFIG_FILE_NAME;
 
 import java.util.Collection;
@@ -14,10 +15,16 @@ import java.util.Collection;
 import org.junit.Test;
 
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.AccessControlManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
+import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * Tests the Web service client for the mappings. This relies on some data that are initialised by the myequivalents-web
@@ -120,5 +127,53 @@ public class EntityMappingWSClientIT
 		
 	}
 
+	
+	@Test
+	public void testUrisAndAccessControl ()
+	{
+		ManagerFactory managerFactory = Resources.getInstance ().getMyEqManagerFactory ( CLI_SPRING_CONFIG_FILE_NAME );
+		
+		Service service1 = new Service ( "test.testemdao.service1", "testemdao.someType1", "A Test Service 1", "The Description of a Test Service 1" );
+		service1.setUriPattern ( "http://test.testemdao.com/service1/$id" );
+		Service service2 = new Service ( "test.testemdao.service2", "testemdao.someType1", "A Test Service 2", "The Description of a Test Service 2" );
+		service2.setUriPattern ( "http://test.testemdao.com/service2/$id" );
+
+		ServiceManager servMgr = managerFactory.newServiceManager ( "test.editor", "test.secret" );
+		servMgr.storeServices ( service1, service2 );
+		
+		AccessControlManager acMgr = managerFactory.newAccessControlManager ( "test.editor", "test.secret" );
+		EntityMappingManager emMgr = managerFactory.newEntityMappingManager ( "test.editor", "test.secret" );
+		
+	  emMgr.storeMappingBundle ( 
+	  	service1.getName () + ":b1.1", "<" + EntityIdResolver.buildUriFromAcc ( "b2.1", service2.getUriPattern () ) + ">" 
+	  );
+
+	  EntityMappingSearchResult emsr = emMgr.getMappings ( true, service2.getName () + ":b2.1" );
+	  out.println ( "\n\nStored mappings:\n" + emsr + "\n\n" );
+	  
+	  assertTrue ( "Private entity is not created!", emsr.getBundles ().iterator().next ().getEntities ()
+			.contains ( new Entity ( service1, "b1.1" ) )
+	  );
+
+	  acMgr.setServicesVisibility ( "false", "null", false, service1.getName () );
+	  acMgr.setEntitiesVisibility ( "null", "null", 
+	  	"<" + EntityIdResolver.buildUriFromAcc ( "b1.1", service1.getUriPattern () ) + ">" 
+	  );
+	  
+		emMgr = managerFactory.newEntityMappingManager ();
+	  emsr = emMgr.getMappings ( true, service2.getName () + ":b2.1" );
+	  out.println ( "\n\nProtected mappings:\n" + emsr + "\n\n" );
+		assertFalse ( "Private entity is accessible!", emsr.getBundles ().iterator().next ().getEntities ()
+			.contains ( new Entity ( service1, "b1.1" ) )
+	  );
+		
+		// Clean up
+		emMgr = managerFactory.newEntityMappingManager ( "test.editor", "test.secret" );
+		emMgr.deleteMappings ( 
+			service2.getName () + ":<" + buildUriFromAcc ( "b2.1", service2.getUriPattern () ) + ">"
+		);
+		emsr = emMgr.getMappings ( true, service1.getName () + ":b1.1" );
+		assertTrue ( "Test data not deleted!", emsr.getBundles ().isEmpty () );		
+	}
 
 }

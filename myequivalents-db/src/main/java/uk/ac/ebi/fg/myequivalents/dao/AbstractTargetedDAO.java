@@ -2,6 +2,8 @@ package uk.ac.ebi.fg.myequivalents.dao;
 
 import javax.persistence.EntityManager;
 
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
+
 /**
  * A generic DAO, having functions for the management of a single entity type. There are other DAOs managing 
  * combinations of related entity types (yes, this is not fully compliant with the usual DAO design pattern).
@@ -11,14 +13,14 @@ import javax.persistence.EntityManager;
  *
  * @param <T>
  */
-public abstract class AbstractTargetedDAO<T>
+public abstract class AbstractTargetedDAO<T> extends AbstractDAO
 {
-	protected EntityManager entityManager;
 	protected Class<? super T> targetClass;
 
-	public AbstractTargetedDAO ( EntityManager entityManager, Class<? super T> targetClass )
+
+	protected AbstractTargetedDAO ( EntityManager entityManager, Class<? super T> targetClass )
 	{
-		this.entityManager = entityManager;
+		super ( entityManager );
 		this.targetClass = targetClass;
 	}
 	
@@ -29,11 +31,6 @@ public abstract class AbstractTargetedDAO<T>
 	{
 		return (Long) entityManager.createQuery ( "SELECT COUNT( * ) FROM " + this.targetClass.getName () + " T" )
 			.getSingleResult ();
-	}
-	
-	public void setEntityManager ( EntityManager entityManager )
-	{
-		this.entityManager = entityManager;
 	}
 
 }
