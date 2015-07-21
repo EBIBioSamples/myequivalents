@@ -36,7 +36,6 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
-import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 import uk.ac.ebi.utils.time.XStopWatch;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
@@ -411,14 +410,13 @@ public class RandomMappingsTest
 
 			int entIdx = rnd.nextInt ( entityIds.size () );
 			entityId1 = entityIds.get ( entIdx );
-			String[] entityId1Chunks = EntityMappingUtils.parseEntityId ( entityId1 );
-
+			
 			// Get the second entity among those mapped by this
 			EntityMappingSearchResult maps = mapMgr.getMappings ( true, entityId1 );
 			Iterator<EntityMappingSearchResult.Bundle> mbsItr = maps.getBundles ().iterator ();
 			if ( !mbsItr.hasNext () ) continue;
 			for ( Entity ment: mbsItr.next ().getEntities () )
-				if ( !( ment.getServiceName ().equals ( entityId1Chunks[ 0 ] ) && ment.getAccession ().equals ( entityId1Chunks[ 1 ] ) ) )
+				if ( !( ment.getServiceName () + ":" + ment.getAccession () ).equals ( entityId1 ) )
 				{
 					entityId2 = ment.getServiceName () + ":" + ment.getAccession ();
 					break;

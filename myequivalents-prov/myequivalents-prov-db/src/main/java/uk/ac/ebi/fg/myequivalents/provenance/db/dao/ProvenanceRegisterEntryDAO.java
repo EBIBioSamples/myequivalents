@@ -3,7 +3,6 @@ package uk.ac.ebi.fg.myequivalents.provenance.db.dao;
 import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeBinding;
 import static uk.ac.ebi.utils.sql.HqlUtils.parameterizedRangeClause;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -17,27 +16,22 @@ import javax.persistence.Query;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.criterion.Conjunction;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.Subqueries;
-import org.hibernate.type.DateType;
-import org.hibernate.type.DbTimestampType;
-import org.hibernate.type.TimestampType;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fg.myequivalents.dao.AbstractTargetedDAO;
+import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
 import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
-import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * DB Storage management for {@link ProvenanceRegisterEntry} 
@@ -158,7 +152,8 @@ public class ProvenanceRegisterEntryDAO extends AbstractTargetedDAO<ProvenanceRe
 	@SuppressWarnings ( "unchecked" )
 	public List<ProvenanceRegisterEntry> findEntityMappingProv ( String entityId, List<String> validUsers )
 	{
-		String[] echunks = EntityMappingUtils.parseEntityId ( entityId );
+		EntityIdResolver idresolver = this.getEntityIdResolver ();
+		EntityId eidObj = idresolver.doall ( entityId );
 		
 		// SELECT DISTINCT e FROM ProvenanceRegisterEntry AS e JOIN e.parameters AS x
 		// WHERE e.operation IN ( 'mapping.storeMappings', 'mapping.storeMappingBundle' ) AND x.valueType = 'entity'
@@ -171,8 +166,8 @@ public class ProvenanceRegisterEntryDAO extends AbstractTargetedDAO<ProvenanceRe
 		crit.createAlias ( "e.parameters", "x" );
 		crit.add ( Restrictions.in ( "e.operation", new String[] { "mapping.storeMappings", "mapping.storeMappingBundle" } ) );
 		crit.add ( Restrictions.eq ( "x.valueType", "entity" ) );
-		crit.add ( Restrictions.eq ( "x.value", echunks [ 0 ] ) );
-		crit.add ( Restrictions.eq ( "x.extraValue", echunks [ 1 ] ) );
+		crit.add ( Restrictions.eq ( "x.value", eidObj.getServiceName () ) );
+		crit.add ( Restrictions.eq ( "x.extraValue", eidObj.getAcc () ) );
 		if ( validUsers != null && !validUsers.isEmpty () ) crit.add ( Restrictions.in ( "e.userEmail", validUsers ) );
 		
 		

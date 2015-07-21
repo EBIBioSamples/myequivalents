@@ -6,7 +6,6 @@ import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
-import uk.ac.ebi.fg.myequivalents.utils.EntityMappingUtils;
 
 /**
  * <h2>The Entity Mapping Manager Interface</h2>
