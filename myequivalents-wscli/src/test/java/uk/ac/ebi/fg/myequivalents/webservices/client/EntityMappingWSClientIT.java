@@ -92,6 +92,39 @@ public class EntityMappingWSClientIT
 			resultStr.contains ( "test.testweb.service7" ) 
 		);
 	}
+
+	
+	@Test
+	public void testGetForTargetWithUris ()
+	{
+		String uri = "http://somewhere.in.the.net/testweb/service7/someType1/acc1";
+		
+		EntityMappingSearchResult result = mmgr.getMappingsForTarget ( 
+			false, "test.testweb.service6", "<" + uri + ">" 
+		);
+		assertNotNull ( "'mapping get-target' didn't work!", result );
+
+		String resultStr = result.toString ();
+		
+		out.println ( "\n\n ====================== '/mapping/get-target' says:\n" + resultStr + "============================" );
+		out.println ( "\n\n\n ---------------------------> WARNING!!! It is known that this test MIGHT NOT WORK with Java < 7\n\n" );
+		
+		assertTrue ( "Wrong result from 'mapping get-target' (service6/acc4)!", 
+			resultStr.toString ().contains ( "test.testweb.service6" ) && resultStr.contains ( "acc4" )
+		);
+		assertTrue ( "Wrong result from 'mapping get-target' (service6/acc3)!", 
+			resultStr.contains ( "test.testweb.service6" ) && resultStr.contains ( "acc3" ) 
+		);
+		assertTrue ( "Wrong result from 'mapping get-target' (service6/acc1)!", 
+			resultStr.contains ( "test.testweb.service6" ) && resultStr.contains ( "acc1" ) 
+		);
+		assertFalse ( "Wrong result from 'mapping get-target' (service7) should not be here!", 
+			resultStr.contains ( "test.testweb.service7" ) 
+		);
+	}
+
+	
+	
 	
 	@Test
 	public void testAuthentication ()
