@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>myequivalents-prov</artifactId>
-  <name>My Equivalents, Provenance</name>
+  <name>My Equivalents, Provenance Ext</name>
   
   <description>
   	The provenance-related modules of myEquivalents track the modification operations that occur in the myEquivalents

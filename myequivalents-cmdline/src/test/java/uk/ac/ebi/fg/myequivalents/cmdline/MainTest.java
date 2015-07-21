@@ -304,6 +304,72 @@ public class MainTest
 	}
 	
 	
+	@Test
+	public void testMappingWithUris () throws JAXBException, UnsupportedEncodingException
+	{
+		String uri = "http://somewhere.in.the.net/testmain/service6/someType1/acc1";
+		serviceMgr.storeServicesFromXML ( new StringReader ( testServiceXml ) );
+		Main.main ( "mapping", "store-bundle", "-u", editorUser.getEmail (), "-s", editorSecret,
+			"<" + uri + ">", 
+			"test.testmain.service6:acc2",
+			"test.testmain.service6:acc3"
+		);
+		
+		// Before the invocation, capture the standard output
+		PrintStream stdOut = System.out;
+		ByteArrayOutputStream getOut = new ByteArrayOutputStream ();
+		System.setOut ( new PrintStream ( getOut ) );
+		
+		// And get rid of stuff like log messages. Unfortunately this won't be enough if hibernate.show_sql=true, 
+		// but at least we move out of our way as much as possible
+		PrintStream stdErr = System.err;
+		PrintStream devNull = new PrintStream ( new NullOutputStream () );
+		System.setErr ( devNull ); 
+		
+		Main.main ( "mapping", "get", "--raw", "test.testmain.service6:acc2" );
+		String getOutStr = getOut.toString ( "UTF-8" );
+		System.setOut ( stdOut );
+		System.setErr ( stdErr );
+		
+		out.println ( "\n\n ====================== 'mapping get' says:\n" + getOutStr + "============================" );
+		
+		assertNotNull ( "'mapping get' didn't work!", getOutStr );
+		assertTrue ( "Wrong result from 'mapping get' (service6/acc2)!", 
+			getOutStr.contains ( "test.testmain.service6" ) && getOutStr.contains ( "acc2" )
+		);
+		
+
+		// Again, with URI fetching
+		//
+
+		Main.main ( "mapping", "get", "--raw", "<" + uri + ">" );
+		getOutStr = getOut.toString ( "UTF-8" );
+		System.setOut ( stdOut );
+		System.setErr ( stdErr );
+		
+		out.println ( "\n\n ====================== 'mapping get <uri>' says:\n" + getOutStr + "============================" );
+		
+		assertNotNull ( "'mapping get' didn't work!", getOutStr );
+		
+		assertTrue ( "Wrong result from 'repository get' (service6/acc3)!", 
+			getOutStr.contains ( "test.testmain.service6" ) && getOutStr.contains ( "acc1" ) 
+		);
+		assertTrue ( "Wrong result from 'repository get' (service7/acc1)!", 
+			getOutStr.contains ( "http://somewhere.in.the.net/testmain/service6/someType1/acc3" ) 
+		);
+		
+		
+		// Deletion
+		//
+		Main.main ( "mapping", "delete-entity",  "-u", editorUser.getEmail (), "-s", editorSecret, "test.testmain.service6:acc3" );
+		EntityMappingManager emMgr = Resources.getInstance ().getMyEqManagerFactory ().newEntityMappingManager ( 
+			this.editorUser.getEmail (), this.editorSecret 
+		);
+		assertTrue ( "'mapping delete-entity' didn't work!", 
+			emMgr.getMappings ( true, "test.testmain.service6:acc3" ).getBundles ().isEmpty () );
+	}
+	
+	
 	/** Tests 'user get' command. */
 	@Test
 	public void testUserGet () throws Exception
