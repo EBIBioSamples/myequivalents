@@ -1,12 +1,15 @@
 package uk.ac.ebi.fg.myequivalents.utils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.persistence.EntityManager;
 
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.utils.memory.SimpleCache;
 
 /**
  * TODO: comment me!
@@ -18,6 +21,8 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 public class DbEntityIdResolver extends EntityIdResolver
 {
 	private ServiceDAO serviceDao;
+
+	private static Map<String, Object> serviceCache = new SimpleCache<> ( 100000 );
 	
 	public DbEntityIdResolver ( EntityManager entityManager )
 	{
@@ -34,7 +39,7 @@ public class DbEntityIdResolver extends EntityIdResolver
 		if ( serviceName != null )
 		{
 			// Just verify it exists
-			service = serviceDao.findByName ( serviceName );
+			service = findServiceByName ( serviceName );
 			
 			if ( service == null ) throw new RuntimeException ( String.format (  
 				"Error: cannot find service '%s'", serviceName 
@@ -46,7 +51,7 @@ public class DbEntityIdResolver extends EntityIdResolver
 			String uriPattern = EntityIdResolver.breakUri ( acc, uri );
 			
 			// Now search based on uriPattern
-			service = serviceDao.findByUriPattern ( uriPattern, false );
+			service = findServiceByUriPattern ( uriPattern );
 
 			if ( service == null )
 			{
@@ -54,7 +59,7 @@ public class DbEntityIdResolver extends EntityIdResolver
 				String uriDom = getDomain ( uri );
 				
 				// Now search services and see if there is one matching the pattern
-				List<Service> services = serviceDao.findByUriPatternLike ( uriDom + "%", false );
+				List<Service> services = findServicesByUriPatternLike ( uriDom + "%" );
 				
 				for ( Service servi: services )
 				{
@@ -117,6 +122,69 @@ public class DbEntityIdResolver extends EntityIdResolver
 		
 		return new EntityId ( service, acc, uri );
 	}
+
+	
+	private synchronized Service findServiceByName ( final String name )
+	{
+		return findServices ( name, new Callable<Service>() 
+		{
+			@Override
+			public Service call () throws Exception {
+				return serviceDao.findByName ( name, false );
+			}
+		});
+	}
+
+	private synchronized Service findServiceByUriPattern ( final String uriPattern )
+	{
+		return findServices ( uriPattern, new Callable<Service>() 
+		{
+			@Override
+			public Service call () throws Exception {
+				return serviceDao.findByUriPattern ( uriPattern, false );
+			}
+		});
+	}
+
+	private synchronized List<Service> findServicesByUriPatternLike ( final String uriPatternLike )
+	{
+		return findServices ( uriPatternLike, new Callable<List<Service>>() 
+		{
+			@Override
+			public List<Service> call () throws Exception 
+			{
+				return serviceDao.findByUriPatternLike ( uriPatternLike, false );
+			}
+		});
+	}
+
+	
+	
+	private <T> T findServices ( String key, Callable<T> finder )
+	{
+		try
+		{
+			synchronized ( key.intern () )
+			{
+				@SuppressWarnings ( "unchecked" )
+				T result = (T) serviceCache.get ( key );
+				if ( result != null ) return result;
+				
+				result = finder.call ();
+				
+				if ( result != null ) serviceCache.put ( key, result );
+				return result;
+			}
+		}
+		catch ( Exception ex )
+		{
+			throw new RuntimeException ( 
+				String.format ( "Internal error while searching service '%s': %s", key, ex.getMessage ()),
+				ex 
+			);
+		}
+	}
+	
 	
 	public void setEntityManager ( EntityManager entityManager )
 	{

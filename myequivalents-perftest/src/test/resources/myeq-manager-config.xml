@@ -30,6 +30,8 @@
 			<prop key = "hibernate.connection.autocommit">false</prop>
 			<prop key = "hibernate.jdbc.batch_size">50</prop>
 			<prop key = "hibernate.show_sql">false</prop>
+			<prop key = "hibernate.connection.isolation">8</prop> <!-- TRANSACTION_SERIALIZABLE -->
+			
 			
 			<prop key = "hibernate.jdbc.use_scrollable_resultset">true</prop>
 			

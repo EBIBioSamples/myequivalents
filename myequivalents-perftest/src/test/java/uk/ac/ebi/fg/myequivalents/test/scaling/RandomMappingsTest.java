@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.test.scaling;
 
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -36,6 +34,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.utils.time.XStopWatch;
 
 import com.google.code.tempusfugit.concurrency.ConcurrentRule;
@@ -56,6 +55,20 @@ public class RandomMappingsTest
 	public static User editorUser = new User ( 
 		"test.editor", "Test Editor", "User", editorPass, "test editor notes", Role.EDITOR, editorSecret );
 
+	/**
+	 * How many parallel threads are instantiated that run methods like {@link #readRandomMappings()}.
+	 * Beware that {@link #generateRandomMappings()} will called before each reading thread 
+	 * (hence {@link #NBUNDLES} * {@link #NREADING_THREADS} bundles will be generated).
+	 */
+	public static final int NREADING_THREADS = 3;
+	
+	/**
+	 * How many random readings per thread are done by {@link #readRandomMappings()}.
+	 * 
+	 */
+	public static final int NREADINGS = 5000;
+
+	
 	/** No of services that are generated for the test */
 	public static final int NSERVICES = 20;
 	  
@@ -65,7 +78,7 @@ public class RandomMappingsTest
 	/** No of random bundles generated for the test 
 	 *  This is overridden by the system property "myequivalents.test.scaling.nbundles"
 	 */
-	public static final int NBUNDLES = (int) 300000/15; 
+	public static final int NBUNDLES = (int) 10000/NREADING_THREADS; 
 	  
 	/** Bundles have a random size between 2 and this value */
 	public static final int MAX_BUNDLE_SIZE = 5;
@@ -76,23 +89,13 @@ public class RandomMappingsTest
    */
 	public static final int SINGLE_MAPPING_RATIO = 0;
 	
-	/**
-	 * How many random readings per thread are done by {@link #readRandomMappings()}.
-	 * 
-	 */
-	public static final int NREADINGS = 1000;
+	
+	public static final int URI_READING_RATIO = 50;
 	
 	/**
 	 * A number of readings in methods like {@link #readRandomMappings()} are about non-existing mappings
 	 */
 	public static final int VOID_READING_RATIO = 50;
-
-	/**
-	 * How many parallel threads are instantiated that run methods like {@link #readRandomMappings()}.
-	 * Beware that {@link #generateRandomMappings()} will called before each reading thread 
-	 * (hence {@link #NBUNDLES} * {@link #NREADING_THREADS} bundles will be generated).
-	 */
-	public static final int NREADING_THREADS = 15;
 
 	
 	/**
@@ -103,19 +106,23 @@ public class RandomMappingsTest
 	@Rule
 	public ConcurrentRule concurrentRule = new ConcurrentRule ();
 	
-	private static AtomicInteger executionIdx = new AtomicInteger ( 0 );
-	
+	private int executionIdx = -1;
 
-	private Logger log = LoggerFactory.getLogger ( Resources.class );
+	private Service[] services;
 	
+	
+	private Logger log = LoggerFactory.getLogger ( Resources.class );
 	
 
 	/**
 	 * Creates a bunch of services, numbered from 1 to {@link #NSERVICES}.
 	 * This is only called when {@link #NREADING_THREADS} is 1. Cannot work in multi-thread mode. TODO: fix.
 	 */
-	private void initRandomGeneration () throws Exception
+	private synchronized void initRandomGeneration () throws Exception
 	{
+		// Do it only once in case of multi-threading
+		if ( ++this.executionIdx > 0 ) return; 
+			
 		ManagerFactory mgrFact = (ManagerFactory) Resources.getInstance ().getMyEqManagerFactory ();
 		
 		if ( mgrFact instanceof DbManagerFactory )
@@ -150,7 +157,7 @@ public class RandomMappingsTest
 		ServiceManager serviceMgr = Resources.getInstance ().getMyEqManagerFactory ().newServiceManager ( 
 			editorUser.getEmail (), editorSecret 
 		);
-		Service[] services = new Service [ NSERVICES ];
+		services = new Service [ NSERVICES ];
 		
 		for ( int i = 1; i <= NSERVICES; i++ )
 		{
@@ -164,6 +171,7 @@ public class RandomMappingsTest
 		serviceMgr.storeServices ( services );
 	}
 	
+	
 	/**
 	 * Generates {@link #NBUNDLES} bundles of sizes ranging from 2 to {@link #MAX_BUNDLE_SIZE}, uses the services 
 	 * defined in {@link #init()}.
@@ -171,12 +179,12 @@ public class RandomMappingsTest
 	 */
 	private void generateRandomMappings () throws Exception
 	{
-		// if ( true ) return;
-		
-		// TODO: bad stuff, we should call it once
-		if ( NREADING_THREADS == 1 ) initRandomGeneration ();
-			
-		int execId = executionIdx.getAndIncrement ();
+		int execId = 0;
+		synchronized ( this )
+		{
+			initRandomGeneration ();
+			execId = this.executionIdx;
+		}
 		
 		Random rnd = new Random ( System.currentTimeMillis () );
 		int entIdx = 0;
@@ -192,8 +200,12 @@ public class RandomMappingsTest
 			TEST_ENTITIES_FILE_PATH + ( execId == 0 ? "" : "." + execId )
 		) )) );
 		
-		int nbundles = Integer.parseInt ( System.getProperty ( "myequivalents.test.scaling.nbundles", "" + NBUNDLES ) );
+		// This causes the same entities to be stored from different threads, allows you to test trnasaction
+		// isolation
+		//execId = 0;
 		
+		int nbundles = Integer.parseInt ( System.getProperty ( "myequivalents.test.scaling.nbundles", "" + NBUNDLES ) );
+
 		// bundle loop
 		XStopWatch stopw = new XStopWatch ();
 		for ( int ibundle = 1; ibundle <= nbundles ; ibundle++ )
@@ -260,7 +272,7 @@ public class RandomMappingsTest
 	/**
 	 * Queries for mappings generated by {@link #generateRandomMappings()} and reports about performance.
 	 */
-	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
+	@Test //@Ignore ( "Not a proper JUnit test, very time-consuming" )
 	@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
 	public void readRandomMappings () throws Exception
 	{
@@ -271,7 +283,9 @@ public class RandomMappingsTest
 
 		Random rnd = new Random ( System.currentTimeMillis () );
 
-		List<String> entityIds = FileUtils.readLines ( new File ( TEST_ENTITIES_FILE_PATH )  );
+		List<String> entityIds = FileUtils.readLines ( new File ( 
+			TEST_ENTITIES_FILE_PATH + ( this.executionIdx == 0 ? "" : "." + this.executionIdx 
+		)));
 		
 		XStopWatch stopw = new XStopWatch ();
 		for ( int nreading = 1; nreading <= NREADINGS; nreading++ )
@@ -291,13 +305,16 @@ public class RandomMappingsTest
 			{
 				int entIdx = rnd.nextInt ( entityIds.size () );
 				entityId = entityIds.get ( entIdx );
+
+				// Use URI from time to time
+				if ( rnd.nextInt ( 100 ) < URI_READING_RATIO ) entityId = toUriSyntax ( entityId );
 			}
 			
 			boolean wantRawResult = rnd.nextBoolean ();
 			
 			stopw.resumeOrStart ();
 			EntityMappingSearchResult mappings = mapMgr.getMappings ( wantRawResult, entityId );
-			String payLoad = mappings.toString (); // simulate a reading operation
+			String payload = mappings.toString (); // simulate a reading operation
 			stopw.suspend ();
 
 			//System.out.println ( "---- Mappings for " + entityId + ":\n" + mappings );
@@ -341,19 +358,24 @@ public class RandomMappingsTest
 
 		Random rnd = new Random ( System.currentTimeMillis () );
 
-		List<String> entityIds = FileUtils.readLines ( new File ( TEST_ENTITIES_FILE_PATH )  );
+		List<String> entityIds = FileUtils.readLines ( new File (
+			TEST_ENTITIES_FILE_PATH + ( this.executionIdx == 0 ? "" : "." + this.executionIdx  )
+		));
 		int nreads = entityIds.size ();
 		
 		XStopWatch stopw = new XStopWatch ();
 		for ( int ireading = 0; ireading < nreads; ireading++ )
 		{
 			String entityId = entityIds.get ( ireading );
+
+			// Use URI from time to time
+			if ( rnd.nextInt ( 100 ) < URI_READING_RATIO ) entityId = toUriSyntax ( entityId );
 			
 			boolean wantRawResult = rnd.nextBoolean ();
 			
 			stopw.resumeOrStart ();
 			EntityMappingSearchResult mappings = mapMgr.getMappings ( wantRawResult, entityId );
-			String payLoad = mappings.toString (); // simulate a reading operation
+			String payload = mappings.toString (); // simulate a reading operation
 			stopw.suspend ();
 			// System.out.println ( "---- Mappings for " + entityId + ":\n" + mappings );
 			
@@ -389,7 +411,7 @@ public class RandomMappingsTest
 	 * WARNING: this won't work unless you test with a Maven profile that it's using provenance extenstions. 
 	 * 
 	 */
-	@Test //@Ignore ( "Not a proper JUnit test, very time-consuming" )
+	@Test @Ignore ( "Not a proper JUnit test, very time-consuming" )
 	@Concurrent ( count = NREADING_THREADS ) // Cause parallel runs of this test 
 	public void readRandomMappingProvs () throws Exception
 	{
@@ -401,7 +423,9 @@ public class RandomMappingsTest
 		
 		Random rnd = new Random ( System.currentTimeMillis () );
 
-		List<String> entityIds = FileUtils.readLines ( new File ( TEST_ENTITIES_FILE_PATH )  );
+		List<String> entityIds = FileUtils.readLines ( new File ( 
+			TEST_ENTITIES_FILE_PATH + ( this.executionIdx == 0 ? "" : "." + this.executionIdx  ) 
+		));
 		
 		XStopWatch stopw = new XStopWatch ();
 		for ( int nreading = 1; nreading <= NREADINGS; nreading++ )
@@ -433,7 +457,7 @@ public class RandomMappingsTest
 			
 			stopw.resumeOrStart ();
 			Set<List<ProvenanceRegisterEntry>> provs = provMgr.findMappingProv ( entityId1, entityId2, validUsers );
-			String payLoad = provs.toString (); // simulate a reading operation
+			String payload = provs.toString (); // simulate a reading operation
 			stopw.suspend ();
 			
 			//log.info ( MessageFormat.format ( "---- Provs for ({0}, {1}):\n{2}", entityId1, entityId2, payLoad ) );
@@ -464,4 +488,18 @@ public class RandomMappingsTest
 		
 	} // readRandomMappingProvs()
 
+	
+	/**
+	 * Turns entityId into "&lt;URI&gt;", splitting entityId and using {@link #services}.
+	 */
+	private String toUriSyntax ( String entityId )
+	{
+		// "test.scaling.service" + iserv + ":test.scaling.entity_" + execId + "_" + entIdx
+		String idchunks[] = entityId.split ( ":" );
+		int iserv = Integer.valueOf ( idchunks [ 0 ].substring ( "test.scaling.service".length () ) ) - 1;
+		
+		Service service = services [ iserv ];
+		entityId = EntityIdResolver.buildUriFromAcc ( idchunks [ 1 ], service.getUriPattern () );
+		return "<" + entityId + ">";
+	}
 }

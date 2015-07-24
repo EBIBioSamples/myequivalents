@@ -15,6 +15,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.Marshaller;
@@ -107,8 +108,8 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		accession2 = StringUtils.trimToNull ( accession2 );
 		Validate.notNull ( accession2, "Cannot work with a null accession (2nd entity)" );
 
-		String bundle1 = this.findBundle ( serviceName1, accession1 );
-		String bundle2 = this.findBundle ( serviceName2, accession2 );
+		String bundle1 = this.findBundle ( serviceName1, accession1, true );
+		String bundle2 = this.findBundle ( serviceName2, accession2, true );
 		
 		if ( bundle1 == null )
 		{
@@ -171,7 +172,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		for ( int i = 0; i < nents; i++ )
 		{
 			Entity ei = entities.get ( i );
-			String bundle = this.findBundle ( ei.getServiceName (), ei.getAccession () );
+			String bundle = this.findBundle ( ei.getServiceName (), ei.getAccession (), true );
 			if ( bundle != null )
 			{
 				// There is already a bundle with one of the input entities, so let's attach all of them to this
@@ -179,7 +180,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				{
 					if ( i == j ) continue;
 					Entity ej = entities.get ( j );
-					String bundle1 = this.findBundle ( ej.getServiceName (), ej.getAccession () );
+					String bundle1 = this.findBundle ( ej.getServiceName (), ej.getAccession (), true );
 					if ( bundle.equals ( bundle1 ) ) continue;
 					if ( bundle1 == null ) 
 						this.join ( ej, bundle );
@@ -229,7 +230,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		{
 			EntityId eid = entityIdResolver.doall ( entityIds [ i ] );
 			
-			String bundle = this.findBundle ( eid.getServiceName (), eid.getAcc () );
+			String bundle = this.findBundle ( eid.getServiceName (), eid.getAcc (), true );
 			if ( bundle != null )
 			{
 				// There is already a bundle with one of the input entities, so let's attach all of them to this
@@ -238,7 +239,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 					if ( i == j ) continue; 
 					EntityId jeid = entityIdResolver.doall ( entityIds [ j ] );
 					String serviceNameJ = jeid.getServiceName (), accessionJ = jeid.getAcc ();
-					String bundle1 = this.findBundle ( serviceNameJ, accessionJ );
+					String bundle1 = this.findBundle ( serviceNameJ, accessionJ, true );
 					if ( bundle.equals ( bundle1 ) ) continue;
 					if ( bundle1 == null ) 
 						this.join ( serviceNameJ, accessionJ, bundle );
@@ -296,10 +297,12 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		entityManager.createNativeQuery (
 			"DELETE FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'"
 		).executeUpdate ();
+		
+		// If the bundle is left with 1 member only, must go away
 		if ( ((Number) entityManager.createNativeQuery ( 
-		    "SELECT COUNT( bundle ) AS ct FROM entity_mapping WHERE bundle = '" + bundle + "'" 
-		   ).getSingleResult () ).longValue () == 1 )
-		entityManager.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
+			"SELECT COUNT( bundle ) AS ct FROM entity_mapping WHERE bundle = '" + bundle + "'" 
+		).getSingleResult () ).longValue () == 1 )
+			entityManager.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
 		
 		return true;
 	}
@@ -348,7 +351,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		serviceName = StringUtils.trimToNull ( serviceName ); if ( serviceName == null ) return 0;
 		accession = StringUtils.trimToNull ( accession ); if ( accession == null ) return 0;
 
-		String bundle = this.findBundle ( serviceName, accession );
+		String bundle = this.findBundle ( serviceName, accession, true );
 		return bundle == null ? 0 : this.deleteBundle ( bundle );
 	}
 
@@ -724,20 +727,44 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		q.executeUpdate ();
 	}
 	
+
 	/**
-	 * @return the ID of the bundle that the parameter belongs to. null if there is no such bundle.
-	 *  
+	 * Wraps isForUpdate = false 
 	 */
 	private String findBundle ( String serviceName, String accession )
 	{
-		Query q = entityManager.createNativeQuery ( 
-			"SELECT bundle FROM entity_mapping WHERE service_name = '" + serviceName + "' AND accession = '" + accession + "'"
-		);
+		return findBundle ( serviceName, accession, false );
+	}
+
+	
+	/**
+	 * @return the ID of the bundle that the parameter belongs to. null if there is no such bundle.
+	 * isForUpdate = true is used in DAO methods that need to perform changes on the {@link EntityMapping}
+	 * 
+	 * table. Setting the flag cause tells this method to use SQL-locking mechanisms, such as FOR UPDATE, 
+	 * which allows the DB to know that the table/records involved in the query are being updated within 
+	 * a transaction.
+	 *  
+	 */
+	private String findBundle ( String serviceName, String accession, boolean isForUpdate )
+	{
+		String sql = "SELECT bundle FROM entity_mapping\n"
+			+ "  WHERE service_name = :serviceName AND accession = :accession";
+		if ( isForUpdate ) sql += " FOR UPDATE";
+
+		Query q = entityManager.createNativeQuery ( sql )
+			.setParameter ( "serviceName", serviceName )
+			.setParameter ( "accession", accession );
+		
+		// we cannot use this together with FOR UPDATE, since the extra syntax (LIMIT, rownum <= 1) is placed
+		// after FOR UPDATE. We haven't notice a significant performance change anyway, and we're keeping this restriction
+		// for read-only queries just in case.
+		//
+		if ( !isForUpdate ) q.setMaxResults ( 1 );
 		
 		// We've seen this problem (http://stackoverflow.com/questions/4873201/hibernate-native-query-char3-column)
-		q.unwrap ( SQLQuery.class ).addScalar ( "bundle", StringType.INSTANCE )
-		 .setMaxResults ( 1 );
-		
+		q.unwrap ( SQLQuery.class ).addScalar ( "bundle", StringType.INSTANCE );
+				
 		@SuppressWarnings ( "unchecked" )
 		List<String> results = q.getResultList ();
 		
@@ -751,8 +778,9 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	 */
 	private int deleteBundle ( String bundle )
 	{
-		return entityManager.createNativeQuery ( 
-			"DELETE FROM entity_mapping WHERE bundle = '" + bundle + "'" ).executeUpdate ();
+		return entityManager.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = :bundle" )
+			.setParameter ( "bundle", bundle )
+			.executeUpdate ();
 	}
 	
 	
