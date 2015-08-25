@@ -1,0 +1,15 @@
+<!-- 
+	The unspecified service, a special, fictitious service, which is automatically associated to a URI, when it cannot
+	be matched with any existing service and no explicit service is specified in its entity ID (or, such service is
+	explicitly the unspecified service).
+	
+	This service definition is uploaded in the myEq storage backend by init.sh and should not be changed.
+-->
+ 
+<service-items>
+	<services>
+		<service name = '_' title='[Unspecified Service]' uri-pattern='$id' public-flag = 'true' >
+			<description>This is a fictitious service, used to represent those entities that are identified by means of URIs (or other forms of universal identifiers).</description>
+		</service>
+	</services>
+</service-items>
