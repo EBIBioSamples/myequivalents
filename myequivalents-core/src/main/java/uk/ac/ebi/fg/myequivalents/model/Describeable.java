@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
 
+import static uk.ac.ebi.fg.myequivalents.resources.Const.*;
 
 /**
  * 
@@ -33,11 +34,13 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
 public abstract class Describeable implements MyEquivalentsModelMember
 {
 	@Id
-	@Column( length = 100 )
+	@Column( length = COL_LENGTH_M )
 	private String name;
 	
+	@Column( length = COL_LENGTH_L )
 	private String title;
 	
+	@Column( length = COL_LENGTH_XL )
 	private String description;
 	
 	@Column ( name = "public_flag", nullable = true, columnDefinition = "integer" )

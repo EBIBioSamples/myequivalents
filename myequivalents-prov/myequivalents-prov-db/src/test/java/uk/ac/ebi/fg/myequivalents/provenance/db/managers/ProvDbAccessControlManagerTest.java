@@ -126,7 +126,7 @@ public class ProvDbAccessControlManagerTest
 		
 		String universalUri = "http://totally.faked.uri/bygyx67cc6/ACC:123";
 		
-		// Test mappings
+		// Test mappings, let's use some URIs as well
 		EntityMappingManager mapMgr = mgrFact.newEntityMappingManager ( editorUser.getEmail (), testSecret );
 		mapMgr.storeMappingBundle ( 
 			"<" + EntityIdResolver.buildUriFromAcc ( "acc1", service6.getUriPattern () ) + ">",

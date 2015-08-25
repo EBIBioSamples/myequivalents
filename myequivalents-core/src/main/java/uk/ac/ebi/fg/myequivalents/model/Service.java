@@ -18,6 +18,9 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.LazyToOne;
 import org.hibernate.annotations.LazyToOneOption;
 
+import static uk.ac.ebi.fg.myequivalents.resources.Const.*;
+
+
 /**
  *
  * <p/>A service is something that to which entities of a given type, identified by accessions, can be associated. For instance,
@@ -102,11 +105,11 @@ import org.hibernate.annotations.LazyToOneOption;
 })
 public class Service extends Describeable
 {
-	@Column ( name = "entity_type" )
+	@Column ( name = "entity_type", length = COL_LENGTH_S )
 	@Index( name = "service_et" )
 	private String entityType;
 
-	@Column ( name = "uri_pattern" )
+	@Column ( name = "uri_pattern", length = COL_LENGTH_URIS )
 	@Index( name = "service_uri_pat" )
 	private String uriPattern;
 	

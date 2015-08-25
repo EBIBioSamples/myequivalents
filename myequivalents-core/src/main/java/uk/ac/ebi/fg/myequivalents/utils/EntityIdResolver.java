@@ -7,12 +7,18 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import static uk.ac.ebi.fg.myequivalents.model.Service.UNSPECIFIED_SERVICE_NAME;
 
 /**
- * TODO: comment me!
+ * <p>This resolves an entity ID string into a an {@link EntityId}, that is, a pair of service + accession (+ URI).
+ * an entity ID string follow a simple syntax, as explained in {@link #parse(String)}, which allows one to specify
+ * either a service name + accession, or a straight URI, with or without the service reference added to it.</p>
+ * 
+ * <p>Note that his base class is almost useless alone and it requires a backend-specific implementation, such as
+ * DbEntityIdResolver in the DB package (see {@link #resolveUri(String, String, String)}).</p> 
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>28 May 2015</dd>
@@ -20,14 +26,40 @@ import static uk.ac.ebi.fg.myequivalents.model.Service.UNSPECIFIED_SERVICE_NAME;
  */
 public class EntityIdResolver
 {
+	/**
+	 * Used to split an entity ID string into two substrings, separated by colon. This regular expression
+	 * doesn't consider special sequences like '\:', '://', '::' as separators.  
+	 */
 	public static final Pattern ENT_ID_SPLIT_PATTERN = Pattern.compile ( "(?<!(\\\\|:+)):(?!//|:+)" );
 
-	// Replace $id, unless it's \\$id
+	/**
+	 * Used to identify the '$id' string, which is considered an accession placeholder in URI patterns 
+	 * (like in <a href = 'http://www.ebi.ac.uk/miriam'>MIRIAM</a>). This regular expression ignores 
+	 * the sequence '\$id'.
+	 */
 	public static final Pattern ID_PLACEHOLDER_PATTERN = Pattern.compile ( "(?<!\\\\)\\$id" );
 	
+	/**
+	 * Used in {@link #breakUri(String, String)}, to find the last separator in a URI, so that what follows can be considered
+	 * an accession. 
+	 */
 	public static final Pattern URI_FIND_PREFIX_PATTERN = Pattern.compile ( "[\\#/\\=\\\\]+" );
 
-	
+	/**
+	 * An entity ID may have the forms:
+	 * <ul>
+	 * <li>serviceName:accession, URI is computed from {@link Entity#getURI()}, i.e., by using 
+	 * {@link Service#getUriPattern() uri pattern} and accession.</li>
+	 * <li>serviceName:&lt;uri&gt;, the URI is intended to refer an entity provided by the service (an error is raised
+	 * if it isn't)</li>
+	 * <li>&lt;uri&gt;, a straight URI, in this case {@link #resolveUri(String)} tries to see if the URI corresponds to
+	 * some existing myEquivalents service to be associated to the URI.
+	 * <li>:&lt;uri&gt; or _:&lt;uri&gt;, which means the URI is not linked to a real service, but to the special 
+	 * {@link Service#UNSPECIFIED_SERVICE}.</li>
+	 * </ul>
+	 * 
+	 * Note that both the initial string and its sub-parts are pre-processed to trim extra boundary spaces. 
+	 */
 	public EntityId parse ( String entityId )
 	{
 		if ( entityId == null ) return null;
@@ -48,6 +80,7 @@ public class EntityIdResolver
 			
 			String uri = null;
 			
+			// Try to extract the two chunks demarked by ':'
 			Matcher matcher = ENT_ID_SPLIT_PATTERN.matcher ( entityId );
 			if ( matcher.find () )
 			{
@@ -57,30 +90,36 @@ public class EntityIdResolver
 				if ( acc == null ) throw new RuntimeException ( 
 					"Syntax error (null entity accession) for entity ID '" + entityId + "'"
 				);
-				// Is this acc a URI?
+				
+				// Is this acc actually a URI (i.e., wrapped in <>)?
 				if ( acc.startsWith ( "<" ) )
 				{
 					if ( !acc.endsWith ( ">" ) ) throw new RuntimeException ( 
 						"Syntax error for entity ID '" + entityId + "'" 
 					);
 					
+					// then we have a URI and no real acc 
 					uri = acc.substring ( 1, acc.length () - 1 );
-					acc = null;
+					acc = null; 
 					
-					// if the service name was empty in this *:* pattern, then you mean unspecified
+					// if the service name was empty in this *:<*> pattern, then you mean unspecified
+					// because if you want us to resolve the service, you should omit colon.
 					if ( serviceName == null ) serviceName = UNSPECIFIED_SERVICE_NAME;
 				}
 					
 				return new EntityId ( serviceName, acc, uri );
 			}
 			
+			// None of the above worked
 			throw new RuntimeException ( 
 				"Syntax error (null entity accession) for entity ID '" + entityId + "'"
 			);
 		}	
 	}
 	
-	
+	/**
+	 * invokes {@link #parse(String)} and then, if the result is non-null, {@link #resolve(EntityId)}.
+	 */
 	public EntityId doall ( String entityId )
 	{
 		EntityId eid = parse ( entityId );
@@ -89,7 +128,7 @@ public class EntityIdResolver
 	
 	
 	/**
-	 *	if uri != null invokes some form of resolveUri() (see below), else uses {@link #resolve(String, String)}. 
+	 * if uri != null invokes some form of resolveUri() (see below), else uses {@link #resolve(String, String)}. 
 	 */
 	public EntityId resolve ( String serviceName, String acc, String uri )
 	{
@@ -100,16 +139,15 @@ public class EntityIdResolver
 		if ( uri != null )
 		{
 			EntityId result = serviceName == null
-				? resolveUri ( uri )
+				? resolveUri ( uri ) // No service, try to get it from the URI
 				: acc == null 
-					? resolveUri ( serviceName, uri ) 
-					:	resolveUri ( serviceName, acc, uri );
-				
-			// TODO: in the DB implementation, verify that if acc != null => result.acc == acc 
-			
+					? resolveUri ( serviceName, uri ) // service + URI, verify it corresponds to the URI pattern.
+					:	resolveUri ( serviceName, acc, uri ); // verify the URI rebuilt with pattern + acc matches the param 
+							
 			return result; 
 		}
 		else
+			// NO URI, so it's in the form serviceName:acc
 			return resolve ( serviceName, acc );
 	}
 	
@@ -124,12 +162,14 @@ public class EntityIdResolver
 	
 
 	/**
-	 * Assumes a null URI and returns a new {@link EntityId}, using the two received parameters.
+	 * <p>Assumes a null URI and returns a new {@link EntityId}, using the two received parameters.</p>
 	 * 
-	 * So, here we don't actually 'resolve' anything, ie, we don't lookup the service into 
+	 * <p>So, here we don't actually 'resolve' anything here, ie, we don't lookup the service into 
 	 * any storage backend. We suggest that you keep this method this way even in backend-specific
 	 * implementation, since it's usually used when the invoker already knows to be dealing with
-	 * a service:acc entity identifier and usually it doesn't need the service in such situation.
+	 * a service:acc entity identifier and usually it doesn't need the service in such a situation.</p>
+	 * 
+	 * <p>See DbEntityIdResolver in the DB package for details.</p>
 	 * 
 	 */
 	public EntityId resolve ( String serviceName, String acc )
@@ -160,7 +200,7 @@ public class EntityIdResolver
 	/**
 	 * This default implementation just uses {@code 'new Service (serviceName)'}.
 	 * 
-	 * A real implementation should fetch the service (including {@link Service#UNSPECIFIED_SERVICE_NAME}) and, 
+	 * A real implementation should try to fetch the service (including {@link Service#UNSPECIFIED_SERVICE_NAME}) and, 
 	 * if the acc != null, verify the URI. 
 	 * 
 	 * This method is not supposed to pre-process its parameters (eg, {@link String#trim()}), since that's
@@ -178,10 +218,13 @@ public class EntityIdResolver
 	/**
 	 * Tries to find the prefix in a URI having a form like {@code prefix + <acc>}. Eg, for
 	 * http://www.somewhere.net/path/to/123 returns into http://www.somewhere.net/path/to/$id, even 
-	 * when {@code acc} is null (uses the last slash as separator). 
+	 * when {@code acc} is null (uses the last slash as separator).
 	 * 
-	 * If this prefix-guessing doesn't work, tries to cut the URI's after the domain 
+	 * If this prefix-guessing doesn't work, tries to split the URI's after the domain 
 	 * specification (eg, http://www.somewhere.net), so that this can be used to find one or more services. 
+	 * 
+	 * If acc != null, it simply returns uri.replaceAll ( acc, "\\$id" ), i.e., quickly rebuilds the URI pattern
+	 * by replacing the accession it contains with the placeholder.
 	 * 
 	 */
 	public static String breakUri ( String acc, String uri )
@@ -197,12 +240,18 @@ public class EntityIdResolver
 		return getDomain ( uri );
 	}
 	
+	/**
+	 * Wraps {@link #breakUri(String, String) breakUri ( null, uri )}.
+	 */
 	public static String breakUri ( String uri )
 	{
 		return breakUri ( null, uri );
 	}
 	
-	
+	/**
+	 * Tries to split the URI at the point where the domains ends. e.g., for http://www.somewhere.net/path/to/123
+	 * returns http://www.somewhere.net. This uses methods from {@link URI}.
+	 */
 	public static String getDomain ( String uri )
 	{
 		try
@@ -220,7 +269,10 @@ public class EntityIdResolver
 		}
 	}
 	
-	
+	/**
+	 * Simply builds the a URI replacing '$id' in uriPattern with acc (actually uses {@link #ID_PLACEHOLDER_PATTERN}).
+	 * Note that if uriPattern = "$id", it quickly returns acc.  
+	 */
 	public static String buildUriFromAcc ( String acc, String uriPattern )
 	{
 		if ( uriPattern == null ) return null;
@@ -232,7 +284,9 @@ public class EntityIdResolver
 		return ID_PLACEHOLDER_PATTERN.matcher ( uriPattern ).replaceAll ( acc );
 	}
 
-
+	/**
+	 * Tries to 
+	 */
 	public static String extractAccession ( String uri, String uriPattern )
 	{
 		if ( uriPattern == null ) return null; 
@@ -255,16 +309,15 @@ public class EntityIdResolver
 			uriPatTail = uriPattern.substring ( endIdx, nextEndIdx );
 		}
 		
-		
-		// Does the URI's begin match the pattern chunks?
+		// Does the URI's head match the extracted head?
 		if ( !uri.startsWith ( uriPatPrefx ) ) return null;
 		
+		// Does the URI tail match the extracted tail?
 		int uriPatPrefxLen = uriPatPrefx.length ();
-				
 		int endAccIdx = uriPatTail != null ? uri.indexOf ( uriPatTail, uriPatPrefxLen ) : uri.length ();
 		if ( endAccIdx == -1 ) return null;
 		
-		// If yes, the accession is the thing in between
+		// If both head and tail match, then the accession is the thing in between
 		return uri.substring ( uriPatPrefxLen, endAccIdx );
 	}
 

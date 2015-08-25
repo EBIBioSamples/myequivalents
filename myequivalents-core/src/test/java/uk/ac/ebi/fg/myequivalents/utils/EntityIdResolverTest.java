@@ -16,7 +16,7 @@ import org.junit.Test;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 
 /**
- * TODO: comment me!
+ * Some tests for {@link EntityIdResolver}.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>1 Jun 2015</dd>

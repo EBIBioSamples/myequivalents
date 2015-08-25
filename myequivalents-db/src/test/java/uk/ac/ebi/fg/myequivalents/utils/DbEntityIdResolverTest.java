@@ -17,7 +17,7 @@ import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.utils.test.junit.TestEntityMgrProvider;
 
 /**
- * TODO: comment me!
+ * Tests the DB-related functionality for the entity resolver {@link DbEntityIdResolver}.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>5 Jun 2015</dd>

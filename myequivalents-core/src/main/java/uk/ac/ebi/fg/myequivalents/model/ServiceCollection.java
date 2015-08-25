@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_S;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -9,6 +11,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
+
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 
 /**
  * 
@@ -36,7 +40,7 @@ import org.hibernate.annotations.Index;
 @XmlAccessorType ( XmlAccessType.NONE )
 public class ServiceCollection extends Describeable
 {
-	@Column ( name = "entity_type" )
+	@Column ( name = "entity_type", length = COL_LENGTH_S )
 	@Index( name = "service_coll_et" )
 	private String entityType;
 	

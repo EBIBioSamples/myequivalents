@@ -1,5 +1,8 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_L;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -8,6 +11,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
+
+import static uk.ac.ebi.fg.myequivalents.resources.Const.*;
+
 
 /**
  * 
@@ -33,6 +39,7 @@ import org.hibernate.annotations.Index;
 public class Repository extends Describeable
 {
 	@Index( name = "repo_url" )
+	@Column( length = COL_LENGTH_URIS )
 	private String url;
 
 	protected Repository () {

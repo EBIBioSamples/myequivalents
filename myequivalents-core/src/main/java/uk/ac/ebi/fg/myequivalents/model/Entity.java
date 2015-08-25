@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_S;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,6 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
@@ -47,7 +50,7 @@ public class Entity implements Serializable, MyEquivalentsModelMember
 	private Service service;
 	
 	@NotBlank
-	@Column( length = 50 )
+	@Column( length = COL_LENGTH_S )
 	private String accession;
 
 	/**
@@ -111,7 +114,8 @@ public class Entity implements Serializable, MyEquivalentsModelMember
 	}
 	
 	/**
-	 * TODO: comment me!
+	 * Builds the URI by means of {@link #getAccession()} and 
+	 * {@link #getService()}.{@link Service#getUriPattern() getUriPattern()}.
 	 */
 	@Transient
 	@XmlAttribute ( name = "uri" )

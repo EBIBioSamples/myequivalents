@@ -6,7 +6,7 @@ import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
- * TODO: comment me!
+ * Very basic functionality that is common to all the DAOs used in myEq.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>1 Jul 2015</dd>

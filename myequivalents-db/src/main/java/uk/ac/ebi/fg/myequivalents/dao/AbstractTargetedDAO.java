@@ -2,8 +2,6 @@ package uk.ac.ebi.fg.myequivalents.dao;
 
 import javax.persistence.EntityManager;
 
-import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
-
 /**
  * A generic DAO, having functions for the management of a single entity type. There are other DAOs managing 
  * combinations of related entity types (yes, this is not fully compliant with the usual DAO design pattern).

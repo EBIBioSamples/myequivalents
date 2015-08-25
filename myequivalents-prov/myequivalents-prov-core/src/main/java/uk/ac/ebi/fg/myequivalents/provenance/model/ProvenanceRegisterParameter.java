@@ -1,6 +1,8 @@
 package uk.ac.ebi.fg.myequivalents.provenance.model;
 
 import static org.apache.commons.lang3.StringUtils.trimToNull;
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_S;
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_URIS;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +23,7 @@ import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 import uk.ac.ebi.fg.myequivalents.model.Service;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
@@ -58,7 +61,7 @@ public class ProvenanceRegisterParameter
 	/**
 	 * Might be strings like 'service', 'entity' etc.
 	 */
-	@Column ( length = 50 )
+	@Column ( length = COL_LENGTH_S )
 	@Index ( name = "prov_param_vtype" )
 	@XmlAttribute ( name = "value-type" )
 	public String getValueType ()
@@ -74,7 +77,7 @@ public class ProvenanceRegisterParameter
 	/**
 	 * Might be things like 'service1', 'repository10', etc
 	 */
-	@Column ( length = 2000 )
+	@Column ( length = COL_LENGTH_URIS )
 	@Index ( name = "prov_param_val" )
 	@XmlAttribute ( name = "value" )
 	public String getValue ()
@@ -90,7 +93,7 @@ public class ProvenanceRegisterParameter
 	/**
 	 * Might be things like 'acc1', for parameters like entityId = 'service1:acc1'
 	 */
-	@Column ( length = 2000 )
+	@Column ( length = COL_LENGTH_URIS )
 	@Index ( name = "prov_param_extra1" )
 	@XmlAttribute ( name = "extra-value" )
 	public String getExtraValue ()
@@ -193,7 +196,8 @@ public class ProvenanceRegisterParameter
   }
 
   /**
-   * Builds p ( "entity", entityId )
+   * Builds p ( "entity", entityId ). The entity resolver is necessary because we always save IDs in the form
+   * service:acc in the provenance records.
    */
   public static ProvenanceRegisterParameter pent ( EntityIdResolver entityIdResolver, String entityId ) 
   {
@@ -287,6 +291,7 @@ public class ProvenanceRegisterParameter
 	
 	/**
 	 * Builds parameters for entity IDs. Adds up to result, which is initialised with an empty list, if it's null.
+	 * @see #pent(EntityIdResolver, String) about the entityResolver parameter.
 	 */
 	public static List<ProvenanceRegisterParameter> pent ( 
 		EntityIdResolver entityIdResolver, List<ProvenanceRegisterParameter> result, List<String> entityIds 
@@ -300,7 +305,9 @@ public class ProvenanceRegisterParameter
 	}
 
 	/**
-	 * Wraps {@link #pent(List, List)} with result = null. 
+	 * Wraps {@link #pent(List, List)} with result = null.
+	 * @see #pent(EntityIdResolver, String) about the entityResolver parameter.
+   *
 	 */
 	public static List<ProvenanceRegisterParameter> pent ( EntityIdResolver entityIdResolver, List<String> entityIds ) 
 	{

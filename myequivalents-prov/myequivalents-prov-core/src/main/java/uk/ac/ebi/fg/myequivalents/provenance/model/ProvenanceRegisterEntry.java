@@ -1,5 +1,8 @@
 package uk.ac.ebi.fg.myequivalents.provenance.model;
 
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_M;
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_S;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -29,6 +32,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 
 /**
@@ -107,7 +111,7 @@ public class ProvenanceRegisterEntry
 
 	@NotEmpty
 	@Index ( name = "prov_email" )
-	@Column ( name = "user_email" )
+	@Column ( name = "user_email", length = COL_LENGTH_S )
 	@XmlAttribute ( name = "user-email" )
 	public String getUserEmail ()
 	{
@@ -152,7 +156,7 @@ public class ProvenanceRegisterEntry
 
 	@NotEmpty
 	@Index ( name = "prov_op" )
-	@Column ( name = "operation" )
+	@Column ( name = "operation", length = COL_LENGTH_M )
 	@XmlAttribute ( name = "operation" )
 	public String getOperation ()
 	{

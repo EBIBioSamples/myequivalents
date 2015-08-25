@@ -490,7 +490,7 @@ public class RandomMappingsTest
 
 	
 	/**
-	 * Turns entityId into "&lt;URI&gt;", splitting entityId and using {@link #services}.
+	 * Turns entityId into "&lt;uri&gt;", splitting entityId and using {@link #services}.
 	 */
 	private String toUriSyntax ( String entityId )
 	{
