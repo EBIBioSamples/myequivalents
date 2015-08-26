@@ -43,7 +43,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
  * "https://localhost:8080/ws/mapping/get?entityId=service1:acc1". You can build the path by appending the value in 
  * &#064;Path (which annotates every service method) to /mapping.</p> 
  *
- * <p>TODO: We need proper exception handling, see <a href = "http://jersey.java.net/documentation/latest/user-guide.html#d0e3490">here</a>.</p>
+ * <p>TODO: We need proper exception handling, see <a href = "http://jersey.java.net/documentation/latest/user-guide.html#https://jersey.java.net/documentation/latest/user-guide.html#d0e6592">here</a>.</p>
  * 
  * <dl><dt>date</dt><dd>Sep 11, 2012</dd></dl>
  * @author Marco Brandizi

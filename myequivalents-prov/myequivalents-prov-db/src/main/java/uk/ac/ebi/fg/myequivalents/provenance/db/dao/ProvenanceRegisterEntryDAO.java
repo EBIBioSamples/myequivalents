@@ -66,13 +66,13 @@ public class ProvenanceRegisterEntryDAO extends AbstractTargetedDAO<ProvenanceRe
 		String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params 
 	)
 	{
-		String sql = "SELECT DISTINCT * FROM provenance_register prove WHERE true\n";
+		StringBuilder sql = new StringBuilder ( "SELECT DISTINCT * FROM provenance_register prove WHERE true\n" );
 		
-		if ( userEmail != null ) sql += "AND user_email LIKE :email\n";
-		if ( operation != null ) sql += "AND operation LIKE :operation\n";
+		if ( userEmail != null ) sql.append ( "AND user_email LIKE :email\n" );
+		if ( operation != null ) sql.append ( "AND operation LIKE :operation\n" );
 		
-		if ( from != null ) sql += "AND timestamp >= :from\n";
-		if ( to != null ) sql += "AND timestamp <= :to\n";
+		if ( from != null ) sql.append ( "AND timestamp >= :from\n" );
+		if ( to != null ) sql.append ( "AND timestamp <= :to\n" );
 
 		// All the params, in AND.
 		if ( params != null && !params.isEmpty () )
@@ -92,13 +92,13 @@ public class ProvenanceRegisterEntryDAO extends AbstractTargetedDAO<ProvenanceRe
 				if ( sqlParam.length () == 0 ) continue;
 				
 				sqlParam = "true" + sqlParam;
-				sql += "AND id IN ( SELECT prov_entry_id FROM provenance_register_parameter WHERE " + sqlParam + " )\n";
+				sql.append ( "AND id IN ( SELECT prov_entry_id FROM provenance_register_parameter WHERE " + sqlParam + " )\n" );
 			}
 		}
 
 		// And now redo the same, to fill the parameters
 		Session sess = (Session) this.entityManager.getDelegate ();
-		SQLQuery query = sess.createSQLQuery ( sql );
+		SQLQuery query = sess.createSQLQuery ( sql.toString () );
 		
 		if ( userEmail != null ) query.setParameter ( "email", userEmail );
 		if ( operation != null ) query.setParameter ( "operation", operation );

@@ -496,7 +496,7 @@ public class RandomMappingsTest
 	{
 		// "test.scaling.service" + iserv + ":test.scaling.entity_" + execId + "_" + entIdx
 		String idchunks[] = entityId.split ( ":" );
-		int iserv = Integer.valueOf ( idchunks [ 0 ].substring ( "test.scaling.service".length () ) ) - 1;
+		int iserv = Integer.parseInt ( idchunks [ 0 ].substring ( "test.scaling.service".length () ) ) - 1;
 		
 		Service service = services [ iserv ];
 		entityId = EntityIdResolver.buildUriFromAcc ( idchunks [ 1 ], service.getUriPattern () );

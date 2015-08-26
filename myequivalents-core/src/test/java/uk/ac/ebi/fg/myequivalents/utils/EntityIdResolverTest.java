@@ -97,7 +97,7 @@ public class EntityIdResolverTest
 	{
 		String dom = "http://www.somewhere.net";
 		String ns = dom + "/path/to/#";
-		String utpl = new String ( ns + "$id" );
+		String utpl = ns + "$id";
 		
 		assertEquals ( "buildUriFromAcc() didn't work!", ns + "123", buildUriFromAcc ( "123", utpl ) );		
 	}

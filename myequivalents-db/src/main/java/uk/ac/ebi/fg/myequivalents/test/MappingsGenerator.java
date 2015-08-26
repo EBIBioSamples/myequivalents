@@ -29,12 +29,12 @@ public class MappingsGenerator
 {
 	public static final String EDITOR_PASS = "test.password";
 	public static final String EDITOR_SECRET = "test.secret";
-	public static User EDITOR_USER = new User ( 
+	public static final User EDITOR_USER = new User ( 
 		"test.editor", "Test Editor", "User", EDITOR_PASS, "test editor notes", Role.EDITOR, EDITOR_SECRET );
 
 	public static final String ADMIN_PASS = "test.password";
 	public static final String ADMIN_SECRET = "test.secret";
-	public static User ADMIN_USER = new User ( 
+	public static final User ADMIN_USER = new User ( 
 		"test.admin", "Test Admin", "User", ADMIN_PASS, "test admin notes", Role.ADMIN, ADMIN_SECRET );
 	
 	

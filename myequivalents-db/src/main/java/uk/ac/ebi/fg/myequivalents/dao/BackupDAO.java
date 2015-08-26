@@ -65,10 +65,6 @@ public class BackupDAO extends AbstractDAO
 	public BackupDAO ( EntityManager entityManager )
 	{
 		super ( entityManager );
-		repoDao = new RepositoryDAO ( entityManager );
-		servCollDao = new ServiceCollectionDAO ( entityManager );
-		serviceDao = new ServiceDAO ( entityManager );
-		mapDao = new EntityMappingDAO ( entityManager );
 	}
 	
 	public int dump ( OutputStream out, Integer offset, Integer limit )
@@ -238,7 +234,15 @@ public class BackupDAO extends AbstractDAO
 	public void setEntityManager ( EntityManager entityManager )
 	{
 		super.setEntityManager ( entityManager );
-		if ( repoDao == null ) return;
+		
+		if ( repoDao == null ) 
+		{
+			repoDao = new RepositoryDAO ( entityManager );
+			servCollDao = new ServiceCollectionDAO ( entityManager );
+			serviceDao = new ServiceDAO ( entityManager );
+			mapDao = new EntityMappingDAO ( entityManager );
+			return;
+		}
 		
 		repoDao.setEntityManager ( entityManager );
 		servCollDao.setEntityManager ( entityManager );
