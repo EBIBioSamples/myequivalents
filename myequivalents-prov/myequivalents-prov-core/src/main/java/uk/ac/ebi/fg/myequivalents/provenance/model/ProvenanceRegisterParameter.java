@@ -23,7 +23,6 @@ import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**

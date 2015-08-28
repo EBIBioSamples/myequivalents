@@ -29,7 +29,7 @@
 			<prop key = "hibernate.hbm2ddl.auto">${test.hibernate.hbm2ddl.auto}</prop>
 			<prop key = "hibernate.connection.autocommit">false</prop>
 			<prop key = "hibernate.jdbc.batch_size">50</prop>
-			<prop key = "hibernate.show_sql">true</prop>
+			<prop key = "hibernate.show_sql">false</prop>
 			
 			<prop key = "hibernate.jdbc.use_scrollable_resultset">true</prop>
 			

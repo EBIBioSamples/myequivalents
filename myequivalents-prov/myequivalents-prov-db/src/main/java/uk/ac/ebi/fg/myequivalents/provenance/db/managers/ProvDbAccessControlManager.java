@@ -18,8 +18,6 @@ import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbAccessControlManager;
 import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
-import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
-import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**
  * A wrapper of {@link DbAccessControlManager} that uses the provenance register to keep track of access-control

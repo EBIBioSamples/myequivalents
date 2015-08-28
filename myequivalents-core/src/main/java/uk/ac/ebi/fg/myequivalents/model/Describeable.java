@@ -1,5 +1,9 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_L;
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_M;
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_XL;
+
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -16,8 +20,6 @@ import org.apache.commons.lang.StringUtils;
 
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
-
-import static uk.ac.ebi.fg.myequivalents.resources.Const.*;
 
 /**
  * 

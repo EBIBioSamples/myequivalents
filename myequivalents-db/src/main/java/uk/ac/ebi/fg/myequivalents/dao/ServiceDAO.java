@@ -47,6 +47,7 @@ public class ServiceDAO extends DescribeableDAO<Service>
 	 * First deletes linked entities.
 	 */
 	@Override
+	@SuppressWarnings ( "unchecked" )
 	public boolean delete ( String serviceName )
 	{
 		serviceName = StringUtils.trimToNull ( serviceName );
@@ -55,11 +56,18 @@ public class ServiceDAO extends DescribeableDAO<Service>
 		
 		EntityManager em = getEntityManager ();
 		em.createNativeQuery ( "DELETE FROM entity_mapping WHERE service_name = '" + serviceName + "'" ).executeUpdate ();
-		em.createNativeQuery ( 
-			"DELETE FROM entity_mapping WHERE bundle IN\n" +
-			"( SELECT bundle FROM ENTITY_MAPPING GROUP BY bundle HAVING count(accession) < 2 )" ).executeUpdate ();
 		
-		return super.delete ( serviceName );
+		Query qDanglingBundles = em.createNativeQuery ( 
+			"SELECT bundle FROM ENTITY_MAPPING GROUP BY bundle HAVING count(accession) = 1" 
+		);
+		Query qDelBundle = em.createNativeQuery ( "DELETE FROM entity_mapping WHERE bundle = :bundle" );
+
+		boolean result = false;
+		
+		for ( String bundle: (List<String>) qDanglingBundles.getResultList () )
+			result |= qDelBundle.setParameter ( "bundle", bundle ).executeUpdate () > 0;
+		
+		return result | super.delete ( serviceName );
 	}
 	
 	public Service findByUriPattern ( String uriPattern, boolean mustBePublic )

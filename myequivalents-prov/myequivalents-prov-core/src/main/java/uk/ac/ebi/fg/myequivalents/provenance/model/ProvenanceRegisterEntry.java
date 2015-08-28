@@ -13,8 +13,6 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OrderColumn;
@@ -32,8 +30,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.hibernate.annotations.Index;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
+import uk.ac.ebi.utils.security.IdUtils;
 
 /**
  * The provenance register keeps track of which user issued which change operation.
@@ -55,7 +53,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 @XmlAccessorType ( XmlAccessType.NONE )
 public class ProvenanceRegisterEntry
 {
-  private Long id;
+  private String id;
 	private String userEmail;
 	private Date timestamp;
 	private String operation;
@@ -90,19 +88,21 @@ public class ProvenanceRegisterEntry
 
   
 	/**
-   * A database primary key for job registry entries.
+   * A universal ID for job registry entries.
+   * This is automatically created using {@link IdUtils#createCompactUUID()}. We do not use numerical auto-IDs, cause
+   * we want to ensure cross-DB identifiers, even before an entry is persisted. 
    */
   @Id
-  @GeneratedValue ( strategy = GenerationType.TABLE )
-  public Long getId () {
-    return id;
+  @Column ( length = 22 )
+  public String getId () {
+    return id == null ? IdUtils.createCompactUUID () : id;
   }
 
   /**
    * You should never explicitly set this, Hibernate will handle the creation of this ID whenever a new object is saved.
    * 
    */
-  protected void setId ( Long id ) 
+  protected void setId ( String id ) 
   {
     this.id = id;
   }
@@ -178,27 +178,21 @@ public class ProvenanceRegisterEntry
   	
     // The entity type
   	ProvenanceRegisterEntry that = (ProvenanceRegisterEntry) o;
-    if ( this.getOperation () == null ? that.getOperation () != null : !this.operation.equals ( that.operation ) ) return false; 
-    if ( this.getUserEmail () == null ? that.getUserEmail () != null : !this.userEmail.equals ( that.userEmail ) ) return false; 
-    if ( this.getTimestamp () == null ? that.getTimestamp () != null : !this.timestamp.equals ( that.timestamp ) ) return false;
-    return true;
+  	
+  	return this.getId ().equals ( that.getId () );
   }
 	
 	@Override
 	public int hashCode ()
 	{
-		int result = 1;
-		result = 31 * result + ( ( this.getOperation () == null ) ? 0 : operation.hashCode () );
-		result = 31 * result + ( ( this.getUserEmail () == null ) ? 0 : userEmail.hashCode () );
-		result = 31 * result + ( ( this.getTimestamp () == null ) ? 0 : timestamp.hashCode () );
-		return result;
+		return this.getId ().hashCode ();
 	}
   
   @Override
   public String toString() 
   {
   	return String.format ( 
-  		"%s { id: %d, userEmail: '%s', timestamp: %s, operation: %s, parameters: '%s'",
+  		"%s { id: %s, userEmail: '%s', timestamp: %s, operation: %s, parameters: '%s'",
   		this.getClass ().getSimpleName (), this.getId (), this.getUserEmail (), this.getTimestamp (), this.getOperation (),
   		this.getParameters () == null ? "null" : ArrayUtils.toString ( this.parameters )
   	);

@@ -1,10 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
 import javax.persistence.EntityManager;
-import javax.persistence.FlushModeType;
 
-import org.hibernate.FlushMode;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

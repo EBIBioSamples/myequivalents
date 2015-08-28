@@ -126,9 +126,4 @@ public interface EntityMappingManager extends MyEquivalentsManager
 	 */
 	public String getMappingsForTargetAs ( String outputFormat, Boolean wantRawResult, String targetServiceName, String entityId );
 		
-	/**
-	 * Does close/clean-up operations. There is no guarantee that a manager can be used after the invocation to this method.
-	 * You may want to invoke this call in {@link Object#finalize()} in the implementation of this interface.
-	 */
-	public void close ();
 }

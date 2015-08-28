@@ -174,7 +174,7 @@
 			<dependency>
 				<groupId>uk.ac.ebi</groupId>
 				<artifactId>jutils</artifactId>
-				<version>4.2.1-SNAPSHOT</version>
+				<version>4.3.1-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
@@ -467,7 +467,7 @@
 				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</jdbc.url>
 				<jdbc.driverClassName>${oracle.jdbc.driverClassName}</jdbc.driverClassName>
 				<hibernate.dialect>${oracle.hibernate.dialect}</hibernate.dialect>
-				<hibernate.hbm2ddl.auto/>
+				<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -487,7 +487,7 @@
 				<test.jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</test.jdbc.url>
 				<test.jdbc.driverClassName>${oracle.jdbc.driverClassName}</test.jdbc.driverClassName>
 				<test.hibernate.dialect>${oracle.hibernate.dialect}</test.hibernate.dialect>
-				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
+				<test.hibernate.hbm2ddl.auto>create</test.hibernate.hbm2ddl.auto>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -505,9 +505,8 @@
 				<test.jdbc.username>brandizi</test.jdbc.username>
 				<test.jdbc.password>brandizi</test.jdbc.password>
 				<test.jdbc.url>jdbc:p6spy:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</test.jdbc.url>
-				<test.jdbc.driverClassName>${oracle.jdbc.driverClassName}</test.jdbc.driverClassName>
-				<!-- test.jdbc.driverClassName>com.p6spy.engine.spy.P6SpyDriver</test.jdbc.driverClassName -->
-				<!-- test.jdbc.spy.driverClassName>${oracle.jdbc.driverClassName}</test.jdbc.spy.driverClassName -->
+				<test.jdbc.driverClassName>com.p6spy.engine.spy.P6SpyDriver</test.jdbc.driverClassName>
+				<test.jdbc.spy.driverClassName>${oracle.jdbc.driverClassName}</test.jdbc.spy.driverClassName>
 				<test.hibernate.dialect>${oracle.hibernate.dialect}</test.hibernate.dialect>
 				<test.hibernate.hbm2ddl.auto>update</test.hibernate.hbm2ddl.auto>
 			</properties>
@@ -659,7 +658,7 @@
 				<dependency>
 						<groupId>mysql</groupId>
 						<artifactId>mysql-connector-java</artifactId>
-						<version>5.1.33</version>
+						<version>5.1.36</version>
 				</dependency>  		
   		</dependencies>
   	</profile>

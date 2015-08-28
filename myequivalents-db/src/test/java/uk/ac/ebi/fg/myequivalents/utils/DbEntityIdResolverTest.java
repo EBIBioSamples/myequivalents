@@ -10,7 +10,6 @@ import org.junit.Test;
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;

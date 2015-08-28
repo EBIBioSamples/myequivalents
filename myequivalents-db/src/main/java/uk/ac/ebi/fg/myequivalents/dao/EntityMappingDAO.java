@@ -2,7 +2,6 @@ package uk.ac.ebi.fg.myequivalents.dao;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,12 +11,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
 import javax.persistence.Query;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,8 +35,8 @@ import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
-import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
+import uk.ac.ebi.utils.security.IdUtils;
 
 /**
  * 
@@ -54,20 +50,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
  *
  */
 public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
-{
-	
-	/**
-	 * This is needed by {@link #createNewBundleId()}, to convert binary UUIDs into BASE64 strings.
-	 */
-	private static ThreadLocal<ByteBuffer> uuidBuffer = new ThreadLocal<ByteBuffer> () 
-	{
-		@Override
-		protected ByteBuffer initialValue ()
-		{
-			return ByteBuffer.allocate ( 2 * Long.SIZE / 8);
-		}		
-	};
-	
+{		
 	private final Random random = new Random ( System.currentTimeMillis () );
 	
 	public EntityMappingDAO ( EntityManager entityManager )
@@ -801,10 +784,11 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		qry
 			.setReadOnly ( true )
 			.setFetchSize ( 1000 )
+			.setCacheable ( false )
 			.setCacheMode ( CacheMode.IGNORE );
 
-		if ( offset != null ) qry.setFirstResult ( offset );
-		if ( limit != null ) qry.setFirstResult ( limit );
+		if ( offset != null && offset >= 0 ) qry.setFirstResult ( offset );
+		if ( limit != null && offset < Integer.MAX_VALUE ) qry.setMaxResults ( limit );
 		
 		List<String> entityIds = new ArrayList<> ();
 		List<Date> relDates = new ArrayList<> ();
@@ -885,17 +869,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	 */
 	private static String createNewBundleId ()
 	{
-		UUID uuid = UUID.randomUUID ();
-		ByteBuffer buf = uuidBuffer.get ();
-		
-		buf.clear ();
-		buf.putLong ( uuid.getMostSignificantBits () );
-		buf.putLong ( uuid.getLeastSignificantBits () );
-		byte[] hash = buf.array ();
-
-		// With 16 bytes as input, the BASE64 encoding is always a 24 character string, with the last 2 characters always 
-		// equals to padding '==', so we strip away these unnecessary tail.
-		return DatatypeConverter.printBase64Binary ( hash ).substring ( 0, 22 );
+		return IdUtils.createCompactUUID ();
 	}
 
 	public void setEntityManager ( EntityManager entityManager )

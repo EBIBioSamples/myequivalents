@@ -1,6 +1,6 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
-import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_L;
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_URIS;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +11,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
-
-import static uk.ac.ebi.fg.myequivalents.resources.Const.*;
 
 
 /**

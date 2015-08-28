@@ -66,7 +66,7 @@ public class ProvenanceRegisterEntryDAO extends AbstractTargetedDAO<ProvenanceRe
 		String userEmail, String operation, Date from, Date to, List<ProvenanceRegisterParameter> params 
 	)
 	{
-		StringBuilder sql = new StringBuilder ( "SELECT DISTINCT * FROM provenance_register prove WHERE true\n" );
+		StringBuilder sql = new StringBuilder ( "SELECT DISTINCT * FROM provenance_register prove WHERE 1=1\n" );
 		
 		if ( userEmail != null ) sql.append ( "AND user_email LIKE :email\n" );
 		if ( operation != null ) sql.append ( "AND operation LIKE :operation\n" );
@@ -91,7 +91,7 @@ public class ProvenanceRegisterEntryDAO extends AbstractTargetedDAO<ProvenanceRe
 				
 				if ( sqlParam.length () == 0 ) continue;
 				
-				sqlParam = "true" + sqlParam;
+				sqlParam = "1=1" + sqlParam;
 				sql.append ( "AND id IN ( SELECT prov_entry_id FROM provenance_register_parameter WHERE " + sqlParam + " )\n" );
 			}
 		}

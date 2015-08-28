@@ -167,8 +167,12 @@ public class ProvDbEntityMappingManagerTest
 		//mmgr.storeMappings ( sname + ":c", sname + ":d" );
 		mmgr.storeMappingBundle ( sname + ":c", sname + ":e", sname + ":d" );
 		mmgr.storeMappings ( sname + ":d", sname + ":a" );
-		
 
+		mmgr.deleteMappings ( sname + ":a" );
+		smgr.deleteServices ( sname );
+		mmgr.close ();
+		
+		
 		ProvRegistryManager regMgr = mgrFact.newProvRegistryManager ( editorUser.getEmail (), testSecret );
 		
 		// First, return all the entries, no matter the users
@@ -178,8 +182,6 @@ public class ProvDbEntityMappingManagerTest
 		for ( List<ProvenanceRegisterEntry> provsl: provs )
 			log.info ( "Provenance chain returned for a-d:\n{}", provsl );
 		
-		mmgr.deleteMappings ( sname + ":a" );
-		smgr.deleteServices ( sname );
 		
 		boolean foundab = false, foundbc = false, foundcd = false, foundad = false;
 		int foundChains = provs.size (), foundOps = 0, foundEntities = 0;
@@ -229,7 +231,8 @@ public class ProvDbEntityMappingManagerTest
 		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<provenance-entry-lists>" ) ); 
 		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<entries>" ) ); 
 		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<entry operation=\"mapping.storeMappingBundle\"" ) ); 
-		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<parameter extra-value=\"c\"" ) ); 
+		assertTrue ( "Wrong provenance XML!", provsXml.contains ( "<parameter extra-value=\"c\"" ) );
+		
 	}
 	
 	

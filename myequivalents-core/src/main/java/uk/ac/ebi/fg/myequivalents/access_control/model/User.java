@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Index;
 
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.PasswordJaxbXmlAdapter;
 
 /**
@@ -100,6 +101,7 @@ public class User
 	}
 	
 	@Index ( name = "user_n" )
+	@Column ( length = Const.COL_LENGTH_S )
 	@XmlAttribute ( name = "name" )
 	public String getName ()
 	{
@@ -112,6 +114,7 @@ public class User
 	}
 
 	@Index ( name = "user_s" )
+	@Column ( length = Const.COL_LENGTH_S )
 	@XmlAttribute ( name = "surname" )
 	public String getSurname ()
 	{
@@ -124,6 +127,7 @@ public class User
 	}
 
 	@Id
+	@Column ( length = Const.COL_LENGTH_S )
 	@XmlAttribute ( name = "email" )
 	public String getEmail ()
 	{
@@ -176,7 +180,7 @@ public class User
 		this.role = role;
 	}
 
-	@Column ( name = "role", nullable = true ) // if null, no credential
+	@Column ( name = "role", nullable = true, length = Const.COL_LENGTH_S ) // if null, no credential
 	@XmlAttribute ( name = "role" )
 	protected String getRoleAsString () {
 		return this.role == null ? null : this.role.toString ();

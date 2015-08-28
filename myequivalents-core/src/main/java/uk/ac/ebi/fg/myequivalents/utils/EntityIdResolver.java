@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.utils;
 
+import static uk.ac.ebi.fg.myequivalents.model.Service.UNSPECIFIED_SERVICE_NAME;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
@@ -10,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import static uk.ac.ebi.fg.myequivalents.model.Service.UNSPECIFIED_SERVICE_NAME;
 
 /**
  * <p>This resolves an entity ID string into a an {@link EntityId}, that is, a pair of service + accession (+ URI).
@@ -53,7 +54,8 @@ public class EntityIdResolver
 	 * <li>serviceName:&lt;uri&gt;, the URI is intended to refer an entity provided by the service (an error is raised
 	 * if it isn't)</li>
 	 * <li>&lt;uri&gt;, a straight URI, in this case {@link #resolveUri(String)} tries to see if the URI corresponds to
-	 * some existing myEquivalents service to be associated to the URI.
+	 * some existing myEquivalents service to be associated to the URI (resolving this type of entityId is a bit slower
+	 * than all other syntax formats, use :&lt;&gt;, _:&lt;&gt;, or service:&lt;&gt;, if you can.
 	 * <li>:&lt;uri&gt; or _:&lt;uri&gt;, which means the URI is not linked to a real service, but to the special 
 	 * {@link Service#UNSPECIFIED_SERVICE}.</li>
 	 * </ul>

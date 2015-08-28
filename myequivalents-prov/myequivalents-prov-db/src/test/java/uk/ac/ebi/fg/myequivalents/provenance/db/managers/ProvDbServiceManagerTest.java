@@ -92,6 +92,7 @@ public class ProvDbServiceManagerTest
 		//em.createNativeQuery ( "DELETE FROM provenance_register_parameter" ).executeUpdate ();
 		//em.createQuery ( "DELETE FROM " + ProvenanceRegisterEntry.class.getName () ).executeUpdate ();
 		ts.commit ();
+		em.close ();
 	}
 	
 	

@@ -10,6 +10,7 @@ import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.hibernate.CacheMode;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -143,10 +144,14 @@ public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO
 		Session session = (Session) this.entityManager.getDelegate ();
 
 		org.hibernate.Query q = session.createQuery ( "FROM " + this.targetClass.getName () );
-		q.setReadOnly ( true );
+		
+		q.setReadOnly ( true )
+		 .setFetchSize ( 1000 )
+		 .setCacheable ( false )
+		 .setCacheMode ( CacheMode.IGNORE );
 		
 		if ( offset != null && offset >= 0 ) q.setFirstResult ( offset );
-		if ( limit != null && offset < Integer.MAX_VALUE ) q.setFetchSize ( limit );
+		if ( limit != null && offset < Integer.MAX_VALUE ) q.setMaxResults ( limit );
 
 		int ct = 0;
 		for ( ScrollableResults rs = q.scroll ( ScrollMode.FORWARD_ONLY ); rs.next (); )

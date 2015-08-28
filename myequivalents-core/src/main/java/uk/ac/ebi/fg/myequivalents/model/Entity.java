@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 
 /**

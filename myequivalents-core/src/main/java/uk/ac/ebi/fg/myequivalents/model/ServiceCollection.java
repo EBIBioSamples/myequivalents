@@ -12,8 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import uk.ac.ebi.fg.myequivalents.resources.Const;
-
 /**
  * 
  * A service collection is a collection of {@link Service}s that share the same accessions. For instance, PUBMED and 
