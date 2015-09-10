@@ -1,7 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.model;
 
 import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_L;
-import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_M;
+import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_URIS;
 import static uk.ac.ebi.fg.myequivalents.resources.Const.COL_LENGTH_XL;
 
 import java.util.Date;
@@ -36,7 +36,7 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
 public abstract class Describeable implements MyEquivalentsModelMember
 {
 	@Id
-	@Column( length = COL_LENGTH_M )
+	@Column( length = COL_LENGTH_URIS )
 	private String name;
 	
 	@Column( length = COL_LENGTH_L )
