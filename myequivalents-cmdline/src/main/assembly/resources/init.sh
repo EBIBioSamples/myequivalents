@@ -9,7 +9,7 @@ cat <<EOT
 	Please ensure you've correct settings in $cfg_file
 
 	This possibly includes the line '<prop key = "hibernate.hbm2ddl.auto"></prop>'
-	temporarily set with the value (insde ><) create or update (see [1]).
+	temporarily set with the value (insde ><) 'create' or 'update' (see [1]).
 	
 	---> Please be aware that this option might wipe out your existing database.
 	---> Morever, it's VERY important that you set it back to empty after this initialisation. 
