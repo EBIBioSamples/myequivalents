@@ -94,8 +94,10 @@ public class ProvenanceRegisterEntry
    */
   @Id
   @Column ( length = 22 )
-  public String getId () {
-    return id == null ? IdUtils.createCompactUUID () : id;
+  public String getId () 
+  {
+  	if ( id == null ) this.setId ( IdUtils.createCompactUUID () );
+  	return id;
   }
 
   /**
