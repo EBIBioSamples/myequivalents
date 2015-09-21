@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.ac.ebi.fg</groupId>
   <artifactId>myequivalents</artifactId>
-	<version>0.4-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference Mgmt</name>
 
@@ -174,7 +174,7 @@
 			<dependency>
 				<groupId>uk.ac.ebi</groupId>
 				<artifactId>jutils</artifactId>
-				<version>4.3.1-SNAPSHOT</version>
+				<version>4.4</version>
 			</dependency>
 
 			<dependency>
