@@ -301,6 +301,12 @@
 			<url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots</url>
 		</repository>
 
+	  <repository>
+		  <id>biosd-repo</id>
+		  <name>EBI Nexus Repository, Snapshots</name>
+		  <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/biosamples</url>
+	  </repository>
+
 		<repository>
 			<id>ebi-repo-old</id>
 			<name>EBI repo</name>
