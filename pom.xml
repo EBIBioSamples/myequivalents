@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.ac.ebi.fg</groupId>
   <artifactId>myequivalents</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
   <packaging>pom</packaging>
   <name>My Equivalents Crossreference Mgmt</name>
 
@@ -354,7 +354,7 @@
 				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</jdbc.url>
 				<jdbc.driverClassName>${oracle.jdbc.driverClassName}</jdbc.driverClassName>
 				<hibernate.dialect>${oracle.hibernate.dialect}</hibernate.dialect>
-				<hibernate.hbm2ddl.auto/>
+				<hibernate.hbm2ddl.auto />
 			</properties>
 			<dependencies>
 				<dependency>
@@ -375,7 +375,7 @@
 				<test.jdbc.driverClassName>${oracle.jdbc.driverClassName}</test.jdbc.driverClassName>
 				<test.hibernate.dialect>${oracle.hibernate.dialect}</test.hibernate.dialect>
 				<!-- test.hibernate.hbm2ddl.auto>validate</test.hibernate.hbm2ddl.auto -->
-				<test.hibernate.hbm2ddl.auto/>
+				<test.hibernate.hbm2ddl.auto />
 			</properties>
 			<dependencies>
 				<dependency>
@@ -397,7 +397,7 @@
 				<jdbc.url>jdbc:oracle:thin:@ora-vm-031.ebi.ac.uk:1531:biosdtst</jdbc.url>
 				<jdbc.driverClassName>${oracle.jdbc.driverClassName}</jdbc.driverClassName>
 				<hibernate.dialect>${oracle.hibernate.dialect}</hibernate.dialect>
-				<hibernate.hbm2ddl.auto/>
+				<hibernate.hbm2ddl.auto />
 			</properties>
 			<dependencies>
 				<dependency>
@@ -438,7 +438,7 @@
 				<jdbc.url>jdbc:oracle:thin:@ora-vm-023.ebi.ac.uk:1531:biosdpro</jdbc.url>
 				<jdbc.driverClassName>${oracle.jdbc.driverClassName}</jdbc.driverClassName>
 				<hibernate.dialect>${oracle.hibernate.dialect}</hibernate.dialect>
-				<hibernate.hbm2ddl.auto/>
+				<hibernate.hbm2ddl.auto />
 			</properties>
 			<dependencies>
 				<dependency>
@@ -526,7 +526,7 @@
 			<activation><activeByDefault>true</activeByDefault></activation>
 			<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password/>
+				<test.jdbc.password />
 				<test.jdbc.url>jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE</test.jdbc.url>
 				<test.jdbc.driverClassName>org.h2.Driver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
@@ -545,7 +545,7 @@
 			<id>test.h2_file</id>
 			<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password/>
+				<test.jdbc.password />
 				<test.jdbc.url>jdbc:h2:target/database/testdb;DB_CLOSE_ON_EXIT=TRUE</test.jdbc.url>
 				<test.jdbc.driverClassName>org.h2.Driver</test.jdbc.driverClassName>
 				<test.hibernate.dialect>org.hibernate.dialect.H2Dialect</test.hibernate.dialect>
@@ -565,7 +565,7 @@
 			<activation><activeByDefault>true</activeByDefault></activation>
 			<properties>
 				<jdbc.username>sa</jdbc.username>
-				<jdbc.password/>
+				<jdbc.password />
 				<jdbc.url>jdbc:h2:database/testdb;DB_CLOSE_ON_EXIT=TRUE</jdbc.url>
 				<!-- You need java -cp h2*.jar org.h2.tools.Server for this (-? for options) 
 				<jdbc.url>jdbc:h2:tcp://localhost/~/testdb</jdbc.url -->
@@ -597,7 +597,7 @@
 			<id>test.p6spy.h2_file</id>
 			<properties>
 				<test.jdbc.username>sa</test.jdbc.username>
-				<test.jdbc.password/>
+				<test.jdbc.password />
 				<test.jdbc.url>jdbc:p6spy:h2:target/database/testdb</test.jdbc.url>
 				<test.jdbc.driverClassName>com.p6spy.engine.spy.P6SpyDriver</test.jdbc.driverClassName>
 				<test.jdbc.spy.driverClassName>org.h2.Driver</test.jdbc.spy.driverClassName>
