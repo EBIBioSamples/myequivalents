@@ -99,9 +99,9 @@
   					<configuration>
 	          	<artifactItems>
 	            	<artifactItem>
-	              	<groupId>uk.ac.ebi.fg</groupId>
-	              	<artifactId>myequivalents-cmdline</artifactId>
-	               	<version>0.4-SNAPSHOT</version>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>myequivalents-cmdline</artifactId>
+									<version>${project.version}</version>
 	               	<type>jar</type>
 	               	<includes>assembly/resources/**/*</includes>
 	             	</artifactItem>
