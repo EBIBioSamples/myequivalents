@@ -7,6 +7,7 @@ import java.io.InputStream;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class DumpTest
 	private Logger log = LoggerFactory.getLogger ( this.getClass () );
 
 	
-	@Test // @Ignore ( "Not a real test and time consuming" )
+	@Test @Ignore ( "Not a real test and time consuming" )
 	public void dumpDb () throws Exception
 	{
   	Resources res = Resources.getInstance ();
@@ -43,7 +44,7 @@ public class DumpTest
   	out.close ();
 	}
 
-	@Test
+	@Test @Ignore ( "Not a real test and time consuming" )
 	public void uploadDb () throws Exception
 	{
   	Resources res = Resources.getInstance ();
