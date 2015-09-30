@@ -4,7 +4,10 @@
 2.0 (Expected)
   - SPARQL interface
    
-1.0 (Expected)
+1.1 (Expected)
+  - Fixing the case of multiple services with the same URI pattern
+   
+1.0
   - Provenance tracking features
   - URIs support 
   
