@@ -45,7 +45,7 @@ public abstract class Describeable implements MyEquivalentsModelMember
 	@Column( length = COL_LENGTH_XL )
 	private String description;
 	
-	@Column ( name = "public_flag", nullable = true, columnDefinition = "integer" )
+	@Column ( name = "public_flag", nullable = true )
 	private Boolean publicFlag = true;
 	
 	@Column ( name = "release_date", nullable = true )
