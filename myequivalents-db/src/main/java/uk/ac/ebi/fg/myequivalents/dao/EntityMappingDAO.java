@@ -803,8 +803,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 			
 			if ( prevBundle == null ) prevBundle = bundle;
 	
-			String serviceName = (String) rs.get ( 1 ),
-						 acc = (String) rs.get ( 2 );
+			String serviceName = (String) rs.get ( 1 ), acc = (String) rs.get ( 2 );
 			String entityId = serviceName + ":" + acc;
 			
 			if ( !bundle.equals ( prevBundle ) )
@@ -812,6 +811,8 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				// Jump a random amount of data
 				if ( rnd.nextDouble () >= randomQuota ) continue;
 				
+				// Now dump what we got so far
+				//
 				EntityMappingSearchResult maps = new EntityMappingSearchResult ( true );
 				List<EntityMapping> ents = new LinkedList<EntityMapping> ();
 	
@@ -827,6 +828,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 					ent.setPublicFlag ( pubFlags.get ( i ) );
 					
 					ents.add ( ent );
+					i++;
 				}
 											
 				maps.addAllEntityMappings ( ents );
@@ -841,8 +843,9 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				pubFlags = new ArrayList<> ();
 	
 				// Start with a new bundle
-				prevBundle = bundle; 
-			} // if bundle
+				prevBundle = bundle;
+				
+			} // if bundle changed
 			
 			
 			entityIds.add ( entityId );
