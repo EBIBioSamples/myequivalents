@@ -14,6 +14,13 @@
 
   <dependencies>
 
+		<!-- Use Logback as concrete test logger -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- Project Modules -->
 
 		<dependency>
@@ -24,9 +31,7 @@
 		</dependency>
 
 
-		<!-- TEST -->
-
-		<!-- Intercepts log4j and sends it to SL4J -->		
+		<!-- Intercepts log4j and sends it to SL4J -->				
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>log4j-over-slf4j</artifactId>
@@ -46,13 +51,6 @@
 		  <scope>test</scope>
 		</dependency>		
 
-		<!-- Use Logback as concrete test logger -->
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>com.google.code.tempus-fugit</groupId>
 			<artifactId>tempus-fugit</artifactId>
@@ -64,6 +62,25 @@
 			<artifactId>myequivalents-prov-db</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>jena-tdb</artifactId>
+			<version>3.0.0</version>
+			<scope>test</scope>
+			<exclusions>
+				<!-- I've tried to push this on top, with scope = provided, but no luck -->
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>				  		
+		<dependency><!-- Needed by Jena -->
+			<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>1.4.01</version>
 		</dependency>
 
   </dependencies>
@@ -103,6 +120,6 @@
 				</dependency>
   		</dependencies>
   	</profile>
-  	
+  	  	
   </profiles>
 </project>
