@@ -447,6 +447,27 @@
 				</dependency>
 			</dependencies>
 		</profile>
+		
+  	<profile>
+  		<id>test.oracle_prod</id>
+  		<activation><activeByDefault>false</activeByDefault></activation>
+  		<properties>
+				<test.jdbc.username>myeq</test.jdbc.username>
+				<test.jdbc.password>my3qp4o</test.jdbc.password>
+				<test.jdbc.url>jdbc:oracle:thin:@ora-vm-023.ebi.ac.uk:1531:biosdpro</test.jdbc.url>
+				<test.jdbc.driverClassName>${oracle.jdbc.driverClassName}</test.jdbc.driverClassName>
+				<test.hibernate.dialect>${oracle.hibernate.dialect}</test.hibernate.dialect>
+				<test.hibernate.hbm2ddl.auto />
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>${oracle.groupId}</groupId>
+					<artifactId>${oracle.artifactId}</artifactId>
+					<version>${oracle.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+				
 
 
 		<!-- Sort of personal database, I use for testing significant changes during development -->
