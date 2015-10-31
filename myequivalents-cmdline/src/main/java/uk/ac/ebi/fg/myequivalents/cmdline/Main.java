@@ -83,27 +83,12 @@ public class Main
 			// 
 			if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag" ) ) ) 
 			{
-				// Sounds like we need to shutdown HSQLDB, due to System.exit()
-				//
 				ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
+				
 				if ( mgrf instanceof DbManagerFactory )
 				{
 					EntityManagerFactory emf = ( (DbManagerFactory) mgrf).getEntityManagerFactory ();
-	
-					EntityManager em = emf.createEntityManager ();
-					((Session) em.getDelegate ()).doWork ( new Work() 
-					{
-						@Override
-						public void execute ( Connection connection ) throws SQLException
-						{
-							DatabaseMetaData dbmsMeta = connection.getMetaData ();
-							String dbmsName = dbmsMeta.getDatabaseProductName ().toLowerCase ();
-							if ( dbmsName.contains ( "hsql" ) ) {
-								connection.createStatement ().executeUpdate ( "SHUTDOWN;" );
-								connection.commit ();
-							}
-						}
-					});
+
 					// Just in case, let's do this too
 					emf.close ();
 				} // if mgrf
