@@ -3,13 +3,17 @@ package uk.ac.ebi.fg.myequivalents.utils;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import uk.ac.ebi.fg.myequivalents.dao.ServiceDAO;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.Service;
-import uk.ac.ebi.utils.memory.SimpleCache;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 
 /**
  * <p>This is a DB-specific implementation of {@link EntityIdResolver}. Namely, it overrides 
@@ -27,8 +31,19 @@ import uk.ac.ebi.utils.memory.SimpleCache;
 public class DbEntityIdResolver extends EntityIdResolver
 {
 	private ServiceDAO serviceDao;
-
-	private static Map<String, Object> serviceCache = new SimpleCache<> ( 100000 );
+	
+	private static Map<String, Object> serviceCache;
+	
+	static
+	{
+		long ttl = Long.valueOf ( System.getProperty ( Const.PROP_NAME_CACHE_TIMEOUT_MIN, "30" ) ); 
+		Cache<String, Object> cache = CacheBuilder.newBuilder ().
+			maximumSize ( 100000 )
+			.expireAfterWrite ( ttl, TimeUnit.MINUTES )
+			.build ();
+		serviceCache = cache.asMap ();
+	}
+	
 	
 	public DbEntityIdResolver ( EntityManager entityManager )
 	{

@@ -1,5 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.resources;
 
+import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
+
 /**
  * 
  * Some commonly used constants.
@@ -10,6 +12,15 @@ package uk.ac.ebi.fg.myequivalents.resources;
  */
 public class Const
 {
+	/**
+	 * Cached objects (e.g. Service instances fetched by {@link EntityIdResolver}) are cancelled and reloaded after
+	 * this amount of time has passed after they were first loaded in memory. Default is 60 mins. 
+	 * 
+	 * TODO: Document this in the wiki.
+	 */
+	public static final String PROP_NAME_CACHE_TIMEOUT_MIN = "uk.ac.ebi.fg.myequivalents.cache_timeout";
+	
+	
 	/** Length used for database character columns, e.g., accession, contact's mid title, version */
 	public static final int COL_LENGTH_S = 50;
 

@@ -189,7 +189,8 @@ public class Entity implements Serializable, MyEquivalentsModelMember
 	public String toString ()
 	{
 		return String.format ( 
-			"Entity { service.name: '%s', accession: '%s', public-flag: %s, release-date: %s, uri: '%s' }", 
+			"%s { service.name: '%s', accession: '%s', public-flag: %s, release-date: %s, uri: '%s' }", 
+				this.getClass ().getSimpleName (), 
 				this.getServiceName (), this.getAccession (), this.getPublicFlag (), this.getReleaseDate (), this.getURI ()  
 		);
 	}

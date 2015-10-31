@@ -3,6 +3,10 @@
  */
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 
@@ -21,6 +25,8 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
  * @author Marco Brandizi
  *
  */
+@XmlRootElement ( name = "entity" )
+@XmlAccessorType ( XmlAccessType.NONE )
 public class ExposedEntity extends Entity
 {
 	private static final long serialVersionUID = 1964502702735603174L;
@@ -50,7 +56,10 @@ public class ExposedEntity extends Entity
 	@Override
 	public String getURI ()
 	{
-		return this.uri;
+		if ( this.uri != null ) return this.uri;
+		if ( this.getAccession () == null || this.getService () == null ) return null; 
+		
+		return super.getURI ();
 	}
 
 	@Override

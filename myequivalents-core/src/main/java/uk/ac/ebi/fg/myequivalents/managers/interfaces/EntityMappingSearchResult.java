@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,11 +13,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.google.common.base.Function;
+
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.utils.collections.MapCollection;
 
 /**
  * 
@@ -75,6 +77,21 @@ public class EntityMappingSearchResult
 
 	private final Map<String, Bundle> bundles = new HashMap<String, Bundle> ();
 	
+	/**
+	 * This is used in {@link #getBundles()}, because JAXB (damn it!) calls its add() method when it has to unmarshal
+	 * from XML. 
+	 */
+	private final MapCollection<String, Bundle> bundlesCollection = new MapCollection<> ( bundles, 
+		new Function<Bundle, String>() 
+		{
+			@Override
+			public String apply ( Bundle input )
+			{
+				// Yes, it's undetermined, but we don't know any other way and bundles don't change after insertion
+				Entity e = input.getEntities ().iterator ().next ();
+				return e.getServiceName () + ':' + e.getAccession ();
+			}
+		});
 	
 	EntityMappingSearchResult ()
 	{
@@ -146,14 +163,16 @@ public class EntityMappingSearchResult
 	@XmlElement ( name = "bundle" )
 	public Collection<Bundle> getBundles ()
 	{
-		return new ArrayList<EntityMappingSearchResult.Bundle> ( this.bundles.values () );
-	}
+		return this.bundlesCollection;
+	}	
 	
 	/** Needed by JAXB for un-marshalling */
 	protected void setBundles ( Collection<Bundle> bundles ) 
 	{
+		int i = 0;
+		this.bundles.clear ();
 		for ( Bundle bundle: bundles )
-			this.bundles.put ( Integer.toString ( this.bundles.size () ), bundle );
+			this.bundles.put ( Integer.toString ( i++ ), bundle );
 	}
 	
 	/**

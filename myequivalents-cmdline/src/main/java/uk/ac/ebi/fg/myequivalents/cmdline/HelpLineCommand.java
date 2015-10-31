@@ -10,6 +10,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import uk.ac.ebi.fg.myequivalents.resources.Const;
+
 
 /**
  * This is a fall-back 'pseudo-command'. When the syntax is wrong, no sub-command is found in 
@@ -58,7 +60,7 @@ class HelpLineCommand extends LineCommand
 		err.println ( "\nCommand-line access to several functions in the MyEquivalents Infrastructure." );
 
 		err.println ( "\nGeneral Syntax:" );
-		err.println ( "\n myeq.sh <command> [dash options] [further options]" );
+		err.println ( "\n  myeq.sh <command> [dash options] [further options]" );
 				
 		err.println ( "\nAvailable Commands (and specific options)" );
 		
@@ -76,6 +78,7 @@ class HelpLineCommand extends LineCommand
 		HelpFormatter helpFormatter = new HelpFormatter ();
 		PrintWriter pw = new PrintWriter ( err, true );
 		helpFormatter.printOptions ( pw,100, allOpts, 2, 4 );
+		
 		err.println ();
 	}
 	
