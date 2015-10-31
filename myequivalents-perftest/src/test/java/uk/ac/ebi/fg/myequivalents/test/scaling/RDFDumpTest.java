@@ -10,11 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.jena.atlas.logging.Log;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.ReadWrite;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.vocabulary.OWL;
 import org.hibernate.CacheMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.ScrollMode;
@@ -24,6 +19,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.ReadWrite;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.tdb.TDBFactory;
+import com.hp.hpl.jena.vocabulary.OWL;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
