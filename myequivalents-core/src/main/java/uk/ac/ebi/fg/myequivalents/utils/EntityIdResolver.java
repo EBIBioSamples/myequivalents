@@ -143,13 +143,13 @@ public class EntityIdResolver
 			EntityId result = serviceName == null
 				? resolveUri ( uri ) // No service, try to get it from the URI
 				: acc == null 
-					? resolveUri ( serviceName, uri ) // service + URI, verify it corresponds to the URI pattern.
-					:	resolveUri ( serviceName, acc, uri ); // verify the URI rebuilt with pattern + acc matches the param 
+					? resolveUri ( serviceName, uri ) // service + URI, no acc, verify it corresponds to the URI pattern.
+					:	resolveUri ( serviceName, acc, uri ); // verify that the URI rebuilt with pattern + acc matches the param 
 							
 			return result; 
 		}
 		else
-			// NO URI, so it's in the form serviceName:acc
+			// No URI, so it's in the form serviceName:acc
 			return resolve ( serviceName, acc );
 	}
 	
@@ -200,13 +200,13 @@ public class EntityIdResolver
 	}
 	
 	/**
-	 * This default implementation just uses {@code 'new Service (serviceName)'}.
+	 * <p>This default implementation just uses {@code 'new Service (serviceName)'}.</p>
 	 * 
-	 * A real implementation should try to fetch the service (including {@link Service#UNSPECIFIED_SERVICE_NAME}) and, 
-	 * if the acc != null, verify the URI. 
+	 * <p>A real implementation should try to fetch the service (including {@link Service#UNSPECIFIED_SERVICE_NAME}) and, 
+	 * if the acc != null, verify the URI.</p> 
 	 * 
-	 * This method is not supposed to pre-process its parameters (eg, {@link String#trim()}), since that's
-	 * usually done by {@link #parse(String)}. 
+	 * <p>This method is not supposed to pre-process its parameters (eg, {@link String#trim()}), since that's
+	 * usually done by {@link #parse(String)}.</p> 
 	 * 
 	 */
 	public EntityId resolveUri ( String serviceName, String acc, String uri )
@@ -251,7 +251,7 @@ public class EntityIdResolver
 	}
 	
 	/**
-	 * Tries to split the URI at the point where the domains ends. e.g., for http://www.somewhere.net/path/to/123
+	 * Tries to split the URI at the point where the domain ends. e.g., for http://www.somewhere.net/path/to/123
 	 * returns http://www.somewhere.net. This uses methods from {@link URI}.
 	 */
 	public static String getDomain ( String uri )
@@ -287,7 +287,7 @@ public class EntityIdResolver
 	}
 
 	/**
-	 * Tries to 
+	 * Tries to extract the accession from a given URI, matching the  {@link #ID_PLACEHOLDER_PATTERN '$id'} pattern.  
 	 */
 	public static String extractAccession ( String uri, String uriPattern )
 	{

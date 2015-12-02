@@ -70,7 +70,7 @@ public class ServiceDAO extends DescribeableDAO<Service>
 		return result | super.delete ( serviceName );
 	}
 	
-	public Service findByUriPattern ( String uriPattern, boolean mustBePublic )
+	public List<Service> findByUriPattern ( String uriPattern, boolean mustBePublic )
 	{
 		uriPattern = StringUtils.trimToNull ( uriPattern );
 		if ( uriPattern == null ) return null;
@@ -81,10 +81,10 @@ public class ServiceDAO extends DescribeableDAO<Service>
 		@SuppressWarnings ( "unchecked" )
 		List<Service> results = q.getResultList ();
 		
-		return results.isEmpty () ? null : results.iterator ().next ();
+		return results;
 	}
 	
-	public Service findByUriPattern ( String uriPattern ) 
+	public List<Service> findByUriPattern ( String uriPattern ) 
 	{
 		return findByUriPattern ( uriPattern, true );
 	}

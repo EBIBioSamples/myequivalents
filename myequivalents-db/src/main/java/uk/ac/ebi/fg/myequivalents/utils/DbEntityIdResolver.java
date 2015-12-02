@@ -1,11 +1,15 @@
 package uk.ac.ebi.fg.myequivalents.utils;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -34,6 +38,8 @@ public class DbEntityIdResolver extends EntityIdResolver
 	
 	private static Map<String, Object> serviceCache;
 	
+	private Logger log = LoggerFactory.getLogger ( this.getClass () );
+			
 	static
 	{
 		long ttl = Long.valueOf ( System.getProperty ( Const.PROP_NAME_CACHE_TIMEOUT_MIN, "30" ) ); 
@@ -50,7 +56,13 @@ public class DbEntityIdResolver extends EntityIdResolver
 		serviceDao = new ServiceDAO ( entityManager );
 	}
 	
-	
+	/**
+	 * If the service name is defined, lookup for the corresponding pattern in the DB. Else, it searches all
+	 * services having a {@link Service#getUriPattern() URI pattern} matching this URI. If exactly one service is found, 
+	 * builds up the URI using the accession, or verify the given URI (depending on parameter values). If no service
+	 * is found, or too many, returns an exception.
+	 * 
+	 */
 	@Override
 	public EntityId resolveUri ( String serviceName, String acc, String uri )
 	{
@@ -173,8 +185,27 @@ public class DbEntityIdResolver extends EntityIdResolver
 		return findServices ( uriPattern, new Callable<Service>() 
 		{
 			@Override
-			public Service call () throws Exception {
-				return serviceDao.findByUriPattern ( uriPattern, false );
+			public Service call () throws Exception 
+			{
+				List<Service> services = serviceDao.findByUriPattern ( uriPattern, false );
+				
+				Iterator<Service> servicesItr = services.iterator ();
+				if ( !servicesItr.hasNext () ) return null;
+				
+				Service result = servicesItr.next ();
+				
+				if ( servicesItr.hasNext () ) 
+				{
+					// It does not make much sense to have different services mapped to the same pattern, we accept to store 
+					// such a case (because, for instance, you're interested only in building URLs from service+accession), but 
+					// we don't support URI resolution.
+					log.warn ( 
+						"More than one service found for the URI pattern '{}', cannot resolve URIs for such cases", uriPattern 
+					);
+					return null;
+				}
+				
+				return result;
 			}
 		});
 	}
