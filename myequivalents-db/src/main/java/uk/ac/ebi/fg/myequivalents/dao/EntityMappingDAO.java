@@ -400,7 +400,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				"  OR em2.public_flag IS NULL AND em2.release_date IS NULL AND em2.service_name IN (" +
 				"    SELECT name FROM service s WHERE ( s.public_flag = 1 OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= ? )\n" +
 				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
-				"        (SELECT name FROM repository r WHERE r.public_flag = 1 OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= ? ) )" +
+				"        (SELECT name FROM repository r WHERE r.public_flag = 1 OR r.public_flag IS NULL AND ( r.release_date IS NOT NULL AND r.release_date <= ? ) )" +
 				"    )\n" +
 				"  )\n" +
 				")\n" + 
@@ -410,7 +410,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				"  OR em1.public_flag IS NULL AND em1.release_date IS NULL AND em1.service_name IN (" +
 				"    SELECT name FROM service s WHERE ( s.public_flag = 1 OR s.public_flag IS NULL AND s.release_date IS NOT NULL AND s.release_date <= ? )\n" +
 				"      OR (s.public_flag IS NULL AND s.release_date IS NULL AND s.repository_name IN " +
-				"        (SELECT name FROM repository r WHERE r.public_flag = 1 OR r.public_flag IS NULL AND ( r.release_date IS NULL OR r.release_date <= ? ) )" +
+				"        (SELECT name FROM repository r WHERE r.public_flag = 1 OR r.public_flag IS NULL AND ( r.release_date IS NOT NULL AND r.release_date <= ? ) )" +
 				"    )\n" +
 				"  )\n" +
 				")" 

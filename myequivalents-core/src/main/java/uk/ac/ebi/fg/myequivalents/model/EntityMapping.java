@@ -46,7 +46,7 @@ import org.hibernate.annotations.NamedQuery;
 		"  AND em1.service IN (\n" +
 		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NOT NULL AND r.releaseDate <= current_time() ) ) )\n" +
 		"      )\n" +
 		"  )\n" +
 		")\n" +
@@ -57,7 +57,7 @@ import org.hibernate.annotations.NamedQuery;
 		"  AND em.service IN (\n" +
 		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NOT NULL AND r.releaseDate <= current_time() ) ) )\n" +
 		"      )\n" +
 		"  )\n" +
 		")" 
@@ -78,7 +78,7 @@ import org.hibernate.annotations.NamedQuery;
 		"  AND em.service IN (\n" +
 		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NOT NULL AND r.releaseDate <= current_time() ) ) )\n" +
 		"      )\n" +
 		"  )\n" +
 		")"
@@ -101,7 +101,7 @@ import org.hibernate.annotations.NamedQuery;
 		"  AND em1.service IN (\n" +
 		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NOT NULL AND r.releaseDate <= current_time() ) ) )\n" +
 		"      )\n" +
 		"  )\n" +
 		")\n" +
@@ -112,7 +112,7 @@ import org.hibernate.annotations.NamedQuery;
 		"  AND em.service IN (\n" +
 		"    SELECT s FROM Service s WHERE ( s.publicFlag = true OR s.publicFlag IS NULL AND s.releaseDate IS NOT NULL AND s.releaseDate <= current_time() )\n" +
 		"      OR s.publicFlag IS NULL AND s.releaseDate IS NULL AND s.repository IN (\n" +
-		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NULL OR r.releaseDate <= current_time() ) ) )\n" +
+		"        (SELECT r FROM Repository r WHERE ( r.publicFlag = true OR r.publicFlag IS NULL AND ( r.releaseDate IS NOT NULL AND r.releaseDate <= current_time() ) ) )\n" +
 		"      )\n" +
 		"  )\n" +
 		")"
