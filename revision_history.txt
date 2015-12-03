@@ -6,6 +6,7 @@
    
 1.1 (Expected)
   - Fixing the case of multiple services with the same URI pattern
+  - some bugfixing
    
 1.0
   - Provenance tracking features
