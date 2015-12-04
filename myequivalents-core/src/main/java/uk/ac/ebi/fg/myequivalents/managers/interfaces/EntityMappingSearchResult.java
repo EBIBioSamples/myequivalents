@@ -167,12 +167,17 @@ public class EntityMappingSearchResult
 	}	
 	
 	/** Needed by JAXB for un-marshalling */
+	@SuppressWarnings ( "rawtypes" )
 	protected void setBundles ( Collection<Bundle> bundles ) 
 	{
-		int i = 0;
+		if ( bundles instanceof MapCollection && ((MapCollection) bundles).getBase () == this.bundles )
+			// OK, it's the damn JAXB calling us again, after having initialised it all, using bundlesCollection.add() and
+			// ignoring me the setter. That's idiotic, but we need to go around it
+			return;
+		
 		this.bundles.clear ();
 		for ( Bundle bundle: bundles )
-			this.bundles.put ( Integer.toString ( i++ ), bundle );
+			this.bundlesCollection.add ( bundle );
 	}
 	
 	/**
@@ -188,10 +193,13 @@ public class EntityMappingSearchResult
 			bundles.put ( bundleId, bundle = new Bundle () );
 		}
 		bundle.addEntity ( em.getEntity () );
-		Service service = em.getService ();
-		if ( wantRawResult ) return;
 		
+		Service service = em.getService (); // Cause unmarshalling anyway
+
+		if ( wantRawResult ) return;
+
 		services.add ( service );
+		
 		ServiceCollection serviceCollection = service.getServiceCollection ();
 		if ( serviceCollection != null ) serviceCollections.add ( serviceCollection );
 		
