@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>myequivalents-perftest</artifactId>
-  <name>myequivalents-perftest</name>
+  <name>My Equivalents, Performance Tests</name>
 
   <dependencies>
 
