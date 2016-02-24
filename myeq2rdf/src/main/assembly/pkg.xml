@@ -1,0 +1,53 @@
+<!-- 
+  File for the Maven Assembly plug-in.
+ 	Takes the dependency file (prepared by deps.xml) and adds a few other files to the final distribution package. 
+ -->
+<assembly>
+  <id>pkg</id>
+ 
+  <formats>
+    <format>zip</format>
+  </formats>
+  
+	<dependencySets>
+		<dependencySet>
+		  <!-- Enable only if non-empty <outputFileNameMapping></outputFileNameMapping> -->
+		  <outputDirectory>/lib</outputDirectory>
+		  <unpack>false</unpack>
+		  <scope>runtime</scope>
+		  <excludes>
+		    <!--  This comes in due some indirect dependency. We want to use logback and hence the exclusion  -->
+				<exclude>commons-logging:commons-logging</exclude> 
+		  </excludes>
+		</dependencySet>
+	</dependencySets> 
+  
+
+  <fileSets>
+
+		<fileSet>
+			<directory>src/main/assembly/resources</directory>
+      <excludes>
+        <!-- Defined below, with x permissions, non-executables only here -->
+        <exclude>**/*.sh</exclude>
+      </excludes>  
+      <fileMode>0644</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory></outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+
+		<fileSet>
+			<directory>src/main/assembly/resources</directory>
+      <includes>
+        <include>**/*.sh</include>
+      </includes>  
+      <fileMode>0755</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory></outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+
+  </fileSets>
+
+</assembly>

@@ -7,7 +7,7 @@
   	<!-- We send all the logging to the std err, cause there are tests (of line-commands) that harvest the std out -->
   	<Target>System.err</Target>
     <encoder>
-      <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-6t] [%-5p] \(%C{1},%L\): %m%n</pattern>
+      <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-5p] \(%C{1},%L\): %m%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>ALL</level>
@@ -26,7 +26,7 @@
     <File>${project.build.directory}/myequivalents.log</File>
     <encoder>
     	<!-- TODO: %C and %L are useful, but possibly slow, is it worth to ship with these? -->
-      <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-6t] [%-5p] \(%C{1},%L\): %m%n</pattern>
+      <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-5p] \(%C{1},%L\): %m%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>ALL</level>

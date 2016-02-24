@@ -200,6 +200,17 @@ public class EntityIdResolver
 	}
 	
 	/**
+	 * <p>It should work this way:
+	 * 
+	 * <ul>
+	 * <li>If serviceName is specified, just verify that the pattern corresponds to the URI and the accession 
+	 * (if the latter is specified;</li>
+	 * <li>if the serviceName isn't available, try to find exactly one service that has a URI pattern matching the URI, 
+	 * possibly verify the result using the specified accession. If no service cannot be found, or more than one exist
+	 * that match the URI, return an exception.</li>
+	 * </ul>
+	 * </p> 
+	 * 
 	 * <p>This default implementation just uses {@code 'new Service (serviceName)'}.</p>
 	 * 
 	 * <p>A real implementation should try to fetch the service (including {@link Service#UNSPECIFIED_SERVICE_NAME}) and, 

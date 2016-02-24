@@ -3,28 +3,22 @@
 <configuration>
 
   <appender name="ConsoleApp" class="ch.qos.logback.core.ConsoleAppender">
-  	<Target>System.err</Target>
+  	<target>System.err</target>
     <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%-5p]: %m%n</pattern>
+      <pattern>%date{HH:mm:ss.SSS} [%-5level]: %message%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>ALL</level>
     </filter>
   </appender>
   
-  <!-- 
- 		The path specified here is overridden by the -r option and the log file name that is created has a timestamp postfix
-		(something like myequivalents_date_hour.log).
-		If you don't want this behaviour (e.g., you want a fixed file name in a fixed location) just use an appender with a 
-		different name (or add it, if you want both behaviours).
-  -->  
   <appender name="FileApp" class="ch.qos.logback.core.FileAppender">
     <!-- Adds up to a possibly existing file -->
-    <Append>false</Append>
-    <File>log/myequivalents.log</File>
+    <append>false</append>
+    <file>target/test.log</file>
     <encoder>
-    	<!-- TODO: %C and %L are useful, but possibly slow, is it worth to ship with these? -->
-      <pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%-5p] \(%C{1},%L\): %m%n</pattern>
+    	<!-- TODO: %class and %line are useful, but possibly slow, is it worth to ship with these? -->
+      <pattern>%date{dd MMM yyyy HH:mm:ss.SSS} [%-6thread] [%-5level] \(%class{1},%line\): %message%n</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>ALL</level>
@@ -33,12 +27,12 @@
 
   
 	<!-- Minimal logging by default. WARNING: logback expects this to be put after the appenders! -->
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="ConsoleApp" />
     <appender-ref ref="FileApp" />
   </root>
 
 	<!-- Add Loggers this way if you want finer reports for selected components -->
-  <logger name="uk.ac.ebi.fg.myequivalents" level="INFO"/>
+  <!-- logger name="uk.ac.ebi.example" level="INFO"/ -->
   
 </configuration>
