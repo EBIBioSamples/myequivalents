@@ -867,7 +867,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	 * You should assume the method returns an opaque string which of value depends 1-1 from the parameter. 
 	 * 
 	 * At the moment it uses UUIDs, encoded in BASE64. This generates some overhead in both space and time, but we 
-	 * prefer to deal with string IDs, rather than not so portable byte arrays.
+	 * prefer to deal with string IDs, rather than not-so-portable byte arrays.
 	 *  
 	 */
 	private static String createNewBundleId ()

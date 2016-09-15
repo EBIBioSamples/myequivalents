@@ -15,6 +15,7 @@ import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 import uk.ac.ebi.utils.reflection.ReflectionUtils;
@@ -138,6 +139,9 @@ public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO
 		return delete ( describeable.getName () );
 	}
 
+	/** 
+	 * Dumps all the items in a range, in XML format. @see {@link BackupManager} for details. 
+	 */
 	@SuppressWarnings ( "unchecked" )
 	public int dump ( OutputStream out, Integer offset, Integer limit )
 	{

@@ -45,6 +45,7 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 	{
 		try
 		{
+			// Get the dump via REST
 			Form req = prepareReq ();
 			if ( offset != null ) req.add ( "offset", offset );
 			if ( limit != null ) req.add ( "limit", limit );
@@ -53,6 +54,7 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 			
 			final int [] result = new int[] { -1 };
 			
+			// A filter to intercept the XML comment about the number of dumpled items
 			FilterWriter ctw = new FilterWriter( new OutputStreamWriter ( out, Charsets.UTF_8 ) ) 
 			{
 				private int itracked = 0;
@@ -104,28 +106,33 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 						}
 						else 
 						{
-							// We have to search the result comment, or we are inside it
+							// Either we haven't seen a comment yet, or we can try to assume we're inside it, 
+							// and scanning up to  the possible '='
+							//
 							if ( "<!-- dumped-items-count =".charAt ( itracked ) == c [ i ] )
 							{
-								// We just started, or we inside it, maybe
+								// We just started, or we are inside it, maybe
 								itracked++;
 								if ( c [ i ] == '=' )
 									ctStr = new StringBuffer ();
 							}
 							else 
-								// Either it's not the right start point, or it was another comment
+								// Either it's not the right start point, or we went into a comment, but wasn't the right one
 								itracked = 0;
 						}
 					} // for i
 				} // interceptCountComment ()
 			};
 			
+			// Copy the input to the output, putting the count filter above in between 
 			IOUtils.copy ( new InputStreamReader ( wsIn, Charsets.UTF_8 ), ctw );
 			ctw.flush ();
 
 			if ( result [ 0 ] == -1 ) throw new RuntimeException ( 
 				"Internal error while dumping myEquivalents: the server didn't send any result count" 
 			);
+			
+			// The reason why we get a result count is simply to return it here 
 			return result [ 0 ];
 		}
 		catch ( IOException ex ) {

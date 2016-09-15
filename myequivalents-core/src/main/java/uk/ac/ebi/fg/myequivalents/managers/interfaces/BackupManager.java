@@ -4,9 +4,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * The backup manager allows for dumping myEquivalents data onto an XML document, or to restore them from a document 
- * in the samle XML format. As usually data are dumped from (restored to) the current backend (eg, relational database, 
- * or web services). This interface defines the dump destination in terms of generic Java streams, so that 
+ * The backup manager allows for dumping myEquivalents data onto a data document (e.g., XML), or to restore them from 
+ * a document, a supported format. As usually, data are dumped from (restored to) the current backend (eg, relational 
+ * database, or web services). This interface defines the dump destination in terms of generic Java streams, so that 
  * implementations and clients can define more specific destinations. See the documentation for details.
  *
  * @author brandizi
