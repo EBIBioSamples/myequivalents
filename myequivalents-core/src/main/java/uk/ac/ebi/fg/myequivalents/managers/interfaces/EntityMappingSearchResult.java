@@ -17,6 +17,7 @@ import com.google.common.base.Function;
 
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
+import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
@@ -47,7 +48,7 @@ public class EntityMappingSearchResult
 	 */
 	@XmlRootElement ( name = "bundle" )
 	@XmlAccessorType ( XmlAccessType.NONE )
-	public static class Bundle
+	public static class Bundle implements MyEquivalentsModelMember
 	{
 		private Bundle () {
 		}
@@ -65,7 +66,18 @@ public class EntityMappingSearchResult
 
 		protected void setEntities ( Set<Entity> entities ) {
 			this.entities = entities;
-		}
+		}		
+		
+		public String toString ()
+		{
+			StringBuilder sb = new StringBuilder ();
+			sb.append ( "Bundle {\n" );
+			for ( Entity entity: this.getEntities () )
+				sb.append ( "  " + entity.toString () + "\n" );
+			sb.append ( "}\n" );
+			
+			return sb.toString ();
+		}		
 		
 	}
 	

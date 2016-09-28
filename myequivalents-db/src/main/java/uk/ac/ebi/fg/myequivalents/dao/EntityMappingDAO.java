@@ -8,9 +8,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -768,16 +773,10 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	
 	
 	
-	public int dump ( OutputStream out, Integer offset, Integer limit, double randomQuota )
-	{
-		int result = 0;
-		
-		Random rnd = new Random ();
-		
-		Session session = (Session) this.entityManager.getDelegate ();
-		
+	public Stream<Bundle> dump ( Integer offset, Integer limit )
+	{		
+		Session session = (Session) this.entityManager.getDelegate ();		
 		String sql = "SELECT bundle, service_name, accession, release_date, public_flag FROM entity_mapping ORDER BY bundle";
-	
 		SQLQuery qry = session.createSQLQuery ( sql );
 		
 		// TODO: needs hibernate.jdbc.batch_size?
@@ -790,29 +789,79 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 		if ( offset != null && offset >= 0 ) qry.setFirstResult ( offset );
 		if ( limit != null && offset < Integer.MAX_VALUE ) qry.setMaxResults ( limit );
 		
-		List<String> entityIds = new ArrayList<> ();
-		List<Date> relDates = new ArrayList<> ();
-		List<Boolean> pubFlags = new ArrayList<> ();
-		String prevBundle = null;
-		
-		for ( ScrollableResults rs = qry.scroll ( ScrollMode.FORWARD_ONLY ); rs.next (); )
+		final ScrollableResults rs = qry.scroll ( ScrollMode.FORWARD_ONLY );
+
+		// Syntactic sugar: we need an iterator that will go inside a stream
+		//
+		Iterator<Bundle> outItr = new Iterator<Bundle>() 
 		{
-			result++;
-			
-			String bundle = (String) rs.get ( 0 );
-			
-			if ( prevBundle == null ) prevBundle = bundle;
-	
-			String serviceName = (String) rs.get ( 1 ), acc = (String) rs.get ( 2 );
-			String entityId = serviceName + ":" + acc;
-			
-			if ( !bundle.equals ( prevBundle ) )
+			private String prevBundle = null;
+			private List<String> entityIds = new ArrayList<> ();
+			private List<Date> relDates = new ArrayList<> ();
+			private List<Boolean> pubFlags = new ArrayList<> ();
+			private Bundle nextResult = null;
+
+			@Override
+			public synchronized boolean hasNext () 
 			{
-				// Jump a random amount of data
-				if ( rnd.nextDouble () >= randomQuota ) continue;
+				if ( this.nextResult != null ) return true;
+
+				// Scroll down until the next bundle record, prepare the newly found bundle
+				while ( this.nextResult == null && rs.next () )
+				{
+					String serviceName = (String) rs.get ( 1 ), acc = (String) rs.get ( 2 );
+					String entityId = serviceName + ":" + acc;
+
+					String bundle = (String) rs.get ( 0 );
+					if ( prevBundle == null ) prevBundle = bundle;
+
+					if ( !bundle.equals ( prevBundle ) )
+					{
+						// Save the result found and flush accumulators
+						this.nextResult = buildBundle ();
+						
+						// Prepare for what comes next
+						prevBundle = bundle;						
+					}
+					
+					// Collect entities for the current bundle
+					entityIds.add ( entityId );
+					relDates.add ( (Date) rs.get ( 3 ) );
+					
+					// We need to do this to cover both Oracle and H2
+					Object pubFlagObj = rs.get ( 4 );
+					Boolean pubFlag = 
+						pubFlagObj == null ? null
+						: pubFlagObj instanceof Boolean ? (Boolean) pubFlagObj
+						: ( (BigDecimal) pubFlagObj ).intValue () == 1;
+					pubFlags.add ( pubFlag );
+				}				
+				if ( this.nextResult == null )
+					// We met the records about the last bundle, and now we still have to build it
+					// This call here might still return null
+					nextResult = buildBundle ();
+
+				return nextResult != null;			
+			}
+
+			@Override
+			public synchronized Bundle next () 
+			{
+				try {
+					if ( this.nextResult != null ) return this.nextResult;
+					throw new IllegalStateException ( "Backup dumping iterator invoked after the last result" );
+				}
+				finally {
+					this.nextResult = null;
+				}
+			}
+		
+			/** builds a bundle from the results collected so far from the ordered bundle records */
+			private Bundle buildBundle ()
+			{
+				// Table is empty or finished the records
+				if ( entityIds.isEmpty () ) return null;
 				
-				// Now dump what we got so far
-				//
 				EntityMappingSearchResult maps = new EntityMappingSearchResult ( true );
 				List<EntityMapping> ents = new LinkedList<EntityMapping> ();
 	
@@ -820,10 +869,8 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				for ( String thisEntityId: entityIds )
 				{
 					EntityId eid = entityIdResolver.doall ( thisEntityId );
-					Service service = new Service ( eid.getServiceName () );
-					
+					Service service = new Service ( eid.getServiceName () );					
 					EntityMapping ent = new EntityMapping ( service, eid.getAcc (), prevBundle );
-					
 					ent.setReleaseDate ( relDates.get ( i ) );
 					ent.setPublicFlag ( pubFlags.get ( i ) );
 					
@@ -832,30 +879,18 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				}
 											
 				maps.addAllEntityMappings ( ents );
+
+				// Restart a new bundle collection, with this bundle included
+				entityIds.clear ();
+				relDates.clear ();
+				pubFlags.clear ();						
 				
-				JAXBUtils.marshal ( 
-					maps.getBundles ().iterator ().next (), Bundle.class, out, Marshaller.JAXB_FRAGMENT, true  
-				);
-				
-				// reset all the accumulators
-				entityIds = new ArrayList<> ();
-				relDates = new ArrayList<> ();
-				pubFlags = new ArrayList<> ();
-	
-				// Start with a new bundle
-				prevBundle = bundle;
-				
-			} // if bundle changed
+				return maps.getBundles ().iterator ().next ();
+			}
+		}; // /iterator
 			
-			
-			entityIds.add ( entityId );
-			relDates.add ( (Date) rs.get ( 3 ) );
-			BigDecimal pubFlag = ((BigDecimal) rs.get ( 4 ));
-			pubFlags.add ( pubFlag == null ? null : pubFlag.intValue () == 1 );
-			
-		} // for rs
-			
-		return result;
+		// And the result
+		return StreamSupport.stream ( Spliterators.spliteratorUnknownSize ( outItr, Spliterator.IMMUTABLE ), false );
 		
 	} // dump ()
 

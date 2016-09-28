@@ -1,6 +1,3 @@
-/*
- * 
- */
 package uk.ac.ebi.fg.myequivalents.webservices.server.test;
 
 import java.io.StringReader;

@@ -15,10 +15,13 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.hibernate.validator.constraints.NotBlank;
 
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
+import uk.ac.ebi.fg.myequivalents.utils.jaxb.NullBooleanJaxbXmlAdapter;
 
 /**
  * 
@@ -139,11 +142,13 @@ public class Entity implements Serializable, MyEquivalentsModelMember
 	}
 
 	@XmlAttribute ( name = "public-flag" )
+	@XmlJavaTypeAdapter ( NullBooleanJaxbXmlAdapter.class )	
 	public Boolean getPublicFlag () {
 		return this.publicFlag;
 	}
 	
 	@XmlAttribute ( name = "release-date" )
+	@XmlJavaTypeAdapter ( DateJaxbXmlAdapter.class )		
 	public Date getReleaseDate ()
 	{
 		return releaseDate;
@@ -156,15 +161,24 @@ public class Entity implements Serializable, MyEquivalentsModelMember
 	}
 
 	/**
-	 * isPublic evaluates to {@link #getPublicFlag()} if that's not null, or {@link #getReleaseDate()} not in future.
+	 * @return {@link #getPublicFlag()}, if it's not null, else considers {@link #getReleaseDate()} if it's not null,
+	 * finally, if no other access information is available returns {@link Service#isPublic()}. 
 	 */
 	@Transient
 	public boolean isPublic ()
 	{
-		Date now = new Date ();
-		return this.getPublicFlag () == null 
-			? this.getReleaseDate ().before ( now ) || this.releaseDate.equals ( now ) 
-			: this.publicFlag;
+		// Is it explicitly stated?
+		if ( this.getPublicFlag () != null )
+			return this.publicFlag;
+		
+		// Are you already released?
+		if ( this.getReleaseDate () != null ) {
+			Date now = new Date ();
+			return this.releaseDate.before ( now ) || this.releaseDate.equals ( now );
+		}
+		
+		// No info? Then refer to your container
+		return this.getService () == null ? false : this.service.isPublic ();
 	}
 
 	

@@ -1,8 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -12,6 +11,7 @@ import uk.ac.ebi.fg.myequivalents.dao.BackupDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
+import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 
 /**
  * The implementation of {@link BackupManager} for the relational DB backend.
@@ -35,11 +35,11 @@ public class DbBackupManager extends DbMyEquivalentsManager implements BackupMan
 		 * This initialises a JPA transaction, before invoking the superclass implementation.
 		 */
 		@Override
-		public int upload ( InputStream input )
+		public int upload ( Stream<MyEquivalentsModelMember> in )
 		{
 			EntityTransaction ts = this.entityManager.getTransaction ();
 			ts.begin ();
-			int result = super.upload ( input );
+			int result = super.upload ( in );
 			if ( ts.isActive () && !ts.getRollbackOnly () ) ts.commit ();
 			return result;
 		}
@@ -95,27 +95,17 @@ public class DbBackupManager extends DbMyEquivalentsManager implements BackupMan
 	 * Adds up root element tags for the output ( {@code <myequivalents-backup>} ).
 	 */
 	@Override
-	public int dump ( OutputStream out, Integer offset, Integer limit )
+	public Stream<MyEquivalentsModelMember> dump ( Integer offset, Integer limit )
 	{
-		try
-		{
-			this.userDao.enforceRole ( Role.ADMIN );
-			out.write ( "<myequivalents-backup>\n".getBytes () );
-			int result = this.bkpDao.dump ( out, offset, limit );
-			out.write ( "</myequivalents-backup>\n".getBytes () );
-			return result;
-		}
-		catch ( IOException ex )
-		{
-			throw new RuntimeException ( "Internal error: " + ex.getMessage (), ex );
-		}
+		this.userDao.enforceRole ( Role.ADMIN );
+		return this.bkpDao.dump ( offset, limit );
 	}
 
 	/**
 	 * Checks that the current user is an {@link Role#ADMIN admin} and then invokes {@link TransactionalBackupDAO}.
 	 */
 	@Override
-	public int upload ( InputStream in )
+	public int upload ( Stream<MyEquivalentsModelMember> in )
 	{
 		this.userDao.enforceRole ( Role.ADMIN );
 		return this.bkpDao.upload ( in );

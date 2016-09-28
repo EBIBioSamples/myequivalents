@@ -10,9 +10,8 @@ import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -27,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User;
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
+import uk.ac.ebi.fg.myequivalents.exceptions.UnsupportedFormatException;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandler;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.MyEquivalentsManager;
 import uk.ac.ebi.fg.myequivalents.utils.ManagerUtils;
 import uk.ac.ebi.utils.io.IOUtils;
@@ -156,15 +157,10 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 		} 
 		catch ( UniformInterfaceException ex ) 
 		{
-			// Check if we got security exception
 			ClientResponse.Status status = ex.getResponse ().getClientResponseStatus ();
+			handleHttpResultStatus ( status.getStatusCode (), status.getReasonPhrase () );
 			String msg = status.getReasonPhrase () + " [" + status.getStatusCode () + "]";
-			
-			if ( status.getStatusCode () == Response.Status.FORBIDDEN.getStatusCode () )
-				// Emulate the server-side triggering of a security error. This is apparently the only way to do that via HTTP
-				throw new SecurityException ( "Security problem with the myEquivalents web service: " + msg, ex );
-			else
-				throw new RuntimeException ( "Problem with myEquivalents web service: " + msg, ex );
+			throw new RuntimeException ( "Problem with myEquivalents web service: " + msg, ex );
 		} 
 	}
 
@@ -223,7 +219,9 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 	}
 	
 	
-	
+	/**
+	 * TODO: comment me!
+	 */
 	protected InputStream getRawResultAsStream ( String reqPath, Form req, String outputFormat ) 
 	{
 		try
@@ -235,8 +233,53 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 			else 
 				ManagerUtils.checkOutputFormat ( outputFormat );
 			
-			String acceptValue = MediaType.APPLICATION_XML; // TODO: more options in future
+			HttpResponse response = getRawResponse ( reqPath, req, outputFormat );
 			
+			// Check the result
+			HttpEntity entity = response.getEntity ();
+			if ( entity == null ) throw new IllegalStateException ( "No answer from the HTTP request" ); 
+			
+			// Read the result in XML format.
+		  return entity.getContent ();
+		  
+		} 
+		catch ( IllegalStateException | IOException ex )
+		{
+			throw new RuntimeException ( 
+				String.format ( 
+					"Error while executing the web request: '%s': %s",  
+					this.baseUrl + getServicePath () + reqPath, ex.getMessage () 
+				), 
+				ex 
+			);
+		}
+  }
+	
+	
+	/**
+	 * TODO: comment me!
+	 */	
+	protected HttpResponse getRawResponse ( String reqPath, Form req, String outputFormat )
+	{
+		outputFormat = StringUtils.trimToNull ( outputFormat );
+		if ( outputFormat == null ) outputFormat = "xml";
+			
+		FormatHandler handler = FormatHandler.of ( outputFormat );
+		if ( handler == null ) throw new UnsupportedFormatException (
+			"Internal Error: the client doesn't support the format '" + outputFormat + "'" 
+		);
+
+		return getRawResponse ( reqPath, req, handler );
+	}
+
+	
+	/**
+	 * TODO: comment me!
+	 */	
+	protected HttpResponse getRawResponse ( String reqPath, Form req, FormatHandler formatHandler ) 
+	{
+		try
+		{
 			// Request via straight POST request
 			// 
 			HttpClient client = new DefaultHttpClient ();
@@ -250,27 +293,15 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 					params.add ( new BasicNameValuePair ( pname, val ) );
 			}
 			post.setEntity ( new UrlEncodedFormEntity ( params, "UTF-8" ) );
-			post.setHeader ( "Accept", acceptValue );
+			post.setHeader ( "Accept",  StringUtils.join ( formatHandler.getContentTypes (), ", " ) );
 			
 			// GO!
 			HttpResponse response = client.execute ( post );
-			
-			// Check if the result is a security exception, emulate that on client side, in case it is
-			StatusLine statusLine = response.getStatusLine ();
-			if ( statusLine.getStatusCode () == Response.Status.FORBIDDEN.getStatusCode () ) throw new SecurityException ( 
-				"Security problem with the myEquivalents web service: " + statusLine.getReasonPhrase () 
-			);
-			
-			// Check the result
-			HttpEntity entity = response.getEntity ();
-			if ( entity == null ) throw new IllegalStateException ( 
-				"No answer from the HTTP request while executing '" + post.getURI () + "'" );
-			
-			// Read the result in XML format.
-		  return entity.getContent ();
-		  
-		} 
-		catch ( IllegalArgumentException | IOException | TransformerFactoryConfigurationError ex )
+
+			handleHttpResultStatus ( response.getStatusLine () );
+			return response;
+		}
+		catch ( IOException ex )
 		{
 			throw new RuntimeException ( 
 				String.format ( 
@@ -280,7 +311,27 @@ public abstract class MyEquivalentsWSClient implements MyEquivalentsManager
 				ex 
 			);
 		}
-  }
+	} 
+	
+	
+	/**
+	 * Check the status code returned by the response and possibly throw exceptions
+	 */	
+	
+	public static void handleHttpResultStatus ( StatusLine statusLine ) {
+		handleHttpResultStatus ( statusLine.getStatusCode (), statusLine.getReasonPhrase () );
+	}
+
+	public static void handleHttpResultStatus ( int statusCode, String reasonPhrase )
+	{
+		if ( statusCode == Response.Status.FORBIDDEN.getStatusCode () ) throw new SecurityException ( 
+			"Security problem with the myEquivalents web service: " + reasonPhrase 
+		);
+		if ( statusCode == Response.Status.NOT_ACCEPTABLE.getStatusCode () ) throw new UnsupportedFormatException ( 
+			"Internal error with the myEquivalents web service: " + reasonPhrase 
+		);
+	}
+	
 	
 	/**
 	 * Resets user's email and password to null.

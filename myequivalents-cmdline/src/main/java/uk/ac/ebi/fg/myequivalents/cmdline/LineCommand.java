@@ -197,7 +197,10 @@ public abstract class LineCommand
 			
 	/**
 	 * This gets the specific {@link LineCommand} that is associated to args[0] and args[1], e.g., 
-	 * returns {@link ServiceStoreLineCommand} for { "service", "store" }. This uses {@link #getCommand(Class)}.
+	 * returns {@link ServiceStoreLineCommand} for { "service", "store" }. 
+	 * This uses the SPI conventions, i.e, passes {@link LineCommand} to {@link ServiceLoader#load(Class)} 
+	 * (hence, your extensions must be listed under 
+	 * {@code <your-jar>/META-INF/services/uk.ac.ebi.fg.myequivalents.cmdline.LineCommand})
 	 */
 	static LineCommand getCommand ( String... args )
 	{

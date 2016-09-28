@@ -2,6 +2,9 @@ package uk.ac.ebi.fg.myequivalents.managers.interfaces;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.stream.Stream;
+
+import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 
 /**
  * The backup manager allows for dumping myEquivalents data onto a data document (e.g., XML), or to restore them from 
@@ -15,6 +18,18 @@ import java.io.OutputStream;
  */
 public interface BackupManager extends MyEquivalentsManager
 {
-	public int dump ( OutputStream out, Integer offset, Integer limit );
-	public int upload ( InputStream in );
+	public Stream<MyEquivalentsModelMember> dump ( Integer offset, Integer limit );
+	public int upload ( Stream<MyEquivalentsModelMember> in );
+	
+	public default void dump ( OutputStream out, FormatHandler serializer, Integer offset, Integer limit )
+	{
+		Stream<MyEquivalentsModelMember> outObjs = this.dump ( offset, limit );
+		serializer.serialize ( outObjs, out );
+	}
+	
+	public default int upload ( InputStream in, FormatHandler formatReader )
+	{
+		Stream<MyEquivalentsModelMember> inObjs = formatReader.read ( in );
+		return this.upload ( inObjs );
+	}
 }

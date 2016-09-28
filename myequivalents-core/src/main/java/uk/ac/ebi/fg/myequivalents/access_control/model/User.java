@@ -246,7 +246,7 @@ public class User
 		try 
 		{
 			clearPassword = StringUtils.trimToNull ( clearPassword );
-			if ( clearPassword == null ) throw new IllegalArgumentException ( "Cannot accept null password" );
+			if ( clearPassword == null ) throw new IllegalArgumentException ( "Cannot accept null passwords" );
 			
 			MessageDigest messageDigest = MessageDigest.getInstance ( "SHA1" );
 

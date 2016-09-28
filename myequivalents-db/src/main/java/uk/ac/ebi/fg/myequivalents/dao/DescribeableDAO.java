@@ -1,12 +1,15 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
-import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -17,7 +20,6 @@ import org.hibernate.Session;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
-import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 import uk.ac.ebi.utils.reflection.ReflectionUtils;
 
 /**
@@ -143,7 +145,7 @@ public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO
 	 * Dumps all the items in a range, in XML format. @see {@link BackupManager} for details. 
 	 */
 	@SuppressWarnings ( "unchecked" )
-	public int dump ( OutputStream out, Integer offset, Integer limit )
+	public Stream<D> dump ( Integer offset, Integer limit )
 	{
 		Session session = (Session) this.entityManager.getDelegate ();
 
@@ -157,15 +159,22 @@ public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO
 		if ( offset != null && offset >= 0 ) q.setFirstResult ( offset );
 		if ( limit != null && offset < Integer.MAX_VALUE ) q.setMaxResults ( limit );
 
-		int ct = 0;
-		for ( ScrollableResults rs = q.scroll ( ScrollMode.FORWARD_ONLY ); rs.next (); )
-		{
-			D descr = (D) rs.get ( 0 );
-			JAXBUtils.marshal ( descr, targetClass, out, Marshaller.JAXB_FRAGMENT, true );
-			ct++;
-		}
+		final ScrollableResults rs = q.scroll ( ScrollMode.FORWARD_ONLY );
 		
-		return ct;
+		Iterator<D> outItr = new Iterator<D>() 
+		{
+			@Override
+			public synchronized boolean hasNext () {				
+				return rs.next ();
+			}
+
+			@Override
+			public synchronized D next () {
+				return (D) rs.get ( 0 );
+			}
+		};
+		
+		return StreamSupport.stream ( Spliterators.spliteratorUnknownSize ( outItr, Spliterator.IMMUTABLE ), false );
 	}
 
 }

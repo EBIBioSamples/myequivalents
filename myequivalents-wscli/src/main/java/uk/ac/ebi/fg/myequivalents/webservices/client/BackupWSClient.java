@@ -1,20 +1,26 @@
 package uk.ac.ebi.fg.myequivalents.webservices.client;
 
-import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.util.stream.Stream;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.StatusType;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 
+import uk.ac.ebi.fg.myequivalents.exceptions.UnsupportedFormatException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandler;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.XmlFormatHandler;
+import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 
+import com.gc.iotools.stream.os.OutputStreamToInputStream;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.multipart.FormDataBodyPart;
@@ -39,9 +45,33 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 		super ( baseUrl );
 	}
 
+	@Override
+	public Stream<MyEquivalentsModelMember> dump ( Integer offset, Integer limit )
+	{
+		try
+		{
+			Form req = prepareReq ();
+			if ( offset != null ) req.add ( "offset", offset );
+			if ( limit != null ) req.add ( "limit", limit );
+	
+			XmlFormatHandler formatReader = new XmlFormatHandler ();
+			HttpResponse response = getRawResponse ( "/dump", req, formatReader );
+	
+			HttpEntity entity = response.getEntity ();
+			if ( entity == null ) throw new IllegalStateException ( "No answer from the HTTP request" ); 
+			
+		  InputStream wsIn = entity.getContent ();			
+		  return formatReader.read ( wsIn );
+		}
+		catch ( IOException ex ) {
+			throw new RuntimeException ( "Internal error while dumping myEquivalents: " + ex.getMessage (), ex );
+		}		
+	}
+
+	
 	
 	@Override
-	public int dump ( OutputStream out, Integer offset, Integer limit )
+	public void dump ( OutputStream out, FormatHandler serializer, Integer offset, Integer limit )
 	{
 		try
 		{
@@ -50,98 +80,33 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 			if ( offset != null ) req.add ( "offset", offset );
 			if ( limit != null ) req.add ( "limit", limit );
 			
-			InputStream wsIn = getRawResultAsStream ( "/dump", req, "xml" );
-			
-			final int [] result = new int[] { -1 };
-			
-			// A filter to intercept the XML comment about the number of dumpled items
-			FilterWriter ctw = new FilterWriter( new OutputStreamWriter ( out, Charsets.UTF_8 ) ) 
-			{
-				private int itracked = 0;
-				private StringBuffer ctStr = null;
-				private char csingle[] = new char [ 1 ];
-
-				@Override
-				public void write ( int c ) throws IOException
-				{
-					super.write ( c );
-					csingle [ 0 ] = (char) c;
-					interceptCountComment ( csingle, 0, 1 );
-				}
-
-				@Override
-				public void write ( char[] cbuf, int off, int len ) throws IOException
-				{
-					super.write ( cbuf, off, len );
-					interceptCountComment ( cbuf, off, len );
-				}
-
-				@Override
-				public void write ( String str, int off, int len ) throws IOException
-				{
-					super.write ( str, off, len );
-					char[] buf = new char [ len ];
-					str.getChars ( off, off + len, new char [ len ], 0 );
-					interceptCountComment ( buf, 0, len );
-				}
-				
-				private void interceptCountComment ( char[] c, int off, int len )
-				{
-					int end = off + len;
-					for ( int i = off; i < end; i++ )
-					{
-						if ( result [ 0 ] != -1 ) return; // result already fully tracked
+			HttpResponse response = null;
+			try {
+				response = getRawResponse ( "/dump", req, serializer );
+			}
+			catch ( UnsupportedFormatException ex ) {
+				// This means the server can't handle this format, so so we have to first get objects loaded from the server 
+				// output in default format, and then send them to the current serialiser.	
+				Stream<MyEquivalentsModelMember> dumpStrm = this.dump ( offset, limit );
+				serializer.serialize ( dumpStrm, out );
+			}
 						
-						if ( ctStr != null ) // result being built
-						{
-							if ( c [ i ] == ' ' )
-							{
-								if ( ctStr.length () > 0 ) 
-									// second space after '=', the end
-									result [ 0 ] = Integer.parseInt ( ctStr.toString () );
-							}
-							else 
-								// keep collecting result digits
-								ctStr.append ( c [ i ] );
-						}
-						else 
-						{
-							// Either we haven't seen a comment yet, or we can try to assume we're inside it, 
-							// and scanning up to  the possible '='
-							//
-							if ( "<!-- dumped-items-count =".charAt ( itracked ) == c [ i ] )
-							{
-								// We just started, or we are inside it, maybe
-								itracked++;
-								if ( c [ i ] == '=' )
-									ctStr = new StringBuffer ();
-							}
-							else 
-								// Either it's not the right start point, or we went into a comment, but wasn't the right one
-								itracked = 0;
-						}
-					} // for i
-				} // interceptCountComment ()
-			};
+			// Yes, it does, so we just need to pipe the server output into the output stream. 
+			HttpEntity entity = response.getEntity ();
+			if ( entity == null ) throw new IllegalStateException ( "No answer from the HTTP request" ); 
 			
-			// Copy the input to the output, putting the count filter above in between 
-			IOUtils.copy ( new InputStreamReader ( wsIn, Charsets.UTF_8 ), ctw );
-			ctw.flush ();
-
-			if ( result [ 0 ] == -1 ) throw new RuntimeException ( 
-				"Internal error while dumping myEquivalents: the server didn't send any result count" 
-			);
-			
-			// The reason why we get a result count is simply to return it here 
-			return result [ 0 ];
+		  InputStream wsIn = entity.getContent ();			
+			IOUtils.copyLarge ( wsIn, out );			
 		}
 		catch ( IOException ex ) {
 			throw new RuntimeException ( "Internal error while dumping myEquivalents: " + ex.getMessage (), ex );
 		}
 	}
 
-	@Override
-	public int upload ( InputStream in )
+	
+	
+	@Override	
+	public int upload ( InputStream in, FormatHandler formatReader )
 	{
 		// Courtesy of: http://neopatel.blogspot.de/2011/04/jersey-posting-multipart-data.html
 		Client cli = Client.create ();
@@ -151,12 +116,50 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 		if ( this.email != null ) req.field ( "login", this.email );
 		if ( this.apiPassword != null ) req.field ( "login-secret", this.apiPassword );
 		req.bodyPart (  
-			new FormDataBodyPart ( "dump-xml", in, MediaType.APPLICATION_OCTET_STREAM_TYPE )
+			new FormDataBodyPart ( "dump", in, MediaType.APPLICATION_OCTET_STREAM_TYPE )
 		);
+				
+		ClientResponse response = wres
+			.type ( MediaType.MULTIPART_FORM_DATA )
+			.accept ( formatReader.getContentTypes ().toArray ( new String [ 0 ] ) )
+			.post ( ClientResponse.class, req );
+		StatusType statusInfo = response.getStatusInfo ();
+		handleHttpResultStatus ( statusInfo.getStatusCode (), statusInfo.getReasonPhrase () );
 		
-		return Integer.parseInt ( wres.type ( MediaType.MULTIPART_FORM_DATA ).post ( String.class, req ));
+		return Integer.parseInt ( response.getEntity ( String.class ) );
 	}
 
+	
+	@Override
+	public int upload ( Stream<MyEquivalentsModelMember> in )
+	{
+		try
+		{
+			final FormatHandler handler = FormatHandler.of ( "xml" );
+			
+			final OutputStreamToInputStream<Integer> outPipe = new OutputStreamToInputStream<Integer>() 
+			{
+			  @Override
+			  protected Integer doRead ( final InputStream in ) throws Exception {
+			  	return upload ( in, handler );
+			  }
+			}; 		
+
+			// While this writes onto outPipe, its internal thread pipes the same data to the server
+			handler.serialize ( in, outPipe );
+			int result = outPipe.getResult ();
+			outPipe.close ();
+			return result;
+		}
+		catch ( Exception ex )
+		{
+			throw new RuntimeException ( 
+				"Internal error while uploading data via myEquivalents Web service: " + ex.getMessage (), ex 
+			);
+		}
+	}
+
+	
 	@Override
 	protected String getServicePath ()
 	{

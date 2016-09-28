@@ -1,38 +1,22 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
-import static org.apache.commons.lang3.ArrayUtils.contains;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.io.Charsets;
-import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
-import uk.ac.ebi.fg.myequivalents.managers.interfaces.ExposedService;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
 import uk.ac.ebi.fg.myequivalents.model.Entity;
+import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
-import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 
 /**
  * DAO used to implement {@link BackupManager} functionality in the DB back end.
@@ -43,18 +27,6 @@ import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
  */
 public class BackupDAO extends AbstractDAO 
 {
-	/**
-	 * This is used in {@link BackupDAO#upload(InputStream)}, to create {@link ExposedService}, instead of the  
-	 * regular {@link Service}.
-	 * 
-	 */
-	public static class JAXBObjectFactory 
-	{
-		public Service createService () {
-			return new ExposedService () {};
-		}
-	}
-
 	private RepositoryDAO repoDao;
 	private ServiceCollectionDAO servCollDao;
 	private ServiceDAO serviceDao;
@@ -67,42 +39,18 @@ public class BackupDAO extends AbstractDAO
 		super ( entityManager );
 	}
 	
-	public int dump ( OutputStream out, Integer offset, Integer limit )
-	{
-		if ( offset == null ) offset = 0;
-		if ( limit == null ) limit = Integer.MAX_VALUE;
+	@SuppressWarnings ( { "rawtypes", "unchecked" } )
+	public Stream<MyEquivalentsModelMember> dump ( Integer offset, Integer limit )
+	{				
+		Stream result [] = {
+			repoDao.dump ( null, null ),
+			servCollDao.dump ( null, null ),
+			serviceDao.dump ( null, null ),
+			mapDao.dump ( offset, limit )
+		};
 		
-		int result = 0;
-		
-		// This computations consider that in the first ns items we have repositories, then 
-		// service collections, then services and finally the mappings.
-		// 
-		long nrepos = repoDao.count (), nsc = -1, ns = -1, nm = -1;
-		if ( nrepos > 0 && offset < nrepos )
-			result = repoDao.dump ( out, offset, limit == Integer.MAX_VALUE ? null : limit );
-		
-		if ( result < limit )
-		{
-			nsc = servCollDao.count ();
-			if ( nsc > 0 && result + nsc < limit )
-				result += servCollDao.dump ( out, (int) (offset - nrepos), limit == Integer.MAX_VALUE ? null : limit - result );
-		}
-
-		if ( result < limit )
-		{
-		  ns = serviceDao.count ();
-		  if ( ns > 0 && result + ns < limit )
-		  	result += serviceDao.dump ( out, (int) (offset - nrepos - nsc), limit == Integer.MAX_VALUE ? null : limit );
-		}
-		
-		if ( result < limit )
-		{
-			nm = mapDao.count ();
-			if ( nm > 0 && result < limit )
-				result += mapDao.dump ( out, (int) (offset - nrepos - nsc - ns), limit == Integer.MAX_VALUE ? null : limit, 100.0 );
-		}
-		
-		return result;
+		return (Stream<MyEquivalentsModelMember>)
+			Stream.of ( result ).reduce ( Stream::concat ).orElse ( Stream.empty () );		
 	}
 	
 	/**
@@ -110,123 +58,68 @@ public class BackupDAO extends AbstractDAO
 	 * {@link #postUpload(Describeable, int)}/{@link #postUpload(Bundle, int)} for that.
 	 * 
 	 */
-	public int upload ( InputStream input )
+	public int upload ( Stream<MyEquivalentsModelMember> in )
 	{
-    try
+  	final int itemCounter[] = { 0 };
+
+		in.forEach ( elem -> 
 		{
-    	// We need this because the anonymous handler below won't accept non-final variables and we don't 
-    	// have time now to move it to an explicit definition.
-    	//
-    	final int itemCounter[] = { 0 };
-
-    	SAXParserFactory spf = SAXParserFactory.newInstance();		
-			SAXParser saxParser = spf.newSAXParser();
-			XMLReader xmlReader = saxParser.getXMLReader ();
-
-			// So the handler intercepts the end of each element type and issue a DB operation when that happens. 
-			//
-			xmlReader.setContentHandler ( new DefaultHandler ()
+			if ( elem instanceof Service )
 			{
-				private StringBuilder nodeValue = null;
+				Service s = (Service) elem;
 				
-				@Override
-				public void startElement ( String uri, String localName, String qName, Attributes attrs ) throws SAXException
+				// rebuild the repo from its name
+				String repoName = s.getRepositoryName ();
+				if ( StringUtils.trimToNull ( repoName ) != null ) 
 				{
-					if ( contains ( new String [] { "service", "service-collection", "repository", "bundle" }, qName ) )
-					{
-						// mark the node we want to backup
-						nodeValue = new StringBuilder ();
-					}
-
-					if ( nodeValue == null ) return;
-					
-					// Because we are already inside the node, we have to rebuild its starting tag
-					nodeValue.append ( "<" ).append ( qName ).append ( ' ' );
-					for ( int i = 0; i < attrs.getLength (); i++ )
-					  nodeValue
-					    .append ( attrs.getQName ( i ) )
-					  	.append ( " = \"" ).append ( attrs.getValue ( i ) ).append ( "\" " );
-					nodeValue.append ( ">\n" );
+					Repository r = repoDao.findByName ( repoName, false );
+					if ( r == null ) throw new RuntimeException ( 
+						"Error while uploading data from file: repository '" + repoName + "' not found" 
+					);
+					s.setRepository ( r );
 				}
 
-				@Override
-				public void endElement ( String uri, String localName, String qName ) throws SAXException
+				// same for the collection
+				String scName = s.getServiceCollectionName ();
+				if ( StringUtils.trimToNull ( scName ) != null ) 
 				{
-					if ( nodeValue == null ) return;
-
-					// Collect all the XML you get while parsing the current node
-					nodeValue.append ( "</" ).append ( qName ).append ( ">\n" );
-										
-					// And now save it, using what you collected so far
-					//
-					if ( "service".equals ( qName ) )
-					{
-						ExposedService s = JAXBUtils.unmarshal ( 
-							new ReaderInputStream ( new StringReader ( nodeValue.toString () ), Charsets.UTF_8 ), 
-							ExposedService.class,
-							"com.sun.xml.internal.bind.ObjectFactory", new JAXBObjectFactory ()
-						);
-						
-						// rebuild the repo from its name
-						String repoName = s.getRepositoryName ();
-						if ( StringUtils.trimToNull ( repoName ) != null ) 
-						{
-							Repository r = repoDao.findByName ( repoName, false );
-							if ( r == null ) throw new RuntimeException ( 
-								"Error while uploading data from file: repository '" + repoName + "' not found" 
-							);
-							s.setRepository ( r );
-						}
-
-						// same for the collection
-						String scName = s.getServiceCollectionName ();
-						if ( StringUtils.trimToNull ( scName ) != null ) 
-						{
-							ServiceCollection sc = servCollDao.findByName ( scName, false );
-							if ( sc == null ) throw new RuntimeException ( 
-								"Error while uploading data from file: ServiceCollection '" + scName + "' not found" 
-							);
-							s.setServiceCollection ( sc );
-						}
-						
-						serviceDao.store ( s.asService () );
-						postUpload ( s, ++itemCounter [ 0 ] );
-						nodeValue = null;
-					}
-					else if ( "service-collection".equals ( qName ) )
-					{
-						ServiceCollection sc = JAXBUtils.unmarshal ( nodeValue.toString (), ServiceCollection.class );
-						servCollDao.store ( sc );
-						postUpload ( sc, ++itemCounter [ 0 ] );
-						nodeValue = null;
-					}
-					else if ( "repository".equals ( qName ) )
-					{
-						Repository repo = JAXBUtils.unmarshal ( nodeValue.toString (), Repository.class );
-						repoDao.store ( repo );
-						postUpload ( repo, ++itemCounter [ 0 ] );
-						nodeValue = null;
-					}
-					else if ( "bundle".equals ( qName ) )
-					{
-						Bundle bundle = JAXBUtils.unmarshal ( nodeValue.toString (), Bundle.class );
-						mapDao.storeMappingBundle ( new ArrayList<Entity> ( bundle.getEntities () ) );
-						postUpload ( bundle, ++itemCounter [ 0 ] );
-						nodeValue = null;
-					}
-					
-					if ( nodeValue == null && itemCounter [ 0 ] % 1000 == 0 )
-						// we just added a new chunk
-						log.info ( "{} items read", itemCounter [ 0 ] );
+					ServiceCollection sc = servCollDao.findByName ( scName, false );
+					if ( sc == null ) throw new RuntimeException ( 
+						"Error while uploading data from file: ServiceCollection '" + scName + "' not found" 
+					);
+					s.setServiceCollection ( sc );
 				}
-			});
-			xmlReader.parse ( new InputSource ( input ) );
-			return itemCounter [ 0 ];
-		}
-		catch ( ParserConfigurationException | SAXException | IOException ex )
-		{
-			throw new RuntimeException ( "Internal error while reading myEquivalents data dump" + ex.getMessage (), ex );
-		}
+				
+				serviceDao.store ( s );
+				postUpload ( s, ++itemCounter [ 0 ] );
+			}
+			else if ( elem instanceof ServiceCollection )
+			{
+				ServiceCollection sc = (ServiceCollection) elem;
+				servCollDao.store ( sc );
+				postUpload ( sc, ++itemCounter [ 0 ] );
+			}
+			else if ( elem instanceof Repository )
+			{
+				Repository r = (Repository) elem;
+				repoDao.store ( r );
+				postUpload ( r, ++itemCounter [ 0 ] );
+			}
+			else if ( elem instanceof Bundle )
+			{
+				Bundle bundle = (Bundle) elem;
+				mapDao.storeMappingBundle ( new ArrayList<Entity> ( bundle.getEntities () ) );
+				postUpload ( bundle, ++itemCounter [ 0 ] );			
+			}			
+			else throw new IllegalArgumentException (
+				"Cannot upload an instance of " + elem.getClass ().getName ()
+			);
+			
+			if ( itemCounter [ 0 ] % 1000 == 0 )
+				log.info ( "{} items uploaded", itemCounter [ 0 ] );
+		});
+		
+		return itemCounter [ 0 ];
 	}
 
 	

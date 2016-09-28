@@ -1,11 +1,13 @@
 package uk.ac.ebi.fg.myequivalents.webservices.server.exceptions;
 
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
+import uk.ac.ebi.fg.myequivalents.exceptions.UnsupportedFormatException;
 
 /**
  * <p>This is an {@link ExceptionMapper} that makes Jersey to generate a {@link Status#FORBIDDEN} HTTP status as a response
@@ -20,9 +22,9 @@ import uk.ac.ebi.fg.myequivalents.exceptions.SecurityException;
  *
  */
 @Provider
-public class SecurityExceptionMapper extends AbstractExceptionMapper<SecurityException>
+public class UnsupportedFormatExceptionMapper extends AbstractExceptionMapper<UnsupportedFormatException>
 {
-	public SecurityExceptionMapper () {
-		super ( Response.Status.FORBIDDEN );
-	}
+	public UnsupportedFormatExceptionMapper () {
+		super ( Response.Status.NOT_ACCEPTABLE );
+	}	
 }

@@ -54,6 +54,12 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<!-- We define test rules -->
+	  <dependency>
+	    <groupId>junit</groupId>
+	    <artifactId>junit</artifactId>
+	    <scope>compile</scope>
+	  </dependency>
 						
 
 		<!-- TEST -->
@@ -103,7 +109,7 @@
 			<artifactId>tempus-fugit</artifactId>
 			<scope>test</scope>
 		</dependency>	  
-            		
+				            		
 	</dependencies>  
 
 
