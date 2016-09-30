@@ -8,6 +8,8 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import uk.ac.ebi.fg.myequivalents.exceptions.UnsupportedFormatException;
+
 
 /**
  * TODO: comment me!
@@ -53,9 +55,17 @@ class FormatHandlerFactory
 	}
 	
 	@SuppressWarnings ( "unchecked" )
-	public static <H extends FormatHandler> H of ( String typeTag )
+	public static <H extends FormatHandler> H of ( String typeTag, boolean failOnNoMatch )
 	{
-		return (H) handlers.get ( typeTag );
+		H result = (H) handlers.get ( typeTag );
+		if ( failOnNoMatch && result == null ) throw new UnsupportedFormatException (
+			"Unsupported format '" + typeTag + "'"
+		);
+		return result;
 	}
-	
+
+	public static <H extends FormatHandler> H of ( String typeTag ) {
+		return of ( typeTag, false );
+	}
+
 }

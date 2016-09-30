@@ -10,7 +10,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import uk.ac.ebi.fg.myequivalents.resources.Const;
 
 
 /**

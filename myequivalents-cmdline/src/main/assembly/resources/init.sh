@@ -8,11 +8,11 @@ cat <<EOT
 	Going to initialise myEquivalents relational DB
 	Please ensure you've correct settings in $cfg_file
 
-	This possibly includes the line '<prop key = "hibernate.hbm2ddl.auto"></prop>'
-	temporarily set with the value (insde ><) 'create' or 'update' (see [1]).
+	This possibly includes the line '<prop key = "hibernate.hbm2ddl.auto">[value]</prop>'
+	temporarily set with the value 'create' or 'update' (see [1]).
 	
 	---> Please be aware that this option might wipe out your existing database.
-	---> Morever, it's VERY important that you set it back to empty after this initialisation. 
+	---> Morever, it's VERY important that you set the above property back to empty after this initialisation. 
 
 	[1] http://docs.jboss.org/hibernate/stable/orm/manual/en-US/html/ch03.html#configuration-misc-properties
 

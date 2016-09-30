@@ -9,6 +9,7 @@ import java.io.InputStream;
 import org.apache.commons.cli.CommandLine;
 
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandler;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
@@ -36,12 +37,14 @@ public class BackupUploadLineCommand extends LineCommand
 			super.run ( args );
 			if ( this.exitCode != 0 ) return;
 			
+			FormatHandler formatReader = FormatHandler.of ( this.outputFormat, true );
+
 			InputStream in = inFilePath == null ? System.in : new FileInputStream ( inFilePath );
 			
 			BackupManager bkpMgr = 
 				Resources.getInstance ().getMyEqManagerFactory ().newBackupManager ( this.email, this.apiPassword );
 			
-			int result = bkpMgr.upload ( in );
+			int result = bkpMgr.upload ( in, formatReader );
 			err.printf ( "\nUpload finished, %d item(s) uploaded\n", result );
 		}
 		catch ( FileNotFoundException ex )

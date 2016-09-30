@@ -21,8 +21,12 @@ public interface FormatHandler
 	public int serialize ( Stream<MyEquivalentsModelMember> in, OutputStream out );
 	public Stream<MyEquivalentsModelMember> read ( InputStream in );
 	
+	public static <H extends FormatHandler> H of ( String typeTag, boolean failOnNoMatch ) {
+		return FormatHandlerFactory.of ( typeTag, failOnNoMatch );
+	}
+
 	public static <H extends FormatHandler> H of ( String typeTag ) {
 		return FormatHandlerFactory.of ( typeTag );
 	}
-	
+
 }

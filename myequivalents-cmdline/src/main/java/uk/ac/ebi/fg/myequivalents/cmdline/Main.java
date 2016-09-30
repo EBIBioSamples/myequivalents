@@ -1,15 +1,7 @@
 package uk.ac.ebi.fg.myequivalents.cmdline;
 import static java.lang.System.err;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-
-import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;

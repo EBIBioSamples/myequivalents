@@ -10,7 +10,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 
+import uk.ac.ebi.fg.myequivalents.exceptions.UnsupportedFormatException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandler;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
@@ -38,6 +40,8 @@ public class BackupDumpLineCommand extends LineCommand
 			super.run ( args );
 			if ( this.exitCode != 0 ) return;
 			
+			FormatHandler serializer = FormatHandler.of ( this.outputFormat, true );
+			
 			OutputStream out = outFilePath == null ? System.out : new FileOutputStream ( outFilePath );
 			
 			Integer offset = Integer.valueOf ( cmdLine.getOptionValue ( "offset", "-1" ) );
@@ -45,12 +49,12 @@ public class BackupDumpLineCommand extends LineCommand
 
 			Integer limit = Integer.valueOf ( cmdLine.getOptionValue ( "limit", "-1" ) );
 			if ( limit == -1 ) limit = null;
-			
+						
 			BackupManager bkpMgr = 
 				Resources.getInstance ().getMyEqManagerFactory ().newBackupManager ( this.email, this.apiPassword );
-			
-			int result = bkpMgr.dump ( out, offset, limit );
-			err.printf ( "\nDump finished, %d item(s) dumped\n", result );
+						
+			bkpMgr.dump ( out, serializer, offset, limit );
+			err.println ( "\nDump finished" );
 		}
 		catch ( FileNotFoundException ex )
 		{
