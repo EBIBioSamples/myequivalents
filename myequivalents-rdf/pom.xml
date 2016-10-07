@@ -7,11 +7,8 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
 
-	<artifactId>myequivalents-rdf</artifactId>
-	<scm></scm>
-	
-  <name>My Equivalents, RDF Bridging</name>
-  
+	<artifactId>myequivalents-rdf</artifactId>	
+  <name>My Equivalents, RDF Bridging</name>  
   <description>Code to export myEquivalents to RDF</description>
 	
 

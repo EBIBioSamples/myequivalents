@@ -126,7 +126,7 @@ public class XmlFormatHandler extends AbstractFormatHandler
 						// Because we are already inside the node, we have to rebuild its starting tag
 						// (including ancestors)
 						nodeValue.append ( "<" ).append ( name );
-						for ( Iterator attrs = el.getAttributes (); attrs.hasNext ();  )
+						for ( Iterator<?> attrs = el.getAttributes (); attrs.hasNext ();  )
 						{
 							Attribute attr = (Attribute) attrs.next ();
 						  nodeValue

@@ -161,12 +161,15 @@ public abstract class LineCommand
 		}
 
 		
-		if ( commandString.endsWith ( " get" ) || commandString.endsWith ( " find" ) )
+		if ( 
+			commandString.endsWith ( " get" ) 
+			|| commandString.endsWith ( " find" ) 
+			|| commandString.startsWith ( "backup" ) )
 		{
 			opts.addOption ( OptionBuilder
 			 	.hasArg ( true )
 				.withDescription ( 
-			 		"The result output format. ** ONLY 'xml' IS SUPPORTED IN THIS VERSION **"
+			 		"The result output format. (help to list available values)"
 			 	)
 				.withLongOpt ( "format" )
 				.withArgName ( "out-format" )

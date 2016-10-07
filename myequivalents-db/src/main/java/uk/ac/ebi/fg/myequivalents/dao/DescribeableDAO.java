@@ -142,7 +142,7 @@ public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO
 	}
 
 	/** 
-	 * Dumps all the items in a range, in XML format. @see {@link BackupManager} for details. 
+	 * Dumps all the items in a range. @see {@link BackupManager} for details. 
 	 */
 	@SuppressWarnings ( "unchecked" )
 	public Stream<D> dump ( Integer offset, Integer limit )
@@ -153,8 +153,8 @@ public class DescribeableDAO<D extends Describeable> extends AbstractTargetedDAO
 		
 		q.setReadOnly ( true )
 		 .setFetchSize ( 1000 )
-		 .setCacheable ( false )
-		 .setCacheMode ( CacheMode.IGNORE );
+		 .setCacheable ( true )
+		 .setCacheMode ( CacheMode.NORMAL );
 		
 		if ( offset != null && offset >= 0 ) q.setFirstResult ( offset );
 		if ( limit != null && offset < Integer.MAX_VALUE ) q.setMaxResults ( limit );

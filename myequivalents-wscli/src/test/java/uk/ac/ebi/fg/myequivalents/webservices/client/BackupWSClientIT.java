@@ -120,7 +120,7 @@ public class BackupWSClientIT
 		bkpMgr.dump ( out, FormatHandler.of ( "xml" ), null, null );
 		out.close ();
 
-		String outs = Optional.of ( out.toString () ).orElse ( "" );
+		String outs = Optional.ofNullable ( out.toString () ).orElse ( "" );
 		assertFalse ( "dump() returns empty result!", outs.isEmpty () );
 		
 		// Check the XML with XPath
@@ -130,7 +130,7 @@ public class BackupWSClientIT
 			"/myequivalents-backup/service[@name != '']", XPathConstants.NODE ) 
 		);
 		assertNotNull ( "No entity element!", xpr.read ( 
-			"/myequivalents-backup/bundle/entity[@service-name!='' and @accession!='%s']", XPathConstants.NODE ) 
+			"/myequivalents-backup/bundle/entity[@service-name!='' and @accession!='']", XPathConstants.NODE ) 
 		);
 		
 		log.info ( "----- Backup done, now uploading -----" );

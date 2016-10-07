@@ -33,6 +33,7 @@ import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 import uk.ac.ebi.utils.time.XStopWatch;
@@ -204,7 +205,7 @@ public class RandomMappingsTest
 		// isolation
 		//execId = 0;
 		
-		int nbundles = Integer.parseInt ( System.getProperty ( "myequivalents.test.scaling.nbundles", "" + NBUNDLES ) );
+		int nbundles = Integer.parseInt ( System.getProperty ( Const.PROP_PREFIX + "test.scaling.nbundles", "" + NBUNDLES ) );
 
 		// bundle loop
 		XStopWatch stopw = new XStopWatch ();

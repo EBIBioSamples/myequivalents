@@ -20,7 +20,7 @@ public class MultipleFileOutputStream extends OutputStream
 {
 	private final File file;
 	private OutputStream out;
-	private int count = 0;
+	private int count = -1;
 	
 	public MultipleFileOutputStream ( File file, boolean append ) throws FileNotFoundException
 	{
@@ -45,7 +45,8 @@ public class MultipleFileOutputStream extends OutputStream
 	
 	public int nextFile () throws IOException
 	{
-		count++;
+		if ( ++count == 0 ) return 0; // first time, we keep this 
+		
 		String fpath = this.file.getCanonicalPath ();
 		int idot = FilenameUtils.indexOfExtension ( fpath );
 		fpath = idot == -1 

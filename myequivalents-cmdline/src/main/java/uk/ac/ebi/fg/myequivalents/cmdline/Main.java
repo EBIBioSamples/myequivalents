@@ -5,6 +5,7 @@ import javax.persistence.EntityManagerFactory;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 
@@ -73,7 +74,7 @@ public class Main
 		{
 			// This brutality has to be disabled during Junit tests
 			// 
-			if ( !"true".equals ( System.getProperty ( "uk.ac.ebi.fg.myequivalents.test_flag" ) ) ) 
+			if ( !"true".equals ( System.getProperty ( Const.PROP_PREFIX + "test_flag" ) ) ) 
 			{
 				ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
 				

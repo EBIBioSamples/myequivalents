@@ -29,6 +29,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceSearchResult;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 /**
@@ -83,7 +84,7 @@ public class MainTest
 			"test.admin", "Test Admin", "User", adminPass, "test admin notes", Role.ADMIN, adminSecret );
 	
 	static {
-		System.setProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", "true" );
+		System.setProperty ( Const.PROP_PREFIX + "test_flag", "true" );
 	}
 
 	@Before

@@ -1,11 +1,21 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.CacheMode;
+import org.hibernate.Hibernate;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
+import org.hibernate.Session;
 
 import uk.ac.ebi.fg.myequivalents.model.Service;
 

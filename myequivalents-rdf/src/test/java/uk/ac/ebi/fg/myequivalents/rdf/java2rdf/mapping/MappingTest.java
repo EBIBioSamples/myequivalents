@@ -62,26 +62,26 @@ public class MappingTest
 			
 		tester.testRDFOutput ( "service1 not found!", 
 			"ASK {\n"
-			+ "  myeqres:service_" + tm.service1.getName () + " a myeq:Service;\n"
+			+ "  myeqres:service:" + tm.service1.getName () + " a myeq:Service;\n"
 			+ "    dc-terms:identifier '" + tm.service1.getName () + "';\n"
 			+ "    dc-terms:title '" + tm.service1.getTitle () + "';\n"
 			+ "    dc-terms:description '" + tm.service1.getDescription () + "';\n"
 			+ "    myeq:has-uri-pattern '" + tm.service1.getUriPattern () + "';\n"
 			+ "    dc:type '" + tm.service1.getEntityType () + "';\n"
-			+ "    myeq:has-repository myeqres:repo_" + tm.service1.getRepositoryName () + ";\n"
-			+ "    myeq:has-service-collection myeqres:servcoll_" + tm.service1.getServiceCollectionName () + ".\n"
+			+ "    myeq:has-repository myeqres:repo:" + tm.service1.getRepositoryName () + ";\n"
+			+ "    myeq:has-service-collection myeqres:servcoll:" + tm.service1.getServiceCollectionName () + ".\n"
 			+ "}\n"		
 		);
 		
 		tester.testRDFOutput ( "service2 not found!", 
 			"ASK {\n"
-			+ "  myeqres:service_" + tm.service2.getName () + " a myeq:Service.\n"
+			+ "  myeqres:service:" + tm.service2.getName () + " a myeq:Service.\n"
 			+ "}\n"		
 		);
 
 		tester.testRDFOutput ( "repo1 not found!", 
 			"ASK {\n"
-			+ "  myeqres:repo_" + tm.repo1.getName () + " a myeq:Repository;\n"
+			+ "  myeqres:repo:" + tm.repo1.getName () + " a myeq:Repository;\n"
 			+ "    dc-terms:identifier '" + tm.repo1.getName () + "';\n"
 			+ "    dc-terms:title '" + tm.repo1.getTitle () + "';\n"
 			+ "    dc-terms:description '" + tm.repo1.getDescription () + "'.\n"
@@ -90,7 +90,7 @@ public class MappingTest
 		
 		tester.testRDFOutput ( "sc1 not found!", 
 			"ASK {\n"
-			+ "  myeqres:servcoll_" + tm.sc1.getName () + " a myeq:ServiceCollection;\n"
+			+ "  myeqres:servcoll:" + tm.sc1.getName () + " a myeq:ServiceCollection;\n"
 			+ "    dc-terms:identifier '" + tm.sc1.getName () + "';\n"
 			+ "    dc-terms:title '" + tm.sc1.getTitle () + "';\n"
 			+ "    dc-terms:description '" + tm.sc1.getDescription () + "'.\n"
@@ -114,7 +114,7 @@ public class MappingTest
 					"ASK {\n"
 							+ "  <" + urii + "> a myeq:Entity;\n"
 							+ "    dc-terms:identifier '" + ei.getAccession () + "';\n"
-							+ "    myeq:has-service myeqres:service_" + ei.getServiceName () + ".\n"
+							+ "    myeq:has-service myeqres:service:" + ei.getServiceName () + ".\n"
 							+ "}\n"		
 				);
 				

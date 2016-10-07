@@ -52,7 +52,10 @@ public class BundleRdfMapper extends ObjRdfMapper<EntityMappingSearchResult.Bund
 			RdfMapperFactory mapFact = this.getMapperFactory ();
 			OWLOntology onto = mapFact.getKnowledgeBase ();
 
-			assertLink ( onto, euri0, uri ( "owl", "sameAs" ), euri );
+			String sameAsProp = ( (MyEqRdfMapperFactory) this.getMapperFactory () ).isOwlSameAs ()
+				? "owl:sameAs" : "schema:sameAs";
+			
+			assertLink ( onto, euri0, uri ( sameAsProp ), euri );
 		}
 		
 		return true;

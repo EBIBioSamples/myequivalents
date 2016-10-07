@@ -2,8 +2,6 @@ package uk.ac.ebi.fg.myequivalents.rdf.java2rdf.mapping;
 
 import static uk.ac.ebi.fg.java2rdf.utils.NamespaceUtils.uri;
 
-import java.util.Map;
-
 import uk.ac.ebi.fg.java2rdf.mapping.properties.OwlDatatypePropRdfMapper;
 import uk.ac.ebi.fg.java2rdf.mapping.properties.OwlObjPropRdfMapper;
 import uk.ac.ebi.fg.myequivalents.model.Repository;

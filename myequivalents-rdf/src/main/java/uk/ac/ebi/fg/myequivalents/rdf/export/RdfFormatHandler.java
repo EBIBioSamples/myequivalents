@@ -10,9 +10,7 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.coode.owlapi.turtle.TurtleOntologyFormat;
 import org.semanticweb.owlapi.apibinding.OWLManager;
-import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -20,6 +18,7 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.semanticweb.owlapi.vocab.PrefixOWLOntologyFormat;
 
+import uk.ac.ebi.fg.java2rdf.utils.NamespaceUtils;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.AbstractFormatHandler;
 import uk.ac.ebi.fg.myequivalents.model.MyEquivalentsModelMember;
 import uk.ac.ebi.fg.myequivalents.rdf.java2rdf.mapping.MyEqRdfMapperFactory;
@@ -35,24 +34,6 @@ import uk.ac.ebi.utils.memory.MemoryUtils;
  */
 public abstract class RdfFormatHandler extends AbstractFormatHandler
 {
-	public static class RDFTurtleFormatHandler extends RdfFormatHandler {
-		public RDFTurtleFormatHandler () {
-			super ( 
-				new String[] { "ttl", "turtle" }, 
-				new String[] { "text/turtle" }, 
-				TurtleOntologyFormat::new 
-			);
-		}
-	}
-
-	public static class RDFXMLFormatHandler extends RdfFormatHandler {
-		public RDFXMLFormatHandler () {
-			super ( new String[] { "rdf", "rdf+xml" },
-			new String[] { "application/rdf+xml" },
-			RDFXMLOntologyFormat::new );
-		}
-	}
-	
 	protected final Supplier<PrefixOWLOntologyFormat> owlApiOntologyFormatSupplier;
 	
 	
@@ -73,9 +54,9 @@ public abstract class RdfFormatHandler extends AbstractFormatHandler
 			MyEqRdfMapperFactory.init ();
 			
 			OWLOntologyManager owlMgr = OWLManager.createOWLOntologyManager ();
-			OWLOntology kb = owlMgr.createOntology ( IRI.create ( String.format ( 
-				"http://www.ebi.ac.uk/myequivalents/export/%1$Y%1$m%1$d%1$H%1$M%1$S", new Date () 
-			)));
+			OWLOntology kb = owlMgr.createOntology ( IRI.create (
+				NamespaceUtils.uri ( "myeqres", String.format ( "export%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", new Date () ) ) 
+			));
 
 			
 			MyEqRdfMapperFactory mapFact = new MyEqRdfMapperFactory ( kb );

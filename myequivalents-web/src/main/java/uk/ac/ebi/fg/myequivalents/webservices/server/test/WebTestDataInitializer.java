@@ -19,6 +19,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ServiceManager;
 import uk.ac.ebi.fg.myequivalents.model.Repository;
 import uk.ac.ebi.fg.myequivalents.model.ServiceCollection;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.test.MappingsGenerator;
 
@@ -38,7 +39,7 @@ public class WebTestDataInitializer implements ServletContextListener
 	 * by {@link #contextDestroyed(ServletContextEvent)}.
 	 * 
 	 */
-	public static final String INIT_FLAG_PROP = "uk.ac.ebi.fg.myequivalents.test_flag";
+	public static final String INIT_FLAG_PROP = Const.PROP_PREFIX + "test_flag";
 	
 	public static final String editorPass = "test.password";
 	// Alternatively you can use: User.generateSecret (); using something else here cause we need to test with the browser 

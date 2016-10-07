@@ -33,17 +33,17 @@ public class EntityRdfMapper extends BeanRdfMapper<Entity>
 				{
 					if ( e == null ) return null;
 					String uri = e.getURI ();
-					if ( uri == null ) uri = NamespaceUtils.uri ( 
-						"myeqres", "entity_" + urlEncode ( e.getServiceName () ) + ':' + urlEncode ( e.getAccession () ) 
+					if ( uri == null ) uri = uri ( 
+						"myeqres", "entity:" + urlEncode ( e.getServiceName () ) + ':' + urlEncode ( e.getAccession () ) 
 					);
 					return uri;
 				}
 			}
 		);
 		
-		this.addPropertyMapper ( "accession", new OwlDatatypePropRdfMapper<Entity, String> ( uri ( "dc-terms", "identifier" ) ) );
-		this.addPropertyMapper ( "releaseDate", new OwlDatatypePropRdfMapper<Entity, String> ( uri ( "dc-terms", "issued" ) ) );
-		this.addPropertyMapper ( "service", new OwlObjPropRdfMapper<Entity, Service> ( uri ( "myeq", "has-service" ) ) );
+		this.addPropertyMapper ( "accession", new OwlDatatypePropRdfMapper<Entity, String> ( uri ( "dc-terms:identifier" ) ) );
+		this.addPropertyMapper ( "releaseDate", new OwlDatatypePropRdfMapper<Entity, String> ( uri ( "dc-terms:issued" ) ) );
+		this.addPropertyMapper ( "service", new OwlObjPropRdfMapper<Entity, Service> ( uri ( "myeq:has-service" ) ) );
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.dao;
 
-import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Spliterator;
@@ -19,7 +16,6 @@ import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.xml.bind.Marshaller;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -38,9 +34,7 @@ import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.
 import uk.ac.ebi.fg.myequivalents.model.Entity;
 import uk.ac.ebi.fg.myequivalents.model.EntityId;
 import uk.ac.ebi.fg.myequivalents.model.EntityMapping;
-import uk.ac.ebi.fg.myequivalents.model.Service;
 import uk.ac.ebi.fg.myequivalents.utils.DbEntityIdResolver;
-import uk.ac.ebi.fg.myequivalents.utils.jaxb.JAXBUtils;
 import uk.ac.ebi.utils.security.IdUtils;
 
 /**
@@ -775,30 +769,27 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 	
 	public Stream<Bundle> dump ( Integer offset, Integer limit )
 	{		
-		Session session = (Session) this.entityManager.getDelegate ();		
-		String sql = "SELECT bundle, service_name, accession, release_date, public_flag FROM entity_mapping ORDER BY bundle";
-		SQLQuery qry = session.createSQLQuery ( sql );
-		
+		Session session = (Session) this.entityManager.getDelegate ();
+		org.hibernate.Query q = session.createQuery ( "FROM " + this.targetClass.getName () + " m ORDER BY m.bundle" );
+				
 		// TODO: needs hibernate.jdbc.batch_size?
-		qry
+		q
 			.setReadOnly ( true )
 			.setFetchSize ( 1000 )
-			.setCacheable ( false )
-			.setCacheMode ( CacheMode.IGNORE );
-
-		if ( offset != null && offset >= 0 ) qry.setFirstResult ( offset );
-		if ( limit != null && offset < Integer.MAX_VALUE ) qry.setMaxResults ( limit );
+			.setCacheable ( true )
+			.setCacheMode ( CacheMode.GET );
 		
-		final ScrollableResults rs = qry.scroll ( ScrollMode.FORWARD_ONLY );
+		if ( offset != null && offset >= 0 ) q.setFirstResult ( offset );
+		if ( limit != null && offset < Integer.MAX_VALUE ) q.setMaxResults ( limit );
 
+		final ScrollableResults rs = q.scroll ( ScrollMode.FORWARD_ONLY );
+				
 		// Syntactic sugar: we need an iterator that will go inside a stream
 		//
 		Iterator<Bundle> outItr = new Iterator<Bundle>() 
 		{
 			private String prevBundle = null;
-			private List<String> entityIds = new ArrayList<> ();
-			private List<Date> relDates = new ArrayList<> ();
-			private List<Boolean> pubFlags = new ArrayList<> ();
+			private List<EntityMapping> entityMappings = new ArrayList<> ();
 			private Bundle nextResult = null;
 
 			@Override
@@ -809,10 +800,9 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 				// Scroll down until the next bundle record, prepare the newly found bundle
 				while ( this.nextResult == null && rs.next () )
 				{
-					String serviceName = (String) rs.get ( 1 ), acc = (String) rs.get ( 2 );
-					String entityId = serviceName + ":" + acc;
-
-					String bundle = (String) rs.get ( 0 );
+					EntityMapping em = (EntityMapping) rs.get ( 0 );
+					
+					String bundle = (String) em.getBundle ();
 					if ( prevBundle == null ) prevBundle = bundle;
 
 					if ( !bundle.equals ( prevBundle ) )
@@ -825,16 +815,7 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 					}
 					
 					// Collect entities for the current bundle
-					entityIds.add ( entityId );
-					relDates.add ( (Date) rs.get ( 3 ) );
-					
-					// We need to do this to cover both Oracle and H2
-					Object pubFlagObj = rs.get ( 4 );
-					Boolean pubFlag = 
-						pubFlagObj == null ? null
-						: pubFlagObj instanceof Boolean ? (Boolean) pubFlagObj
-						: ( (BigDecimal) pubFlagObj ).intValue () == 1;
-					pubFlags.add ( pubFlag );
+					entityMappings.add ( em );
 				}				
 				if ( this.nextResult == null )
 					// We met the records about the last bundle, and now we still have to build it
@@ -860,30 +841,12 @@ public class EntityMappingDAO extends AbstractTargetedDAO<EntityMapping>
 			private Bundle buildBundle ()
 			{
 				// Table is empty or finished the records
-				if ( entityIds.isEmpty () ) return null;
-				
-				EntityMappingSearchResult maps = new EntityMappingSearchResult ( true );
-				List<EntityMapping> ents = new LinkedList<EntityMapping> ();
-	
-				int i = 0;
-				for ( String thisEntityId: entityIds )
-				{
-					EntityId eid = entityIdResolver.doall ( thisEntityId );
-					Service service = new Service ( eid.getServiceName () );					
-					EntityMapping ent = new EntityMapping ( service, eid.getAcc (), prevBundle );
-					ent.setReleaseDate ( relDates.get ( i ) );
-					ent.setPublicFlag ( pubFlags.get ( i ) );
-					
-					ents.add ( ent );
-					i++;
-				}
-											
-				maps.addAllEntityMappings ( ents );
+				if ( entityMappings.isEmpty () ) return null;
+				EntityMappingSearchResult maps = new EntityMappingSearchResult ( true );											
+				maps.addAllEntityMappings ( this.entityMappings );
 
 				// Restart a new bundle collection, with this bundle included
-				entityIds.clear ();
-				relDates.clear ();
-				pubFlags.clear ();						
+				this.entityMappings.clear ();
 				
 				return maps.getBundles ().iterator ().next ();
 			}

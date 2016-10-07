@@ -13,12 +13,17 @@ import uk.ac.ebi.fg.myequivalents.utils.EntityIdResolver;
 public class Const
 {
 	/**
+	 * Prefix that should be used for every Java property about myequivalents. 
+	 */
+	public static final String PROP_PREFIX = "myequivalents.";
+	
+	/**
 	 * Cached objects (e.g. Service instances fetched by {@link EntityIdResolver}) are cancelled and reloaded after
 	 * this amount of time has passed after they were first loaded in memory. Default is 60 mins. 
 	 * 
 	 * TODO: Document this in the wiki.
 	 */
-	public static final String PROP_NAME_CACHE_TIMEOUT_MIN = "uk.ac.ebi.fg.myequivalents.cache_timeout";
+	public static final String PROP_NAME_CACHE_TIMEOUT_MIN = PROP_PREFIX + "cache_timeout";
 	
 	
 	/** Length used for database character columns, e.g., accession, contact's mid title, version */

@@ -26,15 +26,15 @@ public abstract class DescribeableRdfMapper<D extends Describeable> extends Bean
 			uri ( "myeq", owlClassName ), 
 			new RdfUriGenerator<D>() {
 				@Override public String getUri ( D d, Map<String, Object> params ) {
-					return uri ( "myeqres", rdfNamePrefix + "_" + urlEncode ( d.getName () ) );
+					return uri ( "myeqres", rdfNamePrefix + ":" + urlEncode ( d.getName () ) );
 				}
 			}
 		);
 		
-		this.addPropertyMapper ( "name", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms", "identifier" ) ) );
-		this.addPropertyMapper ( "title", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms", "title" ) ) );
-		this.addPropertyMapper ( "description", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms", "description" ) ) );
-		this.addPropertyMapper ( "releaseDate", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms", "issued" ) ) );
+		this.addPropertyMapper ( "name", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms:identifier" ) ) );
+		this.addPropertyMapper ( "title", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms:title" ) ) );
+		this.addPropertyMapper ( "description", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms:description" ) ) );
+		this.addPropertyMapper ( "releaseDate", new OwlDatatypePropRdfMapper<D, String> ( uri ( "dc-terms:issued" ) ) );
 	}
 
 	@Override

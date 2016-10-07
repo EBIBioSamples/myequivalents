@@ -106,7 +106,7 @@ public class BackupWebService
 	public static FormatHandler getFormatHandlerFromAccept ( HttpHeaders headers )
 	{
 		String outFmts = Optional
-		.of ( headers.getRequestHeader ( "Accept" ) )
+		.ofNullable ( headers.getRequestHeader ( "Accept" ) )
 		.orElse ( Collections.emptyList () )
 		.stream ()
 		.findFirst ()
