@@ -2,15 +2,22 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
+import java.util.LinkedList;
 import java.util.ServiceLoader;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang3.StringUtils;
+
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandler;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandlerFactory;
 
 /**
  * Represents one of the sub-commands available in {@link Main}. E.g., 'service store' is managed by 
@@ -166,11 +173,23 @@ public abstract class LineCommand
 			|| commandString.endsWith ( " find" ) 
 			|| commandString.startsWith ( "backup" ) )
 		{
+			// What it's available for the output format option depends on the format handlers in the classpath
+			//
+			String outFmts = String.join ( ", ", FormatHandlerFactory
+				.getAllHandlers ()
+				.stream ()
+				.flatMap ( h -> h.getShortTypes ().stream () )
+				.collect ( Collectors.toCollection ( TreeSet::new ) )
+				.toArray ( new String [ 0 ] )
+			);
+			
+			String descrDetail = "xml".equals ( outFmts )
+				? "xml only available in this installation, download the RDF extension for more"
+				: "for the backup commands: " + outFmts + "; xml only is available for the rest";
+					
 			opts.addOption ( OptionBuilder
 			 	.hasArg ( true )
-				.withDescription ( 
-			 		"The result output format. (help to list available values)"
-			 	)
+				.withDescription ( "The result output format (" + descrDetail + ")." )
 				.withLongOpt ( "format" )
 				.withArgName ( "out-format" )
 				.create ( "f" )
@@ -179,7 +198,8 @@ public abstract class LineCommand
 			if ( "mapping get".equals ( commandString ) )
 				opts.addOption ( OptionBuilder
 				 	.withDescription ( 
-				 		"Returns a raw result, i.e., with just the mappings and no details about services/service-collections/repositories"
+				 			"Returns a raw result from 'mapping get', i.e., with just the mappings and no details about "
+				 		+ "services/service-collections/repositories"
 				 	)
 					.withLongOpt ( "raw" )
 					.create ( "r" ) 

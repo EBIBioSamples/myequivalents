@@ -25,7 +25,12 @@ public class Const
 	 */
 	public static final String PROP_NAME_CACHE_TIMEOUT_MIN = PROP_PREFIX + "cache_timeout";
 	
-	
+	/**
+	 * A few components (e.g., unit tests) use this to know we're in test mode and they should behave accordingly
+	 * (e.g., don't shutdown the JVM while testing a command line tool).
+	 */
+	public static final String PROP_NAME_TEST_FLAG = PROP_PREFIX + "test_flag";
+		
 	/** Length used for database character columns, e.g., accession, contact's mid title, version */
 	public static final int COL_LENGTH_S = 50;
 
@@ -44,4 +49,5 @@ public class Const
 	
 	/** Length used for URIs and the like */
 	public static final int COL_LENGTH_URIS = 2000;
+
 }

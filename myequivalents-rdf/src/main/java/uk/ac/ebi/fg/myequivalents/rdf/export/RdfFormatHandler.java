@@ -2,7 +2,6 @@ package uk.ac.ebi.fg.myequivalents.rdf.export;
 
 import static uk.ac.ebi.fg.java2rdf.utils.NamespaceUtils.getNamespaces;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
@@ -26,7 +25,8 @@ import uk.ac.ebi.utils.memory.MemoryUtils;
 
 
 /**
- * TODO: comment me!
+ * Support to RDF export of myEq entities.
+ * Note that we don't support RDF loading yet.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>29 Sep 2016</dd></dl>
@@ -36,7 +36,6 @@ public abstract class RdfFormatHandler extends AbstractFormatHandler
 {
 	protected final Supplier<PrefixOWLOntologyFormat> owlApiOntologyFormatSupplier;
 	
-	
 	protected RdfFormatHandler ( 
 		String[] shortTypes, String[] contentTypes, Supplier<PrefixOWLOntologyFormat> owlApiOntologyFormatSupplier ) 
 	{
@@ -44,30 +43,35 @@ public abstract class RdfFormatHandler extends AbstractFormatHandler
 		this.owlApiOntologyFormatSupplier = owlApiOntologyFormatSupplier;
 	}
 	
-	
-	
+	/**
+	 * This uses OWLAPI and the java2rdf lib. It needs to first create an in-memory triple set, which is then
+	 * dumped to the output stream.
+	 */
 	@Override
-	public int serialize ( Stream<MyEquivalentsModelMember> in, OutputStream out )
+	public int serialize ( Stream<MyEquivalentsModelMember> in, OutputStream out  ) 
 	{
 		try
 		{
 			MyEqRdfMapperFactory.init ();
 			
+			// OWL API init
 			OWLOntologyManager owlMgr = OWLManager.createOWLOntologyManager ();
 			OWLOntology kb = owlMgr.createOntology ( IRI.create (
 				NamespaceUtils.uri ( "myeqres", String.format ( "export%1$tY%1$tm%1$td%1$tH%1$tM%1$tS", new Date () ) ) 
 			));
 
-			
+			// Uses java2rdf
 			MyEqRdfMapperFactory mapFact = new MyEqRdfMapperFactory ( kb );
 			int result = (int) in
 			.peek ( e -> {			
-				MemoryUtils.checkMemory ( () -> this.flushKnowledgeBase ( kb, out ) ); 
+				MemoryUtils.checkMemory ( 
+					() -> { throw new RuntimeException ( "Memory overflow! Increase JVM memory or try a fragment-based dump!" ); }
+					, 0.1 ); 
 				mapFact.map ( e ); 			
 			})
 			.count ();
 			
-			// Save (possibly for the last time)
+			// Save
 			this.flushKnowledgeBase ( kb, out );									
 			return result;
 		}
@@ -76,32 +80,35 @@ public abstract class RdfFormatHandler extends AbstractFormatHandler
 		}		
 	}
 
-	
+	/**
+	 * @throws UnsupportedOperationException, will be implemented in future.
+	 */
 	@Override
 	public Stream<MyEquivalentsModelMember> read ( InputStream in ) {
 		throw new UnsupportedOperationException ( "Not implemented yet" );
 	}
 
-	
+	/**
+	 * Saves an {@link OWLOntology} to the out stream, using the format supported by the handler.
+	 * It doesn't do anything is {@link OWLOntology#isEmpty() kb is empty}.
+	 */
 	private void flushKnowledgeBase ( OWLOntology kb, OutputStream out ) 
 	{
 		try
 		{
 			if ( kb.isEmpty () ) return;
-			
-			if ( out instanceof MultipleFileOutputStream )
-				((MultipleFileOutputStream) out).nextFile ();
-			
+						
 			PrefixOWLOntologyFormat owlApiOntologyFormat = this.owlApiOntologyFormatSupplier.get ();
 			
+			// Save all the namespace prefixes that we use 
 			for ( Entry<String, String> nse: getNamespaces ().entrySet () )
 				owlApiOntologyFormat.setPrefix ( nse.getKey (), nse.getValue () );			
 			
 			OWLOntologyManager ontoMgr = kb.getOWLOntologyManager ();
 			ontoMgr.saveOntology ( kb, owlApiOntologyFormat, out );
-			ontoMgr.removeOntology ( kb );
+			ontoMgr.removeOntology ( kb ); // flush up, just in case.
 		}
-		catch ( OWLOntologyStorageException | IOException ex ) {
+		catch ( OWLOntologyStorageException ex ) {
 			throw new RuntimeException ( "Internal error while saving RDF dump : " + ex.getMessage (), ex );
 		}		
 	}

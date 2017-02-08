@@ -61,12 +61,19 @@
 			<artifactId>commons-io</artifactId>
 		</dependency>	  
 
+		<dependency>
+			<groupId>net.sf.saxon</groupId>
+			<artifactId>Saxon-HE</artifactId>
+			<version>9.7.0-8</version>
+			<scope>runtime</scope>
+		</dependency>
+
 	</dependencies>  
 
 
 	<build>
 	
-		<finalName>myequivalents-cmdline_${project.version}</finalName>
+		<finalName>${project.artifactId}_${project.version}</finalName>
 	
 		<plugins>
 		  
@@ -120,4 +127,32 @@
 	
 	</build>
 	
+	<profiles>
+	
+		<!-- Adds support to use the web service -->
+		<profile>
+			<id>ext_wscli</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-wscli</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		
+		<!-- Adds support to RDF export -->
+		<profile>
+			<id>ext_rdf</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-rdf</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>	
+	
+	</profiles>
+
 </project>

@@ -26,21 +26,17 @@ import uk.ac.ebi.fg.myequivalents.test.MappingsGenerator;
 /**
  * This defines some test data if the system property uk.ac.ebi.fg.myequivalents.test_flag is true. It is attached to 
  * the servlet engine via web.xml.
+ * 
+ * When {@link Const#PROP_NAME_TEST_FLAG} is true, test data are loaded into the DB back end, during server 
+ * initialisation, via {@link #contextInitialized(ServletContextEvent)}. These data are cleaned up upon server shutdown, 
+ * by {@link #contextDestroyed(ServletContextEvent)}.
  *
  * <dl><dt>date</dt><dd>Sep 11, 2012</dd></dl>
  * @author Marco Brandizi
  *
  */
 public class WebTestDataInitializer implements ServletContextListener
-{
-	/**
-	 * When this is true, test data are loaded into the DB back end, during server initialisation, via 
-	 * {@link #contextInitialized(ServletContextEvent)}. These data are cleaned up upon server shutdown, 
-	 * by {@link #contextDestroyed(ServletContextEvent)}.
-	 * 
-	 */
-	public static final String INIT_FLAG_PROP = Const.PROP_PREFIX + "test_flag";
-	
+{	
 	public static final String editorPass = "test.password";
 	// Alternatively you can use: User.generateSecret (); using something else here cause we need to test with the browser 
 	public static final String editorSecret = "test.secret"; 
@@ -55,13 +51,10 @@ public class WebTestDataInitializer implements ServletContextListener
 
 	private Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
-	/**
-	 * @see #INIT_FLAG_PROP.
-	 */
-	@Override
+  @Override
 	public void contextInitialized ( ServletContextEvent e )
 	{
-		if ( !"true".equals ( System.getProperty ( INIT_FLAG_PROP, null ) ) ) return;
+		if ( !"true".equals ( System.getProperty ( Const.PROP_NAME_TEST_FLAG, null ) ) ) return;
 	
 		System.out.println ( "\n\n _________________________________ Creating Test Data ________________________________ \n\n\n" );
 		
@@ -148,7 +141,7 @@ public class WebTestDataInitializer implements ServletContextListener
 	@Override
 	public void contextDestroyed ( ServletContextEvent e )
 	{
-		if ( !"true".equals ( System.getProperty ( INIT_FLAG_PROP, null ) ) ) return;
+		if ( !"true".equals ( System.getProperty ( Const.PROP_NAME_TEST_FLAG, null ) ) ) return;
 
 		ManagerFactory mgrf = Resources.getInstance ().getMyEqManagerFactory ();
 		

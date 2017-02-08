@@ -128,7 +128,7 @@
   
   <build>
   
-		<finalName>myequivalents-wscli_${project.version}</finalName>
+		<finalName>${project.artifactId}_${project.version}</finalName>
   
 		<plugins>
 		
@@ -142,7 +142,7 @@
 					<systemProperties>
 						<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer -->
 				  	<systemProperty>
-				    	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
+				    	<name>myequivalents.test_flag</name>
 				      <value>true</value>
 				    </systemProperty>
 				 	</systemProperties>	      	
@@ -215,7 +215,7 @@
           <execution>
               <id>pkg</id>
               <configuration>
-                  <finalName>myequivalents-wscli_${project.version}</finalName>
+                  <finalName>${project.artifactId}_${project.version}</finalName>
                   <appendAssemblyId>false</appendAssemblyId>
                   <attach>true</attach>
                   <descriptors>
@@ -234,7 +234,7 @@
 		
 		
 		<!-- We also put these files inside the .jar, cause at the moment it's the only known way to re-import it from 
-		     the assembly of an extension to this Maven module (ie, myequivalents-prov-cmdline) -->
+		     the assembly of an extension to this Maven module (ie, myequivalents-prov-wscli) -->
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -244,12 +244,24 @@
 				<directory>src/main/assembly/resources</directory>
 				<targetPath>assembly/resources</targetPath>
 				<filtering>false</filtering>
-				<excludes>
-					<exclude>/myeq-manager-config.xml</exclude>
-				</excludes>
 			</resource>
 		</resources>	
 
   </build>
   
+  <profiles>
+  		
+  		<!-- Adds support for RDF export -->
+		<profile>
+			<id>ext_rdf</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-rdf</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>  
+  
+  </profiles>
 </project>

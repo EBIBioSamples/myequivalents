@@ -1,6 +1,5 @@
 package uk.ac.ebi.fg.myequivalents.managers.impl.db;
 
-import java.io.InputStream;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
@@ -8,6 +7,7 @@ import javax.persistence.EntityTransaction;
 
 import uk.ac.ebi.fg.myequivalents.access_control.model.User.Role;
 import uk.ac.ebi.fg.myequivalents.dao.BackupDAO;
+import uk.ac.ebi.fg.myequivalents.dao.EntityMappingDAO;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.EntityMappingSearchResult.Bundle;
 import uk.ac.ebi.fg.myequivalents.model.Describeable;
@@ -111,4 +111,11 @@ public class DbBackupManager extends DbMyEquivalentsManager implements BackupMan
 		return this.bkpDao.upload ( in );
 	}
 
+	@Override
+	public int countEntities ()
+	{
+		EntityMappingDAO mapDao = new EntityMappingDAO ( this.bkpDao.getEntityManager () );
+		return (int) mapDao.count ();
+	}
+	
 }

@@ -9,6 +9,8 @@
     <format>zip</format>
   </formats>
 
+  <includeBaseDirectory>false</includeBaseDirectory>
+
 	<dependencySets>
 		<dependencySet>
 		  <!-- Enable only if non-empty <outputFileNameMapping></outputFileNameMapping> -->
@@ -23,19 +25,6 @@
 	</dependencySets> 
 
   <fileSets>
-
-		<fileSet>
-			<directory>src/main</directory>
-      <includes>
-        <include>README*</include>
-        <include>LICENSE*</include>
-      </includes>
-      <fileMode>0644</fileMode>
-			<directoryMode>0755</directoryMode>      
-			<outputDirectory></outputDirectory>
-			<filtered>true</filtered>
-		</fileSet>
-
 
 		<fileSet>
 			<directory>src/main/assembly/resources</directory>

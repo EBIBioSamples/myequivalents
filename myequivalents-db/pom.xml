@@ -114,7 +114,7 @@
 
 
 	<build>
-		<finalName>myequivalents-db_${project.version}</finalName>
+		<finalName>${project.artifactId}_${project.version}</finalName>
 	</build>
 
 	<profiles>

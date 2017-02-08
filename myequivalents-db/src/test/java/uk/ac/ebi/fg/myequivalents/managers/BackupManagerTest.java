@@ -210,6 +210,18 @@ public class BackupManagerTest
 	}
 	
 	
+	@Test
+	public void countEntities ()
+	{
+		assertEquals ( "countEntities() doesn't match!", 
+			bkpMgr.countEntities (), 
+			(int) bkpMgr.dump ( null, null )
+			.filter ( e -> e instanceof Bundle )
+			.map ( b -> ( (Bundle) b ).getEntities ().size () )
+			.reduce ( ( s1, s2 ) -> s1 + s2 )
+			.orElse ( 0 )
+		);
+	}
 	
 	private void checkElementIsStored ( MyEquivalentsModelMember elem )
 	{

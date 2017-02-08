@@ -158,6 +158,14 @@ public class BackupWSClient extends MyEquivalentsWSClient implements BackupManag
 			);
 		}
 	}
+	
+	
+	@Override
+	public int countEntities ()
+	{
+		Form req = prepareReq ();
+	  return invokeIntWsReq ( "/count-entities", req );
+	}
 
 	
 	@Override

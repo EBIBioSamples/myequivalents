@@ -54,7 +54,7 @@
 
 	<build>
 	
-		<finalName>myequivalents-cmdline_${project.version}</finalName>
+		<finalName>${project.artifactId}_${project.version}</finalName>
 	
 		<plugins>
 		  
@@ -114,5 +114,34 @@
     </plugins>
 	
 	</build>
+	
+	
+	<profiles>
+	
+		<!-- Adds support to use the web service -->
+		<profile>
+			<id>ext_wscli</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-prov-wscli</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		
+		<!-- Adds support to RDF export -->
+		<profile>
+			<id>ext_rdf</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-rdf</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+			
+	</profiles>
 	
 </project>

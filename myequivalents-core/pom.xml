@@ -92,7 +92,7 @@
 	</dependencies>  
 
 	<build>
-		<finalName>myequivalents-core_${project.version}</finalName>
+		<finalName>${project.artifactId}_${project.version}</finalName>
 	</build>
 
 </project>

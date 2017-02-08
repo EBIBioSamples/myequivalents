@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbBackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.impl.db.DbManagerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandler;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.ManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbBackupManager;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
@@ -40,7 +41,7 @@ public class DumpTest
   	DbBackupManager bkpMgr = new DbBackupManager ( emf.createEntityManager (), "admin", "admin.secret" );
   	
   	FileOutputStream out = new FileOutputStream ( "target/dump.xml" );
-  	bkpMgr.dump ( out, null, null );
+  	bkpMgr.dump ( out, FormatHandler.of ( "xml" ), null, null );
   	out.close ();
 	}
 
@@ -55,7 +56,7 @@ public class DumpTest
   	DbBackupManager bkpMgr = new ProvDbBackupManager ( emf.createEntityManager (), "admin", "admin.secret" );
 
   	InputStream in = new FileInputStream ( "target/dump.xml" );
-		bkpMgr.upload ( in );
+		bkpMgr.upload ( in, FormatHandler.of ( "xml" ) );
 		in.close ();
 	}
 

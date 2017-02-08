@@ -2,6 +2,7 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -39,7 +40,8 @@ public class BackupUploadLineCommand extends LineCommand
 			
 			FormatHandler formatReader = FormatHandler.of ( this.outputFormat, true );
 
-			InputStream in = inFilePath == null ? System.in : new FileInputStream ( inFilePath );
+			InputStream in = inFilePath == null 
+				? System.in : new BufferedInputStream ( new FileInputStream ( inFilePath ) );
 			
 			BackupManager bkpMgr = 
 				Resources.getInstance ().getMyEqManagerFactory ().newBackupManager ( this.email, this.apiPassword );

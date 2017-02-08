@@ -3,6 +3,7 @@ package uk.ac.ebi.fg.myequivalents.rdf.export;
 import static java.lang.String.format;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ import uk.ac.ebi.fg.myequivalents.test.MappingsGenerator;
 
 
 /**
- * TODO: comment me!
+ * Tests for RDF exporting.
  *
  * @author brandizi
  * <dl><dt>Date:</dt><dd>18 Feb 2016</dd></dl>
@@ -89,7 +90,7 @@ public class ExporterTest
 			bkpMgr.dump ( null, null ).collect ( Collectors.toCollection ( LinkedList::new  ) );
 		
 		String outPath = "target/dump.ttl"; 
-		OutputStream out = new MultipleFileOutputStream ( new File ( outPath) );
+		OutputStream out = new FileOutputStream ( new File ( outPath) );
 		
 		// Here we go
 		bkpMgr.dump ( out, FormatHandler.of ( "ttl" ), null, null );

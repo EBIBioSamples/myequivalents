@@ -35,6 +35,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.db.dao.ProvenanceRegisterEntryDAO;
 import uk.ac.ebi.fg.myequivalents.provenance.db.managers.ProvDbManagerFactory;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.utils.regex.RegEx;
 
@@ -61,8 +62,7 @@ public class ProvLineCommandsTest
 	private final Logger log = LoggerFactory.getLogger ( this.getClass () );
 	
 	static {
-		// Avoids that main() exits
-		System.setProperty ( "uk.ac.ebi.fg.myequivalents.test_flag", "true" );
+		System.setProperty ( Const.PROP_NAME_TEST_FLAG, "true" );
 	}
 	
 	@BeforeClass

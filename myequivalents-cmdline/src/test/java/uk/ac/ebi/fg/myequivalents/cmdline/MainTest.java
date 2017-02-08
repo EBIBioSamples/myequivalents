@@ -84,7 +84,7 @@ public class MainTest
 			"test.admin", "Test Admin", "User", adminPass, "test admin notes", Role.ADMIN, adminSecret );
 	
 	static {
-		System.setProperty ( Const.PROP_PREFIX + "test_flag", "true" );
+		System.setProperty ( Const.PROP_NAME_TEST_FLAG, "true" );
 	}
 
 	@Before

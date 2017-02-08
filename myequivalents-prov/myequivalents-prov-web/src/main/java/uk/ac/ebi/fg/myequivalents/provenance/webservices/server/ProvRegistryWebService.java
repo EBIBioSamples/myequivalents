@@ -29,6 +29,7 @@ import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegisterEntryList;
 import uk.ac.ebi.fg.myequivalents.provenance.interfaces.ProvRegistryManager;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterEntry;
 import uk.ac.ebi.fg.myequivalents.provenance.model.ProvenanceRegisterParameter;
+import uk.ac.ebi.fg.myequivalents.resources.Const;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 import uk.ac.ebi.fg.myequivalents.utils.jaxb.DateJaxbXmlAdapter;
 import uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer;
@@ -172,7 +173,7 @@ public class ProvRegistryWebService
 	 * in myEquivalents (every provenance record is auto-created upon myEq operations).
 	 * 
 	 * This should not be used outside tests and its execution is restricted to the 
-	 * {@link WebTestDataInitializer#INIT_FLAG_PROP} property set to true, plus localhost-only invocation.
+	 * {@link Const#PROP_NAME_TEST_FLAG} property set to true, plus localhost-only invocation.
 	 *  
 	 */
 	@POST
@@ -184,8 +185,8 @@ public class ProvRegistryWebService
 		@FormParam ( "login-secret" ) String authApiPassword
 	)
 	{
-		if ( !"true".equals ( System.getProperty ( WebTestDataInitializer.INIT_FLAG_PROP, null ) ) )  throw new SecurityException ( 
-			"/provenance/create-test-entries can only be invoked when " + WebTestDataInitializer.INIT_FLAG_PROP + " is true"
+		if ( !"true".equals ( System.getProperty ( Const.PROP_NAME_TEST_FLAG, null ) ) )  throw new SecurityException ( 
+			"/provenance/create-test-entries can only be invoked when " + Const.PROP_NAME_TEST_FLAG + " is true"
 		);
 
 		// Only from localhost
@@ -217,7 +218,7 @@ public class ProvRegistryWebService
 	 * parameter.
 	 * 
 	 * This should not be used outside tests and its execution is restricted to the 
-	 * {@link WebTestDataInitializer#INIT_FLAG_PROP} property set to true, plus localhost-only invocation.
+	 * {@link Const#PROP_NAME_TEST_FLAG} property set to true, plus localhost-only invocation.
 	 *  
 	 */
 	@POST
@@ -230,8 +231,8 @@ public class ProvRegistryWebService
 		@FormParam ( "from" ) String from 
 	)
 	{
-		if ( !"true".equals ( System.getProperty ( WebTestDataInitializer.INIT_FLAG_PROP, null ) ) )  throw new SecurityException ( 
-			"/provenance/create-test-entries can only be invoked when " + WebTestDataInitializer.INIT_FLAG_PROP + " is true"
+		if ( !"true".equals ( System.getProperty ( Const.PROP_NAME_TEST_FLAG, null ) ) )  throw new SecurityException ( 
+			"/provenance/create-test-entries can only be invoked when " + Const.PROP_NAME_TEST_FLAG + " is true"
 		);
 
 		// Only from localhost

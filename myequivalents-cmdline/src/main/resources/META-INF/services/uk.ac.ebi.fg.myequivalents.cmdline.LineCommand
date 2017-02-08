@@ -5,6 +5,7 @@ uk.ac.ebi.fg.myequivalents.cmdline.MappingDeleteEntityLineCommand
 uk.ac.ebi.fg.myequivalents.cmdline.MappingDeleteLineCommand
 uk.ac.ebi.fg.myequivalents.cmdline.BackupDumpLineCommand
 uk.ac.ebi.fg.myequivalents.cmdline.BackupUploadLineCommand
+uk.ac.ebi.fg.myequivalents.cmdline.BackupCountEntitiesLineCommand
 uk.ac.ebi.fg.myequivalents.cmdline.ServiceStoreLineCommand
 uk.ac.ebi.fg.myequivalents.cmdline.ServiceGetLineCommand
 uk.ac.ebi.fg.myequivalents.cmdline.ServiceDeleteLineCommand

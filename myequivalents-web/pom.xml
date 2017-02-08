@@ -145,7 +145,7 @@
 					<systemProperties>
 						<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer -->
           	<systemProperty>
-            	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
+            	<name>myequivalents.test_flag</name>
               <value>true</value>
             </systemProperty>
 
@@ -169,4 +169,31 @@
 		
 	</build>
 	  
+	<profiles>
+	
+		<!-- Allows you to relay another web service as backend -->
+		<profile>
+			<id>ext_wscli</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-wscli</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		
+		<!-- Adds support for RDF export -->
+		<profile>
+			<id>ext_rdf</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-rdf</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>	
+	
+	</profiles>
 </project>

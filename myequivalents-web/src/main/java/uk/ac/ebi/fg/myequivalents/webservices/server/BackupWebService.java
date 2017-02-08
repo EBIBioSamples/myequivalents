@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.fg.myequivalents.exceptions.UnsupportedFormatException;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.BackupManager;
 import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandler;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.FormatHandlerFactory;
+import uk.ac.ebi.fg.myequivalents.managers.interfaces.XmlFormatHandler;
 import uk.ac.ebi.fg.myequivalents.resources.Resources;
 
 import com.sun.jersey.multipart.FormDataParam;
@@ -71,10 +73,10 @@ public class BackupWebService
 	 * Code taken from
 	 * <a href = 'http://neopatel.blogspot.de/2011/04/jersey-posting-multipart-data.html'>this post</a>.
    *
+   * The format to be used is taken from the HTTP header "Accept:", i.e., it's based on content-negotiation. 
 	 */
 	@POST
 	@Path( "/upload" )
-	@Produces ( MediaType.APPLICATION_XML )
   @Consumes ( MediaType.MULTIPART_FORM_DATA )
 	public String upload (
 		@FormDataParam ( "login" ) String email, 
@@ -88,6 +90,21 @@ public class BackupWebService
 		return Integer.toString ( bkpMgr.upload ( dumpIn, handler ) );
 	}
 	
+	
+	@POST
+	@Path( "/count-entities" )
+	@Produces ( MediaType.APPLICATION_XML )	
+	public String countEntities (
+		@FormParam ( "login" ) String email, 
+		@FormParam ( "login-secret" ) String apiPassword
+	)
+	{
+		BackupManager bkpMgr = getBackupManager ( email, apiPassword );
+		return Integer.toString ( bkpMgr.countEntities () );
+	}
+
+	
+	
 	/**
 	 * TODO: AOP
 	 */
@@ -99,9 +116,11 @@ public class BackupWebService
 
 	
 	/**
-	 * TODO: comment me!
-	 * @param headers
-	 * @return
+	 * Passes the value of the "Accept:" header to {@link FormatHandlerFactory#of(String)} to get a format handler
+	 * for backup/upload requests. Returns {@link XmlFormatHandler} if no format is specified.
+	 * 
+	 * @throws UnsupportedFormatException if the specified format doesn't exist.
+	 * 
 	 */
 	public static FormatHandler getFormatHandlerFromAccept ( HttpHeaders headers )
 	{

@@ -67,4 +67,9 @@
 		</dependency>
 					
   </dependencies>
+  
+	<build>
+		<finalName>${project.artifactId}_${project.version}</finalName>	
+	</build>
+  
 </project>

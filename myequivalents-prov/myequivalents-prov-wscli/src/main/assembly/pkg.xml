@@ -8,6 +8,8 @@
   <formats>
     <format>zip</format>
   </formats>
+  
+  <includeBaseDirectory>false</includeBaseDirectory>  
 
 	<dependencySets>
 		<dependencySet>
@@ -23,20 +25,7 @@
 	</dependencySets> 
 
   <fileSets>
-
-		<fileSet>
-			<directory>src/main</directory>
-      <includes>
-        <include>README*</include>
-        <include>LICENSE*</include>
-      </includes>
-      <fileMode>0644</fileMode>
-			<directoryMode>0755</directoryMode>      
-			<outputDirectory></outputDirectory>
-			<filtered>true</filtered>
-		</fileSet>
-
-
+  
 		<fileSet>
 			<directory>src/main/assembly/resources</directory>
       <excludes>
@@ -59,6 +48,34 @@
 			<outputDirectory></outputDirectory>
 			<filtered>true</filtered>
 		</fileSet>
+		
+		<!-- These are craned by the resource plug-in in the core wscli module, then re-extracted by the dependency plug-in
+		     and finally repackaged here into the new zip. At the moment we don't know an easier way to do this -->
+		
+		<!--  As usually, different permissions apply to executables -->
+		
+		<fileSet>
+			<directory>target/dependency/assembly/resources</directory>
+      <excludes>
+        <!-- Defined below, with x permissions, non-executables only here -->
+        <exclude>**/*.sh</exclude>
+      </excludes>  
+      <fileMode>0644</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory></outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+		<fileSet>
+			<directory>target/dependency/assembly/resources</directory>
+      <includes>
+        <include>**/*.sh</include>
+      </includes>  
+      <fileMode>0755</fileMode>
+			<directoryMode>0755</directoryMode>      
+			<outputDirectory></outputDirectory>
+			<filtered>true</filtered>
+		</fileSet>
+		
 
   </fileSets>
 

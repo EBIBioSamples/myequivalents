@@ -112,7 +112,7 @@
 					<systemProperties>
 						<!-- Triggers test data creation in uk.ac.ebi.fg.myequivalents.webservices.server.test.WebTestDataInitializer -->
           	<systemProperty>
-            	<name>uk.ac.ebi.fg.myequivalents.test_flag</name>
+            	<name>myequivalents.test_flag</name>
               <value>true</value>
             </systemProperty>
 
@@ -133,6 +133,34 @@
 	    </plugin>  	
   	
   	</plugins>
+
   
   </build>
+  
+  <profiles>
+  
+		<profile>
+			<id>ext_wscli</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-prov-wscli</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		
+		<profile>
+			<id>ext_rdf</id>
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>myequivalents-rdf</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		  
+  </profiles>
+  
 </project>

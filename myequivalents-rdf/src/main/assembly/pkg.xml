@@ -6,8 +6,10 @@
   <id>pkg</id>
  
   <formats>
-    <format>zip</format>
+    <format>zip</format>    
   </formats>
+
+  <includeBaseDirectory>false</includeBaseDirectory>
   
 	<dependencySets>
 		<dependencySet>

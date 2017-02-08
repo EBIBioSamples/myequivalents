@@ -41,7 +41,7 @@
 		<module>myequivalents-wscli</module>
 		<module>myequivalents-prov</module>
 		<module>myequivalents-perftest</module>
-    <module>myeq2rdf</module>
+    <module>myequivalents-rdf</module>
   </modules>
         
 	<parent>
@@ -239,7 +239,7 @@
 
 	<build>
 	
-		<finalName>myequivalents_${project.version}</finalName>
+		<finalName>${project.artifactId}_${project.version}</finalName>	
 	
 		<pluginManagement>
 			<plugins>
@@ -574,6 +574,7 @@
 					<groupId>com.h2database</groupId>
 					<artifactId>h2</artifactId>
 					<version>${h2.version}</version>
+					<scope>test</scope>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -593,6 +594,7 @@
 					<groupId>com.h2database</groupId>
 					<artifactId>h2</artifactId>
 					<version>${h2.version}</version>
+					<scope>test</scope>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -651,6 +653,7 @@
 					<groupId>com.h2database</groupId>
 					<artifactId>h2</artifactId>
 					<version>${h2.version}</version>
+					<scope>test</scope>
 				</dependency>
 			</dependencies>
 		</profile>
@@ -694,6 +697,6 @@
 				</dependency>  		
   		</dependencies>
   	</profile>
-  	 		
+		  	 		
   </profiles>
 </project>

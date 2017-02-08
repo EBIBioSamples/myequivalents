@@ -32,4 +32,10 @@ public interface BackupManager extends MyEquivalentsManager
 		Stream<MyEquivalentsModelMember> inObjs = formatReader.read ( in );
 		return this.upload ( inObjs );
 	}
+	
+	/**
+	 * Returns the number of entities in the back-end. This might be useful to perform tasks like cloud-based parallel
+	 * exports.
+	 */
+	public int countEntities ();
 }

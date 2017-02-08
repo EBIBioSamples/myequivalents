@@ -86,7 +86,7 @@
   </dependencies>
   
   <build>
-		<finalName>myequivalents-perftest_${project.version}</finalName>
+		<finalName>${project.artifactId}_${project.version}</finalName>
 	</build>
   
   <profiles>
@@ -120,6 +120,7 @@
 				</dependency>
   		</dependencies>
   	</profile>
-  	  	
+  	  	  	  	
   </profiles>
+
 </project>

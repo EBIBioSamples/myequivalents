@@ -2,6 +2,7 @@ package uk.ac.ebi.fg.myequivalents.cmdline;
 
 import static java.lang.System.err;
 
+import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -42,7 +43,8 @@ public class BackupDumpLineCommand extends LineCommand
 			
 			FormatHandler serializer = FormatHandler.of ( this.outputFormat, true );
 			
-			OutputStream out = outFilePath == null ? System.out : new FileOutputStream ( outFilePath );
+			OutputStream out = outFilePath == null 
+				? System.out : new BufferedOutputStream ( new FileOutputStream ( outFilePath ) );
 			
 			Integer offset = Integer.valueOf ( cmdLine.getOptionValue ( "offset", "-1" ) );
 			if ( offset == -1 ) offset = null;
