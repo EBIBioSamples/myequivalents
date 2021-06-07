@@ -84,7 +84,7 @@
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
-				<version>0.9.29</version>
+				<version>1.2.0</version>
 			</dependency>
 	
 			<!-- Intercepts log4j and sends it to logback, this usually requires that you override existing log4j dependency with scope = provided -->		
